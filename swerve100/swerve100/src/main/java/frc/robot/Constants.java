@@ -19,14 +19,14 @@ import edu.wpi.first.math.trajectory.TrapezoidProfile;
 public final class Constants {
   public static final class DriveConstants {
     public static final int kFrontLeftDriveMotorPort = 0;
-    public static final int kRearLeftDriveMotorPort = 2;
-    public static final int kFrontRightDriveMotorPort = 4;
-    public static final int kRearRightDriveMotorPort = 6;
+    public static final int kRearLeftDriveMotorPort = 1;
+    public static final int kFrontRightDriveMotorPort = 15;
+    public static final int kRearRightDriveMotorPort = 14;
 
-    public static final int kFrontLeftTurningMotorPort = 1;
-    public static final int kRearLeftTurningMotorPort = 3;
-    public static final int kFrontRightTurningMotorPort = 5;
-    public static final int kRearRightTurningMotorPort = 7;
+    public static final int kFrontLeftTurningMotorPort = 4;
+    public static final int kRearLeftTurningMotorPort = 5;
+    public static final int kFrontRightTurningMotorPort = 11;
+    public static final int kRearRightTurningMotorPort = 10;
 
     public static final int[] kFrontLeftTurningEncoderPorts = new int[] {0, 1};
     public static final int[] kRearLeftTurningEncoderPorts = new int[] {2, 3};
