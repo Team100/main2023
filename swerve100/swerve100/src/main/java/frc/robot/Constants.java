@@ -76,15 +76,19 @@ public final class Constants {
     public static final double kMaxModuleAngularSpeedRadiansPerSecond = 2 * Math.PI;
     public static final double kMaxModuleAngularAccelerationRadiansPerSecondSquared = 2 * Math.PI;
 
-    public static final int kEncoderCPR = 1024;
-    public static final double kWheelDiameterMeters = 0.15;
+    //public static final int kEncoderCPR = 1024;
+    public static final int kAnalogEncoderCPR = 1024; // Talon ADC is 10 bit
+    public static final int kCIMcoderEncoderCPR = 80; // see docs.ctre-phoenix.com/en/stable/ch14_MCSensor.html
+    //public static final double kWheelDiameterMeters = 0.15;
+    public static final double kWheelDiameterMeters = 0.1016; // AndyMark Swerve & Steer has 4 inch wheel
+    public static final double kDriveReduction = 6.67; // see andymark.com/products/swerve-and-steer
     public static final double kDriveEncoderDistancePerPulse =
         // Assumes the encoders are directly mounted on the wheel shafts
-        (kWheelDiameterMeters * Math.PI) / (double) kEncoderCPR;
+        (kWheelDiameterMeters * Math.PI) / ((double) kCIMcoderEncoderCPR * kDriveReduction);
 
     public static final double kTurningEncoderDistancePerPulse =
         // Assumes the encoders are on a 1:1 reduction with the module shaft.
-        (2 * Math.PI) / (double) kEncoderCPR;
+        (2 * Math.PI) / (double) kAnalogEncoderCPR;
 
     public static final double kPModuleTurningController = 1;
 
