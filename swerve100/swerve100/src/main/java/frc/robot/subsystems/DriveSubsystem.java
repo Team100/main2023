@@ -4,12 +4,15 @@
 
 package frc.robot.subsystems;
 
+import com.kauailabs.navx.frc.AHRS;
+
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
-import edu.wpi.first.wpilibj.ADXRS450_Gyro;
+//import edu.wpi.first.wpilibj.ADXRS450_Gyro;
+import edu.wpi.first.wpilibj.SerialPort;
 import frc.robot.Constants.DriveConstants;
 import edu.wpi.first.wpilibj.interfaces.Gyro;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -53,7 +56,9 @@ public class DriveSubsystem extends SubsystemBase {
           DriveConstants.kRearRightTurningEncoderReversed);
 
   // The gyro sensor
-  private final Gyro m_gyro = new ADXRS450_Gyro();
+  //private final Gyro m_gyro = new ADXRS450_Gyro();
+  // We have a navx.
+  private final Gyro m_gyro = new AHRS(SerialPort.Port.kUSB);
 
   // Odometry class for tracking robot pose
   SwerveDriveOdometry m_odometry =
