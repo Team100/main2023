@@ -49,8 +49,6 @@ public class SwerveModule {
   public SwerveModule(
       int driveMotorChannel,
       int turningMotorChannel,
-      int[] driveEncoderChannels,
-      int[] turningEncoderChannels,
       boolean driveEncoderReversed,
       boolean turningEncoderReversed) {
     m_driveMotor = new WPI_TalonSRX(driveMotorChannel);
@@ -67,10 +65,8 @@ public class SwerveModule {
     // I think we're using the AndyMark MA3, am-2899, on the steering shaft.  TODO: verify.
     m_turningMotor.configSelectedFeedbackSensor(TalonSRXFeedbackDevice.Analog, 0, 0);
 
-    //m_driveEncoder = new Encoder(driveEncoderChannels[0], driveEncoderChannels[1]);
     m_driveEncoder = new TalonEncoder(m_driveMotor);
 
-    //m_turningEncoder = new Encoder(turningEncoderChannels[0], turningEncoderChannels[1]);
     m_turningEncoder = new TalonEncoder(m_turningMotor);
 
     // Set the distance per pulse for the drive encoder. We can simply use the
@@ -100,8 +96,7 @@ public class SwerveModule {
    * @return The current state of the module.
    */
   public SwerveModuleState getState() {
-    // return new SwerveModuleState(m_driveEncoder.getRate(), new Rotation2d(m_turningEncoder.get()));
-    // TalonEncoder.get() returns ticks; we want radians instead, i.e. ticks * distance per tick.
+    // getDistance == radians, i.e. ticks * distance per tick.
     // TODO: this eliminates wrapping which is not necessary; use getAnalogInRaw instead
     return new SwerveModuleState(m_driveEncoder.getRate(), new Rotation2d(m_turningEncoder.getDistance()));
   }
@@ -114,7 +109,6 @@ public class SwerveModule {
   public void setDesiredState(SwerveModuleState desiredState) {
     // Optimize the reference state to avoid spinning further than 90 degrees
     SwerveModuleState state =
-        // SwerveModuleState.optimize(desiredState, new Rotation2d(m_turningEncoder.get()));
         SwerveModuleState.optimize(desiredState, new Rotation2d(m_turningEncoder.getDistance()));
 
     // Calculate the drive output from the drive PID controller.
@@ -123,7 +117,6 @@ public class SwerveModule {
 
     // Calculate the turning motor output from the turning PID controller.
     final double turnOutput =
-        // m_turningPIDController.calculate(m_turningEncoder.get(), state.angle.getRadians());
         m_turningPIDController.calculate(m_turningEncoder.getDistance(), state.angle.getRadians());
 
     // Calculate the turning motor output from the turning PID controller.
