@@ -4,6 +4,7 @@
 
 package frc.robot.subsystems;
 
+import com.ctre.phoenix.motorcontrol.SupplyCurrentLimitConfiguration;
 import com.ctre.phoenix.motorcontrol.TalonSRXFeedbackDevice;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 
@@ -54,11 +55,15 @@ public class SwerveModule {
       boolean turningEncoderReversed) {
     m_driveMotor = new WPI_TalonSRX(driveMotorChannel);
     m_driveMotor.configFactoryDefault();
+    m_driveMotor.configSupplyCurrentLimit(
+      new SupplyCurrentLimitConfiguration(true, ModuleConstants.kDriveCurrentLimit, 0, 0));
     // I think we're using the AndyMark CIMcoder, either am-3314a.  TODO: verify.
     m_driveMotor.configSelectedFeedbackSensor(TalonSRXFeedbackDevice.QuadEncoder, 0, 0);
 
     m_turningMotor = new WPI_TalonSRX(turningMotorChannel);
     m_turningMotor.configFactoryDefault();
+    m_turningMotor.configSupplyCurrentLimit(
+      new SupplyCurrentLimitConfiguration(true, ModuleConstants.kTurningCurrentLimit, 0, 0));
     // I think we're using the AndyMark MA3, am-2899, on the steering shaft.  TODO: verify.
     m_turningMotor.configSelectedFeedbackSensor(TalonSRXFeedbackDevice.Analog, 0, 0);
 

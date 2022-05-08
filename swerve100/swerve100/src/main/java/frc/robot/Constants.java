@@ -90,6 +90,9 @@ public final class Constants {
         // Assumes the encoders are on a 1:1 reduction with the module shaft.
         (2 * Math.PI) / (double) kAnalogEncoderCPR;
 
+    public static final double kDriveCurrentLimit = 5;
+    public static final double kTurningCurrentLimit = 5;
+
     public static final double kPModuleTurningController = 1;
 
     public static final double kPModuleDriveController = 1;
