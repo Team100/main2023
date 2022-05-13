@@ -6,6 +6,7 @@ package frc.robot.subsystems;
 
 import com.ctre.phoenix.motorcontrol.SupplyCurrentLimitConfiguration;
 import com.ctre.phoenix.motorcontrol.TalonSRXFeedbackDevice;
+import com.ctre.phoenix.motorcontrol.TalonSRXSimCollection;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 
 import ctre_shims.TalonEncoder;
@@ -14,6 +15,7 @@ import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
+import edu.wpi.first.wpilibj.RobotController;
 import frc.robot.Constants.ModuleConstants;
 
 public class SwerveModule {
@@ -22,6 +24,9 @@ public class SwerveModule {
 
   private final TalonEncoder m_driveEncoder;
   private final TalonEncoder m_turningEncoder;
+
+  private TalonSRXSimCollection m_driveSim;
+  private TalonSRXSimCollection m_turningSim;
 
   private final PIDController m_drivePIDController =
       new PIDController(ModuleConstants.kPModuleDriveController, 0, 1);
@@ -55,6 +60,8 @@ public class SwerveModule {
       new SupplyCurrentLimitConfiguration(true, ModuleConstants.kDriveCurrentLimit, 0, 0));
     // I think we're using the AndyMark CIMcoder, either am-3314a.  TODO: verify.
     m_driveMotor.configSelectedFeedbackSensor(TalonSRXFeedbackDevice.QuadEncoder, 0, 0);
+    m_driveMotor.configFeedbackNotContinuous(false, 0); // just keep counting ticks
+    m_driveMotor.setSelectedSensorPosition(0); // TODO: is this required?
 
     m_turningMotor = new WPI_TalonSRX(turningMotorChannel);
     m_turningMotor.configFactoryDefault();
@@ -62,10 +69,13 @@ public class SwerveModule {
       new SupplyCurrentLimitConfiguration(true, ModuleConstants.kTurningCurrentLimit, 0, 0));
     // I think we're using the AndyMark MA3, am-2899, on the steering shaft.  TODO: verify.
     m_turningMotor.configSelectedFeedbackSensor(TalonSRXFeedbackDevice.Analog, 0, 0);
+    m_driveMotor.configFeedbackNotContinuous(true, 0); // just return the angle
 
     m_driveEncoder = new TalonEncoder(m_driveMotor);
-
     m_turningEncoder = new TalonEncoder(m_turningMotor);
+
+    m_driveSim = m_driveMotor.getSimCollection();
+    m_turningSim = m_turningMotor.getSimCollection();
 
     // Set the distance per pulse for the drive encoder. We can simply use the
     // distance traveled for one rotation of the wheel divided by the encoder
@@ -126,5 +136,18 @@ public class SwerveModule {
   public void resetEncoders() {
     m_driveEncoder.reset();
     m_turningEncoder.reset();
+  }
+
+  public void simulationPeriodic(double dt) {
+    // see CTRE phoenix examples DifferentialDrive_Simulation
+    m_driveSim.setBusVoltage(RobotController.getBatteryVoltage());
+    m_turningSim.setBusVoltage(RobotController.getBatteryVoltage());
+
+    m_driveSim.setQuadratureRawPosition(0); // TODO: math
+    m_driveSim.setQuadratureVelocity(0); // TODO: math
+    m_turningSim.setAnalogPosition(0); // TODO: math
+    m_turningSim.setAnalogVelocity(0); // TODO: math
+
+
   }
 }
