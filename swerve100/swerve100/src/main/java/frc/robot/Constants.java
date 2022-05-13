@@ -82,9 +82,9 @@ public final class Constants {
     public static final double kDriveCurrentLimit = 5;
     public static final double kTurningCurrentLimit = 5;
 
-    public static final double kPModuleTurningController = 1;
+    public static final double kPModuleTurningController = 0.001;
 
-    public static final double kPModuleDriveController = 1;
+    public static final double kPModuleDriveController = 0.001;
   }
 
   public static final class OIConstants {
