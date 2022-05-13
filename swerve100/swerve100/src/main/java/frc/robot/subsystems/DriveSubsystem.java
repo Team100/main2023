@@ -6,6 +6,8 @@ package frc.robot.subsystems;
 
 import com.kauailabs.navx.frc.AHRS;
 
+import edu.wpi.first.hal.SimDouble;
+import edu.wpi.first.hal.simulation.SimDeviceDataJNI;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
@@ -14,6 +16,8 @@ import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.wpilibj.SerialPort;
 import frc.robot.Constants.DriveConstants;
 import edu.wpi.first.wpilibj.interfaces.Gyro;
+import edu.wpi.first.wpilibj.smartdashboard.Field2d;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class DriveSubsystem extends SubsystemBase {
@@ -49,12 +53,23 @@ public class DriveSubsystem extends SubsystemBase {
   // The gyro sensor.  We have a navx.
   private final Gyro m_gyro = new AHRS(SerialPort.Port.kUSB);
 
+  // These are for simulation
+  private final Field2d m_fieldSim = new Field2d();
+  private double m_yawValue;
+  private SimDouble m_angleSim;
+
+
   // Odometry class for tracking robot pose
   SwerveDriveOdometry m_odometry =
       new SwerveDriveOdometry(DriveConstants.kDriveKinematics, m_gyro.getRotation2d());
 
   /** Creates a new DriveSubsystem. */
-  public DriveSubsystem() {}
+  public DriveSubsystem() {
+    // for simulation, see pdocs.kauailabs.com/navx-mxp/software/roborio-libraries/java
+    SmartDashboard.putData("Field", m_fieldSim);
+    int dev = SimDeviceDataJNI.getSimDeviceHandle("navX-Sensor[0]");
+    m_angleSim = new SimDouble(SimDeviceDataJNI.getSimValueHandle(dev, "Yaw"));
+  }
 
   @Override
   public void periodic() {
@@ -151,5 +166,26 @@ public class DriveSubsystem extends SubsystemBase {
    */
   public double getTurnRate() {
     return m_gyro.getRate() * (DriveConstants.kGyroReversed ? -1.0 : 1.0);
+  }
+
+  // see github.com/4201VitruvianBots/2021SwerveSim
+  @Override
+  public void simulationPeriodic() {
+    m_frontLeft.simulationPeriodic(0.02);
+    m_frontRight.simulationPeriodic(0.02);
+    m_rearLeft.simulationPeriodic(0.02);
+    m_rearRight.simulationPeriodic(0.02);
+
+    SwerveModuleState[] moduleStates = {
+      m_frontLeft.getState(),
+      m_frontRight.getState(),
+      m_rearLeft.getState(),
+      m_rearRight.getState()
+    };
+
+    ChassisSpeeds chassisSpeed = DriveConstants.kDriveKinematics.toChassisSpeeds(moduleStates);
+    double chassisRotationSpeed = chassisSpeed.omegaRadiansPerSecond;
+    m_yawValue += chassisRotationSpeed * 0.02;
+    m_angleSim.set(m_yawValue);
   }
 }
