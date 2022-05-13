@@ -71,7 +71,7 @@ public class SwerveModule implements Sendable {
       new SupplyCurrentLimitConfiguration(true, ModuleConstants.kTurningCurrentLimit, 0, 0));
     // I think we're using the AndyMark MA3, am-2899, on the steering shaft.  TODO: verify.
     m_turningMotor.configSelectedFeedbackSensor(TalonSRXFeedbackDevice.Analog, 0, 0);
-    m_driveMotor.configFeedbackNotContinuous(true, 0); // just return the angle
+    m_turningMotor.configFeedbackNotContinuous(true, 0); // just return the angle
 
     m_driveEncoder = new TalonEncoder(m_driveMotor);
     m_turningEncoder = new TalonEncoder(m_turningMotor);
