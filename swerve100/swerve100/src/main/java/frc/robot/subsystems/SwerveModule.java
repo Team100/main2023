@@ -15,10 +15,12 @@ import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
+import edu.wpi.first.util.sendable.Sendable;
+import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.RobotController;
 import frc.robot.Constants.ModuleConstants;
 
-public class SwerveModule {
+public class SwerveModule implements Sendable {
   private final WPI_TalonSRX m_driveMotor;
   private final WPI_TalonSRX m_turningMotor;
 
@@ -136,6 +138,31 @@ public class SwerveModule {
   public void resetEncoders() {
     m_driveEncoder.reset();
     m_turningEncoder.reset();
+  }
+
+  public double getAzimuthDegrees() {
+    return new Rotation2d(m_turningEncoder.getDistance()).getDegrees();
+  }
+
+  public double getSpeedMetersPerSecond() {
+    return m_driveEncoder.getRate();
+  }
+
+  public double getDriveOutput() {
+    return m_driveMotor.get();
+  }
+
+  public double getTurningOutput() {
+    return m_turningMotor.get();
+  }
+
+  @Override
+  public void initSendable(SendableBuilder builder) {
+    builder.setSmartDashboardType("SwerveModule");
+    builder.addDoubleProperty("speed_meters_per_sec", this::getSpeedMetersPerSecond, null);
+    builder.addDoubleProperty("drive_output", this::getDriveOutput, null);
+    builder.addDoubleProperty("azimuth_degrees", this::getAzimuthDegrees, null);
+    builder.addDoubleProperty("turning_output", this::getTurningOutput, null);
   }
 
   public void simulationPeriodic(double dt) {

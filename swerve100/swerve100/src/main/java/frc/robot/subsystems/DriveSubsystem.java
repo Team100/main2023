@@ -13,6 +13,7 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.SerialPort;
 import frc.robot.Constants.DriveConstants;
 import edu.wpi.first.wpilibj.interfaces.Gyro;
@@ -67,6 +68,10 @@ public class DriveSubsystem extends SubsystemBase {
   public DriveSubsystem() {
     // for simulation, see pdocs.kauailabs.com/navx-mxp/software/roborio-libraries/java
     SmartDashboard.putData("Field", m_fieldSim);
+    SmartDashboard.putData("Front Left Module", m_frontLeft);
+    SmartDashboard.putData("Front Right Module", m_frontRight);
+    SmartDashboard.putData("Rear Left Module", m_rearLeft);
+    SmartDashboard.putData("Rear Right Module", m_rearRight);
     int dev = SimDeviceDataJNI.getSimDeviceHandle("navX-Sensor[0]");
     m_angleSim = new SimDouble(SimDeviceDataJNI.getSimValueHandle(dev, "Yaw"));
   }
@@ -166,6 +171,12 @@ public class DriveSubsystem extends SubsystemBase {
    */
   public double getTurnRate() {
     return m_gyro.getRate() * (DriveConstants.kGyroReversed ? -1.0 : 1.0);
+  }
+
+  @Override
+  public void initSendable(SendableBuilder builder) {
+    super.initSendable(builder);
+    builder.addDoubleProperty("heading_degrees", this::getHeading, null);
   }
 
   // see github.com/4201VitruvianBots/2021SwerveSim
