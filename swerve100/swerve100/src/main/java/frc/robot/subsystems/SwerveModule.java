@@ -140,6 +140,14 @@ public class SwerveModule implements Sendable {
     m_turningEncoder.reset();
   }
 
+  public TalonEncoder getDriveEncoder() {
+    return m_driveEncoder;
+  }
+
+  public TalonEncoder getTurningEncoder() {
+    return m_turningEncoder;
+  }
+
   public double getAzimuthDegrees() {
     return new Rotation2d(m_turningEncoder.getDistance()).getDegrees();
   }

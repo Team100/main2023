@@ -72,6 +72,14 @@ public class DriveSubsystem extends SubsystemBase {
     SmartDashboard.putData("Front Right Module", m_frontRight);
     SmartDashboard.putData("Rear Left Module", m_rearLeft);
     SmartDashboard.putData("Rear Right Module", m_rearRight);
+    SmartDashboard.putData("Front Left Turn Encoder", m_frontLeft.getTurningEncoder());
+    SmartDashboard.putData("Front Right Turn Encoder", m_frontRight.getTurningEncoder());
+    SmartDashboard.putData("Rear Left Turn Encoder", m_rearLeft.getTurningEncoder());
+    SmartDashboard.putData("Rear Right Turn Encoder", m_rearRight.getTurningEncoder());
+    SmartDashboard.putData("Front Left Drive Encoder", m_frontLeft.getDriveEncoder());
+    SmartDashboard.putData("Front Right Drive Encoder", m_frontRight.getDriveEncoder());
+    SmartDashboard.putData("Rear Left Drive Encoder", m_rearLeft.getDriveEncoder());
+    SmartDashboard.putData("Rear Right Drive Encoder", m_rearRight.getDriveEncoder());
     int dev = SimDeviceDataJNI.getSimDeviceHandle("navX-Sensor[0]");
     m_angleSim = new SimDouble(SimDeviceDataJNI.getSimValueHandle(dev, "Yaw"));
   }
