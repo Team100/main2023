@@ -150,6 +150,13 @@ public class DriveSubsystem extends SubsystemBase {
     m_rearRight.setDesiredState(desiredStates[3]);
   }
 
+  public void test(double[][] desiredOutputs) {
+    m_frontLeft.setOutput(desiredOutputs[0][0], desiredOutputs[0][1]);
+    m_frontRight.setOutput(desiredOutputs[1][0], desiredOutputs[1][1]);
+    m_rearLeft.setOutput(desiredOutputs[2][0], desiredOutputs[2][1]);
+    m_rearRight.setOutput(desiredOutputs[3][0], desiredOutputs[3][1]);
+  }
+
   /** Resets the drive encoders to currently read a position of 0. */
   public void resetEncoders() {
     m_frontLeft.resetEncoders();

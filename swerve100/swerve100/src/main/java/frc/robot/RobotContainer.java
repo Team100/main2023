@@ -48,9 +48,9 @@ public class RobotContainer {
         new RunCommand(
             () ->
                 m_robotDrive.drive(
-                    m_driverController.getLeftY(),
-                    m_driverController.getLeftX(),
+                    m_driverController.getRightY(),
                     m_driverController.getRightX(),
+                    m_driverController.getLeftX(),
                     false),
             m_robotDrive));
   }
@@ -111,5 +111,27 @@ public class RobotContainer {
 
     // Run path following command, then stop at the end.
     return swerveControllerCommand.andThen(() -> m_robotDrive.drive(0, 0, 0, false));
+  }
+
+  // Directly exercise the drivetrain.  Triggers control output (right
+  // is drive, left is turn), A/B/X/Y buttons select modules.
+  public Command getTestCommand() {
+    return new RunCommand(
+        () ->{
+            boolean rearLeft = m_driverController.getAButton();
+            boolean rearRight = m_driverController.getBButton();
+            boolean frontLeft = m_driverController.getXButton();
+            boolean frontRight = m_driverController.getYButton();
+            double driveOutput = m_driverController.getRightTriggerAxis();
+            double turnOutput = m_driverController.getLeftTriggerAxis();
+            double[][] desiredOutputs = {
+                {frontLeft?driveOutput:0, frontLeft?turnOutput:0},
+                {frontRight?driveOutput:0, frontRight?turnOutput:0},
+                {rearLeft?driveOutput:0, rearLeft?turnOutput:0},
+                {rearRight?driveOutput:0, rearRight?turnOutput:0}
+            };
+            m_robotDrive.test(desiredOutputs);
+        },
+        m_robotDrive);
   }
 }
