@@ -155,6 +155,18 @@ public class SwerveModule implements Sendable {
     return new Rotation2d(m_turningEncoder.getDistance()).getDegrees();
   }
 
+  public double getTurningPosition() {
+    return m_turningEncoder.get();
+  }
+
+  public double getTurningAnalogIn() {
+    return m_turningEncoder.getAnalogIn();
+  }
+
+  public double getTurningAnalogInRaw() {
+    return m_turningEncoder.getAnalogInRaw();
+  }
+
   public double getSpeedMetersPerSecond() {
     return m_driveEncoder.getRate();
   }
@@ -174,6 +186,9 @@ public class SwerveModule implements Sendable {
     builder.addDoubleProperty("drive_output", this::getDriveOutput, null);
     builder.addDoubleProperty("azimuth_degrees", this::getAzimuthDegrees, null);
     builder.addDoubleProperty("turning_output", this::getTurningOutput, null);
+    builder.addDoubleProperty("turning_position", this::getTurningPosition, null);
+    builder.addDoubleProperty("turning_analog_in", this::getTurningAnalogIn, null);
+    builder.addDoubleProperty("turning_analog_in_raw", this::getTurningAnalogInRaw, null);
   }
 
   public void simulationPeriodic(double dt) {

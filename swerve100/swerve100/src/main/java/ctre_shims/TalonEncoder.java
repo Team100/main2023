@@ -3,20 +3,22 @@ package ctre_shims;
 import com.ctre.phoenix.ParamEnum;
 import com.ctre.phoenix.motorcontrol.FeedbackDevice;
 import com.ctre.phoenix.motorcontrol.can.BaseTalon;
+import com.ctre.phoenix.motorcontrol.can.TalonSRX;
+
 import edu.wpi.first.util.sendable.Sendable;
 import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.util.sendable.SendableRegistry;
 
 /** A class to read encoder data from CTRE motors, frc::Encoder compatible. */
 public class TalonEncoder implements Sendable, AutoCloseable {
-  private final BaseTalon m_motor;
+  private final TalonSRX m_motor;
   private double m_distancePerPulse = 1;
 
-  public TalonEncoder(BaseTalon motor) {
+  public TalonEncoder(TalonSRX motor) {
     this(motor, false);
   }
 
-  public TalonEncoder(BaseTalon motor, boolean reverseDirection) {
+  public TalonEncoder(TalonSRX motor, boolean reverseDirection) {
     m_motor = motor;
     setReverseDirection(reverseDirection);
     SendableRegistry.addLW(this, "Talon Encoder", motor.getDeviceID());
@@ -35,6 +37,15 @@ public class TalonEncoder implements Sendable, AutoCloseable {
    */
   public int get() {
     return (int) m_motor.getSelectedSensorPosition();
+  }
+
+  
+  public double getAnalogIn() {
+    return (double) m_motor.getSensorCollection().getAnalogIn();
+  }
+
+  public double getAnalogInRaw() {
+    return (double) m_motor.getSensorCollection().getAnalogInRaw();
   }
 
   /** Reset the Encoder distance to zero. Resets the current count to zero on the encoder. */
@@ -177,5 +188,7 @@ public class TalonEncoder implements Sendable, AutoCloseable {
     builder.addDoubleProperty("Speed", this::getRate, null);
     builder.addDoubleProperty("Distance", this::getDistance, null);
     builder.addDoubleProperty("Distance per Tick", this::getDistancePerPulse, null);
+    builder.addDoubleProperty("analog in", this::getAnalogIn, null);
+    builder.addDoubleProperty("analog in raw", this::getAnalogInRaw, null);
   }
 }

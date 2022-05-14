@@ -24,10 +24,17 @@ public final class Constants {
     public static final int kRearRightDriveMotorPort = 14;
 
     public static final int kFrontLeftTurningMotorPort = 4;
+    // front left range = 893
+    // zero at = 838
     public static final int kRearLeftTurningMotorPort = 5;
+    // rear left range = 880
+    // zero at 841
     public static final int kFrontRightTurningMotorPort = 11;
+    // front right range = 893
+    // zero at 660
     public static final int kRearRightTurningMotorPort = 10;
-
+    // rear right range = 886
+    // zero at 192
     public static final boolean kFrontLeftTurningEncoderReversed = false;
     public static final boolean kRearLeftTurningEncoderReversed = true;
     public static final boolean kFrontRightTurningEncoderReversed = false;
