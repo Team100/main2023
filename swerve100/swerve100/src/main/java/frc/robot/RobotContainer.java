@@ -9,6 +9,7 @@ import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.math.trajectory.TrajectoryConfig;
 import edu.wpi.first.math.trajectory.TrajectoryGenerator;
@@ -35,6 +36,10 @@ public class RobotContainer {
 
   // The driver's controller
   XboxController m_driverController = new XboxController(OIConstants.kDriverControllerPort);
+
+  // if true, test mode exercises module state (e.g. azimuth); if false, test mode
+  // exercises module output directly.
+  boolean m_testModuleState = false;
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
@@ -113,24 +118,47 @@ public class RobotContainer {
     return swerveControllerCommand.andThen(() -> m_robotDrive.drive(0, 0, 0, false));
   }
 
+  public void setTestState(boolean newState) {
+    m_testModuleState = newState;
+  }
+
   // Directly exercise the drivetrain.  Triggers control output (right
   // is drive, left is turn), A/B/X/Y buttons select modules.
   public Command getTestCommand() {
     return new RunCommand(
         () ->{
+            // right bumper button flips the test state.
+            if (m_driverController.getRightBumperPressed()) {
+                m_testModuleState = !m_testModuleState;
+            }
             boolean rearLeft = m_driverController.getAButton();
             boolean rearRight = m_driverController.getBButton();
             boolean frontLeft = m_driverController.getXButton();
             boolean frontRight = m_driverController.getYButton();
-            double driveOutput = m_driverController.getRightTriggerAxis();
-            double turnOutput = m_driverController.getLeftTriggerAxis();
-            double[][] desiredOutputs = {
-                {frontLeft?driveOutput:0, frontLeft?turnOutput:0},
-                {frontRight?driveOutput:0, frontRight?turnOutput:0},
-                {rearLeft?driveOutput:0, rearLeft?turnOutput:0},
-                {rearRight?driveOutput:0, rearRight?turnOutput:0}
-            };
-            m_robotDrive.test(desiredOutputs);
+            double driveControl = m_driverController.getRightTriggerAxis();
+            double turnControl = m_driverController.getLeftTriggerAxis();
+            if (m_testModuleState) {
+                SwerveModuleState[] desiredStates = {
+                    new SwerveModuleState(frontLeft?driveControl:0,
+                                      Rotation2d.fromDegrees(360*(frontLeft?turnControl:0))),
+                    new SwerveModuleState(frontRight?driveControl:0,
+                                      Rotation2d.fromDegrees(360*(frontRight?turnControl:0))),
+                    new SwerveModuleState(rearLeft?driveControl:0,
+                                      Rotation2d.fromDegrees(360*(rearLeft?turnControl:0))),
+                    new SwerveModuleState(rearRight?driveControl:0,
+                                      Rotation2d.fromDegrees(360*(rearRight?turnControl:0)))
+                };
+                m_robotDrive.setModuleStates(desiredStates);
+            } else {
+                double[][] desiredOutputs = {
+                    {frontLeft?driveControl:0, frontLeft?turnControl:0},
+                    {frontRight?driveControl:0, frontRight?turnControl:0},
+                    {rearLeft?driveControl:0, rearLeft?turnControl:0},
+                    {rearRight?driveControl:0, rearRight?turnControl:0}
+                };
+                m_robotDrive.test(desiredOutputs);
+            }
+
         },
         m_robotDrive);
   }
