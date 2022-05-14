@@ -151,6 +151,7 @@ public class DriveSubsystem extends SubsystemBase {
   }
 
   public void test(double[][] desiredOutputs) {
+    System.out.println("set outputs");
     m_frontLeft.setOutput(desiredOutputs[0][0], desiredOutputs[0][1]);
     m_frontRight.setOutput(desiredOutputs[1][0], desiredOutputs[1][1]);
     m_rearLeft.setOutput(desiredOutputs[2][0], desiredOutputs[2][1]);
