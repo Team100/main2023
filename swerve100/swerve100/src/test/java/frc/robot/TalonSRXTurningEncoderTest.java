@@ -1,4 +1,4 @@
-package ctre_shims;
+package frc.robot;
 
 import static org.junit.Assert.assertEquals;
 
@@ -6,7 +6,7 @@ import org.junit.Test;
 
 import frc.robot.subsystems.TalonSRXTurningEncoder;
 
-public class TalonAngleTest {
+public class TalonSRXTurningEncoderTest {
     public static final double DELTA = 1e-2; // for approx-equal
 
     @Test
