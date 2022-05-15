@@ -6,95 +6,125 @@ package frc.robot.subsystems;
 
 import com.kauailabs.navx.frc.AHRS;
 
-import edu.wpi.first.hal.SimDouble;
-import edu.wpi.first.hal.simulation.SimDeviceDataJNI;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.SerialPort;
-import frc.robot.Constants.DriveConstants;
 import edu.wpi.first.wpilibj.interfaces.Gyro;
-import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class DriveSubsystem extends SubsystemBase {
+
+  public static final int kFrontLeftDriveMotorPort = 0;
+  public static final int kRearLeftDriveMotorPort = 1;
+  public static final int kFrontRightDriveMotorPort = 15;
+  public static final int kRearRightDriveMotorPort = 14;
+
+  public static final int kFrontLeftTurningMotorPort = 4;
+  public static final int kFrontLeftAngleRange = 893;
+  public static final int kFrontLeftAngleZero = 838;
+
+  public static final int kRearLeftTurningMotorPort = 5;
+  public static final int kRearLeftAngleRange = 880;
+  public static final int kRearLeftAngleZero = 841;
+
+  public static final int kFrontRightTurningMotorPort = 11;
+  public static final int kFrontRightAngleRange = 893;
+  public static final int kFrontRightAngleZero = 660;
+
+  public static final int kRearRightTurningMotorPort = 10;
+  public static final int kRearRightAngleRange = 886;
+  public static final int kRearRightAngleZero = 192;
+
+  public static final boolean kFrontLeftTurningEncoderReversed = false;
+  public static final boolean kRearLeftTurningEncoderReversed = true;
+  public static final boolean kFrontRightTurningEncoderReversed = false;
+  public static final boolean kRearRightTurningEncoderReversed = true;
+
+  public static final boolean kFrontLeftDriveEncoderReversed = false;
+  public static final boolean kRearLeftDriveEncoderReversed = true;
+  public static final boolean kFrontRightDriveEncoderReversed = false;
+  public static final boolean kRearRightDriveEncoderReversed = true;
+
+  public static final double kTrackWidth = 0.5;
+  // Distance between centers of right and left wheels on robot
+  public static final double kWheelBase = 0.7;
+  // Distance between front and back wheels on robot
+  public static final SwerveDriveKinematics kDriveKinematics =
+      new SwerveDriveKinematics(
+          new Translation2d(kWheelBase / 2, kTrackWidth / 2),
+          new Translation2d(kWheelBase / 2, -kTrackWidth / 2),
+          new Translation2d(-kWheelBase / 2, kTrackWidth / 2),
+          new Translation2d(-kWheelBase / 2, -kTrackWidth / 2));
+
+  public static final boolean kGyroReversed = false;
+
+  // These are example values only - DO NOT USE THESE FOR YOUR OWN ROBOT!
+  // These characterization values MUST be determined either experimentally or theoretically
+  // for *your* robot's drive.
+  // The SysId tool provides a convenient method for obtaining these values for your robot.
+  // TODO: add some feedforward.
+  public static final double ksVolts = 1;
+  public static final double kvVoltSecondsPerMeter = 0.8;
+  public static final double kaVoltSecondsSquaredPerMeter = 0.15;
+
+  public static final double kMaxSpeedMetersPerSecond = 3;
+  
   // Robot swerve modules
-  private final SwerveModule m_frontLeft =
-      new SwerveModule(
-          DriveConstants.kFrontLeftDriveMotorPort,
-          DriveConstants.kFrontLeftTurningMotorPort,
-          DriveConstants.kFrontLeftDriveEncoderReversed,
-          DriveConstants.kFrontLeftTurningEncoderReversed,
-          DriveConstants.kFrontLeftAngleRange,
-          DriveConstants.kFrontLeftAngleZero);
+  private final SwerveModule m_frontLeft = SwerveModuleFactory.newSwerveModule(
+          "Front Left",
+          kFrontLeftDriveMotorPort,
+          kFrontLeftTurningMotorPort,
+          kFrontLeftDriveEncoderReversed,
+          kFrontLeftTurningEncoderReversed,
+          kFrontLeftAngleRange,
+          kFrontLeftAngleZero);
 
-  private final SwerveModule m_rearLeft =
-      new SwerveModule(
-          DriveConstants.kRearLeftDriveMotorPort,
-          DriveConstants.kRearLeftTurningMotorPort,
-          DriveConstants.kRearLeftDriveEncoderReversed,
-          DriveConstants.kRearLeftTurningEncoderReversed,
-          DriveConstants.kRearLeftAngleRange,
-          DriveConstants.kRearLeftAngleZero);
+  private final SwerveModule m_rearLeft = SwerveModuleFactory.newSwerveModule(
+          "Rear Left",
+          kRearLeftDriveMotorPort,
+          kRearLeftTurningMotorPort,
+          kRearLeftDriveEncoderReversed,
+          kRearLeftTurningEncoderReversed,
+          kRearLeftAngleRange,
+          kRearLeftAngleZero);
 
-  private final SwerveModule m_frontRight =
-      new SwerveModule(
-          DriveConstants.kFrontRightDriveMotorPort,
-          DriveConstants.kFrontRightTurningMotorPort,
-          DriveConstants.kFrontRightDriveEncoderReversed,
-          DriveConstants.kFrontRightTurningEncoderReversed,
-          DriveConstants.kFrontRightAngleRange,
-          DriveConstants.kFrontRightAngleZero);
+  private final SwerveModule m_frontRight = SwerveModuleFactory.newSwerveModule(
+          "Front Right",
+          kFrontRightDriveMotorPort,
+          kFrontRightTurningMotorPort,
+          kFrontRightDriveEncoderReversed,
+          kFrontRightTurningEncoderReversed,
+          kFrontRightAngleRange,
+          kFrontRightAngleZero);
 
-  private final SwerveModule m_rearRight =
-      new SwerveModule(
-          DriveConstants.kRearRightDriveMotorPort,
-          DriveConstants.kRearRightTurningMotorPort,
-          DriveConstants.kRearRightDriveEncoderReversed,
-          DriveConstants.kRearRightTurningEncoderReversed,
-          DriveConstants.kRearRightAngleRange,
-          DriveConstants.kRearRightAngleZero);
+  private final SwerveModule m_rearRight = SwerveModuleFactory.newSwerveModule(
+          "Rear Right",
+          kRearRightDriveMotorPort,
+          kRearRightTurningMotorPort,
+          kRearRightDriveEncoderReversed,
+          kRearRightTurningEncoderReversed,
+          kRearRightAngleRange,
+          kRearRightAngleZero);
 
-  // The gyro sensor.  We have a navx.
+  // The gyro sensor.  We have a Nav-X.
   private final Gyro m_gyro = new AHRS(SerialPort.Port.kUSB);
-
-  // These are for simulation
-  private final Field2d m_fieldSim = new Field2d();
-  private double m_yawValue;
-  private SimDouble m_angleSim;
-
 
   // Odometry class for tracking robot pose
   SwerveDriveOdometry m_odometry =
-      new SwerveDriveOdometry(DriveConstants.kDriveKinematics, m_gyro.getRotation2d());
+      new SwerveDriveOdometry(kDriveKinematics, m_gyro.getRotation2d());
 
-  /** Creates a new DriveSubsystem. */
   public DriveSubsystem() {
-    // for simulation, see pdocs.kauailabs.com/navx-mxp/software/roborio-libraries/java
-    SmartDashboard.putData("Field", m_fieldSim);
-    SmartDashboard.putData("Front Left Module", m_frontLeft);
-    SmartDashboard.putData("Front Right Module", m_frontRight);
-    SmartDashboard.putData("Rear Left Module", m_rearLeft);
-    SmartDashboard.putData("Rear Right Module", m_rearRight);
-    SmartDashboard.putData("Front Left Turn Encoder", m_frontLeft.getTurningEncoder());
-    SmartDashboard.putData("Front Right Turn Encoder", m_frontRight.getTurningEncoder());
-    SmartDashboard.putData("Rear Left Turn Encoder", m_rearLeft.getTurningEncoder());
-    SmartDashboard.putData("Rear Right Turn Encoder", m_rearRight.getTurningEncoder());
-    SmartDashboard.putData("Front Left Drive Encoder", m_frontLeft.getDriveEncoder());
-    SmartDashboard.putData("Front Right Drive Encoder", m_frontRight.getDriveEncoder());
-    SmartDashboard.putData("Rear Left Drive Encoder", m_rearLeft.getDriveEncoder());
-    SmartDashboard.putData("Rear Right Drive Encoder", m_rearRight.getDriveEncoder());
-    int dev = SimDeviceDataJNI.getSimDeviceHandle("navX-Sensor[0]");
-    m_angleSim = new SimDouble(SimDeviceDataJNI.getSimValueHandle(dev, "Yaw"));
+    SmartDashboard.putData("Drive Subsystem", this);
   }
 
   @Override
   public void periodic() {
-    // Update the odometry in the periodic block
     m_odometry.update(
         m_gyro.getRotation2d(),
         m_frontLeft.getState(),
@@ -103,20 +133,10 @@ public class DriveSubsystem extends SubsystemBase {
         m_rearRight.getState());
   }
 
-  /**
-   * Returns the currently-estimated pose of the robot.
-   *
-   * @return The pose.
-   */
   public Pose2d getPose() {
     return m_odometry.getPoseMeters();
   }
 
-  /**
-   * Resets the odometry to the specified pose.
-   *
-   * @param pose The pose to which to set the odometry.
-   */
   public void resetOdometry(Pose2d pose) {
     m_odometry.resetPosition(pose, m_gyro.getRotation2d());
   }
@@ -132,26 +152,21 @@ public class DriveSubsystem extends SubsystemBase {
   @SuppressWarnings("ParameterName")
   public void drive(double xSpeed, double ySpeed, double rot, boolean fieldRelative) {
     var swerveModuleStates =
-        DriveConstants.kDriveKinematics.toSwerveModuleStates(
+        kDriveKinematics.toSwerveModuleStates(
             fieldRelative
                 ? ChassisSpeeds.fromFieldRelativeSpeeds(xSpeed, ySpeed, rot, m_gyro.getRotation2d())
                 : new ChassisSpeeds(xSpeed, ySpeed, rot));
     SwerveDriveKinematics.desaturateWheelSpeeds(
-        swerveModuleStates, DriveConstants.kMaxSpeedMetersPerSecond);
+        swerveModuleStates, kMaxSpeedMetersPerSecond);
     m_frontLeft.setDesiredState(swerveModuleStates[0]);
     m_frontRight.setDesiredState(swerveModuleStates[1]);
     m_rearLeft.setDesiredState(swerveModuleStates[2]);
     m_rearRight.setDesiredState(swerveModuleStates[3]);
   }
 
-  /**
-   * Sets the swerve ModuleStates.
-   *
-   * @param desiredStates The desired SwerveModule states.
-   */
   public void setModuleStates(SwerveModuleState[] desiredStates) {
     SwerveDriveKinematics.desaturateWheelSpeeds(
-        desiredStates, DriveConstants.kMaxSpeedMetersPerSecond);
+        desiredStates, kMaxSpeedMetersPerSecond);
     m_frontLeft.setDesiredState(desiredStates[0]);
     m_frontRight.setDesiredState(desiredStates[1]);
     m_rearLeft.setDesiredState(desiredStates[2]);
@@ -179,48 +194,17 @@ public class DriveSubsystem extends SubsystemBase {
     m_gyro.reset();
   }
 
-  /**
-   * Returns the heading of the robot.
-   *
-   * @return the robot's heading in degrees, from -180 to 180
-   */
   public double getHeading() {
     return m_gyro.getRotation2d().getDegrees();
   }
 
-  /**
-   * Returns the turn rate of the robot.
-   *
-   * @return The turn rate of the robot, in degrees per second
-   */
   public double getTurnRate() {
-    return m_gyro.getRate() * (DriveConstants.kGyroReversed ? -1.0 : 1.0);
+    return m_gyro.getRate() * (kGyroReversed ? -1.0 : 1.0);
   }
 
   @Override
   public void initSendable(SendableBuilder builder) {
     super.initSendable(builder);
     builder.addDoubleProperty("heading_degrees", this::getHeading, null);
-  }
-
-  // see github.com/4201VitruvianBots/2021SwerveSim
-  @Override
-  public void simulationPeriodic() {
-    m_frontLeft.simulationPeriodic(0.02);
-    m_frontRight.simulationPeriodic(0.02);
-    m_rearLeft.simulationPeriodic(0.02);
-    m_rearRight.simulationPeriodic(0.02);
-
-    SwerveModuleState[] moduleStates = {
-      m_frontLeft.getState(),
-      m_frontRight.getState(),
-      m_rearLeft.getState(),
-      m_rearRight.getState()
-    };
-
-    ChassisSpeeds chassisSpeed = DriveConstants.kDriveKinematics.toChassisSpeeds(moduleStates);
-    double chassisRotationSpeed = chassisSpeed.omegaRadiansPerSecond;
-    m_yawValue += chassisRotationSpeed * 0.02;
-    m_angleSim.set(m_yawValue);
   }
 }

@@ -21,6 +21,7 @@
       "/LiveWindow/Ungrouped/Talon SRX [4]": "Motor Controller",
       "/LiveWindow/Ungrouped/Talon SRX [5]": "Motor Controller",
       "/LiveWindow/Ungrouped/navX-Sensor[2]": "Gyro",
+      "/SmartDashboard/Drive Subsystem": "Subsystem",
       "/SmartDashboard/Field": "Field2d"
     },
     "windows": {
@@ -28,15 +29,13 @@
         "window": {
           "visible": true
         }
-      },
-      "/SmartDashboard/Field": {
-        "window": {
-          "visible": true
-        }
       }
     }
   },
   "NetworkTables": {
+    "LiveWindow": {
+      "open": true
+    },
     "SmartDashboard": {
       "Front Left Module": {
         "open": true

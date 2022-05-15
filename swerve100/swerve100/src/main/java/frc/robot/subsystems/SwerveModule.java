@@ -4,13 +4,6 @@
 
 package frc.robot.subsystems;
 
-import com.ctre.phoenix.motorcontrol.SupplyCurrentLimitConfiguration;
-import com.ctre.phoenix.motorcontrol.TalonSRXFeedbackDevice;
-import com.ctre.phoenix.motorcontrol.TalonSRXSimCollection;
-import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
-
-import ctre_shims.TalonAngle;
-import ctre_shims.TalonEncoder;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -18,112 +11,69 @@ import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.util.sendable.Sendable;
 import edu.wpi.first.util.sendable.SendableBuilder;
-import edu.wpi.first.wpilibj.RobotController;
-import frc.robot.Constants.ModuleConstants;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class SwerveModule implements Sendable {
-  private final WPI_TalonSRX m_driveMotor;
-  private final WPI_TalonSRX m_turningMotor;
+  public static final double kMaxModuleAngularSpeedRadiansPerSecond = 2 * Math.PI;
+  public static final double kMaxModuleAngularAccelerationRadiansPerSecondSquared = 2 * Math.PI;
 
-  private final TalonEncoder m_driveEncoder;
-  private final TalonAngle m_turningEncoder;
+  public static final int kCIMcoderEncoderCPR = 80; // see docs.ctre-phoenix.com/en/stable/ch14_MCSensor.html
 
-  private TalonSRXSimCollection m_driveSim;
-  private TalonSRXSimCollection m_turningSim;
+  public static final double kWheelDiameterMeters = 0.1016; // AndyMark Swerve & Steer has 4 inch wheel
+  public static final double kDriveReduction = 6.67; // see andymark.com/products/swerve-and-steer
+  public static final double kDriveEncoderDistancePerPulse =
+      // Assumes the encoders are directly mounted on the wheel shafts
+      (kWheelDiameterMeters * Math.PI) / ((double) kCIMcoderEncoderCPR * kDriveReduction);
 
-  private final PIDController m_drivePIDController =
-      new PIDController(ModuleConstants.kPModuleDriveController, 0, 1);
+  public static final double kPModuleTurningController = 0.001;
 
-  // Using a TrapezoidProfile PIDController to allow for smooth turning
-  private final ProfiledPIDController m_turningPIDController =
-      new ProfiledPIDController(
-          ModuleConstants.kPModuleTurningController,
+  public static final double kPModuleDriveController = 0.001;
+
+  private final String m_name;
+  private final DriveMotor m_driveMotor;
+  private final TurningMotor m_turningMotor;
+
+  private final DriveEncoder m_driveEncoder;
+  private final TurningEncoder m_turningEncoder;
+
+  private final PIDController m_drivePIDController;
+  private final ProfiledPIDController m_turningPIDController;
+
+  public SwerveModule(
+      String name, 
+      DriveMotor driveMotor,
+      TurningMotor turningMotor,
+      DriveEncoder driveEncoder,
+      TurningEncoder turningEncoder) {
+    m_name = name;
+    m_driveMotor = driveMotor;
+    m_turningMotor = turningMotor;
+    m_driveEncoder = driveEncoder;
+    m_turningEncoder = turningEncoder;
+
+    m_drivePIDController = new PIDController(kPModuleDriveController, 0, 1);
+
+    m_turningPIDController = new ProfiledPIDController(
+          kPModuleTurningController,
           0,
           0,
           new TrapezoidProfile.Constraints(
-              ModuleConstants.kMaxModuleAngularSpeedRadiansPerSecond,
-              ModuleConstants.kMaxModuleAngularAccelerationRadiansPerSecondSquared));
+              kMaxModuleAngularSpeedRadiansPerSecond,
+              kMaxModuleAngularAccelerationRadiansPerSecondSquared));
 
-  /**
-   * Constructs a SwerveModule.
-   *
-   * @param driveMotorChannel The channel of the drive motor.
-   * @param turningMotorChannel The channel of the turning motor.
-   * @param driveEncoderReversed Whether the drive encoder is reversed.
-   * @param turningEncoderReversed Whether the turning encoder is reversed.
-   */
-  public SwerveModule(
-      int driveMotorChannel,
-      int turningMotorChannel,
-      boolean driveEncoderReversed,
-      boolean turningEncoderReversed,
-      int angleRange,
-      int angleZero) {
-    m_driveMotor = new WPI_TalonSRX(driveMotorChannel);
-    m_driveMotor.configFactoryDefault();
-    m_driveMotor.configSupplyCurrentLimit(
-      new SupplyCurrentLimitConfiguration(true, ModuleConstants.kDriveCurrentLimit, 0, 0));
-    // I think we're using the AndyMark CIMcoder, either am-3314a.  TODO: verify.
-    m_driveMotor.configSelectedFeedbackSensor(TalonSRXFeedbackDevice.QuadEncoder, 0, 0);
-    m_driveMotor.configFeedbackNotContinuous(false, 0); // just keep counting ticks
-    m_driveMotor.setSelectedSensorPosition(0); // TODO: is this required?
-
-    m_turningMotor = new WPI_TalonSRX(turningMotorChannel);
-    m_turningMotor.configFactoryDefault();
-    m_turningMotor.configSupplyCurrentLimit(
-      new SupplyCurrentLimitConfiguration(true, ModuleConstants.kTurningCurrentLimit, 0, 0));
-    // I think we're using the AndyMark MA3, am-2899, on the steering shaft.  TODO: verify.
-    m_turningMotor.configSelectedFeedbackSensor(TalonSRXFeedbackDevice.Analog, 0, 0);
-    m_turningMotor.configFeedbackNotContinuous(true, 0); // just return the angle
-
-    m_driveEncoder = new TalonEncoder(m_driveMotor);
-    m_turningEncoder = new TalonAngle(m_turningMotor);
-
-    m_driveSim = m_driveMotor.getSimCollection();
-    m_turningSim = m_turningMotor.getSimCollection();
-
-    // Set the distance per pulse for the drive encoder. We can simply use the
-    // distance traveled for one rotation of the wheel divided by the encoder
-    // resolution.
-    m_driveEncoder.setDistancePerPulse(ModuleConstants.kDriveEncoderDistancePerPulse);
-
-    // Set whether drive encoder should be reversed or not
-    m_driveEncoder.setReverseDirection(driveEncoderReversed);
-
-    // Set the distance (in this case, angle) per pulse for the turning encoder.
-    // This is the the angle through an entire rotation (2 * pi) divided by the
-    // encoder resolution.
-    m_turningEncoder.setInputRange(angleRange);
-    m_turningEncoder.setInputOffset(angleZero);
-
-    // Set whether turning encoder should be reversed or not
-    m_turningEncoder.setReverseDirection(turningEncoderReversed);
-
-    // Limit the PID Controller's input range between -pi and pi and set the input
-    // to be continuous.
     m_turningPIDController.enableContinuousInput(-Math.PI, Math.PI);
+    SmartDashboard.putData(String.format("Swerve Module %s", m_name), this);
   }
 
-  /**
-   * Returns the current state of the module.
-   *
-   * @return The current state of the module.
-   */
   public SwerveModuleState getState() {
-    // getDistance == radians, i.e. ticks * distance per tick.
     // TODO: this eliminates wrapping which is not necessary; use getAnalogInRaw instead
-    return new SwerveModuleState(m_driveEncoder.getRate(), new Rotation2d(m_turningEncoder.getDistance()));
+    return new SwerveModuleState(m_driveEncoder.getRate(), new Rotation2d(m_turningEncoder.getAngle()));
   }
 
-  /**
-   * Sets the desired state for the module.
-   *
-   * @param desiredState Desired state with speed and angle.
-   */
   public void setDesiredState(SwerveModuleState desiredState) {
     // Optimize the reference state to avoid spinning further than 90 degrees
     SwerveModuleState state =
-        SwerveModuleState.optimize(desiredState, new Rotation2d(m_turningEncoder.getDistance()));
+        SwerveModuleState.optimize(desiredState, new Rotation2d(m_turningEncoder.getAngle()));
 
     // Calculate the drive output from the drive PID controller.
     final double driveOutput =
@@ -131,7 +81,7 @@ public class SwerveModule implements Sendable {
 
     // Calculate the turning motor output from the turning PID controller.
     final double turnOutput =
-        m_turningPIDController.calculate(m_turningEncoder.getDistance(), state.angle.getRadians());
+        m_turningPIDController.calculate(m_turningEncoder.getAngle(), state.angle.getRadians());
 
     setOutput(driveOutput, turnOutput);
   }
@@ -141,34 +91,21 @@ public class SwerveModule implements Sendable {
     m_turningMotor.set(turnOutput);
   }
 
-  /** Zeroes all the SwerveModule encoders. */
   public void resetEncoders() {
     m_driveEncoder.reset();
     m_turningEncoder.reset();
   }
 
-  public TalonEncoder getDriveEncoder() {
+  public DriveEncoder getDriveEncoder() {
     return m_driveEncoder;
   }
 
-  public TalonAngle getTurningEncoder() {
+  public TurningEncoder getTurningEncoder() {
     return m_turningEncoder;
   }
 
   public double getAzimuthDegrees() {
-    return new Rotation2d(m_turningEncoder.getDistance()).getDegrees();
-  }
-
-  public double getTurningPosition() {
-    return m_turningEncoder.get();
-  }
-
-  public double getTurningAnalogIn() {
-    return m_turningEncoder.getAnalogIn();
-  }
-
-  public double getTurningAnalogInRaw() {
-    return m_turningEncoder.getAnalogInRaw();
+    return new Rotation2d(m_turningEncoder.getAngle()).getDegrees();
   }
 
   public double getSpeedMetersPerSecond() {
@@ -185,26 +122,10 @@ public class SwerveModule implements Sendable {
 
   @Override
   public void initSendable(SendableBuilder builder) {
-    builder.setSmartDashboardType("SwerveModule");
+    builder.setSmartDashboardType(String.format("SwerveModule %s", m_name));
     builder.addDoubleProperty("speed_meters_per_sec", this::getSpeedMetersPerSecond, null);
     builder.addDoubleProperty("drive_output", this::getDriveOutput, null);
     builder.addDoubleProperty("azimuth_degrees", this::getAzimuthDegrees, null);
     builder.addDoubleProperty("turning_output", this::getTurningOutput, null);
-    builder.addDoubleProperty("turning_position", this::getTurningPosition, null);
-    builder.addDoubleProperty("turning_analog_in", this::getTurningAnalogIn, null);
-    builder.addDoubleProperty("turning_analog_in_raw", this::getTurningAnalogInRaw, null);
-  }
-
-  public void simulationPeriodic(double dt) {
-    // see CTRE phoenix examples DifferentialDrive_Simulation
-    m_driveSim.setBusVoltage(RobotController.getBatteryVoltage());
-    m_turningSim.setBusVoltage(RobotController.getBatteryVoltage());
-
-    m_driveSim.setQuadratureRawPosition(0); // TODO: math
-    m_driveSim.setQuadratureVelocity(0); // TODO: math
-    m_turningSim.setAnalogPosition(0); // TODO: math
-    m_turningSim.setAnalogVelocity(0); // TODO: math
-
-
   }
 }
