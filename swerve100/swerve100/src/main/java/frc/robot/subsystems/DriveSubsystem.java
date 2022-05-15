@@ -28,28 +28,36 @@ public class DriveSubsystem extends SubsystemBase {
           DriveConstants.kFrontLeftDriveMotorPort,
           DriveConstants.kFrontLeftTurningMotorPort,
           DriveConstants.kFrontLeftDriveEncoderReversed,
-          DriveConstants.kFrontLeftTurningEncoderReversed);
+          DriveConstants.kFrontLeftTurningEncoderReversed,
+          DriveConstants.kFrontLeftAngleRange,
+          DriveConstants.kFrontLeftAngleZero);
 
   private final SwerveModule m_rearLeft =
       new SwerveModule(
           DriveConstants.kRearLeftDriveMotorPort,
           DriveConstants.kRearLeftTurningMotorPort,
           DriveConstants.kRearLeftDriveEncoderReversed,
-          DriveConstants.kRearLeftTurningEncoderReversed);
+          DriveConstants.kRearLeftTurningEncoderReversed,
+          DriveConstants.kRearLeftAngleRange,
+          DriveConstants.kRearLeftAngleZero);
 
   private final SwerveModule m_frontRight =
       new SwerveModule(
           DriveConstants.kFrontRightDriveMotorPort,
           DriveConstants.kFrontRightTurningMotorPort,
           DriveConstants.kFrontRightDriveEncoderReversed,
-          DriveConstants.kFrontRightTurningEncoderReversed);
+          DriveConstants.kFrontRightTurningEncoderReversed,
+          DriveConstants.kFrontRightAngleRange,
+          DriveConstants.kFrontRightAngleZero);
 
   private final SwerveModule m_rearRight =
       new SwerveModule(
           DriveConstants.kRearRightDriveMotorPort,
           DriveConstants.kRearRightTurningMotorPort,
           DriveConstants.kRearRightDriveEncoderReversed,
-          DriveConstants.kRearRightTurningEncoderReversed);
+          DriveConstants.kRearRightTurningEncoderReversed,
+          DriveConstants.kRearRightAngleRange,
+          DriveConstants.kRearRightAngleZero);
 
   // The gyro sensor.  We have a navx.
   private final Gyro m_gyro = new AHRS(SerialPort.Port.kUSB);

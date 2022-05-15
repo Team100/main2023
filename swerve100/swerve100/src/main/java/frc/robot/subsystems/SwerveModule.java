@@ -9,6 +9,7 @@ import com.ctre.phoenix.motorcontrol.TalonSRXFeedbackDevice;
 import com.ctre.phoenix.motorcontrol.TalonSRXSimCollection;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 
+import ctre_shims.TalonAngle;
 import ctre_shims.TalonEncoder;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
@@ -25,7 +26,7 @@ public class SwerveModule implements Sendable {
   private final WPI_TalonSRX m_turningMotor;
 
   private final TalonEncoder m_driveEncoder;
-  private final TalonEncoder m_turningEncoder;
+  private final TalonAngle m_turningEncoder;
 
   private TalonSRXSimCollection m_driveSim;
   private TalonSRXSimCollection m_turningSim;
@@ -55,7 +56,9 @@ public class SwerveModule implements Sendable {
       int driveMotorChannel,
       int turningMotorChannel,
       boolean driveEncoderReversed,
-      boolean turningEncoderReversed) {
+      boolean turningEncoderReversed,
+      int angleRange,
+      int angleZero) {
     m_driveMotor = new WPI_TalonSRX(driveMotorChannel);
     m_driveMotor.configFactoryDefault();
     m_driveMotor.configSupplyCurrentLimit(
@@ -74,7 +77,7 @@ public class SwerveModule implements Sendable {
     m_turningMotor.configFeedbackNotContinuous(true, 0); // just return the angle
 
     m_driveEncoder = new TalonEncoder(m_driveMotor);
-    m_turningEncoder = new TalonEncoder(m_turningMotor);
+    m_turningEncoder = new TalonAngle(m_turningMotor);
 
     m_driveSim = m_driveMotor.getSimCollection();
     m_turningSim = m_turningMotor.getSimCollection();
@@ -90,7 +93,8 @@ public class SwerveModule implements Sendable {
     // Set the distance (in this case, angle) per pulse for the turning encoder.
     // This is the the angle through an entire rotation (2 * pi) divided by the
     // encoder resolution.
-    m_turningEncoder.setDistancePerPulse(ModuleConstants.kTurningEncoderDistancePerPulse);
+    m_turningEncoder.setInputRange(angleRange);
+    m_turningEncoder.setInputOffset(angleZero);
 
     // Set whether turning encoder should be reversed or not
     m_turningEncoder.setReverseDirection(turningEncoderReversed);
@@ -147,7 +151,7 @@ public class SwerveModule implements Sendable {
     return m_driveEncoder;
   }
 
-  public TalonEncoder getTurningEncoder() {
+  public TalonAngle getTurningEncoder() {
     return m_turningEncoder;
   }
 

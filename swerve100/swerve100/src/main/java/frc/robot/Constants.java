@@ -24,17 +24,21 @@ public final class Constants {
     public static final int kRearRightDriveMotorPort = 14;
 
     public static final int kFrontLeftTurningMotorPort = 4;
-    // front left range = 893
-    // zero at = 838
+    public static final int kFrontLeftAngleRange = 893;
+    public static final int kFrontLeftAngleZero = 838;
+
     public static final int kRearLeftTurningMotorPort = 5;
-    // rear left range = 880
-    // zero at 841
+    public static final int kRearLeftAngleRange = 880;
+    public static final int kRearLeftAngleZero = 841;
+
     public static final int kFrontRightTurningMotorPort = 11;
-    // front right range = 893
-    // zero at 660
+    public static final int kFrontRightAngleRange = 893;
+    public static final int kFrontRightAngleZero = 660;
+ 
     public static final int kRearRightTurningMotorPort = 10;
-    // rear right range = 886
-    // zero at 192
+    public static final int kRearRightAngleRange = 886;
+    public static final int kRearRightAngleZero = 192;
+
     public static final boolean kFrontLeftTurningEncoderReversed = false;
     public static final boolean kRearLeftTurningEncoderReversed = true;
     public static final boolean kFrontRightTurningEncoderReversed = false;
@@ -73,7 +77,7 @@ public final class Constants {
     public static final double kMaxModuleAngularSpeedRadiansPerSecond = 2 * Math.PI;
     public static final double kMaxModuleAngularAccelerationRadiansPerSecondSquared = 2 * Math.PI;
 
-    public static final int kAnalogEncoderCPR = 1024; // Talon ADC is 10 bit
+    //public static final int kAnalogEncoderCPR = 1024; // Talon ADC is 10 bit
     public static final int kCIMcoderEncoderCPR = 80; // see docs.ctre-phoenix.com/en/stable/ch14_MCSensor.html
 
     public static final double kWheelDiameterMeters = 0.1016; // AndyMark Swerve & Steer has 4 inch wheel
@@ -82,9 +86,9 @@ public final class Constants {
         // Assumes the encoders are directly mounted on the wheel shafts
         (kWheelDiameterMeters * Math.PI) / ((double) kCIMcoderEncoderCPR * kDriveReduction);
 
-    public static final double kTurningEncoderDistancePerPulse =
-        // Assumes the encoders are on a 1:1 reduction with the module shaft.
-        (2 * Math.PI) / (double) kAnalogEncoderCPR;
+    //public static final double kTurningEncoderDistancePerPulse =
+    //    // Assumes the encoders are on a 1:1 reduction with the module shaft.
+    //    (2 * Math.PI) / (double) kAnalogEncoderCPR;
 
     public static final double kDriveCurrentLimit = 5;
     public static final double kTurningCurrentLimit = 5;
