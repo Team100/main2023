@@ -15,14 +15,31 @@ public class SwerveModuleFactory {
             int angleZero) {
         TalonSRXDriveMotor driveMotor = new TalonSRXDriveMotor(name, driveMotorCanId);
         TalonSRXDriveEncoder driveEncoder = new TalonSRXDriveEncoder(name, driveMotor,
-                SwerveModule.kDriveEncoderDistancePerPulse,
-                driveEncoderReversed);
+                SwerveModule.kDriveEncoderDistancePerPulse, driveEncoderReversed);
 
         TalonSRXTurningMotor turningMotor = new TalonSRXTurningMotor(name, turningMotorCanId);
-        TalonSRXTurningEncoder turningEncoder = new TalonSRXTurningEncoder(name, turningMotor, angleRange, angleZero,
-                turningEncoderReversed);
+        TalonSRXTurningEncoder turningEncoder = new TalonSRXTurningEncoder(name, turningMotor, angleRange,
+                angleZero, turningEncoderReversed);
 
         return new SwerveModule(name, driveMotor, turningMotor, driveEncoder, turningEncoder);
     }
 
+    public static SwerveModule newSwerveModuleWithAnalogSteeringEncoders(
+            String name,
+            int driveMotorCanId,
+            int turningMotorCanId,
+            int turningEncoderChannel,
+            boolean driveEncoderReversed,
+            boolean turningEncoderReversed,
+            double turningOffset, double turningGearRatio) {
+        TalonSRXDriveMotor driveMotor = new TalonSRXDriveMotor(name, driveMotorCanId);
+        TalonSRXDriveEncoder driveEncoder = new TalonSRXDriveEncoder(name, driveMotor,
+                SwerveModule.kDriveEncoderDistancePerPulse, driveEncoderReversed);
+
+        TalonSRXTurningMotor turningMotor = new TalonSRXTurningMotor(name, turningMotorCanId);
+        AnalogTurningEncoder turningEncoder = new AnalogTurningEncoder(name, turningEncoderChannel, turningOffset,
+                turningGearRatio, turningEncoderReversed);
+
+        return new SwerveModule(name, driveMotor, turningMotor, driveEncoder, turningEncoder);
+    }
 }
