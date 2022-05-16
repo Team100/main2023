@@ -60,10 +60,6 @@ public class TalonSRXTurningEncoder implements TurningEncoder {
         return scaledZeroedInput;
     }
 
-    public void setReverseDirection(boolean reverseDirection) {
-        m_motor.setSensorPhase(reverseDirection);
-    }
-
     @Override
     public void initSendable(SendableBuilder builder) {
         builder.setSmartDashboardType("Talon SRX Turning Encoder");
