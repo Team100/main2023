@@ -22,15 +22,6 @@ public class TalonSRXTurningEncoder implements TurningEncoder {
         SmartDashboard.putData(String.format("Talon SRX Turning Encoder %s", name), this);
     }
 
-    // TODO: pick one: get, analogin, or analogin raw; delete the others.
-    private int get() {
-        return (int) m_motor.getSelectedSensorPosition();
-    }
-
-    private double getAnalogIn() {
-        return (double) m_motor.getSensorCollection().getAnalogIn();
-    }
-
     private double getAnalogInRaw() {
         return (double) m_motor.getSensorCollection().getAnalogInRaw();
     }
@@ -40,7 +31,7 @@ public class TalonSRXTurningEncoder implements TurningEncoder {
     }
 
     public double getAngle() {
-        return correctAndWrapAngle(get(), m_inputOffset, m_inputRange, m_outputRange);
+        return correctAndWrapAngle(getAnalogInRaw(), m_inputOffset, m_inputRange, m_outputRange);
     }
 
     /**
@@ -64,7 +55,6 @@ public class TalonSRXTurningEncoder implements TurningEncoder {
     public void initSendable(SendableBuilder builder) {
         builder.setSmartDashboardType("Talon SRX Turning Encoder");
         builder.addDoubleProperty("Angle", this::getAngle, null);
-        builder.addDoubleProperty("Analog In", this::getAnalogIn, null);
         builder.addDoubleProperty("Analog In Raw", this::getAnalogInRaw, null);
     }
 }

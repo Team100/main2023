@@ -6,6 +6,7 @@ package frc.robot.subsystems;
 
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
+import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
@@ -25,9 +26,9 @@ public class SwerveModule implements Sendable {
       // Assumes the encoders are directly mounted on the wheel shafts
       (kWheelDiameterMeters * Math.PI) / ((double) kCIMcoderEncoderCPR * kDriveReduction);
 
-  public static final double kPModuleTurningController = 0.001;
+  public static final double kPModuleTurningController = 1.0;
 
-  public static final double kPModuleDriveController = 0.001;
+  public static final double kPModuleDriveController = 0.5;
 
   private final String m_name;
   private final DriveMotor m_driveMotor;
@@ -38,6 +39,8 @@ public class SwerveModule implements Sendable {
 
   private final PIDController m_drivePIDController;
   private final ProfiledPIDController m_turningPIDController;
+
+  private final SimpleMotorFeedforward m_turningFeedforward;
 
   public SwerveModule(
       String name, 
@@ -51,7 +54,7 @@ public class SwerveModule implements Sendable {
     m_driveEncoder = driveEncoder;
     m_turningEncoder = turningEncoder;
 
-    m_drivePIDController = new PIDController(kPModuleDriveController, 0, 1);
+    m_drivePIDController = new PIDController(kPModuleDriveController, 0, 0.1);
 
     m_turningPIDController = new ProfiledPIDController(
           kPModuleTurningController,
@@ -61,12 +64,13 @@ public class SwerveModule implements Sendable {
               kMaxModuleAngularSpeedRadiansPerSecond,
               kMaxModuleAngularAccelerationRadiansPerSecondSquared));
 
-    m_turningPIDController.enableContinuousInput(-Math.PI, Math.PI);
+    m_turningPIDController.enableContinuousInput(0, 2*Math.PI);
+
+    m_turningFeedforward = new SimpleMotorFeedforward(0.1, 0.001); // TODO: real values for kS and kV.
     SmartDashboard.putData(String.format("Swerve Module %s", m_name), this);
   }
 
   public SwerveModuleState getState() {
-    // TODO: this eliminates wrapping which is not necessary; use getAnalogInRaw instead
     return new SwerveModuleState(m_driveEncoder.getRate(), new Rotation2d(m_turningEncoder.getAngle()));
   }
 
@@ -83,7 +87,9 @@ public class SwerveModule implements Sendable {
     final double turnOutput =
         m_turningPIDController.calculate(m_turningEncoder.getAngle(), state.angle.getRadians());
 
-    setOutput(driveOutput, turnOutput);
+    final double turnFeedForward = m_turningFeedforward.calculate(getSetpointVelocity(), 0);
+
+    setOutput(driveOutput, turnOutput + turnFeedForward);
   }
 
   public void setOutput(double driveOutput, double turnOutput) {
@@ -94,6 +100,10 @@ public class SwerveModule implements Sendable {
   public void resetEncoders() {
     m_driveEncoder.reset();
     m_turningEncoder.reset();
+  }
+
+  public double getSetpointVelocity() {
+    return m_turningPIDController.getSetpoint().velocity;
   }
 
   public DriveEncoder getDriveEncoder() {
@@ -127,5 +137,6 @@ public class SwerveModule implements Sendable {
     builder.addDoubleProperty("drive_output", this::getDriveOutput, null);
     builder.addDoubleProperty("azimuth_degrees", this::getAzimuthDegrees, null);
     builder.addDoubleProperty("turning_output", this::getTurningOutput, null);
+    builder.addDoubleProperty("setpoint velocity", this::getSetpointVelocity, null);
   }
 }
