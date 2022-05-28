@@ -28,7 +28,7 @@ public class SwerveModule implements Sendable {
 
   public static final double kPModuleTurningController = 1.0;
 
-  public static final double kPModuleDriveController = 0.5;
+  public static final double kPModuleDriveController = 0.1;
 
   private final String m_name;
   private final DriveMotor m_driveMotor;
@@ -41,7 +41,9 @@ public class SwerveModule implements Sendable {
   private final ProfiledPIDController m_turningPIDController;
 
   private final SimpleMotorFeedforward m_turningFeedforward;
-
+  public double m_feedForwardOutput;
+  public double m_controllerOutput;
+  public double m_driveOutput;
   public SwerveModule(
       String name, 
       DriveMotor driveMotor,
@@ -80,16 +82,16 @@ public class SwerveModule implements Sendable {
         SwerveModuleState.optimize(desiredState, new Rotation2d(m_turningEncoder.getAngle()));
 
     // Calculate the drive output from the drive PID controller.
-    final double driveOutput =
+    m_driveOutput =
         m_drivePIDController.calculate(m_driveEncoder.getRate(), state.speedMetersPerSecond);
 
     // Calculate the turning motor output from the turning PID controller.
-    final double turnOutput =
+        m_controllerOutput =
         m_turningPIDController.calculate(m_turningEncoder.getAngle(), state.angle.getRadians());
 
-    final double turnFeedForward = m_turningFeedforward.calculate(getSetpointVelocity(), 0);
+    m_feedForwardOutput = m_turningFeedforward.calculate(getSetpointVelocity(), 0);
 
-    setOutput(driveOutput, turnOutput + turnFeedForward);
+    setOutput(m_driveOutput, m_controllerOutput + m_feedForwardOutput);
   }
 
   public void setOutput(double driveOutput, double turnOutput) {
@@ -104,6 +106,10 @@ public class SwerveModule implements Sendable {
 
   public double getSetpointVelocity() {
     return m_turningPIDController.getSetpoint().velocity;
+  }
+  
+  public double getSetpointPosition() {
+    return m_turningPIDController.getSetpoint().position;
   }
 
   public DriveEncoder getDriveEncoder() {
@@ -129,6 +135,22 @@ public class SwerveModule implements Sendable {
   public double getTurningOutput() {
     return m_turningMotor.get();
   }
+  public double getFeedForward() {
+    return m_feedForwardOutput;
+  }
+
+  public double getTControllerOutput() {
+    return m_controllerOutput;
+  }
+
+  public double getDControllerOutput() {
+      return m_driveOutput;
+  }
+
+  public double getDriveSetpoint() {
+    return m_drivePIDController.getSetpoint();
+}
+
 
   @Override
   public void initSendable(SendableBuilder builder) {
@@ -138,5 +160,10 @@ public class SwerveModule implements Sendable {
     builder.addDoubleProperty("azimuth_degrees", this::getAzimuthDegrees, null);
     builder.addDoubleProperty("turning_output", this::getTurningOutput, null);
     builder.addDoubleProperty("setpoint velocity", this::getSetpointVelocity, null);
+    builder.addDoubleProperty("feed_forward_output", this::getFeedForward, null);
+    builder.addDoubleProperty("controller_Output", this::getTControllerOutput, null);
+    builder.addDoubleProperty("turningSetPoint", this::getSetpointPosition, null);
+    builder.addDoubleProperty("driveControllerOutput", this::getDControllerOutput, null);
+    builder.addDoubleProperty("driveSetPoint", this::getDriveSetpoint, null);
   }
 }

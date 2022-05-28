@@ -7,6 +7,7 @@ package frc.robot.subsystems;
 import com.kauailabs.navx.frc.AHRS;
 
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
@@ -46,9 +47,9 @@ public class DriveSubsystem extends SubsystemBase {
   public static final boolean kFrontRightTurningEncoderReversed = false;
   public static final boolean kRearRightTurningEncoderReversed = true;
 
-  public static final boolean kFrontLeftDriveEncoderReversed = false;
+  public static final boolean kFrontLeftDriveEncoderReversed = true;
   public static final boolean kRearLeftDriveEncoderReversed = true;
-  public static final boolean kFrontRightDriveEncoderReversed = false;
+  public static final boolean kFrontRightDriveEncoderReversed =true;
   public static final boolean kRearRightDriveEncoderReversed = true;
 
   public static final double kTrackWidth = 0.5;
