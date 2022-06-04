@@ -26,9 +26,9 @@ public class SwerveModule implements Sendable {
       // Assumes the encoders are directly mounted on the wheel shafts
       (kWheelDiameterMeters * Math.PI) / ((double) kCIMcoderEncoderCPR * kDriveReduction);
 
-  public static final double kPModuleTurningController = 1.0;
+  public static final double kPModuleTurningController = 1;
 
-  public static final double kPModuleDriveController = 0.1;
+  public static final double kPModuleDriveController = .5;
 
   private final String m_name;
   private final DriveMotor m_driveMotor;
@@ -56,11 +56,11 @@ public class SwerveModule implements Sendable {
     m_driveEncoder = driveEncoder;
     m_turningEncoder = turningEncoder;
 
-    m_drivePIDController = new PIDController(kPModuleDriveController, 0, 0.1);
+    m_drivePIDController = new PIDController(kPModuleDriveController, .05, 0);
 
     m_turningPIDController = new ProfiledPIDController(
           kPModuleTurningController,
-          0,
+          .1,
           0,
           new TrapezoidProfile.Constraints(
               kMaxModuleAngularSpeedRadiansPerSecond,
