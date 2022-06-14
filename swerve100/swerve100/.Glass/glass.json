@@ -25,6 +25,9 @@
       "Front Left Module": {
         "open": true
       },
+      "Talon SRX Drive Motor Rear Right": {
+        "open": true
+      },
       "open": true
     },
     "Usage": {
@@ -56,6 +59,7 @@
       "/LiveWindow/Ungrouped/Talon SRX [4]": "Motor Controller",
       "/LiveWindow/Ungrouped/Talon SRX [5]": "Motor Controller",
       "/LiveWindow/Ungrouped/navX-Sensor[2]": "Gyro",
+      "/SmartDashboard/Drive Subsystem": "Subsystem",
       "/SmartDashboard/Field": "Field2d"
     }
   },
@@ -72,7 +76,7 @@
               "autoFit": true
             }
           ],
-          "height": 224,
+          "height": -15,
           "series": [
             {
               "color": [
@@ -95,7 +99,7 @@
               "autoFit": true
             }
           ],
-          "height": 221,
+          "height": -15,
           "series": [
             {
               "color": [
@@ -118,7 +122,7 @@
               "autoFit": true
             }
           ],
-          "height": 206,
+          "height": -15,
           "series": [
             {
               "color": [
@@ -141,7 +145,7 @@
               "autoFit": true
             }
           ],
-          "height": 207,
+          "height": -15,
           "series": [
             {
               "color": [
@@ -151,6 +155,24 @@
                 1.0
               ],
               "id": "NT:/LiveWindow/Ungrouped/Talon Encoder[11]/Distance"
+            }
+          ]
+        }
+      ]
+    },
+    "Plot <4>": {
+      "plots": [
+        {
+          "height": 1053,
+          "series": [
+            {
+              "color": [
+                0.2980392277240753,
+                0.44705885648727417,
+                0.6901960968971252,
+                1.0
+              ],
+              "id": "NT:/SmartDashboard/Talon SRX Drive Motor Rear Right/Output"
             }
           ]
         }

@@ -28,7 +28,7 @@ public class DriveSubsystem extends SubsystemBase {
 
   public static final int kFrontLeftTurningMotorPort = 4;
   public static final int kFrontLeftAngleRange = 893;
-  public static final int kFrontLeftAngleZero = 838;
+  public static final int kFrontLeftAngleZero = 250;
 
   public static final int kRearLeftTurningMotorPort = 5;
   public static final int kRearLeftAngleRange = 880;
@@ -70,11 +70,11 @@ public class DriveSubsystem extends SubsystemBase {
   // for *your* robot's drive.
   // The SysId tool provides a convenient method for obtaining these values for your robot.
   // TODO: add some feedforward.
-  public static final double ksVolts = 1;
-  public static final double kvVoltSecondsPerMeter = 0.8;
-  public static final double kaVoltSecondsSquaredPerMeter = 0.15;
+  public static final double ksVolts = 2;
+  public static final double kvVoltSecondsPerMeter = 2.0;
+  public static final double kaVoltSecondsSquaredPerMeter = 0.5;
 
-  public static final double kMaxSpeedMetersPerSecond = 3;
+  public static final double kMaxSpeedMetersPerSecond = 6;
   
   // Robot swerve modules
   private final SwerveModule m_frontLeft = SwerveModuleFactory.newSwerveModule(

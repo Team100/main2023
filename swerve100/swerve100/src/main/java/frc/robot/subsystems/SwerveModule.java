@@ -28,7 +28,7 @@ public class SwerveModule implements Sendable {
 
   public static final double kPModuleTurningController = 1;
 
-  public static final double kPModuleDriveController = .5;
+  public static final double kPModuleDriveController = 0.5;
 
   private final String m_name;
   private final DriveMotor m_driveMotor;
@@ -56,7 +56,7 @@ public class SwerveModule implements Sendable {
     m_driveEncoder = driveEncoder;
     m_turningEncoder = turningEncoder;
 
-    m_drivePIDController = new PIDController(kPModuleDriveController, .05, 0);
+    m_drivePIDController = new PIDController(kPModuleDriveController, .5, 0);
 
     m_turningPIDController = new ProfiledPIDController(
           kPModuleTurningController,
