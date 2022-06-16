@@ -28,19 +28,19 @@ public class DriveSubsystem extends SubsystemBase {
 
   public static final int kFrontLeftTurningMotorPort = 4;
   public static final int kFrontLeftAngleRange = 893;
-  public static final int kFrontLeftAngleZero = 250;
+  public static final int kFrontLeftAngleZero = 770;
 
   public static final int kRearLeftTurningMotorPort = 5;
   public static final int kRearLeftAngleRange = 880;
-  public static final int kRearLeftAngleZero = 841;
+  public static final int kRearLeftAngleZero = 870;
 
   public static final int kFrontRightTurningMotorPort = 11;
   public static final int kFrontRightAngleRange = 893;
-  public static final int kFrontRightAngleZero = 660;
+  public static final int kFrontRightAngleZero = 675;
 
   public static final int kRearRightTurningMotorPort = 10;
   public static final int kRearRightAngleRange = 886;
-  public static final int kRearRightAngleZero = 192;
+  public static final int kRearRightAngleZero = 200;
 
   public static final boolean kFrontLeftTurningEncoderReversed = false;
   public static final boolean kRearLeftTurningEncoderReversed = true;
@@ -156,7 +156,7 @@ public class DriveSubsystem extends SubsystemBase {
         kDriveKinematics.toSwerveModuleStates(
             fieldRelative
                 ? ChassisSpeeds.fromFieldRelativeSpeeds(xSpeed, ySpeed, rot, m_gyro.getRotation2d())
-                : new ChassisSpeeds(xSpeed, ySpeed, rot));
+                : new ChassisSpeeds(xSpeed, ySpeed, 5*rot));
     SwerveDriveKinematics.desaturateWheelSpeeds(
         swerveModuleStates, kMaxSpeedMetersPerSecond);
     m_frontLeft.setDesiredState(swerveModuleStates[0]);

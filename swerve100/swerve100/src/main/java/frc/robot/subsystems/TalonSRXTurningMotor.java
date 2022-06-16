@@ -11,7 +11,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class TalonSRXTurningMotor implements TurningMotor {
     private final WPI_TalonSRX m_motor;
-    public static final double kTurningCurrentLimit = 5;
+    public static final double kTurningCurrentLimit = 10;
     
     public TalonSRXTurningMotor(String name, int canId) {
         m_motor = new WPI_TalonSRX(canId);

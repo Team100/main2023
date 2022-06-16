@@ -28,7 +28,7 @@ public class SwerveModule implements Sendable {
 
   public static final double kPModuleTurningController = 1;
 
-  public static final double kPModuleDriveController = 0.5;
+  public static final double kPModuleDriveController = 0.25;
 
   private final String m_name;
   private final DriveMotor m_driveMotor;
@@ -56,7 +56,7 @@ public class SwerveModule implements Sendable {
     m_driveEncoder = driveEncoder;
     m_turningEncoder = turningEncoder;
 
-    m_drivePIDController = new PIDController(kPModuleDriveController, .5, 0);
+    m_drivePIDController = new PIDController(kPModuleDriveController, 0, 0.);
 
     m_turningPIDController = new ProfiledPIDController(
           kPModuleTurningController,
@@ -91,7 +91,7 @@ public class SwerveModule implements Sendable {
 
     m_feedForwardOutput = m_turningFeedforward.calculate(getSetpointVelocity(), 0);
 
-    setOutput(m_driveOutput, m_controllerOutput + m_feedForwardOutput);
+    setOutput(m_driveOutput + 0.3 * state.speedMetersPerSecond, m_controllerOutput + m_feedForwardOutput);
   }
 
   public void setOutput(double driveOutput, double turnOutput) {

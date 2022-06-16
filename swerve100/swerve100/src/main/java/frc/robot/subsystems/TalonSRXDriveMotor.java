@@ -11,7 +11,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class TalonSRXDriveMotor implements DriveMotor {
     private final WPI_TalonSRX m_motor;
-    public static final double kDriveCurrentLimit = 5;
+    public static final double kDriveCurrentLimit = 10;
 
     public TalonSRXDriveMotor(String name, int canId) {
         m_motor = new WPI_TalonSRX(canId);
