@@ -15,8 +15,8 @@ import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class SwerveModule implements Sendable {
-  public static final double kMaxModuleAngularSpeedRadiansPerSecond = 2 * Math.PI;
-  public static final double kMaxModuleAngularAccelerationRadiansPerSecondSquared = 2 * Math.PI;
+  public static final double kMaxModuleAngularSpeedRadiansPerSecond = 4 * Math.PI;
+  public static final double kMaxModuleAngularAccelerationRadiansPerSecondSquared = 4 * Math.PI;
 
   public static final int kCIMcoderEncoderCPR = 80; // see docs.ctre-phoenix.com/en/stable/ch14_MCSensor.html
 
@@ -41,7 +41,9 @@ public class SwerveModule implements Sendable {
   private final ProfiledPIDController m_turningPIDController;
 
   private final SimpleMotorFeedforward m_turningFeedforward;
-  public double m_feedForwardOutput;
+  public double m_tFeedForwardOutput;
+  private final SimpleMotorFeedforward m_driveFeedforward;
+  public double m_dFeedForwardOutput;
   public double m_controllerOutput;
   public double m_driveOutput;
   public SwerveModule(
@@ -56,7 +58,7 @@ public class SwerveModule implements Sendable {
     m_driveEncoder = driveEncoder;
     m_turningEncoder = turningEncoder;
 
-    m_drivePIDController = new PIDController(kPModuleDriveController, 0, 0.);
+    m_drivePIDController = new PIDController(kPModuleDriveController, 0, 0);
 
     m_turningPIDController = new ProfiledPIDController(
           kPModuleTurningController,
@@ -70,6 +72,7 @@ public class SwerveModule implements Sendable {
 
     m_turningFeedforward = new SimpleMotorFeedforward(0.1, 0.001); // TODO: real values for kS and kV.
     SmartDashboard.putData(String.format("Swerve Module %s", m_name), this);
+    m_driveFeedforward = new SimpleMotorFeedforward(.1,.5);
   }
 
   public SwerveModuleState getState() {
@@ -89,9 +92,10 @@ public class SwerveModule implements Sendable {
         m_controllerOutput =
         m_turningPIDController.calculate(m_turningEncoder.getAngle(), state.angle.getRadians());
 
-    m_feedForwardOutput = m_turningFeedforward.calculate(getSetpointVelocity(), 0);
+    m_tFeedForwardOutput = m_turningFeedforward.calculate(getSetpointVelocity(), 0);
+    m_dFeedForwardOutput = m_driveFeedforward.calculate(getDriveSetpoint(), 0);
 
-    setOutput(m_driveOutput + 0.3 * state.speedMetersPerSecond, m_controllerOutput + m_feedForwardOutput);
+    setOutput(m_driveOutput + m_dFeedForwardOutput, m_controllerOutput + m_tFeedForwardOutput);
   }
 
   public void setOutput(double driveOutput, double turnOutput) {
@@ -136,7 +140,7 @@ public class SwerveModule implements Sendable {
     return m_turningMotor.get();
   }
   public double getFeedForward() {
-    return m_feedForwardOutput;
+    return m_tFeedForwardOutput;
   }
 
   public double getTControllerOutput() {
@@ -149,8 +153,7 @@ public class SwerveModule implements Sendable {
 
   public double getDriveSetpoint() {
     return m_drivePIDController.getSetpoint();
-}
-
+  }
 
   @Override
   public void initSendable(SendableBuilder builder) {
