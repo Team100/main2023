@@ -74,7 +74,7 @@ public class DriveSubsystem extends SubsystemBase {
   public static final double kvVoltSecondsPerMeter = 2.0;
   public static final double kaVoltSecondsSquaredPerMeter = 0.5;
 
-  public static final double kMaxSpeedMetersPerSecond = 6;
+  public static final double kMaxSpeedMetersPerSecond = 2;
   
   // Robot swerve modules
   private final SwerveModule m_frontLeft = SwerveModuleFactory.newSwerveModule(
@@ -114,20 +114,21 @@ public class DriveSubsystem extends SubsystemBase {
           kRearRightAngleZero);
 
   // The gyro sensor.  We have a Nav-X.
-  private final Gyro m_gyro = new AHRS(SerialPort.Port.kUSB);
-
+  private final AHRS m_gyro;
   // Odometry class for tracking robot pose
-  SwerveDriveOdometry m_odometry =
-      new SwerveDriveOdometry(kDriveKinematics, m_gyro.getRotation2d());
-
+  SwerveDriveOdometry m_odometry;
+      
   public DriveSubsystem() {
+    m_gyro = new AHRS(SerialPort.Port.kUSB);
+    m_gyro.reset();
+    m_odometry = new SwerveDriveOdometry(kDriveKinematics, Rotation2d.fromDegrees(-m_gyro.getFusedHeading()));
     SmartDashboard.putData("Drive Subsystem", this);
   }
 
   @Override
   public void periodic() {
     m_odometry.update(
-        m_gyro.getRotation2d(),
+        Rotation2d.fromDegrees(-m_gyro.getFusedHeading()),
         m_frontLeft.getState(),
         m_frontRight.getState(),
         m_rearLeft.getState(),
@@ -139,7 +140,7 @@ public class DriveSubsystem extends SubsystemBase {
   }
 
   public void resetOdometry(Pose2d pose) {
-    m_odometry.resetPosition(pose, m_gyro.getRotation2d());
+    m_odometry.resetPosition(pose, Rotation2d.fromDegrees(-m_gyro.getFusedHeading()));
   }
 
   /**
@@ -152,17 +153,20 @@ public class DriveSubsystem extends SubsystemBase {
    */
   @SuppressWarnings("ParameterName")
   public void drive(double xSpeed, double ySpeed, double rot, boolean fieldRelative) {
+    if (Math.abs(xSpeed)<.1) xSpeed=0;
+    if (Math.abs(ySpeed)<.1) ySpeed=0;
+    if (Math.abs(rot)<.1) rot=0;
     var swerveModuleStates =
         kDriveKinematics.toSwerveModuleStates(
             fieldRelative
-                ? ChassisSpeeds.fromFieldRelativeSpeeds(xSpeed, ySpeed, rot, m_gyro.getRotation2d())
-                : new ChassisSpeeds(xSpeed, ySpeed, 5*rot));
+                ? ChassisSpeeds.fromFieldRelativeSpeeds(kMaxSpeedMetersPerSecond*xSpeed, kMaxSpeedMetersPerSecond*ySpeed, rot, Rotation2d.fromDegrees(-m_gyro.getFusedHeading()))
+                : new ChassisSpeeds(kMaxSpeedMetersPerSecond*xSpeed, kMaxSpeedMetersPerSecond*ySpeed, 5*rot));
     SwerveDriveKinematics.desaturateWheelSpeeds(
         swerveModuleStates, kMaxSpeedMetersPerSecond);
-    m_frontLeft.setDesiredState(swerveModuleStates[0]);
-    m_frontRight.setDesiredState(new SwerveModuleState(-swerveModuleStates[1].speedMetersPerSecond, swerveModuleStates[1].angle));
-    m_rearLeft.setDesiredState(swerveModuleStates[2]);
-    m_rearRight.setDesiredState(new SwerveModuleState(-swerveModuleStates[3].speedMetersPerSecond, swerveModuleStates[3].angle));
+    m_frontLeft.setDesiredState(new SwerveModuleState(-swerveModuleStates[0].speedMetersPerSecond, swerveModuleStates[0].angle));
+    m_frontRight.setDesiredState(swerveModuleStates[1]);
+    m_rearLeft.setDesiredState(new SwerveModuleState(-swerveModuleStates[2].speedMetersPerSecond, swerveModuleStates[2].angle));
+    m_rearRight.setDesiredState(swerveModuleStates[3]);
   }
 
   public void setModuleStates(SwerveModuleState[] desiredStates) {
@@ -196,7 +200,7 @@ public class DriveSubsystem extends SubsystemBase {
   }
 
   public double getHeading() {
-    return m_gyro.getRotation2d().getDegrees();
+    return Rotation2d.fromDegrees(-m_gyro.getFusedHeading()).getDegrees();
   }
 
   public double getTurnRate() {

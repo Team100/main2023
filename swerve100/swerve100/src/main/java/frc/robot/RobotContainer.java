@@ -12,7 +12,10 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.math.trajectory.TrajectoryConfig;
 import edu.wpi.first.math.trajectory.TrajectoryGenerator;
+import edu.wpi.first.util.sendable.Sendable;
+import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Constants.AutoConstants;
 import frc.robot.Constants.OIConstants;
 import frc.robot.subsystems.DriveSubsystem;
@@ -28,7 +31,7 @@ import java.util.List;
  * periodic methods (other than the scheduler calls).  Instead, the structure of the robot
  * (including subsystems, commands, and button mappings) should be declared here.
  */
-public class RobotContainer {
+public class RobotContainer implements Sendable {
   // The robot's subsystems
   private final DriveSubsystem m_robotDrive = new DriveSubsystem();
 
@@ -57,6 +60,7 @@ public class RobotContainer {
                     true);
                 },
             m_robotDrive));
+            SmartDashboard.putData("Robot Container", this);
   }
 
   /**
@@ -131,5 +135,13 @@ public class RobotContainer {
       {rearRight?driveControl:0, rearRight?turnControl:0}
     };
     m_robotDrive.test(desiredOutputs);
+  }
+
+  @Override
+  public void initSendable(SendableBuilder builder) {
+    builder.setSmartDashboardType("container");
+    builder.addDoubleProperty("right y", () -> m_driverController.getRightY(), null);  
+    builder.addDoubleProperty("right x", () -> m_driverController.getRightX(), null);
+    builder.addDoubleProperty("left x", () -> m_driverController.getLeftX(), null);
   }
 }

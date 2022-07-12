@@ -15,8 +15,8 @@ import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class SwerveModule implements Sendable {
-  public static final double kMaxModuleAngularSpeedRadiansPerSecond = 4 * Math.PI;
-  public static final double kMaxModuleAngularAccelerationRadiansPerSecondSquared = 4 * Math.PI;
+  public static final double kMaxModuleAngularSpeedRadiansPerSecond = 20 * Math.PI;
+  public static final double kMaxModuleAngularAccelerationRadiansPerSecondSquared = 20 * Math.PI;
 
   public static final int kCIMcoderEncoderCPR = 80; // see docs.ctre-phoenix.com/en/stable/ch14_MCSensor.html
 
@@ -72,7 +72,7 @@ public class SwerveModule implements Sendable {
 
     m_turningFeedforward = new SimpleMotorFeedforward(0.1, 0.001); // TODO: real values for kS and kV.
     SmartDashboard.putData(String.format("Swerve Module %s", m_name), this);
-    m_driveFeedforward = new SimpleMotorFeedforward(.1,.5);
+    m_driveFeedforward = new SimpleMotorFeedforward(.1,.83);
   }
 
   public SwerveModuleState getState() {
@@ -94,7 +94,6 @@ public class SwerveModule implements Sendable {
 
     m_tFeedForwardOutput = m_turningFeedforward.calculate(getSetpointVelocity(), 0);
     m_dFeedForwardOutput = m_driveFeedforward.calculate(getDriveSetpoint(), 0);
-
     setOutput(m_driveOutput + m_dFeedForwardOutput, m_controllerOutput + m_tFeedForwardOutput);
   }
 
@@ -139,7 +138,7 @@ public class SwerveModule implements Sendable {
   public double getTurningOutput() {
     return m_turningMotor.get();
   }
-  public double getFeedForward() {
+  public double gettFeedForward() {
     return m_tFeedForwardOutput;
   }
 
@@ -154,6 +153,10 @@ public class SwerveModule implements Sendable {
   public double getDriveSetpoint() {
     return m_drivePIDController.getSetpoint();
   }
+  public double getdFeedForward() {
+    return m_dFeedForwardOutput;
+  }
+
 
   @Override
   public void initSendable(SendableBuilder builder) {
@@ -163,10 +166,11 @@ public class SwerveModule implements Sendable {
     builder.addDoubleProperty("azimuth_degrees", this::getAzimuthDegrees, null);
     builder.addDoubleProperty("turning_output", this::getTurningOutput, null);
     builder.addDoubleProperty("setpoint velocity", this::getSetpointVelocity, null);
-    builder.addDoubleProperty("feed_forward_output", this::getFeedForward, null);
+    builder.addDoubleProperty("feed_forward_output", this::gettFeedForward, null);
     builder.addDoubleProperty("controller_Output", this::getTControllerOutput, null);
     builder.addDoubleProperty("turningSetPoint", this::getSetpointPosition, null);
     builder.addDoubleProperty("driveControllerOutput", this::getDControllerOutput, null);
     builder.addDoubleProperty("driveSetPoint", this::getDriveSetpoint, null);
+    builder.addDoubleProperty("driveFeedForwardOutput", this::getDriveSetpoint, null);
   }
 }
