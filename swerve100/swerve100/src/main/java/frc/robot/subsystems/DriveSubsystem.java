@@ -165,16 +165,16 @@ public class DriveSubsystem extends SubsystemBase {
     m_frontLeft.setDesiredState(swerveModuleStates[0]);
     m_frontRight.setDesiredState(new SwerveModuleState(-swerveModuleStates[1].speedMetersPerSecond, swerveModuleStates[1].angle));
     m_rearLeft.setDesiredState(swerveModuleStates[2]);
-    m_rearRight.setDesiredState(new SwerveModuleState(-swerveModuleStates[3].speedMetersPerSecond, swerveModuleStates[1].angle));
+    m_rearRight.setDesiredState(new SwerveModuleState(-swerveModuleStates[3].speedMetersPerSecond, swerveModuleStates[3].angle));
   }
 
   public void setModuleStates(SwerveModuleState[] desiredStates) {
     SwerveDriveKinematics.desaturateWheelSpeeds(
         desiredStates, kMaxSpeedMetersPerSecond);
     m_frontLeft.setDesiredState(desiredStates[0]);
-    m_frontRight.setDesiredState(desiredStates[1]);
+    m_frontRight.setDesiredState(new SwerveModuleState(-desiredStates[1].speedMetersPerSecond, desiredStates[1].angle));
     m_rearLeft.setDesiredState(desiredStates[2]);
-    m_rearRight.setDesiredState(desiredStates[3]);
+    m_rearRight.setDesiredState(new SwerveModuleState(-desiredStates[3].speedMetersPerSecond, desiredStates[3].angle));
   }
 
   public void test(double[][] desiredOutputs) {
@@ -210,5 +210,7 @@ public class DriveSubsystem extends SubsystemBase {
   public void initSendable(SendableBuilder builder) {
     super.initSendable(builder);
     builder.addDoubleProperty("heading_degrees", this::getHeading, null);
+    builder.addDoubleProperty("translationalx", () -> getPose().getX(), null);
+    builder.addDoubleProperty("translationaly", () -> getPose().getY(), null);
   }
 }

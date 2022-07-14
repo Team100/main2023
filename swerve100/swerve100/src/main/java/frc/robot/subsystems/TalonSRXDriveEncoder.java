@@ -18,7 +18,7 @@ public class TalonSRXDriveEncoder implements DriveEncoder {
     }
 
     public double getRate() {
-        return m_motor.getSelectedSensorVelocity() * 10 * m_distancePerPulse;
+        return m_motor.getSelectedSensorVelocity() * 100 * m_distancePerPulse;
     }
 
     public void reset() {

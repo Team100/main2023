@@ -72,7 +72,7 @@ public class SwerveModule implements Sendable {
 
     m_turningFeedforward = new SimpleMotorFeedforward(0.1, 0.001); // TODO: real values for kS and kV.
     SmartDashboard.putData(String.format("Swerve Module %s", m_name), this);
-    m_driveFeedforward = new SimpleMotorFeedforward(.1,.83);
+    m_driveFeedforward = new SimpleMotorFeedforward(.1,.083);
   }
 
   public SwerveModuleState getState() {
