@@ -28,14 +28,14 @@ public class DriveSubsystem extends SubsystemBase {
 
   public static final int kFrontLeftTurningMotorPort = 4;
   public static final int kFrontLeftAngleRange = 893;
-  public static final int kFrontLeftAngleZero = 770;
+  public static final int kFrontLeftAngleZero = 790;
 
   public static final int kRearLeftTurningMotorPort = 5;
-  public static final int kRearLeftAngleRange = 880;
-  public static final int kRearLeftAngleZero = 870;
+  public static final int kRearLeftAngleRange = 855;
+  public static final int kRearLeftAngleZero = 850;
 
   public static final int kFrontRightTurningMotorPort = 11;
-  public static final int kFrontRightAngleRange = 893;
+  public static final int kFrontRightAngleRange = 830;
   public static final int kFrontRightAngleZero = 675;
 
   public static final int kRearRightTurningMotorPort = 10;
@@ -120,7 +120,6 @@ public class DriveSubsystem extends SubsystemBase {
       
   public DriveSubsystem() {
     m_gyro = new AHRS(SerialPort.Port.kUSB);
-    m_gyro.reset();
     m_odometry = new SwerveDriveOdometry(kDriveKinematics, Rotation2d.fromDegrees(-m_gyro.getFusedHeading()));
     SmartDashboard.putData("Drive Subsystem", this);
   }
@@ -163,10 +162,10 @@ public class DriveSubsystem extends SubsystemBase {
                 : new ChassisSpeeds(kMaxSpeedMetersPerSecond*xSpeed, kMaxSpeedMetersPerSecond*ySpeed, 5*rot));
     SwerveDriveKinematics.desaturateWheelSpeeds(
         swerveModuleStates, kMaxSpeedMetersPerSecond);
-    m_frontLeft.setDesiredState(new SwerveModuleState(-swerveModuleStates[0].speedMetersPerSecond, swerveModuleStates[0].angle));
-    m_frontRight.setDesiredState(swerveModuleStates[1]);
-    m_rearLeft.setDesiredState(new SwerveModuleState(-swerveModuleStates[2].speedMetersPerSecond, swerveModuleStates[2].angle));
-    m_rearRight.setDesiredState(swerveModuleStates[3]);
+    m_frontLeft.setDesiredState(swerveModuleStates[0]);
+    m_frontRight.setDesiredState(new SwerveModuleState(-swerveModuleStates[1].speedMetersPerSecond, swerveModuleStates[1].angle));
+    m_rearLeft.setDesiredState(swerveModuleStates[2]);
+    m_rearRight.setDesiredState(new SwerveModuleState(-swerveModuleStates[3].speedMetersPerSecond, swerveModuleStates[1].angle));
   }
 
   public void setModuleStates(SwerveModuleState[] desiredStates) {
