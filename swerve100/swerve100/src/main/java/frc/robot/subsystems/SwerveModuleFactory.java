@@ -42,4 +42,24 @@ public class SwerveModuleFactory {
 
         return new SwerveModule(name, driveMotor, turningMotor, driveEncoder, turningEncoder);
     }
+
+    // TODO: use the right constants here
+    public static SwerveModule newSwervoModule(
+        String name,
+        int driveMotorCanId,
+        int turningMotorCanId,
+        int turningEncoderChannel,
+        boolean driveEncoderReversed,
+        boolean turningEncoderReversed,
+        double turningOffset, double turningGearRatio) {
+    TalonSRXDriveMotor driveMotor = new TalonSRXDriveMotor(name, driveMotorCanId);
+    TalonSRXDriveEncoder driveEncoder = new TalonSRXDriveEncoder(name, driveMotor,
+            SwerveModule.kDriveEncoderDistancePerPulse, driveEncoderReversed);
+
+    TalonSRXTurningMotor turningMotor = new TalonSRXTurningMotor(name, turningMotorCanId);
+    AnalogTurningEncoder turningEncoder = new AnalogTurningEncoder(name, turningEncoderChannel, turningOffset,
+            turningGearRatio, turningEncoderReversed);
+
+    return new SwerveModule(name, driveMotor, turningMotor, driveEncoder, turningEncoder);
+}
 }
