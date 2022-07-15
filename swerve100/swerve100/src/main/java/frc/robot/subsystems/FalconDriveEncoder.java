@@ -1,20 +1,35 @@
 package frc.robot.subsystems;
 
 import edu.wpi.first.util.sendable.SendableBuilder;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
-public class FalconDriveEncoder  implements DriveEncoder {
+public class FalconDriveEncoder implements DriveEncoder {
+    private static final int kIntegratedSensorPulsesPerTurn = 2048;
+    private final FalconDriveMotor m_motor;
+    private final double m_distancePerPulse;
 
+    public FalconDriveEncoder(String name,
+            FalconDriveMotor motor,
+            double distancePerTurn,
+            boolean reverseDirection) {
+        this.m_motor = motor;
+        this.m_distancePerPulse = distancePerTurn / kIntegratedSensorPulsesPerTurn;
+        m_motor.setSensorPhase(reverseDirection);
+        SmartDashboard.putData(String.format("Falcon Drive Encoder %s", name), this);
+
+    }
 
     @Override
     public double getRate() {
-        // TODO Auto-generated method stub
-        return 0;
+        // sensor velocity is 1/2048ths of a turn per 100ms
+        return m_motor.getSensorCollection().getIntegratedSensorVelocity()
+                * 10 * m_distancePerPulse;
     }
 
     @Override
     public void reset() {
-        // TODO Auto-generated method stub
-        
+        m_motor.getSensorCollection().setIntegratedSensorPosition(0, 0);
+
     }
 
     @Override
@@ -22,5 +37,5 @@ public class FalconDriveEncoder  implements DriveEncoder {
         builder.setSmartDashboardType("FalconDriveEncoder");
         builder.addDoubleProperty("Speed", this::getRate, null);
     }
-    
+
 }

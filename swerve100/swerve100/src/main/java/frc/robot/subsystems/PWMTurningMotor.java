@@ -3,13 +3,16 @@ package frc.robot.subsystems;
 import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.motorcontrol.PWMMotorController;
 import edu.wpi.first.wpilibj.motorcontrol.VictorSP;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class PWMTurningMotor implements TurningMotor {
     private final PWMMotorController m_motor;
     public static final double kTurningCurrentLimit = 10;
 
-    public PWMTurningMotor(int channel) {
+    public PWMTurningMotor(String name, int channel) {
         m_motor = new VictorSP(channel);
+        SmartDashboard.putData(String.format("PWM Turning Motor %s", name), this);
+
     }
 
     @Override
@@ -24,7 +27,7 @@ public class PWMTurningMotor implements TurningMotor {
 
     @Override
     public void initSendable(SendableBuilder builder) {
-        builder.setSmartDashboardType("TalonSRXTurningMotor");
+        builder.setSmartDashboardType("PWMTurningMotor");
         builder.addDoubleProperty("Device ID", () -> m_motor.getChannel(), null);
         builder.addDoubleProperty("Output", this::get, null);
     }
