@@ -27,7 +27,7 @@ public class TalonSRXDriveEncoder implements DriveEncoder {
 
     @Override
     public void initSendable(SendableBuilder builder) {
-        builder.setSmartDashboardType("TalonSRXDriveEncoder");
+        builder.setSmartDashboardType("FalconDriveEncoder");
         builder.addDoubleProperty("Speed", this::getRate, null);
     }
 }
