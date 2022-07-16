@@ -12,7 +12,6 @@ public class PWMTurningMotor implements TurningMotor {
     public PWMTurningMotor(String name, int channel) {
         m_motor = new VictorSP(channel);
         SmartDashboard.putData(String.format("PWM Turning Motor %s", name), this);
-
     }
 
     @Override
