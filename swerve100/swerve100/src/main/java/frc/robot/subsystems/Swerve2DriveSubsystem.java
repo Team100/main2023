@@ -21,8 +21,8 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
  */
 public class Swerve2DriveSubsystem extends SubsystemBase {
 
-    public static final double kTrackWidth = 0.5;
-    public static final double kWheelBase = 0.5;
+    public static final double kTrackWidth = 0.38;
+    public static final double kWheelBase = 0.445;
 
     public static final SwerveDriveKinematics kDriveKinematics = new SwerveDriveKinematics(
             new Translation2d(kWheelBase / 2, kTrackWidth / 2),
@@ -36,50 +36,47 @@ public class Swerve2DriveSubsystem extends SubsystemBase {
     public static final double kvVoltSecondsPerMeter = 2.0;
     public static final double kaVoltSecondsSquaredPerMeter = 0.5;
 
-    public static final double kMaxSpeedMetersPerSecond = 2;
+    public static final double kMaxSpeedMetersPerSecond = 1.0;
 
     private final SwerveModule m_frontLeft = SwerveModuleFactory
             .newSwerveModuleWithFalconDriveAndAnalogSteeringEncoders(
                     "Front Left",
                     11,
-                    0, // this is surely wrong
-                    0, // this is surely wrong
-                    true,
-                    false,
-                    790 // this is surely wrong
-            );
-
-    private final SwerveModule m_rearLeft = SwerveModuleFactory.newSwerveModuleWithFalconDriveAndAnalogSteeringEncoders(
-            "Rear Left",
-            21,
-            1, // this is surely wrong
-            1, // this is surely wrong
-            true,
-            true,
-            850 // this is surely wrong
-    );
+                    3, // motor
+                    1, // encoder
+                    true, // drive reverse
+                    false, // steer encoder reverse
+                    0.2979);
 
     private final SwerveModule m_frontRight = SwerveModuleFactory
             .newSwerveModuleWithFalconDriveAndAnalogSteeringEncoders(
                     "Front Right",
                     12,
-                    2, // this is surely wrong
-                    2, // this is surely wrong
-                    true,
-                    false,
-                    675 // this is surely wrong
-            );
+                    1, // motor
+                    3, // encoder
+                    false, // drive reverse
+                    false, // steer encoder reverse
+                    0.2826);
+
+    private final SwerveModule m_rearLeft = SwerveModuleFactory
+            .newSwerveModuleWithFalconDriveAndAnalogSteeringEncoders(
+                    "Rear Left",
+                    21,
+                    2, // motor
+                    0, // encoder
+                    true, // drive reverse
+                    false, // steer encoder reverse
+                    0.7421);
 
     private final SwerveModule m_rearRight = SwerveModuleFactory
             .newSwerveModuleWithFalconDriveAndAnalogSteeringEncoders(
                     "Rear Right",
                     22,
-                    3, // this is surely wrong
-                    3, // this is surely wrong
-                    true,
-                    true,
-                    200// this is surely wrong
-            );
+                    0, // motor
+                    2, // encoder
+                    false, // drive reverse
+                    false, // steer encoder reverse
+                    0.2492);
 
     // The gyro sensor. We have a Nav-X.
     private final AHRS m_gyro;
@@ -121,11 +118,11 @@ public class Swerve2DriveSubsystem extends SubsystemBase {
      */
     @SuppressWarnings("ParameterName")
     public void drive(double xSpeed, double ySpeed, double rot, boolean fieldRelative) {
-        if (Math.abs(xSpeed) < .1)
+        if (Math.abs(xSpeed) < .01)
             xSpeed = 0;
-        if (Math.abs(ySpeed) < .1)
+        if (Math.abs(ySpeed) < .01)
             ySpeed = 0;
-        if (Math.abs(rot) < .1)
+        if (Math.abs(rot) < .01)
             rot = 0;
         var swerveModuleStates = kDriveKinematics.toSwerveModuleStates(
                 fieldRelative
@@ -137,22 +134,18 @@ public class Swerve2DriveSubsystem extends SubsystemBase {
         SwerveDriveKinematics.desaturateWheelSpeeds(
                 swerveModuleStates, kMaxSpeedMetersPerSecond);
         m_frontLeft.setDesiredState(swerveModuleStates[0]);
-        m_frontRight.setDesiredState(
-                new SwerveModuleState(-swerveModuleStates[1].speedMetersPerSecond, swerveModuleStates[1].angle));
+        m_frontRight.setDesiredState(swerveModuleStates[1]);
         m_rearLeft.setDesiredState(swerveModuleStates[2]);
-        m_rearRight.setDesiredState(
-                new SwerveModuleState(-swerveModuleStates[3].speedMetersPerSecond, swerveModuleStates[3].angle));
+        m_rearRight.setDesiredState(swerveModuleStates[3]);
     }
 
     public void setModuleStates(SwerveModuleState[] desiredStates) {
         SwerveDriveKinematics.desaturateWheelSpeeds(
                 desiredStates, kMaxSpeedMetersPerSecond);
         m_frontLeft.setDesiredState(desiredStates[0]);
-        m_frontRight
-                .setDesiredState(new SwerveModuleState(-desiredStates[1].speedMetersPerSecond, desiredStates[1].angle));
+        m_frontRight.setDesiredState(desiredStates[1]);
         m_rearLeft.setDesiredState(desiredStates[2]);
-        m_rearRight
-                .setDesiredState(new SwerveModuleState(-desiredStates[3].speedMetersPerSecond, desiredStates[3].angle));
+        m_rearRight.setDesiredState(desiredStates[3]);
     }
 
     public void test(double[][] desiredOutputs) {

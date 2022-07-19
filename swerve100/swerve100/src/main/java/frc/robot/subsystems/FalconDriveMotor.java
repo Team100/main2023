@@ -14,10 +14,12 @@ public class FalconDriveMotor implements DriveMotor {
 
     public FalconDriveMotor(String name, int canId) {
         m_motor = new WPI_TalonFX(canId);
-        m_motor.configStatorCurrentLimit(
-                new StatorCurrentLimitConfiguration(true, kDriveCurrentLimit, kDriveCurrentLimit, 0));
-        m_motor.configSupplyCurrentLimit(
-                new SupplyCurrentLimitConfiguration(true, kDriveCurrentLimit, kDriveCurrentLimit, 0));
+        m_motor.configFactoryDefault();
+       // m_motor.configStatorCurrentLimit(
+       //         new StatorCurrentLimitConfiguration(true, kDriveCurrentLimit, kDriveCurrentLimit, 0));
+       // m_motor.configSupplyCurrentLimit(
+       //         new SupplyCurrentLimitConfiguration(true, kDriveCurrentLimit, kDriveCurrentLimit, 0));
+       
         SmartDashboard.putData(String.format("Falcon Drive Motor %s", name), this);
     }
 
@@ -38,8 +40,8 @@ public class FalconDriveMotor implements DriveMotor {
         builder.addDoubleProperty("Output", this::get, null);
     }
 
-    public void setSensorPhase(boolean reverseDirection) {
-        m_motor.setSensorPhase(reverseDirection);
+    public void setInverted(boolean reverseDirection) {
+        m_motor.setInverted(reverseDirection);
     }
 
     public TalonFXSensorCollection getSensorCollection() {
