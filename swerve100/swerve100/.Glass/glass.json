@@ -14,6 +14,9 @@
         "Talon Encoder[5]": {
           "open": true
         },
+        "Talon FX [11]": {
+          "open": true
+        },
         "Talon SRX [10]": {
           "open": true
         },
@@ -22,7 +25,22 @@
       "open": true
     },
     "SmartDashboard": {
+      "Falcon Drive Encoder Front Left": {
+        "open": true
+      },
+      "Falcon Drive Motor Front Left": {
+        "open": true
+      },
+      "Falcon Drive Motor Front Right": {
+        "open": true
+      },
       "Front Left Module": {
+        "open": true
+      },
+      "Swerve Module Front Left": {
+        "open": true
+      },
+      "Swerve Module Front Right": {
         "open": true
       },
       "Talon SRX Drive Motor Rear Right": {
@@ -50,6 +68,10 @@
       "/LiveWindow/Ungrouped/PIDController[8]": "PIDController",
       "/LiveWindow/Ungrouped/PIDController[9]": "PIDController",
       "/LiveWindow/Ungrouped/Scheduler": "Scheduler",
+      "/LiveWindow/Ungrouped/Talon FX [11]": "Motor Controller",
+      "/LiveWindow/Ungrouped/Talon FX [12]": "Motor Controller",
+      "/LiveWindow/Ungrouped/Talon FX [21]": "Motor Controller",
+      "/LiveWindow/Ungrouped/Talon FX [22]": "Motor Controller",
       "/LiveWindow/Ungrouped/Talon SRX [0]": "Motor Controller",
       "/LiveWindow/Ungrouped/Talon SRX [10]": "Motor Controller",
       "/LiveWindow/Ungrouped/Talon SRX [11]": "Motor Controller",
@@ -58,6 +80,10 @@
       "/LiveWindow/Ungrouped/Talon SRX [1]": "Motor Controller",
       "/LiveWindow/Ungrouped/Talon SRX [4]": "Motor Controller",
       "/LiveWindow/Ungrouped/Talon SRX [5]": "Motor Controller",
+      "/LiveWindow/Ungrouped/VictorSP[0]": "Motor Controller",
+      "/LiveWindow/Ungrouped/VictorSP[1]": "Motor Controller",
+      "/LiveWindow/Ungrouped/VictorSP[2]": "Motor Controller",
+      "/LiveWindow/Ungrouped/VictorSP[3]": "Motor Controller",
       "/LiveWindow/Ungrouped/navX-Sensor[2]": "Gyro",
       "/SmartDashboard/Drive Subsystem": "Subsystem",
       "/SmartDashboard/Field": "Field2d"
@@ -76,7 +102,7 @@
               "autoFit": true
             }
           ],
-          "height": -15,
+          "height": 302,
           "series": [
             {
               "color": [
@@ -85,7 +111,7 @@
                 0.6901960968971252,
                 1.0
               ],
-              "id": "NT:/LiveWindow/Ungrouped/Talon Encoder[5]/Distance"
+              "id": "NT:/SmartDashboard/Swerve Module Front Left/driveSetPoint"
             }
           ]
         }
@@ -99,7 +125,7 @@
               "autoFit": true
             }
           ],
-          "height": -15,
+          "height": 301,
           "series": [
             {
               "color": [
@@ -108,7 +134,7 @@
                 0.6901960968971252,
                 1.0
               ],
-              "id": "NT:/LiveWindow/Ungrouped/Talon Encoder[10]/Distance"
+              "id": "NT:/SmartDashboard/Falcon Drive Encoder Front Left/Speed"
             }
           ]
         }
@@ -122,7 +148,7 @@
               "autoFit": true
             }
           ],
-          "height": -15,
+          "height": 314,
           "series": [
             {
               "color": [
@@ -131,7 +157,7 @@
                 0.6901960968971252,
                 1.0
               ],
-              "id": "NT:/LiveWindow/Ungrouped/Talon Encoder[4]/Distance"
+              "id": "NT:/SmartDashboard/Swerve Module Front Right/driveSetPoint"
             }
           ]
         }
@@ -145,16 +171,16 @@
               "autoFit": true
             }
           ],
-          "height": -15,
+          "height": 368,
           "series": [
             {
               "color": [
-                0.2980392277240753,
-                0.44705885648727417,
-                0.6901960968971252,
+                0.8666667342185974,
+                0.5176470875740051,
+                0.32156863808631897,
                 1.0
               ],
-              "id": "NT:/LiveWindow/Ungrouped/Talon Encoder[11]/Distance"
+              "id": "NT:/SmartDashboard/Swerve Module Front Left/drive_output"
             }
           ]
         }
@@ -168,7 +194,7 @@
               "autoFit": true
             }
           ],
-          "height": 1053,
+          "height": 298,
           "series": [
             {
               "color": [
@@ -177,11 +203,60 @@
                 0.6901960968971252,
                 1.0
               ],
-              "id": "NT:/SmartDashboard/Talon SRX Drive Motor Rear Right/Output"
+              "id": "NT:/SmartDashboard/Swerve Module Front Right/speed_meters_per_sec"
             }
           ]
         }
       ]
+    },
+    "Plot <5>": {
+      "plots": [
+        {
+          "axis": [
+            {
+              "autoFit": true
+            }
+          ],
+          "height": 335,
+          "series": [
+            {
+              "color": [
+                0.2980392277240753,
+                0.44705885648727417,
+                0.6901960968971252,
+                1.0
+              ],
+              "id": "NT:/SmartDashboard/Swerve Module Front Right/drive_output"
+            }
+          ]
+        }
+      ]
+    },
+    "Plot <6>": {
+      "plots": [
+        {
+          "axis": [
+            {
+              "autoFit": true
+            }
+          ],
+          "height": 215,
+          "series": [
+            {
+              "color": [
+                0.8666667342185974,
+                0.5176470875740051,
+                0.32156863808631897,
+                1.0
+              ],
+              "id": "NT:/SmartDashboard/Falcon Drive Motor Front Right/Output"
+            }
+          ]
+        }
+      ],
+      "window": {
+        "visible": false
+      }
     }
   }
 }
