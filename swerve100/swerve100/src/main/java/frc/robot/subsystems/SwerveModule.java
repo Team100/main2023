@@ -23,7 +23,7 @@ public class SwerveModule implements Sendable {
 
     public static final double kPModuleTurningController = 1;
 
-    public static final double kPModuleDriveController = 0.1;
+    public static final double kPModuleDriveController = .1;
 
     private final String m_name;
     private final DriveMotor m_driveMotor;
@@ -68,7 +68,7 @@ public class SwerveModule implements Sendable {
 
         m_turningFeedforward = new SimpleMotorFeedforward(0.1, 0.001); // TODO: real values for kS and kV.
         SmartDashboard.putData(String.format("Swerve Module %s", m_name), this);
-        m_driveFeedforward = new SimpleMotorFeedforward(0.0, 1.0);
+        m_driveFeedforward = new SimpleMotorFeedforward(0.0, .25);
         // TODO: extract this config
     }
 
@@ -166,6 +166,9 @@ public class SwerveModule implements Sendable {
         builder.addDoubleProperty("turningSetPoint", this::getSetpointPosition, null);
         builder.addDoubleProperty("driveControllerOutput", this::getDControllerOutput, null);
         builder.addDoubleProperty("driveSetPoint", this::getDriveSetpoint, null);
-        builder.addDoubleProperty("driveFeedForwardOutput", this::getDriveSetpoint, null);
+        builder.addDoubleProperty("driveFeedForwardOutput", this::getdFeedForward, null);
+        builder.addDoubleProperty("drive controller position error", () -> m_drivePIDController.getPositionError(), null );
+        builder.addDoubleProperty("drive controller velocity error", () -> m_drivePIDController.getVelocityError(), null );
+
     }
 }

@@ -191,12 +191,6 @@ public class DriveSubsystem extends SubsystemBase {
     m_frontRight.resetEncoders();
     m_rearRight.resetEncoders();
   }
-
-  /** Zeroes the heading of the robot. */
-  public void zeroHeading() {
-    m_gyro.reset();
-  }
-
   public double getHeading() {
     return Rotation2d.fromDegrees(-m_gyro.getFusedHeading()).getDegrees();
   }

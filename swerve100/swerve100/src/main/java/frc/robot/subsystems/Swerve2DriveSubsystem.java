@@ -36,7 +36,9 @@ public class Swerve2DriveSubsystem extends SubsystemBase {
     public static final double kvVoltSecondsPerMeter = 2.0;
     public static final double kaVoltSecondsSquaredPerMeter = 0.5;
 
-    public static final double kMaxSpeedMetersPerSecond = 1.0;
+    public static final double kMaxSpeedMetersPerSecond = 5.5;
+    public static final double kMaxAngularSpeedRadiansPerSecond = 20;
+    public static double m_northOffset = 0;
 
     private final SwerveModule m_frontLeft = SwerveModuleFactory
             .newSwerveModuleWithFalconDriveAndAnalogSteeringEncoders(
@@ -44,9 +46,9 @@ public class Swerve2DriveSubsystem extends SubsystemBase {
                     11,
                     3, // motor
                     1, // encoder
-                    true, // drive reverse
+                    false, // drive reverse
                     false, // steer encoder reverse
-                    0.2979);
+                    .185);
 
     private final SwerveModule m_frontRight = SwerveModuleFactory
             .newSwerveModuleWithFalconDriveAndAnalogSteeringEncoders(
@@ -56,7 +58,7 @@ public class Swerve2DriveSubsystem extends SubsystemBase {
                     3, // encoder
                     false, // drive reverse
                     false, // steer encoder reverse
-                    0.2826);
+                    .8934);
 
     private final SwerveModule m_rearLeft = SwerveModuleFactory
             .newSwerveModuleWithFalconDriveAndAnalogSteeringEncoders(
@@ -64,7 +66,7 @@ public class Swerve2DriveSubsystem extends SubsystemBase {
                     21,
                     2, // motor
                     0, // encoder
-                    true, // drive reverse
+                    false, // drive reverse
                     false, // steer encoder reverse
                     0.7421);
 
@@ -76,7 +78,7 @@ public class Swerve2DriveSubsystem extends SubsystemBase {
                     2, // encoder
                     false, // drive reverse
                     false, // steer encoder reverse
-                    0.2492);
+                    .7466);
 
     // The gyro sensor. We have a Nav-X.
     private final AHRS m_gyro;
@@ -85,14 +87,14 @@ public class Swerve2DriveSubsystem extends SubsystemBase {
 
     public Swerve2DriveSubsystem() {
         m_gyro = new AHRS(SerialPort.Port.kUSB);
-        m_odometry = new SwerveDriveOdometry(kDriveKinematics, Rotation2d.fromDegrees(-m_gyro.getFusedHeading()));
+        m_odometry = new SwerveDriveOdometry(kDriveKinematics, Rotation2d.fromDegrees(-m_gyro.getFusedHeading()+m_northOffset));
         SmartDashboard.putData("Drive Subsystem", this);
     }
 
     @Override
     public void periodic() {
         m_odometry.update(
-                Rotation2d.fromDegrees(-m_gyro.getFusedHeading()),
+                Rotation2d.fromDegrees(-m_gyro.getFusedHeading()+m_northOffset),
                 m_frontLeft.getState(),
                 m_frontRight.getState(),
                 m_rearLeft.getState(),
@@ -104,7 +106,7 @@ public class Swerve2DriveSubsystem extends SubsystemBase {
     }
 
     public void resetOdometry(Pose2d pose) {
-        m_odometry.resetPosition(pose, Rotation2d.fromDegrees(-m_gyro.getFusedHeading()));
+        m_odometry.resetPosition(pose, Rotation2d.fromDegrees(-m_gyro.getFusedHeading()+m_northOffset));
     }
 
     /**
@@ -119,18 +121,18 @@ public class Swerve2DriveSubsystem extends SubsystemBase {
     @SuppressWarnings("ParameterName")
     public void drive(double xSpeed, double ySpeed, double rot, boolean fieldRelative) {
         if (Math.abs(xSpeed) < .01)
-            xSpeed = 0;
+            xSpeed = 100 * xSpeed * xSpeed * Math.signum(xSpeed);
         if (Math.abs(ySpeed) < .01)
-            ySpeed = 0;
-        if (Math.abs(rot) < .01)
+            ySpeed = 100 * ySpeed * ySpeed * Math.signum(ySpeed);
+        if (Math.abs(rot) < .1)
             rot = 0;
         var swerveModuleStates = kDriveKinematics.toSwerveModuleStates(
                 fieldRelative
                         ? ChassisSpeeds.fromFieldRelativeSpeeds(kMaxSpeedMetersPerSecond * xSpeed,
-                                kMaxSpeedMetersPerSecond * ySpeed, rot,
-                                Rotation2d.fromDegrees(-m_gyro.getFusedHeading()))
+                                kMaxSpeedMetersPerSecond * ySpeed, kMaxAngularSpeedRadiansPerSecond * rot,
+                                Rotation2d.fromDegrees(-m_gyro.getFusedHeading()+m_northOffset))
                         : new ChassisSpeeds(kMaxSpeedMetersPerSecond * xSpeed, kMaxSpeedMetersPerSecond * ySpeed,
-                                5 * rot));
+                                kMaxAngularSpeedRadiansPerSecond * rot));
         SwerveDriveKinematics.desaturateWheelSpeeds(
                 swerveModuleStates, kMaxSpeedMetersPerSecond);
         m_frontLeft.setDesiredState(swerveModuleStates[0]);
@@ -170,7 +172,7 @@ public class Swerve2DriveSubsystem extends SubsystemBase {
     }
 
     public double getHeading() {
-        return Rotation2d.fromDegrees(-m_gyro.getFusedHeading()).getDegrees();
+        return Rotation2d.fromDegrees(-m_gyro.getFusedHeading()+m_northOffset).getDegrees();
     }
 
     public double getTurnRate() {
@@ -183,5 +185,9 @@ public class Swerve2DriveSubsystem extends SubsystemBase {
         builder.addDoubleProperty("heading_degrees", this::getHeading, null);
         builder.addDoubleProperty("translationalx", () -> getPose().getX(), null);
         builder.addDoubleProperty("translationaly", () -> getPose().getY(), null);
+    }
+
+    public void resetAHRS2() {
+        m_northOffset = Rotation2d.fromDegrees(m_gyro.getFusedHeading()).getDegrees();
     }
 }
