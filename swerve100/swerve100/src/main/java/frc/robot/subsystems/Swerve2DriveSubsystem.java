@@ -36,8 +36,8 @@ public class Swerve2DriveSubsystem extends SubsystemBase {
     public static final double kvVoltSecondsPerMeter = 2.0;
     public static final double kaVoltSecondsSquaredPerMeter = 0.5;
 
-    public static final double kMaxSpeedMetersPerSecond = 5.5;
-    public static final double kMaxAngularSpeedRadiansPerSecond = 20;
+    public static final double kMaxSpeedMetersPerSecond = .5;
+    public static final double kMaxAngularSpeedRadiansPerSecond = -2;
     public static double m_northOffset = 0;
 
     private final SwerveModule m_frontLeft = SwerveModuleFactory

@@ -73,7 +73,7 @@ public class DriveSubsystem extends SubsystemBase {
   public static final double kvVoltSecondsPerMeter = 2.0;
   public static final double kaVoltSecondsSquaredPerMeter = 0.5;
 
-  public static final double kMaxSpeedMetersPerSecond = 2;
+  public static final double kMaxSpeedMetersPerSecond = .5;
   
   // Robot swerve modules
   private final SwerveModule m_frontLeft = SwerveModuleFactory.newSwerveModule(
@@ -158,7 +158,7 @@ public class DriveSubsystem extends SubsystemBase {
         kDriveKinematics.toSwerveModuleStates(
             fieldRelative
                 ? ChassisSpeeds.fromFieldRelativeSpeeds(kMaxSpeedMetersPerSecond*xSpeed, kMaxSpeedMetersPerSecond*ySpeed, rot, Rotation2d.fromDegrees(-m_gyro.getFusedHeading()))
-                : new ChassisSpeeds(kMaxSpeedMetersPerSecond*xSpeed, kMaxSpeedMetersPerSecond*ySpeed, 5*rot));
+                : new ChassisSpeeds(kMaxSpeedMetersPerSecond*xSpeed, kMaxSpeedMetersPerSecond*ySpeed, 1*rot));
     SwerveDriveKinematics.desaturateWheelSpeeds(
         swerveModuleStates, kMaxSpeedMetersPerSecond);
     m_frontLeft.setDesiredState(swerveModuleStates[0]);
