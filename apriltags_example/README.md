@@ -2,7 +2,7 @@
 
 Sample AprilTags detector and pose estimator.
 
-## Install and Run on Ubuntu
+# Install and Run on Ubuntu
 
 On my Ubuntu workstation, installation is super easy.  First install the pupil-apriltags python wrapper (which also installs apriltags itself):
 
@@ -36,7 +36,9 @@ The Raspberry Pi is what we'll actually be using on the real robot.
 
 Using the WPILibPi raspberry pi image, there are several steps:
 
-First, attach the pi to a monitor, mouse, and keyboard.
+First make a fork of github.com/Team100/main2023 into your own account; you'll pull from it below.
+
+Then attach the pi to a monitor, mouse, and keyboard.
 Attach the pi to the LAN, e.g. with an ethernet switch.
 Turn it on.
 
@@ -51,7 +53,9 @@ First we have to fix the clock, or none of the steps below will work.  Use whate
 sudo date -s '15 Sep 2022 14:25'
 ```
 
-Then add some software.  This takes a long time, like 30 minutes.
+Next we'll add some software.  This takes a long time, like 30 minutes, waiting for the pi to download everything.
+From the pi command line, type these:
+
 
 ```
 sudo apt update
@@ -59,20 +63,24 @@ sudp apt upgrade
 sudo apt install lightdm
 sudo apt install raspberrypi-ui-mods
 sudo apt install git
-sudo apt install chromium-browser
+sudo apt install chromium-browser  (not strictly required but handy!)
 python3 -m pip install pupil-apriltags
 git clone https://github.com/[your account]/main2023.git
 sudo /sbin/reboot now
 ```
 
-You have to make it "writeable" again, as above: browse to http://wpilibpi.local/ and click the "writeable" button on the top.
+After rebooting, you have to make it "writeable" again, as above: use your laptop to browse to http://wpilibpi.local/ and click the "writeable" button on the top.
+We also have to get the WPI stuff to leave the camera alone for now: click "Vision Status" on the left side and click "Down" to stop the vision service.
+Click "Vision Settings" on the left and then "remove" if there's a camera listed there.
+
 Now the monitor should show a graphical login screen.  Login with pi/raspberry as before.
 
-Open a terminal window using the menu in the upper left.
+Open a terminal window by clicking the icon in the menu bar on the upper left.
 
 ```
 cd main2023/apriltags
-python3 vid.py
+python3 pic.py   (for the canned image)
+python3 vid.py   (for the video camera)
 ```
 
 Point the camera at some AprilTags and rejoice!
