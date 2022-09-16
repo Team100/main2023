@@ -16,7 +16,7 @@ using the web service.  To set it up requires a few steps:
 First make a fork of github.com/Team100/main2023 into your own account, then
 clone it onto your laptop, e.g. using git bash or vscode or however you prefer.
 
-Attach the pi to the LAN (using an ethernet switch), or to your laptop directly.
+Attach the pi to the LAN, e.g. with an ethernet switch.
 
 From your laptop browser, browse to http://wpilibpi.local/ and click the "writeable" button on the top.
 
