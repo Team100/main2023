@@ -1,40 +1,62 @@
 # AprilTags Example
 
 Sample AprilTags detector and pose estimator.
+Works on unix-like platforms; the AprilTags developers don't use Windows
+and so it's a pain to set up on Windows (I failed to do it).
 
-# Install and Run on Ubuntu
+The Raspberry Pi is what we'll actually be using on the real robot, so it's
+the best choice.
 
-On my Ubuntu workstation, installation is super easy.  First install the pupil-apriltags python wrapper (which also installs apriltags itself):
+
+# Install and Run on WPILibPi Vision Application
+
+The WPILibPi framework includes a "Vision Application" that can be manipulated
+using the web service.  To set it up requires a few steps:
+
+First make a fork of github.com/Team100/main2023 into your own account, then
+clone it onto your laptop, e.g. using git bash or vscode or however you prefer.
+
+Attach the pi to the LAN (using an ethernet switch), or to your laptop directly.
+
+From your laptop browser, browse to http://wpilibpi.local/ and click the "writeable" button on the top.
+
+Now install some software on the pi, by ssh'ing to it (e.g. using PuTTY or whatever
+ssh client you want, using username 'pi' and password 'raspberry'), and execute these:
 
 ```
+sudo date -s '15 Sep 2022 14:25' (use the actual date)
+sudo apt update
+sudp apt upgrade
 python3 -m pip install pupil-apriltags
+sudo /sbin/reboot now
 ```
 
-Then make a fork of github.com/Team100/main2023 into your own account, and then clone it somewhere on your workstation:
+When the pi finishes restarting, go to http://wpilibpi.local/ again and click the "writeable" button on the top.
 
-```
-cd <somewhere handy>
-git clone git@github.com:<your account>/main2023.git
-cd main2023/apriltags_example
-```
+Now we're going to install the little library for AprilTag pose rendering.
 
-To see detections in a single image:
+Click "Application" on the left side, and then in the second box called "File Upload," click "Choose File"
+and find main2023/apriltags_example/draw.py.  Then click "Upload."
 
-```
-python3 pic.py
-```
+Finally, install the app itself.
 
-To see detections in your webcam's video stream:
+Still in the "Application" section, in the first box called "Vision Application Configuration," click "Choose File"
+and find main2023/apriltags_example/app.py.  Then click "Upload."
 
-```
-python3 vid.py
-```
+Then navigate to "Vision Status" on the left and click "Down" and then "Up" to restart the service.
 
-# Install and Run on WPILibPi Raspberry Pi
+Then navigate to "Vision Settings" and click "Open Stream".  you should see wpilibpi.local:1181/, which
+will render a bunch of stuff about the camera, and a little video stream showing what the camera sees.
 
-The Raspberry Pi is what we'll actually be using on the real robot.
+Rewrite the url to the next port, wpilibpi.local:1182 (note the "2"), and you should see the *output*
+of the app, which renders little boxes on the AprilTags it finds, as well as the frame rate.
 
-Using the WPILibPi raspberry pi image, there are several steps:
+The app also publishes the id and pose of any AprilTags it finds to NetworkTables.
+
+
+# Install and Run on WPILibPi Raspberry Pi Command Line
+
+To do AprilTag detection via the command line, there are several steps:
 
 First make a fork of github.com/Team100/main2023 into your own account; you'll pull from it below.
 
@@ -84,6 +106,34 @@ python3 vid.py   (for the video camera)
 ```
 
 Point the camera at some AprilTags and rejoice!
+
+# Install and Run on Ubuntu
+
+On my Ubuntu workstation, installation is super easy.  First install the pupil-apriltags python wrapper (which also installs apriltags itself):
+
+```
+python3 -m pip install pupil-apriltags
+```
+
+Then make a fork of github.com/Team100/main2023 into your own account, and then clone it somewhere on your workstation:
+
+```
+cd <somewhere handy>
+git clone git@github.com:<your account>/main2023.git
+cd main2023/apriltags_example
+```
+
+To see detections in a single image:
+
+```
+python3 pic.py
+```
+
+To see detections in your webcam's video stream:
+
+```
+python3 vid.py
+```
 
 # Details
 
