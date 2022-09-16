@@ -1,0 +1,23 @@
+apply plugin: 'java'
+repositories { 
+    maven { url "https://frcmaven.wpi.edu/artifactory/release/" }
+}
+
+dependencies {
+    compile "edu.wpi.first.ntcore:ntcore-java:2022.4.1"
+    compile "edu.wpi.first.wpiutil:wpiutil-java:2022.4.1"
+    compile "edu.wpi.first.ntcore:ntcore-jni:2022.4.1:linuxx86-64"
+}
+
+jar {
+    archiveBaseName = 'example_client'
+    archiveVersion = '0.1.0'
+    manifest {
+        attributes 'Main-Class': 'networktablesdesktopclient.NetworkTablesDesktopClient',
+                   'Class-Path': configurations.runtime.files.collect { "$it.name" }.join(' '),
+                   'Implementation-Version': project.version
+
+    }
+    from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
+    exclude 'META-INF/*.RSA', 'META-INF/*.SF','META-INF/*.DSA'
+}
