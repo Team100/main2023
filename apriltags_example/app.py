@@ -61,17 +61,27 @@ def main():
         pose_t_x_list = []
         pose_t_y_list = []
         pose_t_z_list = []
+        pose_R_x_str = ''
+        pose_R_y_str = ''
+        pose_R_z_str = ''
 
         for r in result:
             id_list.append(r.tag_id)
             pose_t_x_list.append(r.pose_t[0])
             pose_t_y_list.append(r.pose_t[1])
             pose_t_z_list.append(r.pose_t[2])
-
+            for i in range(3):
+                pose_R_x_str += r.pose_R[i][0]
+                pose_R_x_str += r.pose_R[i][0]
+                pose_R_x_str += r.pose_R[i][0]
+            
         vision_nt.putNumberArray("id", id_list)
         vision_nt.putNumberArray("pose_t_x", pose_t_x_list)
         vision_nt.putNumberArray("pose_t_y", pose_t_y_list)
         vision_nt.putNumberArray("pose_t_z", pose_t_z_list)
+        vision_nt.putStringArray("pose_R_x", pose_R_x_str)
+        vision_nt.putStringArray("pose_R_y", pose_R_y_str)
+        vision_nt.putStringArray("pose_R_z", pose_R_z_str)
 
         processing_time = time.time() - start_time
         fps = 1 / processing_time
