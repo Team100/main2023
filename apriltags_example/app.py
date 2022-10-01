@@ -23,7 +23,9 @@ def main():
     input_stream = cs.getVideo()
     output_stream = cs.putVideo("Processed", width, height)
 
-    NetworkTables.initialize()
+    #Roborio IP: 10.1.0.2
+    #Pi IP: 10.1.0.21
+    NetworkTables.initialize(server = '10.1.0.2')
     # Table for vision output information
     vision_nt = NetworkTables.getTable("Vision")
 
