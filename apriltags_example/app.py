@@ -71,9 +71,9 @@ def main():
             ap_pose_R_y_str = ''
             ap_pose_R_z_str = ''
             for i in range(3):
-                ap_pose_R_x_str = ap_pose_R_x_str + str(r.pose_R[i][0])
-                ap_pose_R_y_str = ap_pose_R_y_str + str(r.pose_R[i][1])
-                ap_pose_R_z_str = ap_pose_R_z_str + str(r.pose_R[i][2])
+                ap_pose_R_x_str = ap_pose_R_x_str + str(round(r.pose_R[i][0], 4))
+                ap_pose_R_y_str = ap_pose_R_y_str + str(round(r.pose_R[i][1], 4))
+                ap_pose_R_z_str = ap_pose_R_z_str + str(round(r.pose_R[i][2], 4))
                 if i != 2:
                     ap_pose_R_x_str = ap_pose_R_x_str + ', '
                     ap_pose_R_y_str = ap_pose_R_y_str + ', '
