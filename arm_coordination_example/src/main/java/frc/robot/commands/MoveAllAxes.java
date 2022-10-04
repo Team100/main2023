@@ -6,18 +6,18 @@ import java.util.function.Supplier;
 import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
+import frc.robot.Robot;
 import frc.robot.subsystems.Arm;
 
 /** Captures goals at initialization time, moves the arm. */
 public class MoveAllAxes extends CommandBase {
   private final Supplier<Map<Arm.Axis, Double>> m_input;
   private final Arm m_arm;
-  private static double kDt = 0.02;
 
   public MoveAllAxes(Supplier<Map<Arm.Axis, Double>> input, Arm output) {
     m_input = input;
     m_arm = output;
-    addRequirements(output);
+    addRequirements(m_arm);
     SmartDashboard.putData("move all axes", this);
   }
 
@@ -35,7 +35,7 @@ public class MoveAllAxes extends CommandBase {
   /** While running, lets the servos move towards their goals. */
   @Override
   public void execute() {
-    m_arm.move(kDt);
+    m_arm.move(Robot.kDt);
   }
 
   @Override

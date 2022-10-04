@@ -16,6 +16,7 @@
       "/SmartDashboard/Sim": "Mechanism2d",
       "/SmartDashboard/Sim_2": "Mechanism2d",
       "/SmartDashboard/TopView": "Mechanism2d",
+      "/SmartDashboard/move all axes": "Command",
       "/SmartDashboard/mover": "Command"
     },
     "windows": {
@@ -34,6 +35,9 @@
   "NetworkTables": {
     "LiveWindow": {
       "Ungrouped": {
+        "Servo[0]": {
+          "open": true
+        },
         "open": true
       },
       "open": true
