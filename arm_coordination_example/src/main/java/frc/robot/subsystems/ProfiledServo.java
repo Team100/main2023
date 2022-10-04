@@ -1,4 +1,4 @@
-package frc.robot;
+package frc.robot.subsystems;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
@@ -13,8 +13,6 @@ public class ProfiledServo implements Sendable {
   private static final double kVelocityTolerance = 0.1;
 
   private final TrapezoidProfile.Constraints m_maxConstraints;
-
-  // TODO: add mapping from servo position to physical position
   private final Servo m_servo;
   private final double m_min;
   private final double m_max;
@@ -44,9 +42,9 @@ public class ProfiledServo implements Sendable {
   }
 
   /*
-   * Set the goal, with [0,1] scaled velocity/acceleration, to coordinate with
-   * other axes. Goal velocity is always zero; TODO: allow nonzero velocity for
-   * better sequence linking
+   * Sets the goal, with [0,1] scaled velocity/acceleration, to coordinate with
+   * other axes. Goal velocity is always zero.
+   * TODO: allow nonzero velocity for better sequence linking
    */
   public void setGoal(double goal, double scale) {
     m_goal = new TrapezoidProfile.State(MathUtil.clamp(goal, m_min, m_max), 0);
@@ -54,26 +52,26 @@ public class ProfiledServo implements Sendable {
         scale * m_maxConstraints.maxAcceleration);
   }
 
-  /* Returns the time the move would take at full speed. */
+  /** Returns the time the move would take at full speed. */
   public double eta(double goal) {
     return new TrapezoidProfile(m_maxConstraints, new TrapezoidProfile.State(goal, 0), m_setpoint).totalTime();
   }
 
-  // called by the coordinator
+  /** Calculates the new setpoint and moves the servo. */
   public void move(double dt) {
     var profile = new TrapezoidProfile(m_constraints, m_goal, m_setpoint);
     m_setpoint = profile.calculate(dt);
     m_servo.set(m_setpoint.position);
   }
 
-  /* Returns position from [0,1] */
+  /** Returns position from [0,1]. */
   public double getPosition() {
     // TODO: use the actual position (which does not work in simulation)
     // return m_servo.get();
     return m_setpoint.position;
   }
 
-  /* True if goal and setpoint are roughly equal. */
+  /** True if goal and setpoint are roughly equal. */
   public boolean atGoal() {
     return Math.abs(m_goal.position - m_setpoint.position) < kPositionTolerance &&
         Math.abs(m_goal.velocity - m_setpoint.velocity) < kVelocityTolerance;

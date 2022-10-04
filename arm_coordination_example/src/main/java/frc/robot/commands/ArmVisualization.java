@@ -1,9 +1,7 @@
-package frc.robot;
+package frc.robot.commands;
 
 import static java.util.Map.entry;
-
 import java.util.Map;
-
 import edu.wpi.first.wpilibj.Notifier;
 import edu.wpi.first.wpilibj.smartdashboard.Mechanism2d;
 import edu.wpi.first.wpilibj.smartdashboard.MechanismLigament2d;
@@ -11,8 +9,9 @@ import edu.wpi.first.wpilibj.smartdashboard.MechanismRoot2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj.util.Color8Bit;
+import frc.robot.subsystems.Arm;
 
-/** Observes the arm position and tells the dashboard. */
+/** Observes the arm position asynchronously and tells the dashboard. */
 public class ArmVisualization {
   public final Map<Arm.Axis, Double> m_offset = Map.ofEntries(
       entry(Arm.Axis.Swing, 0.0),

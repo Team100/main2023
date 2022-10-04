@@ -1,9 +1,7 @@
-package frc.robot;
+package frc.robot.subsystems;
 
 import static java.util.Map.entry;
-
 import java.util.Map;
-
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 /** Represents the arm. Coordinates motion of multiple profiled servos. */
@@ -21,7 +19,7 @@ public class Arm extends SubsystemBase {
       entry(Axis.Grip, new ProfiledServo("Grip", 5)));
 
   /*
-   * Apply the specified goals, adjusting velocity/acceleration so all the axes
+   * Applies the specified goals, adjusting velocity/acceleration so all the axes
    * will complete at the same time.
    */
   public void setGoals(Map<Arm.Axis, Double> goals) {
@@ -36,7 +34,7 @@ public class Arm extends SubsystemBase {
     }
   }
 
-  /* Moves the servos. Should be called by the command. */
+  /** Moves the servos. Should be called often. */
   public void move(double dt) {
     for (ProfiledServo pServo : m_servos.values()) {
       pServo.move(dt);
@@ -51,6 +49,7 @@ public class Arm extends SubsystemBase {
     return true;
   }
 
+  /** Finds the slowest axis; use this to slow down the other axes. */
   private double slowestEta(Map<Arm.Axis, Double> goals) {
     double slowest_eta = 0;
     for (Axis axis : Axis.values()) {
