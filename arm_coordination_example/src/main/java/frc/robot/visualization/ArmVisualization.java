@@ -1,7 +1,9 @@
-package frc.robot.commands;
+package frc.robot.visualization;
 
 import static java.util.Map.entry;
+
 import java.util.Map;
+
 import edu.wpi.first.wpilibj.Notifier;
 import edu.wpi.first.wpilibj.smartdashboard.Mechanism2d;
 import edu.wpi.first.wpilibj.smartdashboard.MechanismLigament2d;

@@ -6,6 +6,8 @@ import edu.wpi.first.wpilibj2.command.CommandScheduler;
 
 /** Has the container, runs the scheduler. */
 public class Robot extends TimedRobot {
+  public static double kDt = 0.02;
+  
   private Command m_autonomousCommand;
   private RobotContainer m_robotContainer;
 

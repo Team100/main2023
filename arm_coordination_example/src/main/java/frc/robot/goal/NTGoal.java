@@ -1,25 +1,32 @@
-package frc.robot;
+package frc.robot.goal;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Supplier;
-import java.util.HashMap;
+
 import edu.wpi.first.util.sendable.Sendable;
 import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import frc.robot.Arm.Axis;
+import frc.robot.subsystems.Arm;
+import frc.robot.subsystems.Arm.Axis;
 
-/**
- * Reads goal input from NetworkTables, writes it into the "next goal" of each
- * servo.
- */
-public class GoalInput implements Sendable, Supplier<Map<Arm.Axis, Double>> {
+/** Reads goals from NetworkTables, supplies them as a map. */
+public class NTGoal implements Sendable, Supplier<Map<Arm.Axis, Double>> {
   public final Map<Arm.Axis, Double> m_goals = new HashMap<Arm.Axis, Double>();
 
-  public GoalInput() {
-    for (Arm.Axis axis : Arm.Axis.values()) {
-      m_goals.put(axis, 0.0);
-    }
+  public NTGoal() {
+    m_goals.put(Arm.Axis.Swing, 0.0);
+    m_goals.put(Arm.Axis.Boom, 0.0);
+    m_goals.put(Arm.Axis.Stick, 0.0);
+    m_goals.put(Arm.Axis.Wrist, 0.0);
+    // m_goals.put(Arm.Axis.Twist, 0.0); // fixed
+    // m_goals.put(Arm.Axis.Grip, 0.0); // manual
     SmartDashboard.putData("goal_reader", this);
+  }
+
+  @Override
+  public Map<Axis, Double> get() {
+    return m_goals;
   }
 
   @Override
@@ -28,10 +35,5 @@ public class GoalInput implements Sendable, Supplier<Map<Arm.Axis, Double>> {
     for (Arm.Axis axis : m_goals.keySet()) {
       builder.addDoubleProperty(axis.name(), () -> m_goals.get(axis), (x) -> m_goals.put(axis, x));
     }
-  }
-
-  @Override
-  public Map<Axis, Double> get() {
-    return m_goals;
   }
 }

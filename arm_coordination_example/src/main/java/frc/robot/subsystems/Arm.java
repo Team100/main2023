@@ -1,7 +1,9 @@
 package frc.robot.subsystems;
 
 import static java.util.Map.entry;
+
 import java.util.Map;
+
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 /** Represents the arm. Coordinates motion of multiple profiled servos. */
@@ -19,8 +21,8 @@ public class Arm extends SubsystemBase {
       entry(Axis.Grip, new ProfiledServo("Grip", 5)));
 
   /*
-   * Applies the specified goals, adjusting velocity/acceleration so all the axes
-   * will complete at the same time.
+   * Applies the specified goals, adjusting velocity/acceleration so that all the
+   * axes will complete at the same time.
    */
   public void setGoals(Map<Arm.Axis, Double> goals) {
     double slowest_eta = slowestEta(goals);
