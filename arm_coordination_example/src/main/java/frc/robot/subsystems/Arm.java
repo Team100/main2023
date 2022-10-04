@@ -23,6 +23,8 @@ public class Arm extends SubsystemBase {
   /*
    * Applies the specified goals, adjusting velocity/acceleration so that all the
    * axes will complete at the same time.
+   * 
+   * TODO: add boundary enforcement (e.g. raise boom to avoid hitting the table).
    */
   public void setGoals(Map<Arm.Axis, Double> goals) {
     double slowest_eta = slowestEta(goals);
