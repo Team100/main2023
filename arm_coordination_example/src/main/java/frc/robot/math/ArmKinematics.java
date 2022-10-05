@@ -5,7 +5,6 @@ import java.util.Map;
 import frc.robot.subsystems.Arm;
 
 public class ArmKinematics {
-
   public static final double kBoomLength = 20;
   public static final double kStickLength = 20;
   public static final double kWristLength = 5;

@@ -12,7 +12,7 @@ import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.Robot;
 import frc.robot.subsystems.Arm;
 
-/** Moves the arm incrementally using the xbox controller. */
+/** Moves the arm incrementally using the Xbox controller. */
 public class ManualMove extends CommandBase {
   private static double kScale = 0.1;
   private static double kDeadband = 0.05;
@@ -20,7 +20,7 @@ public class ManualMove extends CommandBase {
   private final XboxController m_controller;
   private final Arm m_arm;
 
-  public final Map<Arm.Axis, Double> m_goals = new HashMap<>(Map.ofEntries(
+  private final Map<Arm.Axis, Double> m_goals = new HashMap<>(Map.ofEntries(
       entry(Arm.Axis.Swing, 0.0),
       entry(Arm.Axis.Boom, 0.0),
       entry(Arm.Axis.Stick, 0.0),
@@ -52,7 +52,7 @@ public class ManualMove extends CommandBase {
 
   /** Reads the current position and increments it using the supplied input. */
   private void setGoal(Arm.Axis axis, DoubleSupplier input) {
-    m_goals.put(axis, m_arm.m_servos.get(axis).getPosition()
+    m_goals.put(axis, m_arm.getPosition(axis)
         + MathUtil.applyDeadband(kScale * input.getAsDouble(), kDeadband));
   }
 }

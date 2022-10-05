@@ -16,7 +16,7 @@ import frc.robot.subsystems.Arm;
 
 /** Observes the arm position asynchronously and tells the dashboard. */
 public class ArmVisualization {
-  public final Map<Arm.Axis, Double> m_offset = Map.ofEntries(
+  private final Map<Arm.Axis, Double> m_offset = Map.ofEntries(
       entry(Arm.Axis.Swing, 0.0),
       entry(Arm.Axis.Boom, 0.0),
       entry(Arm.Axis.Stick, 0.0),
@@ -24,7 +24,7 @@ public class ArmVisualization {
       entry(Arm.Axis.Twist, 0.0),
       entry(Arm.Axis.Grip, 0.0));
   // maps [0,1] to degrees
-  public final Map<Arm.Axis, Double> m_scale = Map.ofEntries(
+  private final Map<Arm.Axis, Double> m_scale = Map.ofEntries(
       entry(Arm.Axis.Swing, 180.0),
       entry(Arm.Axis.Boom, 180.0),
       entry(Arm.Axis.Stick, -180.0),
@@ -83,6 +83,6 @@ public class ArmVisualization {
   }
 
   private double getMechanismAngle(Arm.Axis axis) {
-    return m_arm.m_servos.get(axis).getPosition() * m_scale.get(axis) + m_offset.get(axis);
+    return m_arm.getPosition(axis) * m_scale.get(axis) + m_offset.get(axis);
   }
 }

@@ -1,4 +1,4 @@
-package frc.robot.subsystems;
+package frc.robot.motorcontrol;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
