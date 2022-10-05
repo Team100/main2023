@@ -1,5 +1,6 @@
 package frc.robot.goal;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Supplier;
@@ -12,7 +13,7 @@ import frc.robot.subsystems.Arm.Axis;
 
 /** Reads goals from NetworkTables, supplies them as a map. */
 public class NTGoal implements Sendable, Supplier<Map<Arm.Axis, Double>> {
-  public final Map<Arm.Axis, Double> m_goals = new HashMap<Arm.Axis, Double>();
+  private final Map<Arm.Axis, Double> m_goals = new HashMap<Arm.Axis, Double>();
 
   public NTGoal() {
     m_goals.put(Arm.Axis.Swing, 0.0);
@@ -26,7 +27,7 @@ public class NTGoal implements Sendable, Supplier<Map<Arm.Axis, Double>> {
 
   @Override
   public Map<Axis, Double> get() {
-    return m_goals;
+    return Collections.unmodifiableMap(m_goals);
   }
 
   @Override

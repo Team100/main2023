@@ -5,6 +5,7 @@ import static java.util.Map.entry;
 import java.util.Map;
 
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.motorcontrol.ProfiledServo;
 
 /** Represents the arm. Coordinates motion of multiple profiled servos. */
 public class Arm extends SubsystemBase {
@@ -12,7 +13,7 @@ public class Arm extends SubsystemBase {
     Swing, Boom, Stick, Wrist, Twist, Grip
   }
 
-  public final Map<Axis, ProfiledServo> m_servos = Map.ofEntries(
+  private final Map<Axis, ProfiledServo> m_servos = Map.ofEntries(
       entry(Axis.Swing, new ProfiledServo("Swing", 0)),
       entry(Axis.Boom, new ProfiledServo("Boom", 1)),
       entry(Axis.Stick, new ProfiledServo("Stick", 2)),
@@ -45,12 +46,17 @@ public class Arm extends SubsystemBase {
     }
   }
 
+  /** The arm is at its goal if all the servos are at their goals. */
   public boolean atGoal() {
     for (ProfiledServo pServo : m_servos.values()) {
       if (!pServo.atGoal())
         return false;
     }
     return true;
+  }
+
+  public double getPosition(Axis axis) {
+    return m_servos.get(axis).getPosition();
   }
 
   /** Finds the slowest axis; use this to slow down the other axes. */
