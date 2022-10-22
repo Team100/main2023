@@ -13,13 +13,20 @@ from picamera import PiCamera
 def main():
     print('main initiated')
     #input_stream = BytesIO()
+#1	1920x1080	16:9	1/10 <= fps <= 30	x	 	Partial	None
+#2	3280x2464	4:3	1/10 <= fps <= 15	x	x	Full	None
+#3	3280x2464	4:3	1/10 <= fps <= 15	x	x	Full	None
+#4	1640x1232	4:3	1/10 <= fps <= 40	x	 	Full	2x2
+#5	1640x922	16:9	1/10 <= fps <= 40	x	 	Full	2x2
+#6	1280x720	16:9	40 < fps <= 90	x	 	Partial	2x2
+#7	640x480	4:3	40 < fps <= 90	x	 	Partial	2x2
     width = 1280
     height = 720
     camera = PiCamera(resolution=(width, height),
     framerate = 28,
     sensor_mode = 1)
 
-    camera.shutter_speed = 5000
+    camera.shutter_speed = 1000
     camera.iso = 800
     camera.start_preview()
     print('camera set up')
@@ -58,7 +65,7 @@ def main():
         #if input_stream.tell() == 0:
             #output_stream.notifyError(input_stream.getError())
             #continue
-        camera.capture(img, 'bgr')
+        camera.capture(img, 'bgr', use_video_port = True)
         #print('camera capture')
 
         gray_image = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
