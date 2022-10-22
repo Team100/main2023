@@ -7,30 +7,40 @@ import numpy as np
 import time
 import draw
 from pupil_apriltags import Detector
-
+from io import BytesIO
+from picamera import PiCamera
 
 def main():
-    with open("/boot/frc.json") as f:
-        config = json.load(f)
-    camera_config = config["cameras"][0]
+    print('main initiated')
+    #input_stream = BytesIO()
+    width = 1280
+    height = 720
+    camera = PiCamera(resolution=(width, height),
+    framerate = 28,
+    sensor_mode = 1)
 
-    width = camera_config["width"]
-    height = camera_config["height"]
+    camera.shutter_speed = 5000
+    camera.iso = 800
+    camera.start_preview()
+    print('camera set up')
+    time.sleep(2)
+    #camera.capture(input_stream, 'jpeg')
 
     cs = CameraServer.getInstance()
-    camera = cs.startAutomaticCapture()
 
-    input_stream = cs.getVideo()
+
     output_stream = cs.putVideo("Processed", width, height)
+    print('stream initiated')
 
     #Roborio IP: 10.1.0.2
     #Pi IP: 10.1.0.21
     NetworkTables.initialize(server = '10.1.0.2')
+    print('NetworkTables idnitiated')
     # Table for vision output information
     vision_nt = NetworkTables.getTable("Vision")
 
     # Allocating new images is very expensive, always try to preallocate
-    img = np.zeros(shape=(240, 320, 3), dtype=np.uint8)
+    img = np.zeros(shape=(height, width, 3), dtype=np.uint8)
 
     # Wait for NetworkTables to start
     time.sleep(0.5)
@@ -38,26 +48,31 @@ def main():
     camera_params = [300, 300, width / 2, height / 2]
     tag_size = 0.04
     at_detector = Detector()
-
+    print('last pre-loop')
     while True:
         start_time = time.time()
-        frame_time, input_img = input_stream.grabFrame(img)
+        #print(start_time)
+        #input_img = input_stream.read()
 
-        # Notify output of error and skip iteration
-        if frame_time == 0:
-            output_stream.notifyError(input_stream.getError())
-            continue
+        # notify output of error and skip iteration
+        #if input_stream.tell() == 0:
+            #output_stream.notifyError(input_stream.getError())
+            #continue
+        camera.capture(img, 'bgr')
+        #print('camera capture')
 
-        gray_image = cv2.cvtColor(input_img, cv2.COLOR_BGR2GRAY)
+        gray_image = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
         result = at_detector.detect(
             gray_image,
             estimate_tag_pose=True,
             camera_params=camera_params,
             tag_size=tag_size,
         )
+        #print('image converted')
 
-        output_img = np.copy(input_img)
+        output_img = np.copy(img)
         draw.draw_result(output_img, camera_params, tag_size, result)
+        #print('result draw')
 
         id_list = []
         pose_t_x_list = []
@@ -106,6 +121,7 @@ def main():
             (255, 255, 255),
         )
         output_stream.putFrame(output_img)
+        #print('loop finish')
 
 
 main()
