@@ -7,8 +7,101 @@ import numpy as np
 import time
 import draw
 from pupil_apriltags import Detector
-from io import BytesIO
+import io
 from picamera import PiCamera
+import warnings
+from picamera.array import PiAnalysisOutput
+
+def bytes_to_yuv(data):
+        """
+        Converts a bytes object containing YUV data to a `numpy`_ array.
+        """
+        a = np.frombuffer(data, dtype=np.uint8)
+
+class GreyYUVAnalysis(PiAnalysisOutput):
+
+    def write(self, b):
+        result = super(GreyYUVAnalysis, self).write(b)
+        self.analyze(bytes_to_yuv(b, self.size or self.camera.resolution))
+        return result
+
+class MyColorAnalyzer(GreyYUVAnalysis):
+    def __init__(self, camera):
+        super(MyColorAnalyzer, self).__init__(camera)
+        self.last_color = ''
+        NetworkTables.initialize(server = '10.1.0.2')
+        print('NetworkTables idnitiated')
+        # Table for vision output information
+        self.vision_nt = NetworkTables.getTable("Vision")
+        self.at_detector = Detector()
+        
+
+    def analyze(self, a):
+        # Convert the average color of the pixels in the middle box
+        
+        gray_image = img
+        result = self.at_detector.detect(
+            gray_image,
+            estimate_tag_pose=True,
+            camera_params=camera_params,
+            tag_size=tag_size,
+        )
+        #print('image converted')
+
+        output_img = np.copy(gray_image)
+        draw.draw_result(output_img, camera_params, tag_size, result)
+        #print('result draw')
+
+        id_list = []
+        pose_t_x_list = []
+        pose_t_y_list = []
+        pose_t_z_list = []
+        pose_R_x_list = []
+        pose_R_y_list = []
+        pose_R_z_list = []
+
+        for r in result:
+            id_list.append(r.tag_id)
+
+            ap_pose_R_x_str = ''
+            ap_pose_R_y_str = ''
+            ap_pose_R_z_str = ''
+
+            for i in range(3):
+                ap_pose_R_x_str = ap_pose_R_x_str + str(round(r.pose_R[i][0], 4))
+                ap_pose_R_y_str = ap_pose_R_y_str + str(round(r.pose_R[i][1], 4))
+                ap_pose_R_z_str = ap_pose_R_z_str + str(round(r.pose_R[i][2], 4))
+            
+            pose_t_x_list.append(r.pose_t[0])
+            pose_t_y_list.append(r.pose_t[1])
+            pose_t_z_list.append(r.pose_t[2])
+
+            pose_R_x_list.append(ap_pose_R_x_str)
+            pose_R_y_list.append(ap_pose_R_y_str)
+            pose_R_z_list.append(ap_pose_R_z_str)
+
+        self.vision_nt.putNumberArray("id", id_list)
+
+        self.vision_nt.putNumberArray("pose_t_x", pose_t_x_list)
+        self.vision_nt.putNumberArray("pose_t_y", pose_t_y_list)
+        self.vision_nt.putNumberArray("pose_t_z", pose_t_z_list)
+
+        self.vision_nt.putStringArray("pose_R_x", pose_R_x_list)
+        self.vision_nt.putStringArray("pose_R_y", pose_R_y_list)
+        self.vision_nt.putStringArray("pose_R_z", pose_R_z_list)
+
+        processing_time = time.time() - start_time
+        fps = 1 / processing_time
+        cv2.putText(
+            output_img,
+            f"fps: {str(round(fps, 1))}",
+            (0, 20),
+            cv2.FONT_HERSHEY_SIMPLEX,
+            0.5,
+            (255, 255, 255),
+        )
+        output_stream.putFrame(output_img)
+        #print('loop finish')
 
 def main():
     print('main initiated')
@@ -21,7 +114,7 @@ def main():
 #6	1280x720	16:9	40 < fps <= 90	x	 	Partial	2x2
 #7	640x480	4:3	40 < fps <= 90	x	 	Partial	2x2
     width = 1280
-    height = 720
+    height = 704
     camera = PiCamera(resolution=(width, height),
     framerate = 28,
     sensor_mode = 1)
@@ -33,7 +126,6 @@ def main():
     time.sleep(2)
     #camera.capture(input_stream, 'jpeg')
 
-    cs = CameraServer.getInstance()
 
 
     output_stream = cs.putVideo("Processed", width, height)
@@ -41,13 +133,9 @@ def main():
 
     #Roborio IP: 10.1.0.2
     #Pi IP: 10.1.0.21
-    NetworkTables.initialize(server = '10.1.0.2')
-    print('NetworkTables idnitiated')
-    # Table for vision output information
-    vision_nt = NetworkTables.getTable("Vision")
 
     # Allocating new images is very expensive, always try to preallocate
-    img = np.zeros(shape=(height, width, 3), dtype=np.uint8)
+    img = np.zeros(shape=(height, width), dtype=np.uint8)
 
     # Wait for NetworkTables to start
     time.sleep(0.5)
@@ -65,70 +153,10 @@ def main():
         #if input_stream.tell() == 0:
             #output_stream.notifyError(input_stream.getError())
             #continue
-        camera.capture(img, 'bgr', use_video_port = True)
+        try:
+            camera.capture(img, 'yuv', use_video_port = True)
+        except IOError:
+            pass
         #print('camera capture')
-
-        gray_image = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-        result = at_detector.detect(
-            gray_image,
-            estimate_tag_pose=True,
-            camera_params=camera_params,
-            tag_size=tag_size,
-        )
-        #print('image converted')
-
-        output_img = np.copy(img)
-        draw.draw_result(output_img, camera_params, tag_size, result)
-        #print('result draw')
-
-        id_list = []
-        pose_t_x_list = []
-        pose_t_y_list = []
-        pose_t_z_list = []
-        pose_R_x_list = []
-        pose_R_y_list = []
-        pose_R_z_list = []
-
-        for r in result:
-            id_list.append(r.tag_id)
-            ap_pose_R_x_str = ''
-            ap_pose_R_y_str = ''
-            ap_pose_R_z_str = ''
-            for i in range(3):
-                ap_pose_R_x_str = ap_pose_R_x_str + str(round(r.pose_R[i][0], 4))
-                ap_pose_R_y_str = ap_pose_R_y_str + str(round(r.pose_R[i][1], 4))
-                ap_pose_R_z_str = ap_pose_R_z_str + str(round(r.pose_R[i][2], 4))
-                if i != 2:
-                    ap_pose_R_x_str = ap_pose_R_x_str + ', '
-                    ap_pose_R_y_str = ap_pose_R_y_str + ', '
-                    ap_pose_R_z_str = ap_pose_R_z_str + ', '
-            pose_t_x_list.append(r.pose_t[0])
-            pose_t_y_list.append(r.pose_t[1])
-            pose_t_z_list.append(r.pose_t[2])
-            pose_R_x_list.append(ap_pose_R_x_str)
-            pose_R_y_list.append(ap_pose_R_y_str)
-            pose_R_z_list.append(ap_pose_R_z_str)
-
-        vision_nt.putNumberArray("id", id_list)
-        vision_nt.putNumberArray("pose_t_x", pose_t_x_list)
-        vision_nt.putNumberArray("pose_t_y", pose_t_y_list)
-        vision_nt.putNumberArray("pose_t_z", pose_t_z_list)
-        vision_nt.putStringArray("pose_R_x", pose_R_x_list)
-        vision_nt.putStringArray("pose_R_y", pose_R_y_list)
-        vision_nt.putStringArray("pose_R_z", pose_R_z_list)
-
-        processing_time = time.time() - start_time
-        fps = 1 / processing_time
-        cv2.putText(
-            output_img,
-            f"fps: {str(round(fps, 1))}",
-            (0, 20),
-            cv2.FONT_HERSHEY_SIMPLEX,
-            0.5,
-            (255, 255, 255),
-        )
-        output_stream.putFrame(output_img)
-        #print('loop finish')
-
 
 main()
