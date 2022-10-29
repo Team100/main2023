@@ -31,7 +31,10 @@ class MyColorAnalyzer(GreyYUVAnalysis):
     def __init__(self, camera):
         super(MyColorAnalyzer, self).__init__(camera)
         cs = CameraServer.getInstance()
-        NetworkTables.initialize(server = '10.1.0.2')
+        #NetworkTables Rio as server
+        #NetworkTables.initialize(server = '10.1.0.2')
+        #NetworkTables Pi as server
+        NetworkTables.initialize()
         # Wait for NetworkTables to start
         time.sleep(0.5)
         # Table for vision output information
