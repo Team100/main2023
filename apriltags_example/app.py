@@ -11,12 +11,14 @@ import io
 from picamera import PiCamera
 import warnings
 from picamera.array import PiAnalysisOutput
+from picamera.array import raw_resolution
 
-def bytes_to_yuv(data):
-        """
-        Converts a bytes object containing YUV data to a `numpy`_ array.
-        """
-        a = np.frombuffer(data, dtype=np.uint8)
+def bytes_to_yuv(data, resolution):
+        fwidth, fheight = raw_resolution(resolution)
+        y_len = fwidth*fheight
+        a = np.frombuffer(data, dtype=np.uint8, count=y_len)
+        a = a.reshape((fheight, fwidth))
+        return a
 
 class GreyYUVAnalysis(PiAnalysisOutput):
 
@@ -28,29 +30,36 @@ class GreyYUVAnalysis(PiAnalysisOutput):
 class MyColorAnalyzer(GreyYUVAnalysis):
     def __init__(self, camera):
         super(MyColorAnalyzer, self).__init__(camera)
-        self.last_color = ''
+        cs = CameraServer.getInstance()
         NetworkTables.initialize(server = '10.1.0.2')
-        print('NetworkTables idnitiated')
+        # Wait for NetworkTables to start
+        time.sleep(0.5)
         # Table for vision output information
         self.vision_nt = NetworkTables.getTable("Vision")
+        self.tag_size = 0.04
         self.at_detector = Detector()
+        time.sleep(2)
+        self.output_stream = cs.putVideo("Processed", self.camera.resolution.width, self.camera.resolution.height)
+        self.camera_params = [300, 300, self.camera.resolution.width / 2, self.camera.resolution.height / 2]
         
 
     def analyze(self, a):
-        # Convert the average color of the pixels in the middle box
-        
-        gray_image = img
+        start_time = time.time()
+        gray_image = a
+        image_time = time.time()
         result = self.at_detector.detect(
             gray_image,
             estimate_tag_pose=True,
-            camera_params=camera_params,
-            tag_size=tag_size,
+            camera_params=self.camera_params,
+            tag_size=self.tag_size,
         )
-        #print('image converted')
-
+        result_time = time.time()
+        
         output_img = np.copy(gray_image)
-        draw.draw_result(output_img, camera_params, tag_size, result)
-        #print('result draw')
+        copy_time = time.time()
+
+        draw.draw_result(output_img, self.camera_params, self.tag_size, result)
+        draw_time = time.time()
 
         id_list = []
         pose_t_x_list = []
@@ -89,23 +98,50 @@ class MyColorAnalyzer(GreyYUVAnalysis):
         self.vision_nt.putStringArray("pose_R_x", pose_R_x_list)
         self.vision_nt.putStringArray("pose_R_y", pose_R_y_list)
         self.vision_nt.putStringArray("pose_R_z", pose_R_z_list)
-
-        processing_time = time.time() - start_time
-        fps = 1 / processing_time
         cv2.putText(
             output_img,
-            f"fps: {str(round(fps, 1))}",
+            f"image time: {str(round(image_time-start_time, 3))}",
             (0, 20),
             cv2.FONT_HERSHEY_SIMPLEX,
             0.5,
             (255, 255, 255),
         )
-        output_stream.putFrame(output_img)
-        #print('loop finish')
+        cv2.putText(
+            output_img,
+            f"result time: {str(round(result_time-image_time, 3))}",
+            (0, 40),
+            cv2.FONT_HERSHEY_SIMPLEX,
+            0.5,
+            (255, 255, 255),
+        )
+        cv2.putText(
+            output_img,
+            f"copy time: {str(round(copy_time-result_time, 3))}",
+            (0,60),
+            cv2.FONT_HERSHEY_SIMPLEX,
+            0.5,
+            (255, 255, 255),
+        )
+        cv2.putText(
+            output_img,
+            f"draw time: {str(round(draw_time-copy_time, 3))}",
+            (0, 80),
+            cv2.FONT_HERSHEY_SIMPLEX,
+            0.5,
+            (255, 255, 255),
+        )
+        self.output_stream.putFrame(output_img)
 
 def main():
-    print('main initiated')
-    #input_stream = BytesIO()
+
+    width = 320
+    height = 180
+    camera = PiCamera(resolution=(width, height),
+    framerate = 28,
+    sensor_mode = 1)
+    camera.shutter_speed = 1000
+    camera.iso = 800
+
 #1	1920x1080	16:9	1/10 <= fps <= 30	x	 	Partial	None
 #2	3280x2464	4:3	1/10 <= fps <= 15	x	x	Full	None
 #3	3280x2464	4:3	1/10 <= fps <= 15	x	x	Full	None
@@ -113,50 +149,15 @@ def main():
 #5	1640x922	16:9	1/10 <= fps <= 40	x	 	Full	2x2
 #6	1280x720	16:9	40 < fps <= 90	x	 	Partial	2x2
 #7	640x480	4:3	40 < fps <= 90	x	 	Partial	2x2
-    width = 1280
-    height = 704
-    camera = PiCamera(resolution=(width, height),
-    framerate = 28,
-    sensor_mode = 1)
-
-    camera.shutter_speed = 1000
-    camera.iso = 800
-    camera.start_preview()
-    print('camera set up')
-    time.sleep(2)
-    #camera.capture(input_stream, 'jpeg')
-
-
-
-    output_stream = cs.putVideo("Processed", width, height)
-    print('stream initiated')
-
+    
     #Roborio IP: 10.1.0.2
     #Pi IP: 10.1.0.21
 
-    # Allocating new images is very expensive, always try to preallocate
-    img = np.zeros(shape=(height, width), dtype=np.uint8)
-
-    # Wait for NetworkTables to start
-    time.sleep(0.5)
-
-    camera_params = [300, 300, width / 2, height / 2]
-    tag_size = 0.04
-    at_detector = Detector()
-    print('last pre-loop')
-    while True:
-        start_time = time.time()
-        #print(start_time)
-        #input_img = input_stream.read()
-
-        # notify output of error and skip iteration
-        #if input_stream.tell() == 0:
-            #output_stream.notifyError(input_stream.getError())
-            #continue
+    with MyColorAnalyzer(camera) as analyzer:
+        camera.start_recording(analyzer, 'yuv')
         try:
-            camera.capture(img, 'yuv', use_video_port = True)
-        except IOError:
-            pass
-        #print('camera capture')
-
+            while True:
+                camera.wait_recording(1)
+        finally:
+            camera.stop_recording()
 main()
