@@ -13,6 +13,7 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.math.trajectory.TrajectoryConfig;
 import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.SerialPort;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -206,4 +207,6 @@ public class DriveSubsystem extends SubsystemBase {
     builder.addDoubleProperty("translationalx", () -> getPose().getX(), null);
     builder.addDoubleProperty("translationaly", () -> getPose().getY(), null);
   }
+
+  
 }
