@@ -18,7 +18,7 @@ def bytes_to_yuv(data, resolution):
         y_len = fwidth*fheight
         a = np.frombuffer(data, dtype=np.uint8, count=y_len)
         a = a.reshape((fheight, fwidth))
-        return a
+        return a[:resolution.height, :resolution.width]
 
 class GreyYUVAnalysis(PiAnalysisOutput):
 
@@ -32,37 +32,33 @@ class MyColorAnalyzer(GreyYUVAnalysis):
         super(MyColorAnalyzer, self).__init__(camera)
         cs = CameraServer.getInstance()
         #NetworkTables Rio as server
-        #NetworkTables.initialize(server = '10.1.0.2')
+        NetworkTables.initialize(server = '10.1.0.2')
         #NetworkTables Pi as server
-        NetworkTables.initialize()
+        #NetworkTables.initialize()
         # Wait for NetworkTables to start
         time.sleep(0.5)
         # Table for vision output information
         self.vision_nt = NetworkTables.getTable("Vision")
-        self.tag_size = 0.04
-        self.at_detector = Detector()
+        self.tag_size = 0.2
+        self.at_detector = Detector(families = "tag16h5")
         time.sleep(2)
         self.output_stream = cs.putVideo("Processed", self.camera.resolution.width, self.camera.resolution.height)
-        self.camera_params = [300, 300, self.camera.resolution.width / 2, self.camera.resolution.height / 2]
+        self.camera_params = [357.1, 357.1, self.camera.resolution.width / 2, self.camera.resolution.height / 2]
         
 
     def analyze(self, a):
         start_time = time.time()
         gray_image = a
-        image_time = time.time()
         result = self.at_detector.detect(
             gray_image,
             estimate_tag_pose=True,
             camera_params=self.camera_params,
-            tag_size=self.tag_size,
+            tag_size = self.tag_size,
         )
-        result_time = time.time()
         
         output_img = np.copy(gray_image)
-        copy_time = time.time()
 
         draw.draw_result(output_img, self.camera_params, self.tag_size, result)
-        draw_time = time.time()
 
         id_list = []
         pose_t_x_list = []
@@ -73,16 +69,17 @@ class MyColorAnalyzer(GreyYUVAnalysis):
         pose_R_z_list = []
 
         for r in result:
+            if r.hamming > 0:
+                continue
             id_list.append(r.tag_id)
-
             ap_pose_R_x_str = ''
             ap_pose_R_y_str = ''
             ap_pose_R_z_str = ''
 
             for i in range(3):
-                ap_pose_R_x_str = ap_pose_R_x_str + str(round(r.pose_R[i][0], 4))
-                ap_pose_R_y_str = ap_pose_R_y_str + str(round(r.pose_R[i][1], 4))
-                ap_pose_R_z_str = ap_pose_R_z_str + str(round(r.pose_R[i][2], 4))
+                ap_pose_R_x_str = ap_pose_R_x_str + str(round(r.pose_R[0][i], 4)) + ' '
+                ap_pose_R_y_str = ap_pose_R_y_str + str(round(r.pose_R[1][i], 4)) + ' '
+                ap_pose_R_z_str = ap_pose_R_z_str + str(round(r.pose_R[2][i], 4)) + ' '
             
             pose_t_x_list.append(r.pose_t[0])
             pose_t_y_list.append(r.pose_t[1])
@@ -91,59 +88,26 @@ class MyColorAnalyzer(GreyYUVAnalysis):
             pose_R_x_list.append(ap_pose_R_x_str)
             pose_R_y_list.append(ap_pose_R_y_str)
             pose_R_z_list.append(ap_pose_R_z_str)
-
+        
+        #self.vision_nt.putString("test", 'testest')
         self.vision_nt.putNumberArray("id", id_list)
 
         self.vision_nt.putNumberArray("pose_t_x", pose_t_x_list)
         self.vision_nt.putNumberArray("pose_t_y", pose_t_y_list)
         self.vision_nt.putNumberArray("pose_t_z", pose_t_z_list)
-
         self.vision_nt.putStringArray("pose_R_x", pose_R_x_list)
         self.vision_nt.putStringArray("pose_R_y", pose_R_y_list)
         self.vision_nt.putStringArray("pose_R_z", pose_R_z_list)
-        cv2.putText(
-            output_img,
-            f"image time: {str(round(image_time-start_time, 3))}",
-            (0, 20),
-            cv2.FONT_HERSHEY_SIMPLEX,
-            0.5,
-            (255, 255, 255),
-        )
-        cv2.putText(
-            output_img,
-            f"result time: {str(round(result_time-image_time, 3))}",
-            (0, 40),
-            cv2.FONT_HERSHEY_SIMPLEX,
-            0.5,
-            (255, 255, 255),
-        )
-        cv2.putText(
-            output_img,
-            f"copy time: {str(round(copy_time-result_time, 3))}",
-            (0,60),
-            cv2.FONT_HERSHEY_SIMPLEX,
-            0.5,
-            (255, 255, 255),
-        )
-        cv2.putText(
-            output_img,
-            f"draw time: {str(round(draw_time-copy_time, 3))}",
-            (0, 80),
-            cv2.FONT_HERSHEY_SIMPLEX,
-            0.5,
-            (255, 255, 255),
-        )
+
         self.output_stream.putFrame(output_img)
 
 def main():
 
-    width = 320
-    height = 180
+    width = 547
+    height = 307
     camera = PiCamera(resolution=(width, height),
     framerate = 28,
-    sensor_mode = 1)
-    camera.shutter_speed = 1000
-    camera.iso = 800
+    sensor_mode = 5)
 
 #1	1920x1080	16:9	1/10 <= fps <= 30	x	 	Partial	None
 #2	3280x2464	4:3	1/10 <= fps <= 15	x	x	Full	None
