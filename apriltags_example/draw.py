@@ -75,6 +75,8 @@ def draw_pose(overlay, camera_params, tag_size, rvec, tvec, z_sign=1):
 
 def draw_result(image, camera_params, tag_size, result):
     for r in result:
+        if r.hamming > 0:
+            continue
         (ptA, ptB, ptC, ptD) = r.corners
         ptB = (int(ptB[0]), int(ptB[1]))
         ptC = (int(ptC[0]), int(ptC[1]))

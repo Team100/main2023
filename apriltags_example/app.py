@@ -40,7 +40,7 @@ class MyColorAnalyzer(GreyYUVAnalysis):
         # Table for vision output information
         self.vision_nt = NetworkTables.getTable("Vision")
         self.tag_size = 0.2
-        self.at_detector = Detector()
+        self.at_detector = Detector(families = "tag16h5")
         time.sleep(2)
         self.output_stream = cs.putVideo("Processed", self.camera.resolution.width, self.camera.resolution.height)
         self.camera_params = [357.1, 357.1, self.camera.resolution.width / 2, self.camera.resolution.height / 2]
@@ -49,20 +49,16 @@ class MyColorAnalyzer(GreyYUVAnalysis):
     def analyze(self, a):
         start_time = time.time()
         gray_image = a
-        image_time = time.time()
         result = self.at_detector.detect(
             gray_image,
             estimate_tag_pose=True,
             camera_params=self.camera_params,
-            tag_size=self.tag_size,
+            tag_size = self.tag_size,
         )
-        result_time = time.time()
         
         output_img = np.copy(gray_image)
-        copy_time = time.time()
 
         draw.draw_result(output_img, self.camera_params, self.tag_size, result)
-        draw_time = time.time()
 
         id_list = []
         pose_t_x_list = []
@@ -73,16 +69,17 @@ class MyColorAnalyzer(GreyYUVAnalysis):
         pose_R_z_list = []
 
         for r in result:
+            if r.hamming > 0:
+                continue
             id_list.append(r.tag_id)
-
             ap_pose_R_x_str = ''
             ap_pose_R_y_str = ''
             ap_pose_R_z_str = ''
 
             for i in range(3):
-                ap_pose_R_x_str = ap_pose_R_x_str + str(round(r.pose_R[0][i], 4))
-                ap_pose_R_y_str = ap_pose_R_y_str + str(round(r.pose_R[1][i], 4))
-                ap_pose_R_z_str = ap_pose_R_z_str + str(round(r.pose_R[2][i], 4))
+                ap_pose_R_x_str = ap_pose_R_x_str + str(round(r.pose_R[0][i], 4)) + ' '
+                ap_pose_R_y_str = ap_pose_R_y_str + str(round(r.pose_R[1][i], 4)) + ' '
+                ap_pose_R_z_str = ap_pose_R_z_str + str(round(r.pose_R[2][i], 4)) + ' '
             
             pose_t_x_list.append(r.pose_t[0])
             pose_t_y_list.append(r.pose_t[1])
@@ -102,38 +99,6 @@ class MyColorAnalyzer(GreyYUVAnalysis):
         self.vision_nt.putStringArray("pose_R_y", pose_R_y_list)
         self.vision_nt.putStringArray("pose_R_z", pose_R_z_list)
 
-        cv2.putText(
-            output_img,
-            f"image time: {str(round(image_time-start_time, 3))}",
-            (0, 20),
-            cv2.FONT_HERSHEY_SIMPLEX,
-            0.5,
-            (255, 255, 255),
-        )
-        cv2.putText(
-            output_img,
-            f"result time: {str(round(result_time-image_time, 3))}",
-            (0, 40),
-            cv2.FONT_HERSHEY_SIMPLEX,
-            0.5,
-            (255, 255, 255),
-        )
-        cv2.putText(
-            output_img,
-            f"copy time: {str(round(copy_time-result_time, 3))}",
-            (0,60),
-            cv2.FONT_HERSHEY_SIMPLEX,
-            0.5,
-            (255, 255, 255),
-        )
-        cv2.putText(
-            output_img,
-            f"draw time: {str(round(draw_time-copy_time, 3))}",
-            (0, 80),
-            cv2.FONT_HERSHEY_SIMPLEX,
-            0.5,
-            (255, 255, 255),
-        )
         self.output_stream.putFrame(output_img)
 
 def main():
