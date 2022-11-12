@@ -35,6 +35,7 @@ public class TagTest {
 
         NetworkTable table;
         double[] defaultValue = new double[0];
+        String[] strDefaultValue = new String[0];
         
         TestAprilTag tag1 = new TestAprilTag(1, poseCalc(1, 1, -Math.PI/2));
         TestAprilTag tag2 = new TestAprilTag(1, poseCalc(2, 1, -Math.PI/4));
@@ -48,15 +49,15 @@ public class TagTest {
                 double [] xValues = table.getEntry("pose_t_x").getDoubleArray(defaultValue);
                 double [] yValues = table.getEntry("pose_t_y").getDoubleArray(defaultValue);
                 double [] zValues = table.getEntry("pose_t_z").getDoubleArray(defaultValue);
-                double [] xRot = table.getEntry("rot_t_x").getDoubleArray(defaultValue);
-                double [] yRot = table.getEntry("rot_t_x").getDoubleArray(defaultValue);
-                double [] zRot = table.getEntry("rot_t_x").getDoubleArray(defaultValue);
+                String [] xRot = table.getEntry("rot_t_x").getStringArray(strDefaultValue)
+                String [] yRot = table.getEntry("rot_t_x").getStringArray(strDefaultValue);
+                String [] zRot = table.getEntry("rot_t_x").getStringArray(strDefaultValue);
         
         
         //add giant if statement right here? if there isnt a val for ALL of them or if detected is true 0
 
 
-                    
+        
         System.out.println("idValues: " + idValues);
 
         currentTag = aprilHash.get((int)idValues[0]); //only if there is an id tag
@@ -77,18 +78,18 @@ public class TagTest {
 
 
 
-        if(xValues.length > 0){
-            pastPosX = xValues[0];
-        }
-        if(zValues.length > 0){
-            pastPosZ = zValues[0];
-        }
-        if(xRot.length > 0){
-            pastRotX = xRot[0];
-        }
-        if(zRot.length > 0){
-            pastRotZ = zRot[0];
-        }
+        // if(xValues.length > 0){
+        //     pastPosX = xValues[0];
+        // }
+        // if(zValues.length > 0){
+        //     pastPosZ = zValues[0];
+        // }
+        // if(xRot.length > 0){
+        //     pastRotX = xRot[0];
+        // }
+        // if(zRot.length > 0){
+        //     pastRotZ = zRot[0];
+        // }
 
 
 
@@ -121,5 +122,21 @@ public class TagTest {
         Rotation2d aprilRotation2d = new Rotation2d(rads);
         Pose2d aprilPose = new Pose2d(aprilTranslation2d, aprilRotation2d);
         return aprilPose;
+    }
+
+    public String stringtoVal(String str){
+        String str2 = "";
+        String str3 = " ";
+        char c = str3.charAt(0);
+        for(int i = 0; i<str.length(); i++){
+            if(str.charAt(i) != c){
+                str2 = str2 + str.charAt(i);
+            } else {
+                break;
+            }
+        }
+
+        return str2;
+
     }
 }
