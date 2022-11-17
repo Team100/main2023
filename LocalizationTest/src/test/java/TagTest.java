@@ -14,7 +14,7 @@ import frc.robot.TestAprilTag;
 
 
 public class TagTest {
-    // @Test
+    @Test
 
 
     //put in robotPeriodic as a method??
@@ -49,31 +49,33 @@ public class TagTest {
                 double [] xValues = table.getEntry("pose_t_x").getDoubleArray(defaultValue);
                 double [] yValues = table.getEntry("pose_t_y").getDoubleArray(defaultValue);
                 double [] zValues = table.getEntry("pose_t_z").getDoubleArray(defaultValue);
-                String [] xRot = table.getEntry("rot_t_x").getStringArray(strDefaultValue)
+                String [] xRot = table.getEntry("rot_t_x").getStringArray(strDefaultValue);
                 String [] yRot = table.getEntry("rot_t_x").getStringArray(strDefaultValue);
                 String [] zRot = table.getEntry("rot_t_x").getStringArray(strDefaultValue);
+
+
+        
         
         
         //add giant if statement right here? if there isnt a val for ALL of them or if detected is true 0
 
 
         
-        System.out.println("idValues: " + idValues);
+        System.out.println(xValues[0]); 
+        // currentTag = aprilHash.get((int)idValues[0]); //only if there is an id tag
 
-        currentTag = aprilHash.get((int)idValues[0]); //only if there is an id tag
 
+        // currentTranslation2d = new Translation2d(xValues.length>0?xValues[0]:pastPosX, zValues.length>0?zValues[0]:pastPosZ);
+        // currentRotation2d = new Rotation2d(xRot.length>0&&zRot.length>0?Math.sin(xRot[0]/zRot[0]):Math.sin(pastRotX/pastRotZ));
+        // robotPose = PoseTest.toFieldCoordinates(currentTranslation2d, currentRotation2d, currentTag);
 
-        currentTranslation2d = new Translation2d(xValues.length>0?xValues[0]:pastPosX, zValues.length>0?zValues[0]:pastPosZ);
-        currentRotation2d = new Rotation2d(xRot.length>0&&zRot.length>0?Math.sin(xRot[0]/zRot[0]):Math.sin(pastRotX/pastRotZ));
-        robotPose = PoseTest.toFieldCoordinates(currentTranslation2d, currentRotation2d, currentTag);
-
-        currentRobotX = robotPose.getTranslation().getX();
-        currentRobotZ = robotPose.getTranslation().getY();
-        currentRobotRot = robotPose.getRotation().getRadians();    
+        // currentRobotX = robotPose.getTranslation().getX();
+        // currentRobotZ = robotPose.getTranslation().getY();
+        // currentRobotRot = robotPose.getRotation().getRadians();    
         
-        System.out.println("X: " + currentRobotX);
-        System.out.println("Z: " + currentRobotZ);
-        System.out.println("RADIANS: " + currentRobotRot);
+        // System.out.println("X: " + currentRobotX);
+        // System.out.println("Z: " + currentRobotZ);
+        // System.out.println("RADIANS: " + currentRobotRot);
 
 
 
