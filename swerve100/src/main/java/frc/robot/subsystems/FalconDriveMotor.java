@@ -1,5 +1,7 @@
 package frc.robot.subsystems;
 
+import com.ctre.phoenix.motorcontrol.StatorCurrentLimitConfiguration;
+import com.ctre.phoenix.motorcontrol.SupplyCurrentLimitConfiguration;
 import com.ctre.phoenix.motorcontrol.TalonFXSensorCollection;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
 
@@ -13,10 +15,10 @@ public class FalconDriveMotor implements DriveMotor {
     public FalconDriveMotor(String name, int canId) {
         m_motor = new WPI_TalonFX(canId);
         m_motor.configFactoryDefault();
-       // m_motor.configStatorCurrentLimit(
-       //         new StatorCurrentLimitConfiguration(true, kDriveCurrentLimit, kDriveCurrentLimit, 0));
-       // m_motor.configSupplyCurrentLimit(
-       //         new SupplyCurrentLimitConfiguration(true, kDriveCurrentLimit, kDriveCurrentLimit, 0));
+        m_motor.configStatorCurrentLimit(
+            new StatorCurrentLimitConfiguration(true, kDriveCurrentLimit, kDriveCurrentLimit, 0));
+        m_motor.configSupplyCurrentLimit(
+            new SupplyCurrentLimitConfiguration(true, kDriveCurrentLimit, kDriveCurrentLimit, 0));
        
         SmartDashboard.putData(String.format("Falcon Drive Motor %s", name), this);
     }
