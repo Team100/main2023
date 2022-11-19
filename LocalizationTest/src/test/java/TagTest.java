@@ -10,7 +10,7 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import frc.robot.PoseTest;
-import frc.robot.TestAprilTag;
+import frc.robot.AprilTag;
 
 
 public class TagTest {
@@ -21,7 +21,7 @@ public class TagTest {
 
     public void coordinatesTest() {
     
-        TestAprilTag currentTag;
+        AprilTag currentTag;
         Translation2d currentTranslation2d;
         Rotation2d currentRotation2d;
         Pose2d robotPose;
@@ -37,10 +37,10 @@ public class TagTest {
         double[] defaultValue = new double[0];
         String[] strDefaultValue = new String[0];
         
-        TestAprilTag tag1 = new TestAprilTag(1, poseCalc(1, 1, -Math.PI/2));
-        TestAprilTag tag2 = new TestAprilTag(1, poseCalc(2, 1, -Math.PI/4));
+        AprilTag tag1 = new AprilTag(1, poseCalc(1, 1, -Math.PI/2));
+        AprilTag tag2 = new AprilTag(1, poseCalc(2, 1, -Math.PI/4));
 
-        HashMap <Integer, TestAprilTag> aprilHash = new HashMap<Integer, TestAprilTag>();
+        HashMap <Integer, AprilTag> aprilHash = new HashMap<Integer, AprilTag>();
         aprilHash.put(1, tag1);
         aprilHash.put(2, tag2);
 
