@@ -84,9 +84,6 @@ class MyColorAnalyzer(GreyYUVAnalysis):
             pose_t_x_list.append(r.pose_t[0])
             pose_t_y_list.append(r.pose_t[1])
             pose_t_z_list.append(r.pose_t[2])
-            pose_R_x_list.append(ap_pose_R_x_str)
-            pose_R_y_list.append(ap_pose_R_y_str)
-            pose_R_z_list.append(ap_pose_R_z_str)
 
             pose_R_x_list.append(ap_pose_R_x_str)
             pose_R_y_list.append(ap_pose_R_y_str)
