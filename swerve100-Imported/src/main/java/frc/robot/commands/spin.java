@@ -17,12 +17,13 @@ import edu.wpi.first.math.trajectory.TrajectoryGenerator;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.SwerveControllerCommand;
 import frc.robot.Constants.AutoConstants;
-import frc.robot.subsystems.DriveSubsystem;
+import frc.robot.subsystems.Swerve2DriveSubsystem;
+//import frc.robot.subsystems.DriveSubsystem;
 
 public class spin extends CommandBase {
-  private DriveSubsystem drive;
+  private Swerve2DriveSubsystem drive;
   /** Creates a new sin. */
-  public spin(DriveSubsystem drive) {
+  public spin(Swerve2DriveSubsystem drive) {
     // Use addRequirements() here to declare subsystem dependencies.
     this.drive = drive;
 
@@ -48,7 +49,7 @@ public class spin extends CommandBase {
                       AutoConstants.kMaxSpeedMetersPerSecond,
                       AutoConstants.kMaxAccelerationMetersPerSecondSquared)
                   // Add kinematics to ensure max speed is actually obeyed
-                  .setKinematics(DriveSubsystem.kDriveKinematics);
+                  .setKinematics(Swerve2DriveSubsystem.kDriveKinematics);
     
           // An example trajectory to follow.  All units in meters.
           Trajectory exampleTrajectory =
@@ -70,7 +71,7 @@ public class spin extends CommandBase {
               new SwerveControllerCommand(
                   exampleTrajectory,
                   drive::getPose, // Functional interface to feed supplier
-                  DriveSubsystem.kDriveKinematics,
+                  Swerve2DriveSubsystem.kDriveKinematics,
     
                   // Position controllers
                   new PIDController(AutoConstants.kPXController, 0, 0),

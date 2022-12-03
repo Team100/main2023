@@ -14,23 +14,27 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.math.trajectory.TrajectoryConfig;
 import edu.wpi.first.math.trajectory.TrajectoryGenerator;
+import edu.wpi.first.wpilibj.util.WPILibVersion;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.SwerveControllerCommand;
 import frc.robot.Constants.AutoConstants;
-import frc.robot.subsystems.DriveSubsystem;
+import frc.robot.subsystems.Swerve2DriveSubsystem;
+//import frc.robot.subsystems.DriveSubsystem;
 
 public class trajec {
+
+    
     public static void main(String[] args) {
       System.out.println("Hello world!");
     }
 
-    public static SwerveControllerCommand traj(DriveSubsystem drive){
+    public static SwerveControllerCommand traj(Swerve2DriveSubsystem drive){
         TrajectoryConfig config =
               new TrajectoryConfig(
                       AutoConstants.kMaxSpeedMetersPerSecond,
                       AutoConstants.kMaxAccelerationMetersPerSecondSquared)
                   // Add kinematics to ensure max speed is actually obeyed
-                  .setKinematics(DriveSubsystem.kDriveKinematics);
+                  .setKinematics(Swerve2DriveSubsystem.kDriveKinematics);
     
           // An example trajectory to follow.  All units in meters.
           Trajectory exampleTrajectory =
@@ -52,7 +56,7 @@ public class trajec {
               new SwerveControllerCommand(
                   exampleTrajectory,
                   drive::getPose, // Functional interface to feed supplier
-                  DriveSubsystem.kDriveKinematics,
+                  Swerve2DriveSubsystem.kDriveKinematics,
     
                   // Position controllers
                   new PIDController(AutoConstants.kPXController, 0, 0),

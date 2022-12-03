@@ -25,9 +25,7 @@ import edu.wpi.first.wpilibj2.command.SwerveControllerCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import frc.robot.Constants.AutoConstants;
 import frc.robot.Constants.OIConstants;
-import frc.robot.subsystems.DriveSubsystem;
 import frc.robot.commands.trajec;
-//import frc.robot.subsystems.Swerve2DriveSubsystem;
 import frc.robot.subsystems.Swerve2DriveSubsystem;
 
 /*
@@ -54,7 +52,7 @@ public class RobotContainer implements Sendable {
          AutoConstants.kMaxSpeedMetersPerSecond,
          AutoConstants.kMaxAccelerationMetersPerSecondSquared)
      // Add kinematics to ensure max speed is actually obeyed
-     .setKinematics(DriveSubsystem.kDriveKinematics);
+     .setKinematics(Swerve2DriveSubsystem.kDriveKinematics);
 
   Trajectory exampleTrajectory =
     TrajectoryGenerator.generateTrajectory(
@@ -68,7 +66,7 @@ public class RobotContainer implements Sendable {
       
 
     private final ProfiledPIDController thetaController = new ProfiledPIDController( AutoConstants.kPThetaController, 0, 0, AutoConstants.kThetaControllerConstraints);
-    SwerveControllerCommand swerveControllerCommand = new SwerveControllerCommand(exampleTrajectory, m_robotDrive::getPose, DriveSubsystem.kDriveKinematics, new PIDController(AutoConstants.kPXController, 0, 0), new PIDController(AutoConstants.kPYController, 0, 0), thetaController, m_robotDrive::setModuleStates, m_robotDrive);
+    SwerveControllerCommand swerveControllerCommand = new SwerveControllerCommand(exampleTrajectory, m_robotDrive::getPose, Swerve2DriveSubsystem.kDriveKinematics, new PIDController(AutoConstants.kPXController, 0, 0), new PIDController(AutoConstants.kPYController, 0, 0), thetaController, m_robotDrive::setModuleStates, m_robotDrive);
 
 
   
@@ -106,8 +104,8 @@ public class RobotContainer implements Sendable {
    * {@link JoystickButton}.
    */
   private void configureButtonBindings() {
-    l2.whileHeld(swerveControllerCommand);
-
+    l2.whileTrue(swerveControllerCommand);
+    
   }
 
   /**
@@ -122,7 +120,7 @@ public class RobotContainer implements Sendable {
                   AutoConstants.kMaxSpeedMetersPerSecond,
                   AutoConstants.kMaxAccelerationMetersPerSecondSquared)
               // Add kinematics to ensure max speed is actually obeyed
-              .setKinematics(DriveSubsystem.kDriveKinematics);
+              .setKinematics(Swerve2DriveSubsystem.kDriveKinematics);
 
       // An example trajectory to follow.  All units in meters.
       Trajectory exampleTrajectory =
@@ -144,7 +142,7 @@ public class RobotContainer implements Sendable {
           new SwerveControllerCommand(
               exampleTrajectory,
               m_robotDrive::getPose, // Functional interface to feed supplier
-              DriveSubsystem.kDriveKinematics,
+              Swerve2DriveSubsystem.kDriveKinematics,
 
               // Position controllers
               new PIDController(AutoConstants.kPXController, 0, 0),
