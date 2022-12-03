@@ -2,7 +2,7 @@ package frc.robot.subsystems;
 
 import com.kauailabs.navx.frc.AHRS;
 import edu.wpi.first.math.Nat;
-
+import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -10,14 +10,18 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
+import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.SerialPort;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.util.WPILibVersion;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.RobotPose;
 import edu.wpi.first.math.numbers.N5;
 import edu.wpi.first.math.numbers.N7;
+import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.Timer;
  
 
 /**
@@ -45,6 +49,8 @@ public class Swerve2DriveSubsystem extends SubsystemBase {
     public static final double kMaxSpeedMetersPerSecond = 4;
     public static final double kMaxAngularSpeedRadiansPerSecond = -5;
     public static double m_northOffset = 0;
+    RobotPose robot = new RobotPose();
+    
 
     private final SwerveModule m_frontLeft = SwerveModuleFactory
             .newSwerveModuleWithFalconDriveAndAnalogSteeringEncoders(
@@ -93,26 +99,58 @@ public class Swerve2DriveSubsystem extends SubsystemBase {
 
     public Swerve2DriveSubsystem() {
         m_gyro = new AHRS(SerialPort.Port.kUSB);
-        m_odometry = new SwerveDriveOdometry(kDriveKinematics, Rotation2d.fromDegrees(-m_gyro.getFusedHeading()+m_northOffset));
+        m_poseEstimator = new SwerveDrivePoseEstimator<N7, N7, N5>(
+            Nat.N7(),
+            Nat.N7(),
+            Nat.N5(),
+            m_gyro.getRotation2d(),
+            new Pose2d(),
+            new SwerveModulePosition[] {
+              m_frontLeft.getPosition(),
+              m_frontRight.getPosition(),
+              m_rearLeft.getPosition(),
+              m_rearRight.getPosition()
+            },
+            kDriveKinematics,
+            VecBuilder.fill(0.05, 0.05, Units.degreesToRadians(5), 0.05, 0.05, 0.05, 0.05),
+            VecBuilder.fill(Units.degreesToRadians(0.01), 0.01, 0.01, 0.01, 0.01),
+            VecBuilder.fill(0.5, 0.5, Units.degreesToRadians(30)));
         SmartDashboard.putData("Drive Subsystem", this);
+
     }
+
+    public void updateOdometry() {
+        m_poseEstimator.update(
+            m_gyro.getRotation2d(),
+            new SwerveModuleState[] {
+              m_frontLeft.getState(),
+              m_frontRight.getState(),
+              m_rearLeft.getState(),
+              m_rearRight.getState()
+            },
+            new SwerveModulePosition[] {
+              m_frontLeft.getPosition(),
+              m_frontRight.getPosition(),
+              m_rearLeft.getPosition(),
+              m_rearRight.getPosition()
+            });
+            
+            m_poseEstimator.addVisionMeasurement(
+                robot.getRobotPose(0),
+                Timer.getFPGATimestamp() - 0.3);
+        }
 
     @Override
     public void periodic() {
-        m_odometry.update(
-                Rotation2d.fromDegrees(-m_gyro.getFusedHeading()+m_northOffset),
-                m_frontLeft.getState(),
-                m_frontRight.getState(),
-                m_rearLeft.getState(),
-                m_rearRight.getState());
+        updateOdometry();
     }
 
     public Pose2d getPose() {
-        return m_odometry.getPoseMeters();
+        return m_poseEstimator.getEstimatedPosition();
     }
 
     public void resetOdometry(Pose2d pose) {
-        m_odometry.resetPosition(pose, Rotation2d.fromDegrees(-m_gyro.getFusedHeading()+m_northOffset));
+        m_poseEstimator.resetPosition(pose, Rotation2d.fromDegrees(-m_gyro.getFusedHeading()+m_northOffset));
     }
 
     /**
