@@ -92,6 +92,16 @@ public class RobotContainer implements Sendable {
                     true);
                 },
             m_robotDrive));
+
+            // new RunCommand(
+            //   () ->{
+            //           m_robotDrive.drive(
+            //           0,
+            //           0,
+            //           0,
+            //           true);
+            //       },
+            //   m_robotDrive));
             SmartDashboard.putData("Robot Container", this);
 
     

@@ -60,7 +60,7 @@ public class Swerve2DriveSubsystem extends SubsystemBase {
                     1, // encoder
                     false, // drive reverse
                     false, // steer encoder reverse
-                    .185);
+                    0.68);
 
     private final SwerveModule m_frontRight = SwerveModuleFactory
             .newSwerveModuleWithFalconDriveAndAnalogSteeringEncoders(
@@ -70,7 +70,7 @@ public class Swerve2DriveSubsystem extends SubsystemBase {
                     3, // encoder
                     false, // drive reverse
                     false, // steer encoder reverse
-                    .8934);
+                    0.54);
 
     private final SwerveModule m_rearLeft = SwerveModuleFactory
             .newSwerveModuleWithFalconDriveAndAnalogSteeringEncoders(
@@ -80,7 +80,7 @@ public class Swerve2DriveSubsystem extends SubsystemBase {
                     0, // encoder
                     false, // drive reverse
                     false, // steer encoder reverse
-                    0.7421);
+                    0.24);
 
     private final SwerveModule m_rearRight = SwerveModuleFactory
             .newSwerveModuleWithFalconDriveAndAnalogSteeringEncoders(
@@ -90,7 +90,7 @@ public class Swerve2DriveSubsystem extends SubsystemBase {
                     2, // encoder
                     false, // drive reverse
                     false, // steer encoder reverse
-                    .7466);
+                    0.74);
 
     // The gyro sensor. We have a Nav-X.
     private final AHRS m_gyro;
@@ -135,9 +135,11 @@ public class Swerve2DriveSubsystem extends SubsystemBase {
               m_rearRight.getPosition()
             });
             
-            m_poseEstimator.addVisionMeasurement(
-                robot.getRobotPose(0),
-                Timer.getFPGATimestamp() - 0.3);
+            if(robot.aprilPresent()) {
+                m_poseEstimator.addVisionMeasurement(
+                    robot.getRobotPose(0),
+                    Timer.getFPGATimestamp() - 0.3);
+            }
         }
 
     @Override
@@ -146,6 +148,7 @@ public class Swerve2DriveSubsystem extends SubsystemBase {
     }
 
     public Pose2d getPose() {
+        // System.out.println(m_poseEstimator.getEstimatedPosition());
         return m_poseEstimator.getEstimatedPosition();
     }
 
@@ -180,9 +183,13 @@ public class Swerve2DriveSubsystem extends SubsystemBase {
         SwerveDriveKinematics.desaturateWheelSpeeds(
                 swerveModuleStates, kMaxSpeedMetersPerSecond);
         m_frontLeft.setDesiredState(swerveModuleStates[0]);
+        System.out.println("*************M0" + swerveModuleStates[0]);
         m_frontRight.setDesiredState(swerveModuleStates[1]);
+        System.out.println("*************M1" + swerveModuleStates[1]);
         m_rearLeft.setDesiredState(swerveModuleStates[2]);
+        System.out.println("*************M2" + swerveModuleStates[2]);
         m_rearRight.setDesiredState(swerveModuleStates[3]);
+        System.out.println("*************M3" + swerveModuleStates[3]);
     }
 
     public void setModuleStates(SwerveModuleState[] desiredStates) {
