@@ -1,7 +1,9 @@
 package frc.robot.subsystems;
 
 import com.kauailabs.navx.frc.AHRS;
+import edu.wpi.first.math.Nat;
 
+import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
@@ -12,7 +14,11 @@ import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.SerialPort;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj.util.WPILibVersion;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.math.numbers.N5;
+import edu.wpi.first.math.numbers.N7;
+ 
 
 /**
  * This is a copy of DriveSubsystem for the second AndyMark swerve base.
@@ -83,7 +89,7 @@ public class Swerve2DriveSubsystem extends SubsystemBase {
     // The gyro sensor. We have a Nav-X.
     private final AHRS m_gyro;
     // Odometry class for tracking robot pose
-    SwerveDriveOdometry m_odometry;
+    SwerveDrivePoseEstimator<N7, N7, N5> m_poseEstimator;
 
     public Swerve2DriveSubsystem() {
         m_gyro = new AHRS(SerialPort.Port.kUSB);
