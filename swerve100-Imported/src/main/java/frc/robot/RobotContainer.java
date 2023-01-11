@@ -4,6 +4,7 @@
 
 package frc.robot;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import frc.robot.commands.spin;
@@ -115,7 +116,7 @@ public class RobotContainer implements Sendable {
    */
   private void configureButtonBindings() {
     l2.whileTrue(swerveControllerCommand);
-    
+  
   }
 
   /**
@@ -136,11 +137,7 @@ public class RobotContainer implements Sendable {
       Trajectory exampleTrajectory =
           TrajectoryGenerator.generateTrajectory(
               // Start at the origin facing the +X direction
-              new Pose2d(0, 0, new Rotation2d(0)),
-              // Pass through these two interior waypoints, making an 's' curve path
-              List.of(new Translation2d(5, 0), new Translation2d(5, 5), new Translation2d(0, 5)),
-              // End 3 meters straight ahead of where we started, facing forward
-              new Pose2d(0, 0, new Rotation2d(Math.PI)),
+              new Pose2d(0, 0, new Rotation2d(Math.PI)),new ArrayList<Translation2d> (), new Pose2d(1, 0, new Rotation2d(Math.PI)),
               config);
 
       var thetaController =

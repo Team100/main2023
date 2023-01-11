@@ -60,7 +60,7 @@ public class Swerve2DriveSubsystem extends SubsystemBase {
                     1, // encoder
                     false, // drive reverse
                     false, // steer encoder reverse
-                    0.68);
+                    .51);
 
     private final SwerveModule m_frontRight = SwerveModuleFactory
             .newSwerveModuleWithFalconDriveAndAnalogSteeringEncoders(
@@ -70,7 +70,7 @@ public class Swerve2DriveSubsystem extends SubsystemBase {
                     3, // encoder
                     false, // drive reverse
                     false, // steer encoder reverse
-                    0.54);
+                    0.54); // .54
 
     private final SwerveModule m_rearLeft = SwerveModuleFactory
             .newSwerveModuleWithFalconDriveAndAnalogSteeringEncoders(
@@ -80,7 +80,7 @@ public class Swerve2DriveSubsystem extends SubsystemBase {
                     0, // encoder
                     false, // drive reverse
                     false, // steer encoder reverse
-                    0.24);
+                    0.74);
 
     private final SwerveModule m_rearRight = SwerveModuleFactory
             .newSwerveModuleWithFalconDriveAndAnalogSteeringEncoders(
@@ -90,7 +90,7 @@ public class Swerve2DriveSubsystem extends SubsystemBase {
                     2, // encoder
                     false, // drive reverse
                     false, // steer encoder reverse
-                    0.74);
+                    .74); // .74
 
     // The gyro sensor. We have a Nav-X.
     private final AHRS m_gyro;
@@ -114,7 +114,7 @@ public class Swerve2DriveSubsystem extends SubsystemBase {
             kDriveKinematics,
             VecBuilder.fill(0.05, 0.05, Units.degreesToRadians(5), 0.05, 0.05, 0.05, 0.05),
             VecBuilder.fill(Units.degreesToRadians(0.01), 0.01, 0.01, 0.01, 0.01),
-            VecBuilder.fill(0.5, 0.5, Units.degreesToRadians(30)));
+            VecBuilder.fill(0.05, 0.05, Units.degreesToRadians(1)));
         SmartDashboard.putData("Drive Subsystem", this);
 
     }
@@ -134,7 +134,7 @@ public class Swerve2DriveSubsystem extends SubsystemBase {
               m_rearLeft.getPosition(),
               m_rearRight.getPosition()
             });
-            
+            // System.out.print(robot.getRobotPose(0));
             if(robot.aprilPresent()) {
                 m_poseEstimator.addVisionMeasurement(
                     robot.getRobotPose(0),
@@ -148,7 +148,7 @@ public class Swerve2DriveSubsystem extends SubsystemBase {
     }
 
     public Pose2d getPose() {
-        // System.out.println(m_poseEstimator.getEstimatedPosition());
+        //System.out.println("aaaaaaaaaaaaaaaaaaaaa" + m_poseEstimator.getEstimatedPosition());
         return m_poseEstimator.getEstimatedPosition();
     }
 
@@ -183,18 +183,15 @@ public class Swerve2DriveSubsystem extends SubsystemBase {
         SwerveDriveKinematics.desaturateWheelSpeeds(
                 swerveModuleStates, kMaxSpeedMetersPerSecond);
         m_frontLeft.setDesiredState(swerveModuleStates[0]);
-        System.out.println("*************M0" + swerveModuleStates[0]);
         m_frontRight.setDesiredState(swerveModuleStates[1]);
-        System.out.println("*************M1" + swerveModuleStates[1]);
         m_rearLeft.setDesiredState(swerveModuleStates[2]);
-        System.out.println("*************M2" + swerveModuleStates[2]);
         m_rearRight.setDesiredState(swerveModuleStates[3]);
-        System.out.println("*************M3" + swerveModuleStates[3]);
     }
 
     public void setModuleStates(SwerveModuleState[] desiredStates) {
         SwerveDriveKinematics.desaturateWheelSpeeds(
                 desiredStates, kMaxSpeedMetersPerSecond);
+        System.out.println("******************" + desiredStates);
         m_frontLeft.setDesiredState(desiredStates[0]);
         m_frontRight.setDesiredState(desiredStates[1]);
         m_rearLeft.setDesiredState(desiredStates[2]);
@@ -202,7 +199,7 @@ public class Swerve2DriveSubsystem extends SubsystemBase {
     }
 
     public void test(double[][] desiredOutputs) {
-        System.out.println("set outputs");
+        //System.out.println("set outputs");
         m_frontLeft.setOutput(desiredOutputs[0][0], desiredOutputs[0][1]);
         m_frontRight.setOutput(desiredOutputs[1][0], desiredOutputs[1][1]);
         m_rearLeft.setOutput(desiredOutputs[2][0], desiredOutputs[2][1]);
