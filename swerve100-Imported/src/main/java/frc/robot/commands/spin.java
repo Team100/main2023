@@ -81,7 +81,7 @@ public class spin extends CommandBase {
                   drive);
     
           // Reset odometry to the starting pose of the trajectory.
-          drive.resetOdometry(exampleTrajectory.getInitialPose());
+          // drive.resetOdometry(exampleTrajectory.getInitialPose());
     
           // Run path following command, then stop at the end.
           return swerveControllerCommand;

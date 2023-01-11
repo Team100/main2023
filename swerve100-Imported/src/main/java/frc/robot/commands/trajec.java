@@ -42,7 +42,7 @@ public class trajec {
                   // Start at```  ` the origin facing the +X direction
                   new Pose2d(0, 0, new Rotation2d(0)),
                   // Pass through these two interior waypoints, making an 's' curve path
-                  List.of(new Translation2d(5, 0), new Translation2d(5, 5), new Translation2d(0, 5)),
+                  List.of(new Translation2d(0, .5), new Translation2d(0, 1)),
                   // End 3 meters straight ahead of where we started, facing forward
                   new Pose2d(0, 0, new Rotation2d(Math.PI)),
                   config);
@@ -66,7 +66,7 @@ public class trajec {
                   drive);
     
           // Reset odometry to the starting pose of the trajectory.
-          drive.resetOdometry(exampleTrajectory.getInitialPose());
+          //drive.resetOdometry(exampleTrajectory.getInitialPose());
     
           // Run path following command, then stop at the end.
           return swerveControllerCommand;
