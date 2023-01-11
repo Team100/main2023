@@ -16,14 +16,12 @@ public class HashTag {
 
     public HashTag(){
         aprilHash = new HashMap<Integer, TestAprilTag>();
-        TestAprilTag tag1 = new TestAprilTag(4, poseCalc(0, 2, 0));
-        TestAprilTag tag2 = new TestAprilTag(8, poseCalc(1, 2, 0));
-        TestAprilTag tag3 = new TestAprilTag(1, poseCalc(-1, 2, 0));
+        TestAprilTag tag1 = new TestAprilTag(0, poseCalc(0, 1, 0));
+        TestAprilTag tag2 = new TestAprilTag(1, poseCalc(1, 1, 0));
 
 
         aprilHash.put(tag1.ID, tag1);
         aprilHash.put(tag2.ID, tag2);
-        aprilHash.put(tag3.ID, tag3);
     }
 
     public TestAprilTag getCurrentTag(int i){

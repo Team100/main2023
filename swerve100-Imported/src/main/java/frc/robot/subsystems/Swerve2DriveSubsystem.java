@@ -104,13 +104,13 @@ public class Swerve2DriveSubsystem extends SubsystemBase {
             Nat.N7(),
             Nat.N5(),
             m_gyro.getRotation2d(),
-            new Pose2d(),
             new SwerveModulePosition[] {
               m_frontLeft.getPosition(),
               m_frontRight.getPosition(),
               m_rearLeft.getPosition(),
               m_rearRight.getPosition()
             },
+            new Pose2d(),
             kDriveKinematics,
             VecBuilder.fill(0.05, 0.05, Units.degreesToRadians(5), 0.05, 0.05, 0.05, 0.05),
             VecBuilder.fill(Units.degreesToRadians(0.01), 0.01, 0.01, 0.01, 0.01),
@@ -152,9 +152,9 @@ public class Swerve2DriveSubsystem extends SubsystemBase {
         return m_poseEstimator.getEstimatedPosition();
     }
 
-    public void resetOdometry(Pose2d pose) {
-        m_poseEstimator.resetPosition(pose, Rotation2d.fromDegrees(-m_gyro.getFusedHeading()+m_northOffset));
-    }
+    //public void resetOdometry(Pose2d pose) {
+        //m_poseEstimator.resetPosition(pose, Rotation2d.fromDegrees(-m_gyro.getFusedHeading()+m_northOffset));
+    //}
 
     /**
      * Method to drive the robot using joystick info.
