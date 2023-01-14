@@ -6,7 +6,7 @@ package frc.robot;
 
 import java.util.List;
 
-import frc.robot.commands.spin;
+// import frc.robot.commands.spin;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -25,7 +25,7 @@ import edu.wpi.first.wpilibj2.command.SwerveControllerCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import frc.robot.Constants.AutoConstants;
 import frc.robot.Constants.OIConstants;
-import frc.robot.commands.trajec;
+// import frc.robot.commands.trajec;
 import frc.robot.subsystems.Swerve2DriveSubsystem;
 
 /*
@@ -92,7 +92,7 @@ public class RobotContainer implements Sendable {
                     true);
                 },
             m_robotDrive));
-            SmartDashboard.putData("Robot Container", this);
+            // SmartDashboard.putData("Robot Container", this);
 
     
   }
@@ -102,7 +102,7 @@ public class RobotContainer implements Sendable {
    * instantiating a {@link edu.wpi.first.wpilibj.GenericHID} or one of its subclasses ({@link
    * edu.wpi.first.wpilibj.Joystick} or {@link XboxController}), and then calling passing it to a
    * {@link JoystickButton}.
-   */
+    */
   private void configureButtonBindings() {
     l2.whileTrue(swerveControllerCommand);
     
@@ -152,7 +152,7 @@ public class RobotContainer implements Sendable {
               m_robotDrive);
 
       // Reset odometry to the starting pose of the trajectory.
-      m_robotDrive.resetOdometry(exampleTrajectory.getInitialPose());
+      // m_robotDrive.resetOdometry(exampleTrajectory.getInitialPose());
 
       // Run path following command, then stop at the end.
       return swerveControllerCommand.andThen(() -> m_robotDrive.drive(0, 0, 0, false));

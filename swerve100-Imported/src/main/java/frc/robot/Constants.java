@@ -35,4 +35,38 @@ public final class Constants {
         new TrapezoidProfile.Constraints(
             kMaxAngularSpeedRadiansPerSecond, kMaxAngularSpeedRadiansPerSecondSquared);
   }
+
+
+  // swerve 1
+  // public static final class SwerveConstants {
+  //   public static final double FRONT_LEFT_TURNING_OFFSET = .185;
+  //   public static final double FRONT_RIGHT_TURNING_OFFSET = .8934;
+  //   public static final double REAR_LEFT_TURNING_OFFSET = .7421;
+  //   public static final double REAR_RIGHT_TURNING_OFFSET = .7466;
+  //   public static final double kTrackWidth = 0.38;
+   //   public static final double kWheelBase = 0.445;
+  // }
+
+  //swerve2
+  // public static final class SwerveConstants {
+  //   public static final double FRONT_LEFT_TURNING_OFFSET = -0.98;
+  //   public static final double FRONT_RIGHT_TURNING_OFFSET = -0.37;
+  //   public static final double REAR_LEFT_TURNING_OFFSET = -0.72;
+  //   public static final double REAR_RIGHT_TURNING_OFFSET = -0.68;
+  // }
+
+  public static final class SwerveConstants {
+    public static final double FRONT_LEFT_TURNING_OFFSET = .984;
+    public static final double FRONT_RIGHT_TURNING_OFFSET = .873;
+    public static final double REAR_LEFT_TURNING_OFFSET = .719;
+    public static final double REAR_RIGHT_TURNING_OFFSET = .188;
+    public static final double kTrackWidth = 0.449;
+    public static final double kWheelBase = 0.464;
+  }
+
+  public static final class swerveMeasurments {
+    
+  }
+
+
 }

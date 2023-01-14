@@ -16,7 +16,7 @@ public class HashTag {
 
     public HashTag(){
         aprilHash = new HashMap<Integer, TestAprilTag>();
-        TestAprilTag tag1 = new TestAprilTag(4, poseCalc(0, 2, 0));
+        TestAprilTag tag1 = new TestAprilTag(2, poseCalc(0, 2, 0));
         TestAprilTag tag2 = new TestAprilTag(8, poseCalc(1, 2, 0));
         TestAprilTag tag3 = new TestAprilTag(1, poseCalc(-1, 2, 0));
 

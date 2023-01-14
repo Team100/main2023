@@ -17,6 +17,7 @@ import edu.wpi.first.wpilibj.SerialPort;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.util.WPILibVersion;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Constants;
 import frc.robot.RobotPose;
 import edu.wpi.first.math.numbers.N5;
 import edu.wpi.first.math.numbers.N7;
@@ -31,8 +32,8 @@ import edu.wpi.first.wpilibj.Timer;
  */
 public class Swerve2DriveSubsystem extends SubsystemBase {
 
-    public static final double kTrackWidth = 0.38;
-    public static final double kWheelBase = 0.445;
+    public static final double kTrackWidth = Constants.SwerveConstants.kTrackWidth;
+    public static final double kWheelBase = Constants.SwerveConstants.kWheelBase;
 
     public static final SwerveDriveKinematics kDriveKinematics = new SwerveDriveKinematics(
             new Translation2d(kWheelBase / 2, kTrackWidth / 2),
@@ -60,7 +61,7 @@ public class Swerve2DriveSubsystem extends SubsystemBase {
                     1, // encoder
                     false, // drive reverse
                     false, // steer encoder reverse
-                    .185);
+                    Constants.SwerveConstants.FRONT_LEFT_TURNING_OFFSET);
 
     private final SwerveModule m_frontRight = SwerveModuleFactory
             .newSwerveModuleWithFalconDriveAndAnalogSteeringEncoders(
@@ -70,7 +71,7 @@ public class Swerve2DriveSubsystem extends SubsystemBase {
                     3, // encoder
                     false, // drive reverse
                     false, // steer encoder reverse
-                    .8934);
+                    Constants.SwerveConstants.FRONT_RIGHT_TURNING_OFFSET);
 
     private final SwerveModule m_rearLeft = SwerveModuleFactory
             .newSwerveModuleWithFalconDriveAndAnalogSteeringEncoders(
@@ -80,7 +81,7 @@ public class Swerve2DriveSubsystem extends SubsystemBase {
                     0, // encoder
                     false, // drive reverse
                     false, // steer encoder reverse
-                    0.7421);
+                    Constants.SwerveConstants.REAR_LEFT_TURNING_OFFSET);
 
     private final SwerveModule m_rearRight = SwerveModuleFactory
             .newSwerveModuleWithFalconDriveAndAnalogSteeringEncoders(
@@ -90,27 +91,29 @@ public class Swerve2DriveSubsystem extends SubsystemBase {
                     2, // encoder
                     false, // drive reverse
                     false, // steer encoder reverse
-                    .7466);
+                    Constants.SwerveConstants.REAR_RIGHT_TURNING_OFFSET);
 
     // The gyro sensor. We have a Nav-X.
     private final AHRS m_gyro;
     // Odometry class for tracking robot pose
     SwerveDrivePoseEstimator<N7, N7, N5> m_poseEstimator;
-
+    
     public Swerve2DriveSubsystem() {
+
+
         m_gyro = new AHRS(SerialPort.Port.kUSB);
         m_poseEstimator = new SwerveDrivePoseEstimator<N7, N7, N5>(
             Nat.N7(),
             Nat.N7(),
             Nat.N5(),
             m_gyro.getRotation2d(),
-            new Pose2d(),
             new SwerveModulePosition[] {
               m_frontLeft.getPosition(),
               m_frontRight.getPosition(),
               m_rearLeft.getPosition(),
               m_rearRight.getPosition()
             },
+            new Pose2d(),
             kDriveKinematics,
             VecBuilder.fill(0.05, 0.05, Units.degreesToRadians(5), 0.05, 0.05, 0.05, 0.05),
             VecBuilder.fill(Units.degreesToRadians(0.01), 0.01, 0.01, 0.01, 0.01),
@@ -135,9 +138,9 @@ public class Swerve2DriveSubsystem extends SubsystemBase {
               m_rearRight.getPosition()
             });
             
-            m_poseEstimator.addVisionMeasurement(
-                robot.getRobotPose(0),
-                Timer.getFPGATimestamp() - 0.3);
+            // m_poseEstimator.addVisionMeasurement(
+            //     robot.getRobotPose(0),
+            //     Timer.getFPGATimestamp() - 0.3);
         }
 
     @Override
@@ -149,9 +152,9 @@ public class Swerve2DriveSubsystem extends SubsystemBase {
         return m_poseEstimator.getEstimatedPosition();
     }
 
-    public void resetOdometry(Pose2d pose) {
-        m_poseEstimator.resetPosition(pose, Rotation2d.fromDegrees(-m_gyro.getFusedHeading()+m_northOffset));
-    }
+    // public void resetOdometry(Pose2d pose) {
+    //     m_poseEstimator.resetPosition(pose, Rotation2d.fromDegrees(-m_gyro.getFusedHeading()+m_northOffset));
+    // }
 
     /**
      * Method to drive the robot using joystick info.
@@ -177,8 +180,12 @@ public class Swerve2DriveSubsystem extends SubsystemBase {
                                 Rotation2d.fromDegrees(-m_gyro.getFusedHeading()+m_northOffset))
                         : new ChassisSpeeds(kMaxSpeedMetersPerSecond * xSpeed, kMaxSpeedMetersPerSecond * ySpeed,
                                 kMaxAngularSpeedRadiansPerSecond * rot));
+
+
         SwerveDriveKinematics.desaturateWheelSpeeds(
                 swerveModuleStates, kMaxSpeedMetersPerSecond);
+
+
         m_frontLeft.setDesiredState(swerveModuleStates[0]);
         m_frontRight.setDesiredState(swerveModuleStates[1]);
         m_rearLeft.setDesiredState(swerveModuleStates[2]);
@@ -233,5 +240,9 @@ public class Swerve2DriveSubsystem extends SubsystemBase {
 
     public void resetAHRS2() {
         m_northOffset = Rotation2d.fromDegrees(m_gyro.getFusedHeading()).getDegrees();
+    }
+
+    public void autoChargeLevel(){
+        drive(m_gyro.getAngle()/15, 0, 0, true);
     }
 }
