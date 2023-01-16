@@ -30,6 +30,11 @@ public class HashTag {
         return aprilHash.get(i);
         
     }
+
+    public Pose2d getTagIDPose(int i){
+        TestAprilTag aprilTag = aprilHash.get(i);
+        return aprilTag.getPose();
+    }
     
     public Pose2d poseCalc(double x, double z, double rads){
         Translation2d translation = new Translation2d(x, z);

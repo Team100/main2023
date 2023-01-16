@@ -37,29 +37,23 @@ public final class Constants {
   }
 
 
-  // swerve 1
+  // swerve 2
   // public static final class SwerveConstants {
-  //   public static final double FRONT_LEFT_TURNING_OFFSET = .185;
-  //   public static final double FRONT_RIGHT_TURNING_OFFSET = .8934;
-  //   public static final double REAR_LEFT_TURNING_OFFSET = .7421;
-  //   public static final double REAR_RIGHT_TURNING_OFFSET = .7466;
+  //   public static final double FRONT_LEFT_TURNING_OFFSET = .982;
+  //   public static final double FRONT_RIGHT_TURNING_OFFSET = .044;
+  //   public static final double REAR_LEFT_TURNING_OFFSET = .248;
+  //   public static final double REAR_RIGHT_TURNING_OFFSET = .234;
   //   public static final double kTrackWidth = 0.38;
-   //   public static final double kWheelBase = 0.445;
+  //   public static final double kWheelBase = 0.445;
   // }
 
-  //swerve2
-  // public static final class SwerveConstants {
-  //   public static final double FRONT_LEFT_TURNING_OFFSET = -0.98;
-  //   public static final double FRONT_RIGHT_TURNING_OFFSET = -0.37;
-  //   public static final double REAR_LEFT_TURNING_OFFSET = -0.72;
-  //   public static final double REAR_RIGHT_TURNING_OFFSET = -0.68;
-  // }
+  // swerve1
 
   public static final class SwerveConstants {
     public static final double FRONT_LEFT_TURNING_OFFSET = .984;
-    public static final double FRONT_RIGHT_TURNING_OFFSET = .873;
+    public static final double FRONT_RIGHT_TURNING_OFFSET = .873 - 0.5;
     public static final double REAR_LEFT_TURNING_OFFSET = .719;
-    public static final double REAR_RIGHT_TURNING_OFFSET = .188;
+    public static final double REAR_RIGHT_TURNING_OFFSET = .688;
     public static final double kTrackWidth = 0.449;
     public static final double kWheelBase = 0.464;
   }
