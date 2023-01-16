@@ -7,7 +7,9 @@ package frc.robot;
 import java.util.ArrayList;
 import java.util.List;
 
-import frc.robot.commands.spin;
+import javax.swing.plaf.basic.BasicBorders.ButtonBorder;
+
+// import frc.robot.commands.spin;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -26,7 +28,7 @@ import edu.wpi.first.wpilibj2.command.SwerveControllerCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import frc.robot.Constants.AutoConstants;
 import frc.robot.Constants.OIConstants;
-import frc.robot.commands.trajec;
+// import frc.robot.commands.trajec;
 import frc.robot.subsystems.Swerve2DriveSubsystem;
 
 /*
@@ -42,32 +44,13 @@ public class RobotContainer implements Sendable {
    private final Swerve2DriveSubsystem m_robotDrive = new Swerve2DriveSubsystem();
 
   // The driver's controller
-  XboxController m_driverController = new XboxController(OIConstants.kDriverControllerPort);
-      final JoystickButton l2 = new JoystickButton(m_driverController, 9);
+  private static final XboxController m_driverController = new XboxController(OIConstants.kDriverControllerPort);
+  private static final JoystickButton l2 = new JoystickButton(m_driverController, 9);
+  private static final JoystickButton bButton = new JoystickButton(m_driverController, 2);
   // if true, test mode exercises module state (e.g. azimuth); if false, test mode
   // exercises module output directly.
  // boolean m_testModuleState = false;
 
-  TrajectoryConfig config =
-  new TrajectoryConfig(
-         AutoConstants.kMaxSpeedMetersPerSecond,
-         AutoConstants.kMaxAccelerationMetersPerSecondSquared)
-     // Add kinematics to ensure max speed is actually obeyed
-     .setKinematics(Swerve2DriveSubsystem.kDriveKinematics);
-
-  Trajectory exampleTrajectory =
-    TrajectoryGenerator.generateTrajectory(
-      // Start at```  ` the origin facing the +X direction
-      new Pose2d(0, 0, new Rotation2d(0)),
-      // Pass through these two interior waypoints, making an 's' curve path
-      List.of(new Translation2d(5, 0), new Translation2d(5, 5), new Translation2d(0, 5)),
-      // End 3 meters straight ahead of where we started, facing forward
-      new Pose2d(0, 0, new Rotation2d(Math.PI)),
-      config);
-      
-
-    private final ProfiledPIDController thetaController = new ProfiledPIDController( AutoConstants.kPThetaController, 0, 0, AutoConstants.kThetaControllerConstraints);
-    SwerveControllerCommand swerveControllerCommand = new SwerveControllerCommand(exampleTrajectory, m_robotDrive::getPose, Swerve2DriveSubsystem.kDriveKinematics, new PIDController(AutoConstants.kPXController, 0, 0), new PIDController(AutoConstants.kPYController, 0, 0), thetaController, m_robotDrive::setModuleStates, m_robotDrive);
 
 
   
@@ -75,7 +58,6 @@ public class RobotContainer implements Sendable {
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
 
-    thetaController.enableContinuousInput(-Math.PI, Math.PI);
           // An example trajectory to follow.  All units in meters.
     // Configure the button bindings
     configureButtonBindings();
@@ -94,16 +76,6 @@ public class RobotContainer implements Sendable {
                 },
             m_robotDrive));
 
-            // new RunCommand(
-            //   () ->{
-            //           m_robotDrive.drive(
-            //           0,
-            //           0,
-            //           0,
-            //           true);
-            //       },
-            //   m_robotDrive));
-            SmartDashboard.putData("Robot Container", this);
 
     
   }
@@ -113,10 +85,9 @@ public class RobotContainer implements Sendable {
    * instantiating a {@link edu.wpi.first.wpilibj.GenericHID} or one of its subclasses ({@link
    * edu.wpi.first.wpilibj.Joystick} or {@link XboxController}), and then calling passing it to a
    * {@link JoystickButton}.
-   */
+    */
   private void configureButtonBindings() {
-    l2.whileTrue(swerveControllerCommand);
-  
+
   }
 
   /**
@@ -134,12 +105,21 @@ public class RobotContainer implements Sendable {
               .setKinematics(Swerve2DriveSubsystem.kDriveKinematics);
 
       // An example trajectory to follow.  All units in meters.
-      Trajectory exampleTrajectory =
-          TrajectoryGenerator.generateTrajectory(
-              // Start at the origin facing the +X direction
-              new Pose2d(0, 0, new Rotation2d(Math.PI)),new ArrayList<Translation2d> (), new Pose2d(1, 0, new Rotation2d(Math.PI)),
-              config);
 
+
+      Trajectory exampleTrajectory =
+      TrajectoryGenerator.generateTrajectory(
+          // Start at the origin facing the +X direction
+          new Pose2d(0, 0, new Rotation2d(0)),
+          // Pass through these two interior waypoints, making an 's' curve path
+          // List.of(new Translation2d(1, 1), new Translation2d(2, -1)),
+          List.of(),
+
+          // End 3 meters straight ahead of where we started, facing forward
+          new Pose2d(0, 3, new Rotation2d(0)),
+          // Pass config
+          config);
+    
       var thetaController =
           new ProfiledPIDController(
               AutoConstants.kPThetaController, 0, 0, AutoConstants.kThetaControllerConstraints);
@@ -159,10 +139,13 @@ public class RobotContainer implements Sendable {
               m_robotDrive);
 
       // Reset odometry to the starting pose of the trajectory.
-      //m_robotDrive.resetOdometry(exampleTrajectory.getInitialPose());
+
 
       // Run path following command, then stop at the end.
-      return swerveControllerCommand.andThen(() -> m_robotDrive.drive(0, 0, 0, false));
+      // resetAHRS();
+      // m_robotDrive.resetPose();
+
+      return swerveControllerCommand;
   }
 
   public void runTest() {
@@ -189,7 +172,12 @@ public class RobotContainer implements Sendable {
     builder.addDoubleProperty("left x", () -> m_driverController.getLeftX(), null);
   }
   public void resetAHRS() {
+    System.out.println("GYYYYYYYYYYRPOOOOOOOOOOOOOOOOOOOOOO" + m_robotDrive.getHeading().getDegrees());
+    System.out.println("DEGREEEEEEEEEEEEES " + m_robotDrive.getPose().getRotation().getDegrees());
     m_robotDrive.resetAHRS2();
   }
 
+  public void resetPose(){
+    m_robotDrive.resetPose();
+  }
 }

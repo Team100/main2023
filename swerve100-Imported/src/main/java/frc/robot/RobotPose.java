@@ -30,6 +30,8 @@ public class RobotPose {
     String [] zRot;
     String a;
     String g;
+    String h;
+    String i;
     HashMap <Integer, TestAprilTag> aprilHash;
     HashTag hashtag;
 
@@ -92,13 +94,21 @@ public class RobotPose {
         return rotation.getRadians();
     }
 
+    public double getPitchRot(){
+        h = stringtoVal(getRotZ(0));
+        i = stringtoVal(getRotZ(0));
+        Rotation2d rotation = new Rotation2d(Double.parseDouble(h), Double.parseDouble(i));
+        SmartDashboard.putNumber("Rotation Pitch For Robot", rotation.getRadians());
+        return rotation.getDegrees();
+
+    }
+
     public Pose2d getRobotPose(int i){
         Translation2d translation = new Translation2d(getPosX(i), getPosZ(i));
         Rotation2d rotation = new Rotation2d(getRot(i));
         Pose2d robotPose = toFieldCoordinates(translation, rotation, hashtag.getCurrentTag(getID(i)));
         // System.out.println("X Value: " + robotPose.getX());
         // System.out.println("Z Value: " + robotPose.getY());
-        //System.out.println(robotPose.getRotation());
         return robotPose;
     }
 
@@ -127,6 +137,29 @@ public class RobotPose {
     
     }
     
+    public String stringto2ndVal(String str){
+        String str2 = "";
+        String str3 = " ";
+        char c = str3.charAt(0);
+        boolean secondtrue = false;
+        for(int i = 0; i<str.length(); i++){
+            if(str.charAt(i) == c){
+                secondtrue = true;
+            }
+
+            if(secondtrue){
+                if(str.charAt(i) != c){
+                    str2 = str2 + str.charAt(i);
+                } else {
+                    break;      
+                }
+                
+            }
+        }
+        return str2;
+    
+    }
+
     public static Pose2d toFieldCoordinates(Translation2d translation2d, Rotation2d rotation2d, TestAprilTag apriltag) {
         Transform2d robotRelative = new Transform2d(translation2d, rotation2d);
         Transform2d tagRelative = robotRelative.inverse();
