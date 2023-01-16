@@ -21,10 +21,10 @@ public class RobotPose {
     NetworkTable table = NetworkTableInstance.getDefault().getTable("Vision");
     double [] xValues;
     double [] yValues;
+    double [] zValues;
     double[] defaultValue = new double[0];
     String[] strDefaultValue = new String[0];
     double [] idValues;
-    double [] zValues;
     String [] xRot;
     String [] yRot;
     String [] zRot;
@@ -38,6 +38,14 @@ public class RobotPose {
     public RobotPose(){
         table = NetworkTableInstance.getDefault().getTable("Vision");
         hashtag = new HashTag();
+    }
+
+    public boolean aprilPresent(){
+        // idValues = table.getEntry("id").getDoubleArray(defaultValue);
+        // if(idValues.length > 0){
+        //     return true;
+        // }
+        return false;
     }
     
     public int getID(int i){
@@ -101,10 +109,6 @@ public class RobotPose {
         Pose2d robotPose = toFieldCoordinates(translation, rotation, hashtag.getCurrentTag(getID(i)));
         // System.out.println("X Value: " + robotPose.getX());
         // System.out.println("Z Value: " + robotPose.getY());
-        // System.out.println(getPitchRot());
-
-        // System.out.println("YOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO");
-        
         return robotPose;
     }
 
@@ -118,6 +122,7 @@ public class RobotPose {
       }
     
     public String stringtoVal(String str){
+        // Switch to new method later since using NetworkTables3
         String str2 = "";
         String str3 = " ";
         char c = str3.charAt(0);

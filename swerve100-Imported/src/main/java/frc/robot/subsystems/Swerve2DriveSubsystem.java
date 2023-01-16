@@ -65,6 +65,8 @@ public class Swerve2DriveSubsystem extends SubsystemBase {
                     // false,
                     false, // steer encoder reverse
                     Constants.SwerveConstants.FRONT_LEFT_TURNING_OFFSET);
+                    .51);
+
 
     private final SwerveModule m_frontRight = SwerveModuleFactory
             .newSwerveModuleWithFalconDriveAndAnalogSteeringEncoders(
@@ -76,6 +78,8 @@ public class Swerve2DriveSubsystem extends SubsystemBase {
                     false, // steer encoder reverse
                     Constants.SwerveConstants.FRONT_RIGHT_TURNING_OFFSET);
 
+                    0.54); // .54
+
     private final SwerveModule m_rearLeft = SwerveModuleFactory
             .newSwerveModuleWithFalconDriveAndAnalogSteeringEncoders(
                     "Rear Left",
@@ -85,6 +89,8 @@ public class Swerve2DriveSubsystem extends SubsystemBase {
                     false, // drive reverse
                     false, // steer encoder reverse
                     Constants.SwerveConstants.REAR_LEFT_TURNING_OFFSET);
+                    0.74);
+
 
     private final SwerveModule m_rearRight = SwerveModuleFactory
             .newSwerveModuleWithFalconDriveAndAnalogSteeringEncoders(
@@ -95,6 +101,8 @@ public class Swerve2DriveSubsystem extends SubsystemBase {
                     false, // drive reverse
                     false, // steer encoder reverse
                     Constants.SwerveConstants.REAR_RIGHT_TURNING_OFFSET);
+                    .74); // .74
+
 
     // The gyro sensor. We have a Nav-X.
     private final AHRS m_gyro;
@@ -109,7 +117,7 @@ public class Swerve2DriveSubsystem extends SubsystemBase {
             Nat.N7(),
             Nat.N7(),
             Nat.N5(),
-            getHeading(),
+            m_gyro.getRotation2d(),
             new SwerveModulePosition[] {
               m_frontLeft.getPosition(),
               m_frontRight.getPosition(),
@@ -120,7 +128,7 @@ public class Swerve2DriveSubsystem extends SubsystemBase {
             kDriveKinematics,
             VecBuilder.fill(0.05, 0.05, Units.degreesToRadians(5), 0.05, 0.05, 0.05, 0.05),
             VecBuilder.fill(Units.degreesToRadians(0.01), 0.01, 0.01, 0.01, 0.01),
-            VecBuilder.fill(0.5, 0.5, Units.degreesToRadians(30)));
+            VecBuilder.fill(0.05, 0.05, Units.degreesToRadians(1)));
         SmartDashboard.putData("Drive Subsystem", this);
 
     }
@@ -144,6 +152,14 @@ public class Swerve2DriveSubsystem extends SubsystemBase {
             // m_poseEstimator.addVisionMeasurement(
             //     robot.getRobotPose(0),
             //     Timer.getFPGATimestamp() - 0.3);
+
+            // System.out.print(robot.getRobotPose(0));
+            if(robot.aprilPresent()) {
+                m_poseEstimator.addVisionMeasurement(
+                    robot.getRobotPose(0),
+                    Timer.getFPGATimestamp() - 0.3);
+            }
+
         }
 
     @Override
@@ -164,6 +180,9 @@ public class Swerve2DriveSubsystem extends SubsystemBase {
         m_rearRight.getPosition()
       }, getPose());
     }
+      
+    
+
 
     // public void resetOdometry(Pose2d pose) {
     //     m_poseEstimator.resetPosition(pose, getHeading());
@@ -208,6 +227,7 @@ public class Swerve2DriveSubsystem extends SubsystemBase {
     public void setModuleStates(SwerveModuleState[] desiredStates) {
         SwerveDriveKinematics.desaturateWheelSpeeds(
                 desiredStates, kMaxSpeedMetersPerSecond);
+        System.out.println("******************" + desiredStates);
         m_frontLeft.setDesiredState(desiredStates[0]);
         m_frontRight.setDesiredState(desiredStates[1]);
         m_rearLeft.setDesiredState(desiredStates[2]);
@@ -215,7 +235,7 @@ public class Swerve2DriveSubsystem extends SubsystemBase {
     }
 
     public void test(double[][] desiredOutputs) {
-        System.out.println("set outputs");
+        //System.out.println("set outputs");
         m_frontLeft.setOutput(desiredOutputs[0][0], desiredOutputs[0][1]);
         m_frontRight.setOutput(desiredOutputs[1][0], desiredOutputs[1][1]);
         m_rearLeft.setOutput(desiredOutputs[2][0], desiredOutputs[2][1]);

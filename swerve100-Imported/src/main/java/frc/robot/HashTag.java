@@ -23,7 +23,6 @@ public class HashTag {
 
         aprilHash.put(tag1.ID, tag1);
         aprilHash.put(tag2.ID, tag2);
-        aprilHash.put(tag3.ID, tag3);
     }
 
     public TestAprilTag getCurrentTag(int i){
