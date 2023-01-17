@@ -37,6 +37,7 @@ import frc.robot.subsystems.Swerve2DriveSubsystem;
  * periodic methods (other than the scheduler calls).  Instead, the structure of the robot
  * (including subsystems, commands, and button mappings) should be declared here.
  */
+@SuppressWarnings("unused")
 public class RobotContainer implements Sendable {
   // For the first andymark base
   // private final DriveSubsystem m_robotDrive = new DriveSubsystem();

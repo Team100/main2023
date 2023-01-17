@@ -11,6 +11,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 
 /** Add your docs here. */
+@SuppressWarnings("unused")
 public class HashTag {
     HashMap <Integer, TestAprilTag> aprilHash;
 

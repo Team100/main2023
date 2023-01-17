@@ -6,8 +6,6 @@ package frc.robot;
 
 import java.util.HashMap;
 
-import javax.swing.text.InternationalFormatter;
-
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
