@@ -21,6 +21,11 @@ public class FalconDriveEncoder implements DriveEncoder {
     }
 
     @Override
+    public double getDistance() {
+        return m_motor.getSensorCollection().getIntegratedSensorPosition() * m_distancePerPulse;
+    }
+
+    @Override
     public double getRate() {
         // sensor velocity is 1/2048ths of a turn per 100ms
         return m_motor.getSensorCollection().getIntegratedSensorVelocity()
