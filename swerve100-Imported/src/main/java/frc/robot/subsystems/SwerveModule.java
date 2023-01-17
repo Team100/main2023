@@ -84,8 +84,8 @@ public class SwerveModule implements Sendable {
 
     public void setDesiredState(SwerveModuleState desiredState) {
         // Optimize the reference state to avoid spinning further than 90 degrees
-        // SwerveModuleState state = SwerveModuleState.optimize(desiredState, new Rotation2d(m_turningEncoder.getAngle()));
-        SwerveModuleState state = desiredState;
+        SwerveModuleState state = SwerveModuleState.optimize(desiredState, new Rotation2d(m_turningEncoder.getAngle()));
+        // SwerveModuleState state = desiredState;
         // Calculate the drive output from the drive PID controller.
         m_driveOutput = m_drivePIDController.calculate(m_driveEncoder.getRate(), state.speedMetersPerSecond);
 

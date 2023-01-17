@@ -59,8 +59,8 @@ public class Robot extends TimedRobot {
   @Override
   public void autonomousInit() {
     // m_robotContainer.resetAHRS();
-    m_robotContainer.resetPose();
-    m_robotContainer.resetAHRS();
+    // m_robotContainer.resetPose();
+    // m_robotContainer.resetAHRS();
 
     m_autonomousCommand = m_robotContainer.getAutonomousCommand();
 

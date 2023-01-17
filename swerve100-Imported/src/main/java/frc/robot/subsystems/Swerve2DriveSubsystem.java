@@ -5,6 +5,8 @@ import javax.swing.plaf.basic.BasicInternalFrameTitlePane.SystemMenuBar;
 import com.kauailabs.navx.frc.AHRS;
 import edu.wpi.first.math.Nat;
 import edu.wpi.first.math.VecBuilder;
+import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -18,9 +20,11 @@ import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.SerialPort;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.util.WPILibVersion;
+import edu.wpi.first.wpilibj2.command.ProfiledPIDCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.RobotPose;
+import frc.robot.Constants.AutoConstants;
 import edu.wpi.first.math.numbers.N5;
 import edu.wpi.first.math.numbers.N7;
 import edu.wpi.first.math.util.Units;
@@ -101,6 +105,13 @@ public class Swerve2DriveSubsystem extends SubsystemBase {
     // Odometry class for tracking robot pose
     SwerveDrivePoseEstimator<N7, N7, N5> m_poseEstimator;
     
+    public PIDController xController = new PIDController(AutoConstants.kPXController, 0, 1);
+    public PIDController yController = new PIDController(AutoConstants.kPYController, 0, 1);
+    public ProfiledPIDController thetaController =
+    new ProfiledPIDController(
+        AutoConstants.kPThetaController, 0, 0.5, AutoConstants.kThetaControllerConstraints);
+
+
     public Swerve2DriveSubsystem() {
 
 
@@ -152,7 +163,7 @@ public class Swerve2DriveSubsystem extends SubsystemBase {
     }
 
     public Pose2d getPose() {
-        System.out.println("YOOOOOOOOOOOOOOOOOOOOOOOOOO " + m_poseEstimator.getEstimatedPosition().getRotation());
+        //System.out.println("YOOOOOOOOOOOOOOOOOOOOOOOOOO " + m_poseEstimator.getEstimatedPosition().getRotation());
         return m_poseEstimator.getEstimatedPosition();
     }
 
@@ -255,6 +266,11 @@ public class Swerve2DriveSubsystem extends SubsystemBase {
         builder.addDoubleProperty("Front Right Position", () -> m_frontRight.getPosition().distanceMeters, null ); 
         builder.addDoubleProperty("Rear Left Position", () -> m_rearLeft.getPosition().distanceMeters, null ); 
         builder.addDoubleProperty("Rear Right Position", () -> m_rearRight.getPosition().distanceMeters, null ); 
+        builder.addDoubleProperty("Theta Controller Error", () -> thetaController.getPositionError(), null ); 
+        builder.addDoubleProperty("X Controller Error", () -> xController.getPositionError(), null );
+        builder.addDoubleProperty("Y Controller Error", () -> yController.getPositionError(), null ); 
+ 
+
     }
 
     public void resetAHRS2() {

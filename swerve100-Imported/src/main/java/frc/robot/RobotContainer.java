@@ -117,22 +117,25 @@ public class RobotContainer implements Sendable {
 
       Trajectory exampleTrajectory =
       TrajectoryGenerator.generateTrajectory(
-          // Start at the origin facing the +X direction
-          new Pose2d(0, 0, new Rotation2d(0)),
+          // Start at the origin facing the +X direc  tion
+          new Pose2d(0, 0, new Rotation2d(-Math.PI/2)),
           // Pass through these two interior waypoints, making an 's' curve path
-          // List.of(new Translation2d(1, 1), new Translation2d(2, -1)),
+          // List.of(new Translation2d(1.5, 0)),
           List.of(),
 
           // End 3 meters straight ahead of where we started, facing forward
-          new Pose2d(0, 3, new Rotation2d(0)),
+          new Pose2d(4,0, new Rotation2d(Math.PI/2)),
           // Pass config
           config);
     
-      var thetaController =
-          new ProfiledPIDController(
-              AutoConstants.kPThetaController, 0, 0, AutoConstants.kThetaControllerConstraints);
-      thetaController.enableContinuousInput(-Math.PI, Math.PI);
+      // var thetaController =
+      //     new ProfiledPIDController(
+      //         AutoConstants.kPThetaController, 0, 0, AutoConstants.kThetaControllerConstraints);
 
+      // var xController = new PIDController(AutoConstants.kPXController, 0, 0);
+      // var yController = new PIDController(AutoConstants.kPYController, 0, 0);
+      m_robotDrive.thetaController.enableContinuousInput(-Math.PI, Math.PI);
+      System.out.println(exampleTrajectory);
       SwerveControllerCommand swerveControllerCommand =
           new SwerveControllerCommand(
               exampleTrajectory,
@@ -140,11 +143,16 @@ public class RobotContainer implements Sendable {
               Swerve2DriveSubsystem.kDriveKinematics,
 
               // Position controllers
-              new PIDController(AutoConstants.kPXController, 0, 0),
-              new PIDController(AutoConstants.kPYController, 0, 0),
-              thetaController,
+              m_robotDrive.xController,
+              m_robotDrive.yController,
+              m_robotDrive.thetaController,
+              () -> new Rotation2d(),
               m_robotDrive::setModuleStates,
               m_robotDrive);
+
+      // SmartDashboard.putNumber("Theta Controller Error", thetaController.getVelocityError());
+      // SmartDashboard.putNumber("x Controller Error", thetaController.getVelocityError());
+      // SmartDashboard.putNumber("y Controller Error", thetaController.getVelocityError());
 
       // Reset odometry to the starting pose of the trajectory.
       // m_robotDrive.resetOdometry(exampleTrajectory.getInitialPose());
