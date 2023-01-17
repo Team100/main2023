@@ -40,21 +40,32 @@ class MyColorAnalyzer(GreyYUVAnalysis):
         # Table for vision output information
         self.vision_nt = NetworkTables.getTable("Vision")
         self.tag_size = 0.2
+        self.circle_tag_size = 0.4
         self.at_detector = Detector(families = "tag16h5")
+        self.at_circle_detector = Detector(families = "tagCircle21h7")
         time.sleep(2)
         self.output_stream = cs.putVideo("Processed", self.camera.resolution.width, self.camera.resolution.height)
         self.camera_params = [357.1, 357.1, self.camera.resolution.width / 2, self.camera.resolution.height / 2]
-        
 
     def analyze(self, a):
         start_time = time.time()
         gray_image = a
+
         result = self.at_detector.detect(
             gray_image,
             estimate_tag_pose=True,
             camera_params=self.camera_params,
             tag_size = self.tag_size,
         )
+
+        circle_result = self.at_circle_detector.detect(
+            gray_image,
+            estimate_tag_pose=True,
+            camera_params=self.camera_params,
+            tag_size = self.circle_tag_size,
+        )
+
+        result = result + circle_result
         
         output_img = np.copy(gray_image)
 
@@ -76,14 +87,16 @@ class MyColorAnalyzer(GreyYUVAnalysis):
             ap_pose_R_y_str = ''
             ap_pose_R_z_str = ''
 
-            for i in range(3):
-                ap_pose_R_x_str = ap_pose_R_x_str + str(round(r.pose_R[0][i], 4)) + ' '
-                ap_pose_R_y_str = ap_pose_R_y_str + str(round(r.pose_R[1][i], 4)) + ' '
-                ap_pose_R_z_str = ap_pose_R_z_str + str(round(r.pose_R[2][i], 4)) + ' '
+            if r.pose_R is not None:
+                for i in range(3):
+                    ap_pose_R_x_str = ap_pose_R_x_str + str(round(r.pose_R[0][i], 4)) + ' '
+                    ap_pose_R_y_str = ap_pose_R_y_str + str(round(r.pose_R[1][i], 4)) + ' '
+                    ap_pose_R_z_str = ap_pose_R_z_str + str(round(r.pose_R[2][i], 4)) + ' '
             
-            pose_t_x_list.append(r.pose_t[0])
-            pose_t_y_list.append(r.pose_t[1])
-            pose_t_z_list.append(r.pose_t[2])
+            if r.pose_t is not None:
+                pose_t_x_list.append(r.pose_t[0])
+                pose_t_y_list.append(r.pose_t[1])
+                pose_t_z_list.append(r.pose_t[2])
 
             pose_R_x_list.append(ap_pose_R_x_str)
             pose_R_y_list.append(ap_pose_R_y_str)
@@ -102,9 +115,12 @@ class MyColorAnalyzer(GreyYUVAnalysis):
         self.output_stream.putFrame(output_img)
 
 def main():
+    print("main")
 
-    width = 547
-    height = 307
+    #width = 547
+    #height = 307
+    width = 576
+    height = 320
     camera = PiCamera(resolution=(width, height),
     framerate = 28,
     sensor_mode = 5)
