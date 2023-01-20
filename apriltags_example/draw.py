@@ -75,40 +75,66 @@ def draw_pose(overlay, camera_params, tag_size, rvec, tvec, z_sign=1):
 
 def draw_result(image, camera_params, tag_size, result):
     for r in result:
+        if r.hamming > 0:
+            continue
         (ptA, ptB, ptC, ptD) = r.corners
         ptB = (int(ptB[0]), int(ptB[1]))
         ptC = (int(ptC[0]), int(ptC[1]))
         ptD = (int(ptD[0]), int(ptD[1]))
         ptA = (int(ptA[0]), int(ptA[1]))
 
-        cv2.line(image, ptA, ptB, (0, 255, 0), 2)
-        cv2.line(image, ptB, ptC, (0, 255, 0), 2)
-        cv2.line(image, ptC, ptD, (0, 255, 0), 2)
-        cv2.line(image, ptD, ptA, (0, 255, 0), 2)
+        #cv2.line(image, ptA, ptB, (0, 255, 0), 2)
+        #cv2.line(image, ptB, ptC, (0, 255, 0), 2)
+        #cv2.line(image, ptC, ptD, (0, 255, 0), 2)
+        #cv2.line(image, ptD, ptA, (0, 255, 0), 2)
+        cv2.line(image, ptA, ptB, (255, 255, 255), 2)
+        cv2.line(image, ptB, ptC, (255, 255, 255), 2)
+        cv2.line(image, ptC, ptD, (255, 255, 255), 2)
+        cv2.line(image, ptD, ptA, (255, 255, 255), 2)
 
         (cX, cY) = (int(r.center[0]), int(r.center[1]))
-        cv2.circle(image, (cX, cY), 5, (0, 0, 255), -1)
+        #cv2.circle(image, (cX, cY), 5, (0, 0, 255), -1)
+        cv2.circle(image, (cX, cY), 10, (255, 255, 255), -1)
 
         tagFamily = r.tag_family.decode("utf-8")
         tagId = r.tag_id
-        cv2.putText(
-            image,
-            f"id {tagId}",
-            (ptA[0], ptA[1] - 15),
-            cv2.FONT_HERSHEY_SIMPLEX,
-            0.5,
-            (255, 0, 0),
-            1,
-        )
+        cv2.putText( image, f"id {tagId}", (ptA[0], ptA[1] - 15),
+            cv2.FONT_HERSHEY_SIMPLEX, 1.0, (0, 0, 0), 5)
+        cv2.putText( image, f"id {tagId}", (ptA[0], ptA[1] - 15),
+            cv2.FONT_HERSHEY_SIMPLEX, 1.0, (255, 255, 255), 1)
+
+        # put the translation in the image
+        # the use of 'item' here is to force a scalar to format
+        # these are white with black outline
+        if r.pose_t is not None:
+          cv2.putText( image, f'X {r.pose_t.item(0):.2f}m', (cX, cY),
+              cv2.FONT_HERSHEY_SIMPLEX, 1.0, (0, 0, 0), 6)
+          cv2.putText( image, f'X {r.pose_t.item(0):.2f}m', (cX, cY),
+              cv2.FONT_HERSHEY_SIMPLEX, 1.0, (255, 255, 255), 2)
+
+          cv2.putText( image, f'Y {r.pose_t.item(1):.2f}m', (cX, cY+40),
+              cv2.FONT_HERSHEY_SIMPLEX, 1.0, (0, 0, 0), 6)
+          cv2.putText( image, f'Y {r.pose_t.item(1):.2f}m', (cX, cY+40),
+              cv2.FONT_HERSHEY_SIMPLEX, 1.0, (255, 255, 255), 2)
+
+          cv2.putText( image, f'Z {r.pose_t.item(2):.2f}m', (cX, cY+80),
+              cv2.FONT_HERSHEY_SIMPLEX, 1.0, (0, 0, 0), 6)
+          cv2.putText( image, f'Z {r.pose_t.item(2):.2f}m', (cX, cY+80),
+              cv2.FONT_HERSHEY_SIMPLEX, 1.0, (255, 255, 255), 2)
+
         # print(f"[INFO] tag family: {tagFamily}")
         # print(f"[INFO] tag id: {tagId}")
 
-        # draw_pose(image, camera_params=camera_params, tag_size=tag_size, rvec=r.pose_R, tvec=r.pose_t, z_sign=1)
-        draw_cube(
-            image,
-            camera_params=camera_params,
-            tag_size=tag_size,
-            rvec=r.pose_R,
-            tvec=r.pose_t,
-            z_sign=-1,
-        )
+        # draws the x/y/z axes
+        #draw_pose(image, camera_params=camera_params, tag_size=tag_size,
+        #    rvec=r.pose_R, tvec=r.pose_t, z_sign=1)
+
+        # joel: this cube thing is cute but distracting, so leave it out for now.
+        #draw_cube(
+        #    image,
+        #    camera_params=camera_params,
+        #    tag_size=tag_size,
+        #    rvec=r.pose_R,
+        #    tvec=r.pose_t,
+        #    z_sign=-1,
+        #)
