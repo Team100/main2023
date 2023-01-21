@@ -25,10 +25,13 @@ import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.RunCommand;
+import edu.wpi.first.wpilibj2.command.Subsystem;
 import edu.wpi.first.wpilibj2.command.SwerveControllerCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.AutoConstants;
 import frc.robot.Constants.OIConstants;
+import frc.robot.commands.ResetRotation;
 // import frc.robot.commands.trajec;
 import frc.robot.subsystems.Swerve2DriveSubsystem;
 
@@ -47,16 +50,18 @@ public class RobotContainer implements Sendable {
 
   // The driver's controller
   private static final XboxController m_driverController = new XboxController(OIConstants.kDriverControllerPort);
+  Trigger LB = new JoystickButton(m_driverController, XboxController.Button.kLeftBumper.value);
   // XboxController m_driverController = new
   // XboxController(OIConstants.kDriverControllerPort);
-  private static final JoystickButton l2 = new JoystickButton(m_driverController, 9);
+  private static final JoystickButton l2 = new JoystickButton(m_driverController, 2);
   // final JoystickButton l2 = new JoystickButton(m_driverController, 9);
   private static final JoystickButton bButton = new JoystickButton(m_driverController, 2);
   // if true, test mode exercises module state (e.g. azimuth); if false, test mode
-  private final Field2d m_field = new Field2d();
+  public final static Field2d m_field = new Field2d();
   // exercises module output directly.
   // boolean m_testModuleState = false;
 
+  ResetRotation resetRotation = new ResetRotation(m_robotDrive);
   /**
    * The container for the robot. Contains subsystems, OI devices, and commands.
    */
@@ -103,8 +108,7 @@ public class RobotContainer implements Sendable {
    * {@link JoystickButton}.
    */
   private void configureButtonBindings() {
-    // l2.whileTrue(swerveControllerCommand);
-
+    LB.onTrue(resetRotation);
   }
 
   /**

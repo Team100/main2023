@@ -19,6 +19,7 @@ import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
+import frc.robot.RobotContainer;
 import frc.robot.Constants.AutoConstants;
 import frc.robot.RobotPose;
 
@@ -153,6 +154,7 @@ public class Swerve2DriveSubsystem extends SubsystemBase {
     @Override
     public void periodic() {
         updateOdometry();
+        RobotContainer.m_field.setRobotPose(m_poseEstimator.getEstimatedPosition());
     }
 
     public Pose2d getPose() {
@@ -263,7 +265,7 @@ public class Swerve2DriveSubsystem extends SubsystemBase {
     }
 
     public void resetAHRS2() {
-        m_northOffset = - getHeading().getDegrees();
+        m_northOffset = m_gyro.getFusedHeading();
         // m_gyro.reset();
     }
 
