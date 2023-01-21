@@ -62,7 +62,7 @@ public class Robot extends TimedRobot {
     // m_robotContainer.resetPose();
     // m_robotContainer.resetAHRS();
 
-    m_autonomousCommand = m_robotContainer.getAutonomousCommand();
+    m_autonomousCommand = m_robotContainer.getAutonomousCommand2();
 
     /*
      * String autoSelected = SmartDashboard.getString("Auto Selector",
@@ -85,8 +85,8 @@ public class Robot extends TimedRobot {
   @Override
   public void teleopInit() {
     System.out.println("teleopInit");
-    m_robotContainer.resetPose();
-    m_robotContainer.resetAHRS();
+    // m_robotContainer.resetPose();
+    // m_robotContainer.resetAHRS();
 
     // This makes sure that the autonomous stops running when
     // teleop starts running. If you want the autonomous to

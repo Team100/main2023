@@ -108,9 +108,9 @@ public class Swerve2DriveSubsystem extends SubsystemBase {
     SwerveDrivePoseEstimator m_poseEstimator;
     
     public ProfiledPIDController thetaController = new ProfiledPIDController(
-                AutoConstants.kPThetaController, 0, 0, AutoConstants.kThetaControllerConstraints);
-    public PIDController xController = new PIDController(AutoConstants.kPXController, 0, 1);
-    public PIDController yController = new PIDController(AutoConstants.kPYController, 0, 1);
+                AutoConstants.kPThetaController2, 0, 0, AutoConstants.kThetaControllerConstraints);
+    public PIDController xController = new PIDController(AutoConstants.kPXController, 0, 0);
+    public PIDController yController = new PIDController(AutoConstants.kPYController, 0, 0);
 
     public Swerve2DriveSubsystem() {
 
@@ -143,11 +143,11 @@ public class Swerve2DriveSubsystem extends SubsystemBase {
             });
 
         // System.out.print(robot.getRobotPose(0));
-        if (robot.aprilPresent()) {
-            m_poseEstimator.addVisionMeasurement(
-                    robot.getRobotPose(0),
-                    Timer.getFPGATimestamp() - 0.3);
-        }
+        // if (robot.aprilPresent()) {
+    //         m_poseEstimator.addVisionMeasurement(
+    //                 robot.getRobotPose(0),
+    //                 Timer.getFPGATimestamp() - 0.3);
+    //     }
     }
 
     @Override
@@ -156,7 +156,6 @@ public class Swerve2DriveSubsystem extends SubsystemBase {
     }
 
     public Pose2d getPose() {
-        //System.out.println("YOOOOOOOOOOOOOOOOOOOOOOOOOO " + m_poseEstimator.getEstimatedPosition().getRotation());
         return m_poseEstimator.getEstimatedPosition();
     }
 
@@ -260,10 +259,7 @@ public class Swerve2DriveSubsystem extends SubsystemBase {
         builder.addDoubleProperty("Front Right Position", () -> m_frontRight.getPosition().distanceMeters, null ); 
         builder.addDoubleProperty("Rear Left Position", () -> m_rearLeft.getPosition().distanceMeters, null ); 
         builder.addDoubleProperty("Rear Right Position", () -> m_rearRight.getPosition().distanceMeters, null ); 
-        builder.addDoubleProperty("Theta Controller Error", () -> thetaController.getPositionError(), null ); 
-        builder.addDoubleProperty("X Controller Error", () -> xController.getPositionError(), null );
-        builder.addDoubleProperty("Y Controller Error", () -> yController.getPositionError(), null ); 
-        builder.addDoubleProperty("estimatedtheta", () -> getPose().getRotation().getRadians(), null);
+        builder.addDoubleProperty("Theta Controller Error", () -> thetaController.getPositionError(), null );
     }
 
     public void resetAHRS2() {
