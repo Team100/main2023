@@ -31,7 +31,7 @@ import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.AutoConstants;
 import frc.robot.Constants.OIConstants;
-import frc.robot.commands.ResetRotation;
+import frc.robot.commands.ResetPose;
 // import frc.robot.commands.trajec;
 import frc.robot.subsystems.Swerve2DriveSubsystem;
 
@@ -61,7 +61,7 @@ public class RobotContainer implements Sendable {
   // exercises module output directly.
   // boolean m_testModuleState = false;
 
-  ResetRotation resetRotation = new ResetRotation(m_robotDrive);
+  ResetPose resetPose = new ResetPose(m_robotDrive, new Pose2d(new Translation2d(0,0), new Rotation2d(0)));
   /**
    * The container for the robot. Contains subsystems, OI devices, and commands.
    */
@@ -108,7 +108,7 @@ public class RobotContainer implements Sendable {
    * {@link JoystickButton}.
    */
   private void configureButtonBindings() {
-    LB.onTrue(resetRotation);
+    LB.onTrue(resetPose);
   }
 
   /**
@@ -257,9 +257,5 @@ public class RobotContainer implements Sendable {
 
   public void resetAHRS() {
     m_robotDrive.resetAHRS2();
-  }
-
-  public void resetPose() {
-    m_robotDrive.resetPose();
   }
 }

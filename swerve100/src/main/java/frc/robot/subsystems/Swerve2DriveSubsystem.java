@@ -161,13 +161,15 @@ public class Swerve2DriveSubsystem extends SubsystemBase {
         return m_poseEstimator.getEstimatedPosition();
     }
 
-    public void resetPose(){
+    public void resetPose(Pose2d robotPose){
+        System.out.println(getHeading());
         m_poseEstimator.resetPosition(getHeading(), new SwerveModulePosition[] {
             m_frontLeft.getPosition(),
             m_frontRight.getPosition(),
             m_rearLeft.getPosition(),
             m_rearRight.getPosition()
-      }, getPose());
+      }, 
+      robotPose);
     }
 
     // public void resetOdometry(Pose2d pose) {
@@ -196,7 +198,7 @@ public class Swerve2DriveSubsystem extends SubsystemBase {
                 fieldRelative
                         ? ChassisSpeeds.fromFieldRelativeSpeeds(kMaxSpeedMetersPerSecond * xSpeed,
                                 kMaxSpeedMetersPerSecond * ySpeed, kMaxAngularSpeedRadiansPerSecond * rot,
-                                 getHeading())
+                                 getPose().getRotation())
                                 // Rotation2d.fromDegrees(-m_gyro.getFusedHeading() + m_northOffset))
                         : new ChassisSpeeds(kMaxSpeedMetersPerSecond * xSpeed, kMaxSpeedMetersPerSecond * ySpeed,
                                 kMaxAngularSpeedRadiansPerSecond * rot));
@@ -244,7 +246,7 @@ public class Swerve2DriveSubsystem extends SubsystemBase {
 
     public Rotation2d getHeading() {
         //return Rotation2d.fromDegrees((kGyroReversed ? -1.0 : 1.0) * m_gyro.getFusedHeading() + m_northOffset
-        return Rotation2d.fromDegrees(-m_gyro.getFusedHeading() + m_northOffset);
+        return Rotation2d.fromDegrees(-m_gyro.getFusedHeading());
     }
 
     public double getTurnRate() {
