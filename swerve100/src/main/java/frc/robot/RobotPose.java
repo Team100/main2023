@@ -40,10 +40,10 @@ public class RobotPose {
     }
 
     public boolean aprilPresent(){
-        // idValues = table.getEntry("id").getDoubleArray(defaultValue);
-        // if(idValues.length > 0){
-        //     return true;
-        // }
+        idValues = table.getEntry("id").getDoubleArray(defaultValue);
+        if(idValues.length > 0){
+            return true;
+        }
         return false;
     }
     

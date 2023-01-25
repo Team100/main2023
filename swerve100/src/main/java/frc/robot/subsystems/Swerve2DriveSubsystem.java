@@ -185,9 +185,6 @@ public class Swerve2DriveSubsystem extends SubsystemBase {
      */
     @SuppressWarnings("ParameterName")
     public void drive(double xSpeed, double ySpeed, double rot, boolean fieldRelative) {
-        System.out.println(rot);
-        System.out.println(xSpeed);
-        System.out.println(ySpeed);
 
         if (Math.abs(xSpeed) < .01)
             xSpeed = 100 * xSpeed * xSpeed * Math.signum(xSpeed);

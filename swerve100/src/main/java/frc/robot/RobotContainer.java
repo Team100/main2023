@@ -86,8 +86,8 @@ public class RobotContainer implements Sendable {
         new RunCommand(
             () -> {
               m_robotDrive.drive(
-                  m_driverController.getRightY(),
-                  m_driverController.getRightX(),
+                  -m_driverController.getRightY(),
+                  -m_driverController.getRightX(),
                   m_driverController.getLeftX(),
                   true);
             },

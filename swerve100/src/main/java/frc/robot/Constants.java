@@ -46,7 +46,7 @@ public final class Constants {
     //public static final double FRONT_RIGHT_TURNING_OFFSET = .55;
     //public static final double REAR_LEFT_TURNING_OFFSET = .75;
     //public static final double REAR_RIGHT_TURNING_OFFSET = .75;
-    public static final double FRONT_LEFT_TURNING_OFFSET = 0.262360;
+    public static final double FRONT_LEFT_TURNING_OFFSET = 0.012360;
     public static final double FRONT_RIGHT_TURNING_OFFSET = 0.543194;
     public static final double REAR_LEFT_TURNING_OFFSET = 0.744816;
     public static final double REAR_RIGHT_TURNING_OFFSET = 0.750468;
