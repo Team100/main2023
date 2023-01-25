@@ -10,7 +10,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class FalconDriveMotor implements DriveMotor {
     private final WPI_TalonFX m_motor;
-    public static final double kDriveCurrentLimit = 10;
+    public static final double kDriveCurrentLimit = 40;
 
     public FalconDriveMotor(String name, int canId) {
         m_motor = new WPI_TalonFX(canId);
@@ -41,7 +41,8 @@ public class FalconDriveMotor implements DriveMotor {
     }
 
     public void setInverted(boolean reverseDirection) {
-        m_motor.setInverted(reverseDirection);
+        // m_motor.setInverted(reverseDirection);
+        m_motor.setSensorPhase(reverseDirection);
     }
 
     public TalonFXSensorCollection getSensorCollection() {

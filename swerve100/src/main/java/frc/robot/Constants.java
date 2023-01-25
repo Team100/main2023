@@ -26,13 +26,44 @@ public final class Constants {
     public static final double kMaxAngularSpeedRadiansPerSecond = 20;
     public static final double kMaxAngularSpeedRadiansPerSecondSquared = 100;
 
-    public static final double kPXController = 1;
-    public static final double kPYController = 1;
-    public static final double kPThetaController = 1;
+    public static final double kPXController = .25;
+    public static final double kPYController = .25;
+// sanjan's
+    public static final double kPThetaController = 0.7;
+// ishan's
+    public static final double kPThetaController2 = .25;
 
     // Constraint for the motion profiled robot angle controller
     public static final TrapezoidProfile.Constraints kThetaControllerConstraints =
         new TrapezoidProfile.Constraints(
             kMaxAngularSpeedRadiansPerSecond, kMaxAngularSpeedRadiansPerSecondSquared);
   }
+
+
+  // swerve 2
+  // public static final class SwerveConstants {
+  //   public static final double FRONT_LEFT_TURNING_OFFSET = .982;
+  //   public static final double FRONT_RIGHT_TURNING_OFFSET = .044;
+  //   public static final double REAR_LEFT_TURNING_OFFSET = .248;
+  //   public static final double REAR_RIGHT_TURNING_OFFSET = .234;
+  //   public static final double kTrackWidth = 0.38;
+  //   public static final double kWheelBase = 0.445;
+  // }
+
+  // swerve1
+
+  public static final class SwerveConstants {
+    public static final double FRONT_LEFT_TURNING_OFFSET = .984;
+    public static final double FRONT_RIGHT_TURNING_OFFSET = .873 - 0.5;
+    public static final double REAR_LEFT_TURNING_OFFSET = .719;
+    public static final double REAR_RIGHT_TURNING_OFFSET = .688;
+    public static final double kTrackWidth = 0.449;
+    public static final double kWheelBase = 0.464;
+  }
+
+  public static final class swerveMeasurments {
+    
+  }
+
+
 }

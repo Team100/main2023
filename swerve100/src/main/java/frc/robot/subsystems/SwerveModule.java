@@ -8,6 +8,7 @@ import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.util.sendable.Sendable;
@@ -75,11 +76,16 @@ public class SwerveModule implements Sendable {
     public SwerveModuleState getState() {
         return new SwerveModuleState(m_driveEncoder.getRate(), new Rotation2d(m_turningEncoder.getAngle()));
     }
+    
+    public SwerveModulePosition getPosition() {
+        return new SwerveModulePosition(
+            m_driveEncoder.getDistance(), new Rotation2d(m_turningEncoder.getAngle()));
+      }
 
     public void setDesiredState(SwerveModuleState desiredState) {
         // Optimize the reference state to avoid spinning further than 90 degrees
         SwerveModuleState state = SwerveModuleState.optimize(desiredState, new Rotation2d(m_turningEncoder.getAngle()));
-
+        // SwerveModuleState state = desiredState;
         // Calculate the drive output from the drive PID controller.
         m_driveOutput = m_drivePIDController.calculate(m_driveEncoder.getRate(), state.speedMetersPerSecond);
 
@@ -99,6 +105,10 @@ public class SwerveModule implements Sendable {
     public void resetEncoders() {
         m_driveEncoder.reset();
         m_turningEncoder.reset();
+    }
+
+    public void resetDriveEncoders() {
+        m_driveEncoder.reset();
     }
 
     public double getSetpointVelocity() {

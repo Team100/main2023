@@ -106,20 +106,21 @@ def draw_result(image, camera_params, tag_size, result):
         # put the translation in the image
         # the use of 'item' here is to force a scalar to format
         # these are white with black outline
-        cv2.putText( image, f'X {r.pose_t.item(0):.2f}m', (cX, cY),
-            cv2.FONT_HERSHEY_SIMPLEX, 1.0, (0, 0, 0), 6)
-        cv2.putText( image, f'X {r.pose_t.item(0):.2f}m', (cX, cY),
-            cv2.FONT_HERSHEY_SIMPLEX, 1.0, (255, 255, 255), 2)
+        if r.pose_t is not None:
+          cv2.putText( image, f'X {r.pose_t.item(0):.2f}m', (cX, cY),
+              cv2.FONT_HERSHEY_SIMPLEX, 1.0, (0, 0, 0), 6)
+          cv2.putText( image, f'X {r.pose_t.item(0):.2f}m', (cX, cY),
+              cv2.FONT_HERSHEY_SIMPLEX, 1.0, (255, 255, 255), 2)
 
-        cv2.putText( image, f'Y {r.pose_t.item(1):.2f}m', (cX, cY+40),
-            cv2.FONT_HERSHEY_SIMPLEX, 1.0, (0, 0, 0), 6)
-        cv2.putText( image, f'Y {r.pose_t.item(1):.2f}m', (cX, cY+40),
-            cv2.FONT_HERSHEY_SIMPLEX, 1.0, (255, 255, 255), 2)
+          cv2.putText( image, f'Y {r.pose_t.item(1):.2f}m', (cX, cY+40),
+              cv2.FONT_HERSHEY_SIMPLEX, 1.0, (0, 0, 0), 6)
+          cv2.putText( image, f'Y {r.pose_t.item(1):.2f}m', (cX, cY+40),
+              cv2.FONT_HERSHEY_SIMPLEX, 1.0, (255, 255, 255), 2)
 
-        cv2.putText( image, f'Z {r.pose_t.item(2):.2f}m', (cX, cY+80),
-            cv2.FONT_HERSHEY_SIMPLEX, 1.0, (0, 0, 0), 6)
-        cv2.putText( image, f'Z {r.pose_t.item(2):.2f}m', (cX, cY+80),
-            cv2.FONT_HERSHEY_SIMPLEX, 1.0, (255, 255, 255), 2)
+          cv2.putText( image, f'Z {r.pose_t.item(2):.2f}m', (cX, cY+80),
+              cv2.FONT_HERSHEY_SIMPLEX, 1.0, (0, 0, 0), 6)
+          cv2.putText( image, f'Z {r.pose_t.item(2):.2f}m', (cX, cY+80),
+              cv2.FONT_HERSHEY_SIMPLEX, 1.0, (255, 255, 255), 2)
 
         # print(f"[INFO] tag family: {tagFamily}")
         # print(f"[INFO] tag id: {tagId}")

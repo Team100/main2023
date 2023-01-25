@@ -7,17 +7,22 @@ public class FalconDriveEncoder implements DriveEncoder {
     private static final int kIntegratedSensorPulsesPerTurn = 2048;
     private final FalconDriveMotor m_motor;
     private final double m_distancePerPulse;
-    private final boolean m_reverse;
+    //private final boolean m_reverse;
 
     public FalconDriveEncoder(String name,
             FalconDriveMotor motor,
             double distancePerTurn,
             boolean reverseDirection) {
         this.m_motor = motor;
-        this.m_reverse = reverseDirection;
+       // this.m_reverse = reverseDirection;
         this.m_distancePerPulse = distancePerTurn / kIntegratedSensorPulsesPerTurn;
         m_motor.setInverted(reverseDirection);
         SmartDashboard.putData(String.format("Falcon Drive Encoder %s", name), this);
+    }
+
+    @Override
+    public double getDistance() {
+        return m_motor.getSensorCollection().getIntegratedSensorPosition() * m_distancePerPulse;
     }
 
     @Override
