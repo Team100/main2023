@@ -14,6 +14,7 @@ import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
+
 /** Add your docs here. */
 public class RobotPose {
     NetworkTable table = NetworkTableInstance.getDefault().getTable("Vision");
@@ -109,22 +110,13 @@ public class RobotPose {
         // System.out.println("Z Value: " + robotPose.getY());
         return robotPose;
     }
-
-
-
-    public Pose2d poseCalc(double x, double y, double rads){
-        Translation2d translation = new Translation2d(x, y);
-        Rotation2d rotation = new Rotation2d(rads);
-        Pose2d pose = new Pose2d(translation, rotation);
-        return pose;
-      }
     
     public String stringtoVal(String str){
         // Switch to new method later since using NetworkTables3
         String str2 = "";
         String str3 = " ";
         char c = str3.charAt(0);
-        for(int i = 0; i<str.length(); i++){
+        for(int i = 0; i < str.length(); i++){
             if(str.charAt(i) != c){
                 str2 = str2 + str.charAt(i);
             } else {

@@ -43,6 +43,8 @@ public class HolonomicDriveControllerObservable implements Sendable{
   public double thetaFF;
   public double xFeedback;
   public double yFeedback;
+  public Rotation2d m_desiredHeading;
+  public Pose2d m_currentPose;
 
   /**
    * Constructs a holonomic drive controller.
@@ -100,6 +102,8 @@ public class HolonomicDriveControllerObservable implements Sendable{
       Rotation2d desiredHeading) {
     // If this is the first run, then we need to reset the theta controller to the current pose's
     // heading.
+    m_currentPose = currentPose;
+    m_desiredHeading = desiredHeading;
     if (m_firstRun) {
       m_thetaController.reset(currentPose.getRotation().getRadians());
       m_firstRun = false;
@@ -166,6 +170,18 @@ public class HolonomicDriveControllerObservable implements Sendable{
   public double getyFeedback() {
     return yFeedback;
   }
+  public double getCurrentRotation() {
+    if (m_currentPose != null) {
+      return m_currentPose.getRotation().getRadians();
+    }
+    return 0;
+  }
+  public double getDesiredHeading() {
+    if (m_desiredHeading != null) {
+      return m_desiredHeading.getRadians();
+    }
+    return 0;
+  }
 
 
   @Override
@@ -179,5 +195,7 @@ public class HolonomicDriveControllerObservable implements Sendable{
     builder.addDoubleProperty("thetaFF", () -> getthetaFF(), null);
     builder.addDoubleProperty("xFeedback", () -> getxFeedback(), null);
     builder.addDoubleProperty("yFeedback", () -> getyFeedback(), null);
+    builder.addDoubleProperty("currentRotation", () -> getCurrentRotation(), null);
+    builder.addDoubleProperty("desiredHeading", () -> getDesiredHeading(), null);
   }
 }

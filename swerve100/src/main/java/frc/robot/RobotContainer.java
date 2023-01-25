@@ -4,11 +4,15 @@
 
 package frc.robot;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.plaf.basic.BasicBorders.ButtonBorder;
 
+import edu.wpi.first.apriltag.AprilTag;
+import edu.wpi.first.apriltag.AprilTagFieldLayout;
+import edu.wpi.first.apriltag.AprilTagFields;
 // import frc.robot.commands.spin;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
@@ -34,6 +38,7 @@ import frc.robot.Constants.OIConstants;
 import frc.robot.commands.ResetPose;
 // import frc.robot.commands.trajec;
 import frc.robot.subsystems.Swerve2DriveSubsystem;
+import edu.wpi.first.apriltag.AprilTagFields;
 
 /*
  * This class is where the bulk of the robot should be declared.  Since Command-based is a
@@ -60,8 +65,11 @@ public class RobotContainer implements Sendable {
   public final static Field2d m_field = new Field2d();
   // exercises module output directly.
   // boolean m_testModuleState = false;
+  // public static AprilTagFieldLayout loadAprilTagLayoutField(String m_resourceFile) throws IOException {
+  //   return AprilTagFieldLayout.loadFromResource(m_resourceFile);
+  // }
 
-  ResetPose resetPose = new ResetPose(m_robotDrive, new Pose2d(new Translation2d(0,0), new Rotation2d(0)));
+  ResetPose resetPose = new ResetPose(m_robotDrive, new Pose2d(new Translation2d(14.513558, 1.071626), new Rotation2d(0)));
   /**
    * The container for the robot. Contains subsystems, OI devices, and commands.
    */
@@ -95,7 +103,6 @@ public class RobotContainer implements Sendable {
     // },
     // m_robotDrive));
     SmartDashboard.putData("Robot Container", this);
-
   }
 
   /**
@@ -188,16 +195,13 @@ public class RobotContainer implements Sendable {
         AutoConstants.kMaxAccelerationMetersPerSecondSquared)
         // Add kinematics to ensure max speed is actually obeyed
         .setKinematics(Swerve2DriveSubsystem.kDriveKinematics);
-
+    double controlPointAngle = Math.atan2((1.071626-m_robotDrive.getPose().getY()), (14.513558-m_robotDrive.getPose().getX()));
     // An example trajectory to follow. All units in meters.
     Trajectory exampleTrajectory = TrajectoryGenerator.generateTrajectory(
         // Start at the origin facing the +X direction
-        new Pose2d(0, 0, new Rotation2d(0)),
-        List.of(new Translation2d(1, 1), new Translation2d(0, 2), new Translation2d(-1, 1), new Translation2d(0, 0),
-            new Translation2d(1, 1), new Translation2d(0, 2), new Translation2d(-1, 1), new Translation2d(0, 0),
-            new Translation2d(1, 1), new Translation2d(0, 2), new Translation2d(-1, 1), new Translation2d(0, 0),
-            new Translation2d(1, 1), new Translation2d(0, 2), new Translation2d(-1, 1)),
-        new Pose2d(0, 0, new Rotation2d(0)),
+        new Pose2d(m_robotDrive.getPose().getTranslation(), new Rotation2d(controlPointAngle)),
+        List.of(new Translation2d((14.513558+m_robotDrive.getPose().getX())/2, (1.071626+m_robotDrive.getPose().getY())/2)),
+        new Pose2d(14.513558, 1.071626, new Rotation2d(controlPointAngle)),
         config);
     // System.out.println(exampleTrajectory);
 
@@ -253,9 +257,5 @@ public class RobotContainer implements Sendable {
     builder.addDoubleProperty("theta controller error", () -> m_robotDrive.thetaController.getPositionError(), null);
     builder.addDoubleProperty("x controller error", () -> m_robotDrive.xController.getPositionError(), null);
     builder.addDoubleProperty("y controller error", () -> m_robotDrive.yController.getPositionError(), null);
-  }
-
-  public void resetAHRS() {
-    m_robotDrive.resetAHRS2();
   }
 }

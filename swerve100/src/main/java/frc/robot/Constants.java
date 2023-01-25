@@ -31,7 +31,7 @@ public final class Constants {
 // sanjan's
     // public static final double kPThetaController = 0.7;
 // ishan's
-    public static final double kPThetaController2 = .1;
+    public static final double kPThetaController2 = .3;
 
     // Constraint for the motion profiled robot angle controller
     public static final TrapezoidProfile.Constraints kThetaControllerConstraints =
@@ -46,7 +46,7 @@ public final class Constants {
     //public static final double FRONT_RIGHT_TURNING_OFFSET = .55;
     //public static final double REAR_LEFT_TURNING_OFFSET = .75;
     //public static final double REAR_RIGHT_TURNING_OFFSET = .75;
-    public static final double FRONT_LEFT_TURNING_OFFSET = 0.662360;
+    public static final double FRONT_LEFT_TURNING_OFFSET = 0.262360;
     public static final double FRONT_RIGHT_TURNING_OFFSET = 0.543194;
     public static final double REAR_LEFT_TURNING_OFFSET = 0.744816;
     public static final double REAR_RIGHT_TURNING_OFFSET = 0.750468;
