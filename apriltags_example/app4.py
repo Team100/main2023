@@ -35,6 +35,11 @@ def bytes_to_yuv(data, width, height):
     y_len = width * height
     array = np.frombuffer(data, dtype=np.uint8, count=y_len)
     array = array.reshape((height, width))
+#    array = np.frombuffer(data, dtype=np.uint8)
+#    array = array.reshape((int(height*3/2), -1))
+#    array = array[: height, ]
+#    print(array.shape) # (width,height) = (616,832)
+#    return array
     return array[: height, : width]
 
 
@@ -51,14 +56,15 @@ class MyColorAnalyzer(Output):
         # new
         result = len(buffer)
 ############
-        #self.analyze(bytes_to_yuv(buffer, self.width, self.height))
-        self.analyze_null(buffer, self.width, self.height)
+        self.analyze(bytes_to_yuv(buffer, self.width, self.height))
+        #self.analyze_null(buffer, self.width, self.height)
 ############
         return result
 
     # old
     # class MyColorAnalyzer(GreyYUVAnalysis):
     def __init__(self, width, height):
+        self.frame_time = time.time()
         self.width = width
         self.height = height
         #super(MyColorAnalyzer, self).__init__(camera)
@@ -79,9 +85,9 @@ class MyColorAnalyzer(Output):
         self.vision_nt_tx = self.vision_nt.getDoubleArrayTopic("pose_t_x").publish()
         self.vision_nt_ty = self.vision_nt.getDoubleArrayTopic("pose_t_y").publish()
         self.vision_nt_tz = self.vision_nt.getDoubleArrayTopic("pose_t_z").publish()
-        self.vision_nt_rx = self.vision_nt.getDoubleArrayTopic("pose_R_x").publish()
-        self.vision_nt_ry = self.vision_nt.getDoubleArrayTopic("pose_R_y").publish()
-        self.vision_nt_rz = self.vision_nt.getDoubleArrayTopic("pose_R_z").publish()
+        self.vision_nt_rx = self.vision_nt.getStringArrayTopic("pose_R_x").publish()
+        self.vision_nt_ry = self.vision_nt.getStringArrayTopic("pose_R_y").publish()
+        self.vision_nt_rz = self.vision_nt.getStringArrayTopic("pose_R_z").publish()
         # old
         # self.vision_nt = NetworkTables.getTable("Vision")
         self.tag_size = 0.2
@@ -101,21 +107,29 @@ class MyColorAnalyzer(Output):
         ]
 
     def analyze_null(self, buffer, width, height):
-#        y_len = width * height # size of Y frame
-#        array = np.frombuffer(buffer, dtype=np.uint8, count=y_len)
-        array = np.frombuffer(buffer, dtype=np.uint8)
-        array = array.reshape((int(height*3/2), -1)) # 1848x1664
-        array = cv2.cvtColor(array, cv2.COLOR_YUV2GRAY_420)
-#        #array = array.reshape((height, width))
+        y_len = width * height # size of Y frame
+# ignore chrominance
+        array = np.frombuffer(buffer, dtype=np.uint8, count=y_len)
+        array = array.reshape((height, width))
+
+#        array = np.frombuffer(buffer, dtype=np.uint8)
+#        array = array.reshape((int(height*3/2), -1)) # 1848x1664
+
+#        array = cv2.cvtColor(array, cv2.COLOR_YUV2GRAY_420)
 #        array = array.reshape((-1, width))
 #        #array = array.reshape((height, -1))
 #        #array = array.reshape((height, width, 3))
-#        array = array[: height, : width]
+        array = array[: height, : width]
+        #array = array[: height, ]
+        #print(array.shape) # (width,height) = (616,832)
         self.output_stream.putFrame(array)
 
     def analyze(self, array):
-        #        start_time = time.time()
+        start_time = time.time()
         gray_image = array
+ 
+        # turn off analysis for the moment
+#        result = []
 
         result = self.at_detector.detect(
             gray_image,
@@ -133,7 +147,8 @@ class MyColorAnalyzer(Output):
 
         result = result + circle_result
 
-        output_img = np.copy(gray_image)
+        #output_img = np.copy(gray_image)
+        output_img = gray_image
 
         draw_result(output_img, result)
 
@@ -184,37 +199,53 @@ class MyColorAnalyzer(Output):
         self.vision_nt_ry.set(pose_r_y_list)
         self.vision_nt_rz.set(pose_r_z_list)
 
+        current_time = time.time()
+        analysis_et = (current_time - start_time)
+        total_et = (current_time - self.frame_time)
+        fps = 1/total_et
+        self.frame_time = current_time
+        draw_text(output_img, f"analysis ET(ms) {1000*analysis_et:.0f}", (5, 25))
+        draw_text(output_img, f"total ET(ms) {1000*total_et:.0f}", (5, 65))
+        draw_text(output_img, f"fps {fps:.1f}", (5, 105))
         self.output_stream.putFrame(output_img)
 
 
 def main():
     print("main")
 
-    width=1632
-    height=1232
-    # this results in cropping, try turning it off with ScalerCrop
-    #width=408
-    #height=308
+    # full frame, 2x2, to set the detector mode
+    # would result in too much delay if we used all the pixels
+    fullwidth=1664 # extra to match stride
+    fullheight=1232
+
+    # lores for apriltag detector
+    # option 1: using all the pixels yields 270ms delay
+    # width=1664
+    # height=1232
+    # option 2: medium-resolution, two circles, three squares, ~80ms
+    # remember to note this delay in the kalman filter input
+    # TODO: report the actual delay in network tables
+    width=832
+    height=616
+    # option 3: very tiny, trade speed for detection distance; two circles, three squraes, ~40ms
+    # width=448
+    # height=308
 
     # old
     #    camera = PiCamera2(resolution=(width, height), framerate=28, sensor_mode=5)
     camera = Picamera2()
     # new
     camera_config = camera.create_video_configuration(
-        {"format": "YUV420", "size": (width, height)}
+        buffer_count=2, # no need for extra buffers, dropping frames is fine
+        main={"format": "YUV420", "size": (fullwidth, fullheight)}, # specify full size to eliminate crop
+        lores={"format": "YUV420", "size": (width, height)},
+        #raw={'format': 'SRGGB8', 'size':(width,height)},
+        encode='lores'
         #{"format": "RGB888", "size": (width, height)}, raw=camera.sensor_modes[5]
     )
     print(camera_config)
     camera.configure(camera_config)
-    camera.set_controls({"ScalerCrop": [0,0,3280,2464]})
-
-    # 1	1920x1080	16:9	1/10 <= fps <= 30	x	 	Partial	None
-    # 2	3280x2464	4:3	1/10 <= fps <= 15	x	x	Full	None
-    # 3	3280x2464	4:3	1/10 <= fps <= 15	x	x	Full	None
-    # 4	1640x1232	4:3	1/10 <= fps <= 40	x	 	Full	2x2
-    # 5	1640x922	16:9	1/10 <= fps <= 40	x	 	Full	2x2
-    # 6	1280x720	16:9	40 < fps <= 90	x	 	Partial	2x2
-    # 7	640x480	4:3	40 < fps <= 90	x	 	Partial	2x2
+    #camera.set_controls({"ScalerCrop": [0,0,3280,2464]})
 
     # Roborio IP: 10.1.0.2
     # Pi IP: 10.1.0.21
