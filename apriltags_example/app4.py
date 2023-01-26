@@ -5,79 +5,32 @@
 import io
 import json
 import time
-
-from cscore import CameraServer
-
-# from networktables import NetworkTables
-from ntcore import NetworkTableInstance
-
 import cv2
 import numpy as np
-
-from pupil_apriltags import Detector
-
-# old
-# from picamera import PiCamera
-# new
+from cscore import CameraServer
+from ntcore import NetworkTableInstance
 from picamera2 import Picamera2
-import libcamera
-
-# import warnings
-# old
-# from picamera.array import PiAnalysisOutput
-# from picamera2.array import raw_resolution
-
-# new
 from picamera2.outputs import Output
 from picamera2.encoders import Encoder
-
-def bytes_to_yuv(data, width, height):
-    y_len = width * height
-    array = np.frombuffer(data, dtype=np.uint8, count=y_len)
-    array = array.reshape((height, width))
-#    array = np.frombuffer(data, dtype=np.uint8)
-#    array = array.reshape((int(height*3/2), -1))
-#    array = array[: height, ]
-#    print(array.shape) # (width,height) = (616,832)
-#    return array
-    return array[: height, : width]
+from pupil_apriltags import Detector
 
 
-# old
-# class GreyYUVAnalysis(PiAnalysisOutput):
-# new
 class MyColorAnalyzer(Output):
-    # old
-    #    def write(self, b):
-    # new
+    # override
     def outputframe(self, buffer, keyframe, timestamp):
-        # old
-        #        result = super(GreyYUVAnalysis, self).write(b)
-        # new
         result = len(buffer)
-############
-        self.analyze(bytes_to_yuv(buffer, self.width, self.height))
-        #self.analyze_null(buffer, self.width, self.height)
-############
+        self.analyze(buffer, self.width, self.height)
         return result
 
-    # old
-    # class MyColorAnalyzer(GreyYUVAnalysis):
     def __init__(self, width, height):
         self.frame_time = time.time()
         self.width = width
         self.height = height
-        #super(MyColorAnalyzer, self).__init__(camera)
-# maybe the "instance' is gone?
-#        camera_server = CameraServer.getInstance()
         # NetworkTables Rio as server
         # NetworkTables.initialize(server="10.1.0.14")
         # NetworkTables Pi as server (for testing)
         # NetworkTables.initialize()
-        # Wait for NetworkTables to start
-        #        time.sleep(0.5)
         # Table for vision output information
-        # new
         self.vision_nt = NetworkTableInstance.getDefault().getTable("Vision")
         # server mode for testing
         NetworkTableInstance.getDefault().startServer()
@@ -88,17 +41,11 @@ class MyColorAnalyzer(Output):
         self.vision_nt_rx = self.vision_nt.getStringArrayTopic("pose_R_x").publish()
         self.vision_nt_ry = self.vision_nt.getStringArrayTopic("pose_R_y").publish()
         self.vision_nt_rz = self.vision_nt.getStringArrayTopic("pose_R_z").publish()
-        # old
-        # self.vision_nt = NetworkTables.getTable("Vision")
         self.tag_size = 0.2
-        self.circle_tag_size = 0.4
+        self.circle_tag_size = 0.8
         self.at_detector = Detector(families="tag16h5")
         self.at_circle_detector = Detector(families="tagCircle21h7")
-        #        time.sleep(2)
-#        self.output_stream = camera_server.putVideo(
-        self.output_stream = CameraServer.putVideo(
-            "Processed", width, height
-        )
+        self.output_stream = CameraServer.putVideo("Processed", width, height)
         self.camera_params = [
             357.1,
             357.1,
@@ -106,40 +53,29 @@ class MyColorAnalyzer(Output):
             height / 2,
         ]
 
-    def analyze_null(self, buffer, width, height):
-        y_len = width * height # size of Y frame
-# ignore chrominance
-        array = np.frombuffer(buffer, dtype=np.uint8, count=y_len)
-        array = array.reshape((height, width))
-
-#        array = np.frombuffer(buffer, dtype=np.uint8)
-#        array = array.reshape((int(height*3/2), -1)) # 1848x1664
-
-#        array = cv2.cvtColor(array, cv2.COLOR_YUV2GRAY_420)
-#        array = array.reshape((-1, width))
-#        #array = array.reshape((height, -1))
-#        #array = array.reshape((height, width, 3))
-        array = array[: height, : width]
-        #array = array[: height, ]
-        #print(array.shape) # (width,height) = (616,832)
-        self.output_stream.putFrame(array)
-
-    def analyze(self, array):
+    def analyze(self, data, width, height):
         start_time = time.time()
-        gray_image = array
- 
-        # turn off analysis for the moment
-#        result = []
+
+        y_len = width * height
+        # truncate, ignore chrominance
+        img = np.frombuffer(data, dtype=np.uint8, count=y_len)
+        img = img.reshape((height, width))
+        img = img[:height, :width]
+        # for debugging the size:
+        # img = np.frombuffer(data, dtype=np.uint8)
+        # img = img.reshape((int(height*3/2), -1))
+        # img = img[: height, ]
+        # print(img.shape) # (width,height) = (616,832)
 
         result = self.at_detector.detect(
-            gray_image,
+            img,
             estimate_tag_pose=True,
             camera_params=self.camera_params,
             tag_size=self.tag_size,
         )
 
         circle_result = self.at_circle_detector.detect(
-            gray_image,
+            img,
             estimate_tag_pose=True,
             camera_params=self.camera_params,
             tag_size=self.circle_tag_size,
@@ -147,10 +83,7 @@ class MyColorAnalyzer(Output):
 
         result = result + circle_result
 
-        #output_img = np.copy(gray_image)
-        output_img = gray_image
-
-        draw_result(output_img, result)
+        draw_result(img, result)
 
         id_list = []
         pose_t_x_list = []
@@ -189,9 +122,7 @@ class MyColorAnalyzer(Output):
             pose_r_y_list.append(ap_pose_r_y_str)
             pose_r_z_list.append(ap_pose_r_z_str)
 
-        # self.vision_nt.putString("test", 'testest')
         self.vision_nt_id.set(id_list)
-
         self.vision_nt_tx.set(pose_t_x_list)
         self.vision_nt_ty.set(pose_t_y_list)
         self.vision_nt_tx.set(pose_t_z_list)
@@ -200,65 +131,57 @@ class MyColorAnalyzer(Output):
         self.vision_nt_rz.set(pose_r_z_list)
 
         current_time = time.time()
-        analysis_et = (current_time - start_time)
-        total_et = (current_time - self.frame_time)
-        fps = 1/total_et
+        analysis_et = current_time - start_time
+        total_et = current_time - self.frame_time
+        fps = 1 / total_et
         self.frame_time = current_time
-        draw_text(output_img, f"analysis ET(ms) {1000*analysis_et:.0f}", (5, 25))
-        draw_text(output_img, f"total ET(ms) {1000*total_et:.0f}", (5, 65))
-        draw_text(output_img, f"fps {fps:.1f}", (5, 105))
-        self.output_stream.putFrame(output_img)
+        draw_text(img, f"analysis ET(ms) {1000*analysis_et:.0f}", (5, 25))
+        draw_text(img, f"total ET(ms) {1000*total_et:.0f}", (5, 65))
+        draw_text(img, f"fps {fps:.1f}", (5, 105))
+        self.output_stream.putFrame(img)
 
 
 def main():
     print("main")
 
     # full frame, 2x2, to set the detector mode
-    # would result in too much delay if we used all the pixels
-    fullwidth=1664 # extra to match stride
-    fullheight=1232
+    fullwidth = 1664  # slightly larger than the detector, to match stride
+    fullheight = 1232
 
     # lores for apriltag detector
-    # option 1: using all the pixels yields 270ms delay
+    # option 1: big, all the pixels yields 270ms delay, but seems even higher
     # width=1664
     # height=1232
-    # option 2: medium-resolution, two circles, three squares, ~80ms
+    # option 2: medium, two circles, three squares, timer says ~80ms but seems more like 500ms
     # remember to note this delay in the kalman filter input
     # TODO: report the actual delay in network tables
-    width=832
-    height=616
-    # option 3: very tiny, trade speed for detection distance; two circles, three squraes, ~40ms
+    width = 832
+    height = 616
+    # option 3: tiny, trade speed for detection distance; two circles, three squraes, ~40ms
     # width=448
     # height=308
 
-    # old
-    #    camera = PiCamera2(resolution=(width, height), framerate=28, sensor_mode=5)
     camera = Picamera2()
-    # new
     camera_config = camera.create_video_configuration(
-        buffer_count=2, # no need for extra buffers, dropping frames is fine
-        main={"format": "YUV420", "size": (fullwidth, fullheight)}, # specify full size to eliminate crop
+        buffer_count=2,  # no need for extra buffers, dropping frames is fine
+        main={
+            "format": "YUV420",
+            "size": (fullwidth, fullheight),
+        },
         lores={"format": "YUV420", "size": (width, height)},
-        #raw={'format': 'SRGGB8', 'size':(width,height)},
-        encode='lores'
-        #{"format": "RGB888", "size": (width, height)}, raw=camera.sensor_modes[5]
+        encode="lores",
     )
     print(camera_config)
     camera.configure(camera_config)
-    #camera.set_controls({"ScalerCrop": [0,0,3280,2464]})
 
     # Roborio IP: 10.1.0.2
     # Pi IP: 10.1.0.21
 
-    encoder = Encoder() # no-op
+    encoder = Encoder()  # no-op
     output = MyColorAnalyzer(width, height)
-    #camera.start_recording(analyzer, "yuv")
     camera.start_recording(encoder, output)
     try:
         while True:
-            # old
-            # camera.wait_recording(1)
-            # new
             time.sleep(1)
     finally:
         camera.stop_recording()
@@ -293,7 +216,7 @@ def draw_result(image, result):
         tag_family = result_item.tag_family.decode("utf-8")
         draw_text(image, f"id {tag_family}", (c_x, c_y + 40))
 
-        # put the translation in the image
+        # put the pose translation in the image
         # the use of 'item' here is to force a scalar to format
         if result_item.pose_t is not None:
             draw_text(image, f"X {result_item.pose_t.item(0):.2f}m", (c_x, c_y + 80))
