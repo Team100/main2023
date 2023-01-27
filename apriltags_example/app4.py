@@ -5,8 +5,12 @@
 import io
 import json
 import time
+
 import cv2
+import msgpack
 import numpy as np
+from dataclasses import dataclass, field
+from typing import List
 from cscore import CameraServer
 from ntcore import NetworkTableInstance
 from picamera2 import MappedArray
@@ -14,6 +18,20 @@ from picamera2 import Picamera2
 from pupil_apriltags import Detector
 
 global_frame_time = time.time()
+
+@dataclass
+class Tag:
+    id: int
+    pose_t: List[float]
+    pose_R: List[float]
+
+@dataclass
+class Tags:
+    et: float = 0
+   # tags: List[Tag] = field(default_factory=list)
+
+
+
 
 class TagFinder:
     def __init__(self, width, height):
@@ -35,6 +53,7 @@ class TagFinder:
         self.vision_nt_rx = self.vision_nt.getStringArrayTopic("pose_R_x").publish()
         self.vision_nt_ry = self.vision_nt.getStringArrayTopic("pose_R_y").publish()
         self.vision_nt_rz = self.vision_nt.getStringArrayTopic("pose_R_z").publish()
+        self.vision_nt_msgpack = self.vision_nt.getRawTopic("tags").publish("msgpack")
         self.tag_size = 0.2
         self.circle_tag_size = 0.8
         self.at_detector = Detector(families="tag16h5")
@@ -97,9 +116,20 @@ class TagFinder:
         pose_r_y_list = []
         pose_r_z_list = []
 
+#        tags = Tags()
+        tags = {}
+        tags['tags'] = []
+
         for result_item in result:
             if result_item.hamming > 0:
                 continue
+
+            tags['tags'].append({
+                'id': result_item.tag_id, 
+                'pose_t': result_item.pose_t.tolist(),
+                'pose_R': result_item.pose_R.tolist()
+                })
+
             id_list.append(result_item.tag_id)
             ap_pose_r_x_str = ""
             ap_pose_r_y_str = ""
@@ -137,13 +167,20 @@ class TagFinder:
         current_time = time.time()
         analysis_et = current_time - start_time
         total_et = current_time - self.frame_time
+
+        tags['et'] = total_et
+        
+        posebytes = msgpack.packb(tags)
+        self.vision_nt_msgpack.set(posebytes)
+
         fps = 1 / total_et
         self.frame_time = current_time
         self.draw_text(img, f"analysis ET(ms) {1000*analysis_et:.0f}", (5, 25))
         self.draw_text(img, f"total ET(ms) {1000*total_et:.0f}", (5, 65))
         self.draw_text(img, f"fps {fps:.1f}", (5, 105))
         self.output_stream.putFrame(img)
-
+    
+   
     def draw_result(self, image, result):
         for result_item in result:
             if result_item.hamming > 0:
