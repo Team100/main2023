@@ -1,5 +1,15 @@
 # AprilTags Example
 
+What's here:
+
+* app.py: capture images, detect apriltags, publish on using pynetworktables on nt3 using a messy multi-key string-delimited encoding
+* pic.py: example that works on one image at a time, uses a display
+* vid.py: example that uses video capture, uses a display
+* draw.py: opencv image drawing functions used by all three of the above
+* app4.py: capture images, detect apriltags, publish on the new networktables four using msgpack.  no dependency on draw.py.  uses pyntcore instead of pynetworktables python library, since pynetworktables doesn't support nt4.
+
+# More about the example
+
 Sample AprilTags detector and pose estimator.
 Works on unix-like platforms; the AprilTags developers don't use Windows
 and so it's a pain to set up on Windows (I failed to do it).
@@ -27,6 +37,7 @@ ssh client you want, using username 'pi' and password 'raspberry'), and execute 
 sudo date -s '15 Sep 2022 14:25' (use the actual date)
 sudo apt update
 sudp apt upgrade
+python3 -m  pip install --upgrade pip setuptools wheel numpy
 python3 -m pip install pupil-apriltags
 sudo /sbin/reboot now
 ```
