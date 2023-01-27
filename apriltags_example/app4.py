@@ -9,19 +9,13 @@ import cv2
 import numpy as np
 from cscore import CameraServer
 from ntcore import NetworkTableInstance
+from picamera2 import MappedArray
 from picamera2 import Picamera2
-from picamera2.outputs import Output
-from picamera2.encoders import Encoder
 from pupil_apriltags import Detector
 
+global_frame_time = time.time()
 
-class MyColorAnalyzer(Output):
-    # override
-    def outputframe(self, buffer, keyframe, timestamp):
-        result = len(buffer)
-        self.analyze(buffer, self.width, self.height)
-        return result
-
+class TagFinder:
     def __init__(self, width, height):
         self.frame_time = time.time()
         self.width = width
@@ -45,13 +39,20 @@ class MyColorAnalyzer(Output):
         self.circle_tag_size = 0.8
         self.at_detector = Detector(families="tag16h5")
         self.at_circle_detector = Detector(families="tagCircle21h7")
-        self.output_stream = CameraServer.putVideo("Processed", width, height)
+        # self.output_stream = CameraServer.putVideo("Processed", width, height)
+        # vertical slice
+        # TODO: one slice for squares one for circles
+        self.output_stream = CameraServer.putVideo("Processed", width, int(height/2))
         self.camera_params = [
             357.1,
             357.1,
             width / 2,
             height / 2,
         ]
+
+    def pre_callback(self, request):
+        with MappedArray(request, "lores") as m:
+            self.analyze(m.array, self.width, self.height)
 
     def analyze(self, data, width, height):
         start_time = time.time()
@@ -60,7 +61,10 @@ class MyColorAnalyzer(Output):
         # truncate, ignore chrominance
         img = np.frombuffer(data, dtype=np.uint8, count=y_len)
         img = img.reshape((height, width))
-        img = img[:height, :width]
+        # slice out the middle, there's never a target near the top or the bottom
+        # TODO: one slice for squares one for circles
+        img = img[int(height/4):int(3*height/4), :width]
+        # img = img[:height, :width]
         # for debugging the size:
         # img = np.frombuffer(data, dtype=np.uint8)
         # img = img.reshape((int(height*3/2), -1))
@@ -83,7 +87,7 @@ class MyColorAnalyzer(Output):
 
         result = result + circle_result
 
-        draw_result(img, result)
+        self.draw_result(img, result)
 
         id_list = []
         pose_t_x_list = []
@@ -135,10 +139,45 @@ class MyColorAnalyzer(Output):
         total_et = current_time - self.frame_time
         fps = 1 / total_et
         self.frame_time = current_time
-        draw_text(img, f"analysis ET(ms) {1000*analysis_et:.0f}", (5, 25))
-        draw_text(img, f"total ET(ms) {1000*total_et:.0f}", (5, 65))
-        draw_text(img, f"fps {fps:.1f}", (5, 105))
+        self.draw_text(img, f"analysis ET(ms) {1000*analysis_et:.0f}", (5, 25))
+        self.draw_text(img, f"total ET(ms) {1000*total_et:.0f}", (5, 65))
+        self.draw_text(img, f"fps {fps:.1f}", (5, 105))
         self.output_stream.putFrame(img)
+
+    def draw_result(self, image, result):
+        for result_item in result:
+            if result_item.hamming > 0:
+                continue
+            (pt_a, pt_b, pt_c, pt_d) = result_item.corners
+            pt_a = (int(pt_a[0]), int(pt_a[1]))
+            pt_b = (int(pt_b[0]), int(pt_b[1]))
+            pt_c = (int(pt_c[0]), int(pt_c[1]))
+            pt_d = (int(pt_d[0]), int(pt_d[1]))
+
+            cv2.line(image, pt_a, pt_b, (255, 255, 255), 2)
+            cv2.line(image, pt_b, pt_c, (255, 255, 255), 2)
+            cv2.line(image, pt_c, pt_d, (255, 255, 255), 2)
+            cv2.line(image, pt_d, pt_a, (255, 255, 255), 2)
+
+            (c_x, c_y) = (int(result_item.center[0]), int(result_item.center[1]))
+            cv2.circle(image, (c_x, c_y), 10, (255, 255, 255), -1)
+
+            tag_id = result_item.tag_id
+            self.draw_text(image, f"id {tag_id}", (c_x, c_y))
+            tag_family = result_item.tag_family.decode("utf-8")
+            self.draw_text(image, f"id {tag_family}", (c_x, c_y + 40))
+
+            # put the pose translation in the image
+            # the use of 'item' here is to force a scalar to format
+            if result_item.pose_t is not None:
+                self.draw_text(image, f"X {result_item.pose_t.item(0):.2f}m", (c_x, c_y + 80))
+                self.draw_text(image, f"Y {result_item.pose_t.item(1):.2f}m", (c_x, c_y + 120))
+                self.draw_text(image, f"Z {result_item.pose_t.item(2):.2f}m", (c_x, c_y + 160))
+
+    # these are white with black outline
+    def draw_text(self, image, msg, loc):
+        cv2.putText(image, msg, loc, cv2.FONT_HERSHEY_SIMPLEX, 1.0, (0, 0, 0), 6)
+        cv2.putText(image, msg, loc, cv2.FONT_HERSHEY_SIMPLEX, 1.0, (255, 255, 255), 2)
 
 
 def main():
@@ -163,7 +202,7 @@ def main():
 
     camera = Picamera2()
     camera_config = camera.create_video_configuration(
-        buffer_count=2,  # no need for extra buffers, dropping frames is fine
+        buffer_count=4,  # no need for extra buffers, dropping frames is fine
         main={
             "format": "YUV420",
             "size": (fullwidth, fullheight),
@@ -177,51 +216,13 @@ def main():
     # Roborio IP: 10.1.0.2
     # Pi IP: 10.1.0.21
 
-    encoder = Encoder()  # no-op
-    output = MyColorAnalyzer(width, height)
-    camera.start_recording(encoder, output)
+    output = TagFinder(width, height)
+    camera.pre_callback = output.pre_callback
+    camera.start()
     try:
         while True:
             time.sleep(1)
     finally:
         camera.stop_recording()
-
-
-# these are white with black outline
-def draw_text(image, msg, loc):
-    cv2.putText(image, msg, loc, cv2.FONT_HERSHEY_SIMPLEX, 1.0, (0, 0, 0), 6)
-    cv2.putText(image, msg, loc, cv2.FONT_HERSHEY_SIMPLEX, 1.0, (255, 255, 255), 2)
-
-
-def draw_result(image, result):
-    for result_item in result:
-        if result_item.hamming > 0:
-            continue
-        (pt_a, pt_b, pt_c, pt_d) = result_item.corners
-        pt_a = (int(pt_a[0]), int(pt_a[1]))
-        pt_b = (int(pt_b[0]), int(pt_b[1]))
-        pt_c = (int(pt_c[0]), int(pt_c[1]))
-        pt_d = (int(pt_d[0]), int(pt_d[1]))
-
-        cv2.line(image, pt_a, pt_b, (255, 255, 255), 2)
-        cv2.line(image, pt_b, pt_c, (255, 255, 255), 2)
-        cv2.line(image, pt_c, pt_d, (255, 255, 255), 2)
-        cv2.line(image, pt_d, pt_a, (255, 255, 255), 2)
-
-        (c_x, c_y) = (int(result_item.center[0]), int(result_item.center[1]))
-        cv2.circle(image, (c_x, c_y), 10, (255, 255, 255), -1)
-
-        tag_id = result_item.tag_id
-        draw_text(image, f"id {tag_id}", (c_x, c_y))
-        tag_family = result_item.tag_family.decode("utf-8")
-        draw_text(image, f"id {tag_family}", (c_x, c_y + 40))
-
-        # put the pose translation in the image
-        # the use of 'item' here is to force a scalar to format
-        if result_item.pose_t is not None:
-            draw_text(image, f"X {result_item.pose_t.item(0):.2f}m", (c_x, c_y + 80))
-            draw_text(image, f"Y {result_item.pose_t.item(1):.2f}m", (c_x, c_y + 120))
-            draw_text(image, f"Z {result_item.pose_t.item(2):.2f}m", (c_x, c_y + 160))
-
 
 main()
