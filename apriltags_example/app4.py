@@ -38,14 +38,22 @@ class TagFinder:
         self.frame_time = time.time()
         self.width = width
         self.height = height
+
         # NetworkTables Rio as server
+        inst = NetworkTableInstance.getDefault()
+        inst.startClient4("app4")
+        inst.setServer("10.1.0.2")
+        
         # NetworkTables.initialize(server="10.1.0.14")
         # NetworkTables Pi as server (for testing)
         # NetworkTables.initialize()
-        # Table for vision output information
-        self.vision_nt = NetworkTableInstance.getDefault().getTable("Vision")
+ 
         # server mode for testing
-        NetworkTableInstance.getDefault().startServer()
+        # inst.startServer()
+
+        # Table for vision output information
+        self.vision_nt = inst.getTable("Vision")
+ 
         self.vision_nt_id = self.vision_nt.getDoubleArrayTopic("id").publish()
         self.vision_nt_tx = self.vision_nt.getDoubleArrayTopic("pose_t_x").publish()
         self.vision_nt_ty = self.vision_nt.getDoubleArrayTopic("pose_t_y").publish()
@@ -169,6 +177,7 @@ class TagFinder:
         total_et = current_time - self.frame_time
 
         tags['et'] = total_et
+        # print(tags)
         
         posebytes = msgpack.packb(tags)
         self.vision_nt_msgpack.set(posebytes)
