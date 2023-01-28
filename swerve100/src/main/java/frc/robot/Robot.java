@@ -73,7 +73,7 @@ public class Robot extends TimedRobot {
 
     // schedule the autonomous command (example)
     if (m_autonomousCommand != null) {
-      System.out.println("autonomous**************");
+      System.out.println("autonomomous");
       m_autonomousCommand.schedule();
     }
   }
@@ -84,9 +84,11 @@ public class Robot extends TimedRobot {
 
   @Override
   public void teleopInit() {
+
+    // m_robotContainer.resetAHRS();
     System.out.println("teleopInit");
-    m_robotContainer.resetPose();
-    m_robotContainer.resetAHRS();
+    // m_robotContainer.resetPose();
+    // m_robotContainer.resetAHRS();
 
     // This makes sure that the autonomous stops running when
     // teleop starts running. If you want the autonomous to
