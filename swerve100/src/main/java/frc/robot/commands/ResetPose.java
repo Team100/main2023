@@ -4,26 +4,31 @@
 
 package frc.robot.commands;
 
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.Swerve2DriveSubsystem;
 
-public class AutoChargeLevel extends CommandBase {
-  /** Creates a new AutoChargeLevel. */
-  Swerve2DriveSubsystem driveSubsystem;
-  public AutoChargeLevel(Swerve2DriveSubsystem ds) {
+public class ResetPose extends CommandBase {
+  /** Creates a new ResetAngle. */
+  Swerve2DriveSubsystem robotDrive;
+  Pose2d robotPose;
+  boolean done = false;
+  public ResetPose(Swerve2DriveSubsystem swerve2DriveSubsystem, Pose2d pose) {
     // Use addRequirements() here to declare subsystem dependencies.
-    driveSubsystem = ds;
-  } 
+    robotDrive = swerve2DriveSubsystem;
+    robotPose = pose;
+  }
 
   // Called when the command is initially scheduled.
   @Override
-  public void initialize() {}
+  public void initialize() {
+    robotDrive.resetPose(robotPose);
+    done = true;
+  }
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
-  public void execute() {
-    driveSubsystem.autoChargeLevel();
-  }
+  public void execute() {}
 
   // Called once the command ends or is interrupted.
   @Override
@@ -32,6 +37,6 @@ public class AutoChargeLevel extends CommandBase {
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    return false;
+    return done;
   }
 }
