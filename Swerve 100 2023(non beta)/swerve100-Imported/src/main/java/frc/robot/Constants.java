@@ -67,6 +67,15 @@ public final class Constants {
 
     public static final double kTrackWidth = 0.449;
     public static final double kWheelBase = 0.464;
+
+    public static final int FRONT_LEFT_TURNING_MOTOR = 0;
+    public static final int FRONT_RIGHT_TURNING_MOTOR = 2;
+    public static final int REAR_LEFT_TURNING_MOTOR = 1;
+    public static final int REAR_RIGHT_TURNING_MOTOR = 3;
+
+
+
+
   }
 
 
