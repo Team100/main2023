@@ -6,14 +6,14 @@ package frc.robot.commands;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj2.command.CommandBase;
-import frc.robot.subsystems.Swerve2DriveSubsystem;
+import frc.robot.subsystems.SwerveDriveSubsystem;
 
 public class ResetPose extends CommandBase {
   /** Creates a new ResetAngle. */
-  Swerve2DriveSubsystem robotDrive;
+  SwerveDriveSubsystem robotDrive;
   Pose2d robotPose;
   boolean done = false;
-  public ResetPose(Swerve2DriveSubsystem swerve2DriveSubsystem, Pose2d pose) {
+  public ResetPose(SwerveDriveSubsystem swerve2DriveSubsystem, Pose2d pose) {
     // Use addRequirements() here to declare subsystem dependencies.
     robotDrive = swerve2DriveSubsystem;
     robotPose = pose;
