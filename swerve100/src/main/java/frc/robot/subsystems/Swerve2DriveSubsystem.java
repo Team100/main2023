@@ -139,11 +139,11 @@ public class Swerve2DriveSubsystem extends SubsystemBase {
                         m_rearRight.getPosition()
                 });
         {
-            if (m_pose.aprilPresent()) {
-                m_poseEstimator.addVisionMeasurement(
-                        m_pose.getRobotPose(0),
-                        Timer.getFPGATimestamp() - 0.3);
-            }
+        //     if (m_pose.aprilPresent()) {
+        //         m_poseEstimator.addVisionMeasurement(
+        //                 m_pose.getRobotPose(0),
+        //                 Timer.getFPGATimestamp() - 0.3);
+        //     }
         }
     }
 
