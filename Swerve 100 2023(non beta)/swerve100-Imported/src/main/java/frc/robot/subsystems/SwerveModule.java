@@ -67,7 +67,7 @@ public class SwerveModule implements Sendable {
 
         m_turningPIDController.enableContinuousInput(0, 2 * Math.PI);
 
-        m_turningFeedforward = new SimpleMotorFeedforward(0.1, 0.001); // TODO: real values for kS and kV.
+        m_turningFeedforward = new SimpleMotorFeedforward(0.1, 0.005); // TODO: real values for kS and kV.
         SmartDashboard.putData(String.format("Swerve Module %s", m_name), this);
         m_driveFeedforward = new SimpleMotorFeedforward(0.0, .25);
         // TODO: extract this config
@@ -75,6 +75,10 @@ public class SwerveModule implements Sendable {
 
     public SwerveModuleState getState() {
         return new SwerveModuleState(m_driveEncoder.getRate(), new Rotation2d(m_turningEncoder.getAngle()));
+    }
+
+    public double getVelocity(){
+        return m_driveEncoder.getRate();
     }
     
     public SwerveModulePosition getPosition() {
@@ -179,6 +183,7 @@ public class SwerveModule implements Sendable {
         builder.addDoubleProperty("driveFeedForwardOutput", this::getdFeedForward, null);
         builder.addDoubleProperty("drive controller position error", () -> m_drivePIDController.getPositionError(), null );
         builder.addDoubleProperty("drive controller velocity error", () -> m_drivePIDController.getVelocityError(), null );
+        builder.addDoubleProperty("turning position", () -> m_turningEncoder.getAngle(), null );
 
     }
 }

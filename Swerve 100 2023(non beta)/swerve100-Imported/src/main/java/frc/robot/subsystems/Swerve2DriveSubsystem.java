@@ -172,6 +172,7 @@ public class Swerve2DriveSubsystem extends SubsystemBase {
             // System.out.print(robot.getRobotPose(0));
             
             if(robot.aprilPresent() && !moving){
+                // System.out.println("HIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII");
                 Pose2d pose = robot.getRobotPose(0);
                 if (pose != null)
                     m_poseEstimator.addVisionMeasurement(pose, Timer.getFPGATimestamp() - 0.3);
@@ -388,7 +389,6 @@ public class Swerve2DriveSubsystem extends SubsystemBase {
         builder.addDoubleProperty("Gyro 180", () -> get180().getDegrees(), null ); 
 
         builder.addBooleanProperty("Moving", () -> moving, null ); 
-        builder.addBooleanProperty("April Present", () -> robot.aprilPresent(), null ); 
 
         // builder.addDoubleProperty("VISION ROBOT POSE X", () -> robot.getRobotPose(0).getX(), null ); 
         // builder.addDoubleProperty("VISION ROBOT POSE Y", () -> robot.getRobotPose(0).getY(), null ); 
