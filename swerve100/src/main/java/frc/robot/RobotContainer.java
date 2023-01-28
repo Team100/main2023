@@ -212,7 +212,7 @@ public class RobotContainer implements Sendable {
     // Push the trajectory to Field2d.
     m_field.getObject("traj").setTrajectory(exampleTrajectory);
 
-    SwerveControllerCommandObservable swerveControllerCommand = new SwerveControllerCommandObservable(
+    SwerveControllerCommand swerveControllerCommand = new SwerveControllerCommand(
         exampleTrajectory,
         m_robotDrive::getPose, // Functional interface to feed supplier
         Swerve2DriveSubsystem.kDriveKinematics,

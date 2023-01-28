@@ -2,7 +2,7 @@
 // Open Source Software; you can modify and/or share it under the terms of
 // the WPILib BSD license file in the root directory of this project.
 
-package frc.robot;
+package frc.robot.localization;
 
 import java.util.HashMap;
 
@@ -27,8 +27,10 @@ public class HashTag {
     }
 
     public TestAprilTag getCurrentTag(int i){
-        return aprilHash.get(i);
-        
+        if (aprilHash.containsKey(i)) {
+            return aprilHash.get(i);
+        }
+        return null;
     }
 
     public Pose2d getTagIDPose(int i){
