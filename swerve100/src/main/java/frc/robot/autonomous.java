@@ -6,7 +6,6 @@ package frc.robot;
 
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.SwerveControllerCommand;
-import edu.wpi.first.wpilibj2.command.SwerveControllerCommand2;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 
 // NOTE:  Consider using this command inline, rather than writing a subclass.  For more
@@ -14,7 +13,7 @@ import edu.wpi.first.wpilibj2.command.WaitCommand;
 // https://docs.wpilib.org/en/stable/docs/software/commandbased/convenience-features.html
 public class autonomous extends SequentialCommandGroup {
   /** Creates a new autonomous. */
-  public autonomous(SwerveControllerCommand2 swerveControllerCommand, SwerveControllerCommand2 swerveControllerCommand2) {
+  public autonomous(SwerveControllerCommand swerveControllerCommand, SwerveControllerCommand swerveControllerCommand2) {
     // Add your commands in the addCommands() call, e.g.
     // addCommands(new FooCommand(), new BarCommand());
     addCommands(swerveControllerCommand);
