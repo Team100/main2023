@@ -41,7 +41,7 @@ public class FalconDriveMotor implements DriveMotor {
     }
 
     public void setInverted(boolean reverseDirection) {
-        // m_motor.setInverted(reverseDirection);
+        m_motor.setInverted(reverseDirection);
         m_motor.setSensorPhase(reverseDirection);
     }
 
