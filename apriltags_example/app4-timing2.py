@@ -59,12 +59,12 @@ class LEDFinder:
         buffer = request.make_buffer("lores")
 #        buffer = request.make_buffer("main")
         metadata = request.get_metadata()
-        print(metadata)
+        #print(metadata)
         # sensor timestamp is the boottime when the first byte was received from the sensor
         sensor_timestamp = metadata['SensorTimestamp']
         system_time_ns = time.clock_gettime_ns(time.CLOCK_BOOTTIME)
         time_delta_ns = system_time_ns - sensor_timestamp
-        print(sensor_timestamp, system_time_ns, time_delta_ns//1000000) # ms
+        #print(sensor_timestamp, system_time_ns, time_delta_ns//1000000) # ms
         y_len = self.width * self.height
         # truncate, ignore chrominance
         # this makes a view, takes 300ns
