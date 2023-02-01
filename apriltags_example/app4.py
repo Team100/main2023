@@ -54,13 +54,6 @@ class TagFinder:
         # Table for vision output information
         self.vision_nt = inst.getTable("Vision")
  
-        self.vision_nt_id = self.vision_nt.getDoubleArrayTopic("id").publish()
-        self.vision_nt_tx = self.vision_nt.getDoubleArrayTopic("pose_t_x").publish()
-        self.vision_nt_ty = self.vision_nt.getDoubleArrayTopic("pose_t_y").publish()
-        self.vision_nt_tz = self.vision_nt.getDoubleArrayTopic("pose_t_z").publish()
-        self.vision_nt_rx = self.vision_nt.getStringArrayTopic("pose_R_x").publish()
-        self.vision_nt_ry = self.vision_nt.getStringArrayTopic("pose_R_y").publish()
-        self.vision_nt_rz = self.vision_nt.getStringArrayTopic("pose_R_z").publish()
         self.vision_nt_msgpack = self.vision_nt.getRawTopic("tags").publish("msgpack")
         self.tag_size = 0.2
         self.circle_tag_size = 0.8
@@ -115,15 +108,7 @@ class TagFinder:
         result = result + circle_result
 
         self.draw_result(img, result)
-
-        id_list = []
-        pose_t_x_list = []
-        pose_t_y_list = []
-        pose_t_z_list = []
-        pose_r_x_list = []
-        pose_r_y_list = []
-        pose_r_z_list = []
-
+        
 #        tags = Tags()
         tags = {}
         tags['tags'] = []
@@ -137,40 +122,6 @@ class TagFinder:
                 'pose_t': result_item.pose_t.tolist(),
                 'pose_R': result_item.pose_R.tolist()
                 })
-
-            id_list.append(result_item.tag_id)
-            ap_pose_r_x_str = ""
-            ap_pose_r_y_str = ""
-            ap_pose_r_z_str = ""
-
-            if result_item.pose_R is not None:
-                for i in range(3):
-                    ap_pose_r_x_str = (
-                        ap_pose_r_x_str + str(round(result_item.pose_R[0][i], 4)) + " "
-                    )
-                    ap_pose_r_y_str = (
-                        ap_pose_r_y_str + str(round(result_item.pose_R[1][i], 4)) + " "
-                    )
-                    ap_pose_r_z_str = (
-                        ap_pose_r_z_str + str(round(result_item.pose_R[2][i], 4)) + " "
-                    )
-
-            if result_item.pose_t is not None:
-                pose_t_x_list.append(result_item.pose_t[0])
-                pose_t_y_list.append(result_item.pose_t[1])
-                pose_t_z_list.append(result_item.pose_t[2])
-
-            pose_r_x_list.append(ap_pose_r_x_str)
-            pose_r_y_list.append(ap_pose_r_y_str)
-            pose_r_z_list.append(ap_pose_r_z_str)
-
-        self.vision_nt_id.set(id_list)
-        self.vision_nt_tx.set(pose_t_x_list)
-        self.vision_nt_ty.set(pose_t_y_list)
-        self.vision_nt_tx.set(pose_t_z_list)
-        self.vision_nt_rx.set(pose_r_x_list)
-        self.vision_nt_ry.set(pose_r_y_list)
-        self.vision_nt_rz.set(pose_r_z_list)
 
         current_time = time.time()
         analysis_et = current_time - start_time
