@@ -1,6 +1,8 @@
 package frc.robot.subsystems;
 
 import com.kauailabs.navx.frc.AHRS;
+
+import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
@@ -18,7 +20,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.RobotContainer;
 import frc.robot.Constants.AutoConstants;
-import frc.robot.localization.RobotPose;
+import frc.robot.localization.VisionDataProvider;
 
 /**
  * This is a copy of DriveSubsystem for the second AndyMark swerve base.
@@ -29,6 +31,7 @@ public class SwerveDriveSubsystem extends SubsystemBase {
 
     public static final double kTrackWidth = Constants.SwerveConstants.kTrackWidth;
     public static final double kWheelBase = Constants.SwerveConstants.kWheelBase;
+    
 
     public static final SwerveDriveKinematics kDriveKinematics = new SwerveDriveKinematics(
             new Translation2d(kWheelBase / 2, kTrackWidth / 2),
@@ -42,8 +45,6 @@ public class SwerveDriveSubsystem extends SubsystemBase {
 
     public static final double kMaxSpeedMetersPerSecond = 4;
     public static final double kMaxAngularSpeedRadiansPerSecond = -5;
-    public static double m_northOffset = 0;
-    RobotPose m_pose = new RobotPose();
 
     private final SwerveModule m_frontLeft = SwerveModuleFactory
             .newSwerveModuleWithFalconDriveAndAnalogSteeringEncoders(
@@ -89,14 +90,20 @@ public class SwerveDriveSubsystem extends SubsystemBase {
     private final AHRS m_gyro;
     // Odometry class for tracking robot pose
     SwerveDrivePoseEstimator m_poseEstimator;
-    double pastVal = 0;
-    double currVal = 0;
 
     double xVelocity = 0;
     double yVelocity = 0;
+    double thetaVelociy = 0;
+
+    VisionDataProvider visionDataProvider;
+
+    boolean moving = false;
 
     public PIDController xController = new PIDController(AutoConstants.kPXController, AutoConstants.kIXController,
             AutoConstants.kDXController);
+
+
+
     public PIDController yController = new PIDController(AutoConstants.kPYController, AutoConstants.kIYController,
             AutoConstants.kDYController);
     public ProfiledPIDController thetaController = new ProfiledPIDController(
@@ -104,8 +111,8 @@ public class SwerveDriveSubsystem extends SubsystemBase {
             AutoConstants.kThetaControllerConstraints);
 
     public SwerveDriveSubsystem() {
-        xController.setTolerance(0.3);
-        yController.setTolerance(0.3);
+        xController.setTolerance(0.1);
+        yController.setTolerance(0.1);
 
         m_gyro = new AHRS(SerialPort.Port.kUSB);
         m_poseEstimator = new SwerveDrivePoseEstimator(
@@ -117,7 +124,12 @@ public class SwerveDriveSubsystem extends SubsystemBase {
                         m_rearLeft.getPosition(),
                         m_rearRight.getPosition()
                 },
-                new Pose2d());
+                new Pose2d(),
+                VecBuilder.fill(0.1, 0.1, 0.1),
+                VecBuilder.fill(0.9, 0.9, Integer.MAX_VALUE)
+        );
+
+        visionDataProvider = new VisionDataProvider(m_poseEstimator, ()-> getMoving());
         SmartDashboard.putData("Drive Subsystem", this);
 
     }
@@ -159,6 +171,10 @@ public class SwerveDriveSubsystem extends SubsystemBase {
                 robotPose);
     }
 
+    public boolean getMoving(){
+        return moving;
+    }
+
     /**
      * Method to drive the robot using joystick info.
      *
@@ -189,6 +205,8 @@ public class SwerveDriveSubsystem extends SubsystemBase {
         SwerveDriveKinematics.desaturateWheelSpeeds(
                 swerveModuleStates, kMaxSpeedMetersPerSecond);
 
+        getRobotVelocity(swerveModuleStates);
+
         m_frontLeft.setDesiredState(swerveModuleStates[0]);
         m_frontRight.setDesiredState(swerveModuleStates[1]);
         m_rearLeft.setDesiredState(swerveModuleStates[2]);
@@ -213,6 +231,15 @@ public class SwerveDriveSubsystem extends SubsystemBase {
                 desiredStates[2], desiredStates[3]);
         xVelocity = chassisSpeeds.vxMetersPerSecond;
         yVelocity = chassisSpeeds.vyMetersPerSecond;
+        thetaVelociy = chassisSpeeds.omegaRadiansPerSecond;
+
+
+        if(xVelocity >= 0.1 || yVelocity >= 0.1 || thetaVelociy >= 0.1){
+            moving = true;
+        } else {
+            moving = false;
+        }
+
 
     }
 
@@ -247,6 +274,33 @@ public class SwerveDriveSubsystem extends SubsystemBase {
         builder.addDoubleProperty("Rear Left Position", () -> m_rearLeft.getPosition().distanceMeters, null);
         builder.addDoubleProperty("Rear Right Position", () -> m_rearRight.getPosition().distanceMeters, null);
         builder.addDoubleProperty("Theta Controller Error", () -> thetaController.getPositionError(), null);
-    }
+        builder.addDoubleProperty("Theta Controller Measurment", () -> getPose().getRotation().getRadians(), null);
+        builder.addDoubleProperty("Theta Controller Setpoint", () -> thetaController.getSetpoint().position, null);
+
+        builder.addDoubleProperty("Front Left Turning Controller Output", () -> m_frontLeft.getTControllerOutput(), null);
+        builder.addDoubleProperty("Front Right Turning Controller Output", () -> m_frontRight.getTControllerOutput(), null);
+        builder.addDoubleProperty("Rear Left Turning Controller Output", () -> m_rearLeft.getTControllerOutput(), null);
+        builder.addDoubleProperty("Rear Right Turning Controller Output", () -> m_rearRight.getTControllerOutput(), null);
+        builder.addDoubleProperty("Front Left Driving Controller Output", () -> m_frontLeft.getDControllerOutput(), null);
+        builder.addDoubleProperty("Front Right Driving Controller Output", () -> m_frontRight.getDControllerOutput(), null);
+        builder.addDoubleProperty("Rear Left Driving Controller Output", () -> m_rearLeft.getDControllerOutput(), null);
+        builder.addDoubleProperty("Rear Right Driving Controller Output", () -> m_rearRight.getDControllerOutput(), null);
+
+        builder.addDoubleProperty("X controller Error", () -> xController.getPositionError(), null);
+        builder.addDoubleProperty("X controller Setpoint", () -> xController.getSetpoint(), null);
+        builder.addDoubleProperty("X controller Measurment", () -> getPose().getX(), null);
+
+        builder.addDoubleProperty("Y controller Error", () -> yController.getPositionError(), null);
+        builder.addDoubleProperty("Y controller Setpoint", () -> yController.getSetpoint(), null);
+        builder.addDoubleProperty("Y controller Measurment", () -> getPose().getY(), null);
+
+        builder.addBooleanProperty("Moving", () -> getMoving(), null);
+
+
+        builder.addDoubleProperty("X controller Velocity", () -> xVelocity, null);
+        builder.addDoubleProperty("Y controller Velocity", () -> yVelocity, null);
+        builder.addDoubleProperty("Theta controller Velocity", () -> thetaVelociy, null);
+
+}
 
 }

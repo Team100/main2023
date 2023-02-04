@@ -1,19 +1,19 @@
 package frc.robot.localization;
 
-import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Pose3d;
 
 public class TestAprilTag {
     
     public int ID;
-    public Pose2d Pose2d;
+    public Pose3d Pose3d;
     
-    public TestAprilTag(int ID, Pose2d pose) {
+    public TestAprilTag(int ID, Pose3d pose) {
         this.ID = ID;
-        this.Pose2d = pose;
+        this.Pose3d = pose;
     }
 
-    public Pose2d getPose(){
-        return this.Pose2d;
+    public Pose3d getPose(){
+        return this.Pose3d;
     }
 
 }

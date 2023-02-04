@@ -29,12 +29,18 @@ import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.RunCommand;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 import edu.wpi.first.wpilibj2.command.SwerveControllerCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.AutoConstants;
 import frc.robot.Constants.OIConstants;
+import frc.robot.autonomous.Circle;
+import frc.robot.autonomous.Dodge;
+import frc.robot.autonomous.Forward;
+import frc.robot.autonomous.IshanAutonomous;
+import frc.robot.autonomous.MoveToAprilTag;
 import frc.robot.commands.ResetPose;
 // import frc.robot.commands.trajec;
 import frc.robot.subsystems.SwerveDriveSubsystem;
@@ -56,10 +62,11 @@ public class RobotContainer implements Sendable {
   //Button Bindings
   private static final XboxController m_driverController = new XboxController(OIConstants.kDriverControllerPort);
   Trigger LB = new JoystickButton(m_driverController, XboxController.Button.kLeftBumper.value);
+  JoystickButton Y = new JoystickButton(m_driverController, XboxController.Button.kY.value);
   public final static Field2d m_field = new Field2d();
-
+  JoystickButton A = new JoystickButton(m_driverController, 1);
   //Commands
-  ResetPose resetPose = new ResetPose(m_robotDrive, new Pose2d(new Translation2d(14.513558, 1.071626), new Rotation2d(0)));
+  ResetPose resetPose = new ResetPose(m_robotDrive, new Pose2d(new Translation2d(0, 0), new Rotation2d(0)));
   /**
    * The container for the robot. Contains subsystems, OI devices, and commands.
    */
@@ -78,9 +85,9 @@ public class RobotContainer implements Sendable {
         new RunCommand(
             () -> {
               m_robotDrive.drive(
-                  -m_driverController.getRightY(),
-                  -m_driverController.getRightX(),
-                  -m_driverController.getLeftX(),
+                  -m_driverController.getRightY() / 2,
+                  -m_driverController.getRightX() / 2,
+                  -m_driverController.getLeftX() / 2,
                   true);
             },
             m_robotDrive));
@@ -98,18 +105,27 @@ public class RobotContainer implements Sendable {
    * {@link JoystickButton}.
    */
   private void configureButtonBindings() {
-    LB.onTrue(resetPose);
+    // LB.onTrue(resetPose);
+    Y.onTrue(new MoveToAprilTag(m_robotDrive, 3));
+    A.onTrue(resetPose);
   }
 
   /**
-   * Use this to pass the autonomous command to the main {@link Robot} class.
+   * 
+   * Use this to pass the autonomous command to the main  {@link Robot} class.
    *
    * @return the command to run in autonomous
    */
 
   // this is ishan's
   public Command getAutonomousCommand2() {
-    return null;
+    // return new SequentialCommandGroup(
+    //   new IshanAutonomous(m_robotDrive),
+    //   new IshanAutonomous(m_robotDrive)
+    // );
+
+    // return new Forward(m_robotDrive, 5);
+    return new Circle(m_robotDrive, 1.5);
   }
 
   public void runTest() {

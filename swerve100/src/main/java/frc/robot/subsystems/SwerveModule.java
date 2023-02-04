@@ -59,7 +59,7 @@ public class SwerveModule implements Sendable {
 
         m_turningPIDController = new ProfiledPIDController(
                 kPModuleTurningController,
-                .1,
+                0,
                 0,
                 new TrapezoidProfile.Constraints(
                         kMaxModuleAngularSpeedRadiansPerSecond,
