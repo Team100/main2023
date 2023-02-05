@@ -38,10 +38,12 @@ public class MoveToAprilTag extends TrajectoryCommand {
         Pose3d aprilPose = hashTag.getTagIDPose(tagID);
 
         TrajectoryConfig trajectoryConfig = new TrajectoryConfig(
-                4,
-                3)
+                2,
+                1)
                 // Add kinematics to ensure max speed is actually obeyed
                 .setKinematics(SwerveDriveSubsystem.kDriveKinematics);
+
+        System.out.println("MOVE TO APRIL TAG");
 
 
         Trajectory exampleTrajectory = TrajectoryGenerator.generateTrajectory(

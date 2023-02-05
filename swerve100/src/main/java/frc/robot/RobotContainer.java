@@ -40,6 +40,8 @@ import frc.robot.autonomous.Circle;
 import frc.robot.autonomous.Dodge;
 import frc.robot.autonomous.Forward;
 import frc.robot.autonomous.IshanAutonomous;
+import frc.robot.autonomous.SanjanAutonomous;
+
 import frc.robot.autonomous.MoveToAprilTag;
 import frc.robot.commands.ResetPose;
 // import frc.robot.commands.trajec;
@@ -65,6 +67,8 @@ public class RobotContainer implements Sendable {
   JoystickButton Y = new JoystickButton(m_driverController, XboxController.Button.kY.value);
   public final static Field2d m_field = new Field2d();
   JoystickButton A = new JoystickButton(m_driverController, 1);
+  JoystickButton B = new JoystickButton(m_driverController, 2);
+
   //Commands
   ResetPose resetPose = new ResetPose(m_robotDrive, new Pose2d(new Translation2d(0, 0), new Rotation2d(0)));
   /**
@@ -106,8 +110,14 @@ public class RobotContainer implements Sendable {
    */
   private void configureButtonBindings() {
     // LB.onTrue(resetPose);
-    Y.onTrue(new MoveToAprilTag(m_robotDrive, 3));
+    // Y.onTrue(new MoveToAprilTag(m_robotDrive, 3));
+
+    Y.onTrue(new SanjanAutonomous(m_robotDrive));
+
     A.onTrue(resetPose);
+    B.onTrue(new MoveToAprilTag(m_robotDrive, 3));
+
+
   }
 
   /**

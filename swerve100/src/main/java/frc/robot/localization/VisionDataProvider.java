@@ -108,8 +108,8 @@ public class VisionDataProvider {
     private void estimateRobotPose(Blips blips) {
         for (Blip b : blips.tags) {
             Pose3d p = blipToPose(b);
-            System.out.printf("TAG ID: %d\n", b.id);
-            System.out.printf("POSE: %s\n", p);
+            // System.out.printf("TAG ID: %d\n", b.id);
+            // System.out.printf("POSE: %s\n", p);
 
             if (p != null) {
                 if (hashTag.getTag((int)b.id) != null) {
@@ -119,7 +119,7 @@ public class VisionDataProvider {
                         // double headingtoRad = getHeading.;
                         // Rotation3d tagRotation3d = new Rotation3d(0, 0, poseEstimator.getEstimatedPosition().getRotation().getRadians() );
 
-                        System.out.println("rotttttttt: " + tagPose.getRotation().getAngle() * 180.0 / Math.PI);
+                        // System.out.println("rotttttttt: " + tagPose.getRotation().getAngle() * 180.0 / Math.PI);
                         Pose2d robotPose = toFieldCoordinates(tagPose.getTranslation(), tagPose.getRotation(), hashTag.getTag((int)b.id)).toPose2d();
                         // System.out.println("ROBOT ROTATION: " + robotPose.getRotation().getDegrees());
                         poseEstimator.addVisionMeasurement(robotPose, Timer.getFPGATimestamp() - 0.3);

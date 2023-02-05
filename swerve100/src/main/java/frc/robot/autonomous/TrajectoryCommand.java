@@ -13,20 +13,20 @@ import frc.robot.subsystems.SwerveDriveSubsystem;
 
 public abstract class TrajectoryCommand extends CommandBase {
     SwerveDriveSubsystem m_robotDrive;
-    boolean done;
+    SwerveControllerCommand s;
 
     /** Creates a new TrajectoryCommand. */
     public TrajectoryCommand(SwerveDriveSubsystem m_robotDrive) {
         this.m_robotDrive = m_robotDrive;
 
         // Use addRequirements() here to declare subsystem dependencies.
-        addRequirements(this.m_robotDrive);
+        // addRequirements(this.m_robotDrive);
     }
 
     // Called when the command is initially scheduled.
     @Override
     public void initialize() {
-        SwerveControllerCommand s = new SwerveControllerCommand(
+        s = new SwerveControllerCommand(
             genTrajectory(m_robotDrive),
             m_robotDrive::getPose,
             SwerveDriveSubsystem.kDriveKinematics,
@@ -37,14 +37,35 @@ public abstract class TrajectoryCommand extends CommandBase {
             m_robotDrive::setModuleStates,
             m_robotDrive);
 
+        // CommandScheduler.getInstance().schedule(
+        //     s.finallyDo( (interrupted) -> { done = true; })
+        // );
+
         CommandScheduler.getInstance().schedule(s);
-        done = true;
+
+        // CommandScheduler.getInstance().schedule(
+        //     s.asProxy().finallyDo((interrupted) -> { done = true; })
+        // );
+
+
+    }
+
+    @Override
+    public void execute(){
+        System.out.println("YOOOOOOOOOOO");
     }
 
     // Returns true when the command should end.
     @Override
     public boolean isFinished() {
-        return done;
+
+        if(s.isFinished()){
+            System.out.println("FINISHED++++++++++++++++++++++++++++++++++++++++");
+            return true;
+        }
+
+        // return s.isFinished();
+        return false;
     }
 
     public abstract Trajectory genTrajectory(SwerveDriveSubsystem m_robotDrive);
