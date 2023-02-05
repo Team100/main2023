@@ -55,17 +55,22 @@ class TagFinder:
         self.vision_nt = inst.getTable("Vision")
  
         self.vision_nt_msgpack = self.vision_nt.getRawTopic("tags").publish("msgpack")
-        self.tag_size = 0.2
-        self.circle_tag_size = 0.8
+        # tag size was wrong before.  full size is 0.2m but
+        # https://github.com/AprilRobotics/apriltag/wiki/AprilTag-User-Guide
+        # this points out that the apriltag library expects tag_size to be
+        # the boundary between the outer white boundary and the inner black
+        # boundary, which in this case is 0.15 m
+        self.tag_size = 0.15
+        #self.circle_tag_size = 0.8
         self.at_detector = Detector(families="tag16h5")
-        self.at_circle_detector = Detector(families="tagCircle21h7")
+        #self.at_circle_detector = Detector(families="tagCircle21h7")
         # self.output_stream = CameraServer.putVideo("Processed", width, height)
         # vertical slice
         # TODO: one slice for squares one for circles
         self.output_stream = CameraServer.putVideo("Processed", width, int(height/2))
         self.camera_params = [
-            357.1,
-            357.1,
+            666,
+            666,
             width / 2,
             height / 2,
         ]
@@ -98,14 +103,14 @@ class TagFinder:
             tag_size=self.tag_size,
         )
 
-        circle_result = self.at_circle_detector.detect(
-            img,
-            estimate_tag_pose=True,
-            camera_params=self.camera_params,
-            tag_size=self.circle_tag_size,
-        )
+        #circle_result = self.at_circle_detector.detect(
+        #    img,
+        #    estimate_tag_pose=True,
+        #    camera_params=self.camera_params,
+        #    tag_size=self.circle_tag_size,
+        #)
 
-        result = result + circle_result
+        #result = result + circle_result
 
         self.draw_result(img, result)
         
@@ -221,5 +226,4 @@ def main():
             time.sleep(1)
     finally:
         camera.stop_recording()
-
 main()
