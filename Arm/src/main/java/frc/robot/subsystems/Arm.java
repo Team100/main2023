@@ -8,14 +8,18 @@ import com.revrobotics.CANSparkMax.IdleMode;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.controller.ProfiledPIDController;
+import edu.wpi.first.math.trajectory.TrapezoidProfile;
+import edu.wpi.first.math.trajectory.TrapezoidProfile.State;
 import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.AnalogEncoder;
 import edu.wpi.first.wpilibj.motorcontrol.Spark;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj2.command.ProfiledPIDSubsystem;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.FRCLib.Motors.FRCNEO;
 
-public class Arm extends SubsystemBase{
+public class Arm extends ProfiledPIDSubsystem{
   /** Creates a new Arm. */
   public FRCNEO lowerArm;
   public FRCNEO upperArm;
@@ -27,10 +31,21 @@ public class Arm extends SubsystemBase{
   private final AnalogEncoder encoder1 = new AnalogEncoder(1);
   
   public Arm() {
+    
+
+    super(
+        new ProfiledPIDController(
+            0.1,
+            0,
+            0,
+            new TrapezoidProfile.Constraints(   
+                2,
+                1)),
+        0.8);
+
     encoder0.setPositionOffset(0);
     encoder1.setPositionOffset(0);
 
-    
     lowerArm = new FRCNEO.FRCNEOBuilder(43)
             .withInverted(false)
             // .withFeedbackPort(Constants.IndexerConstants.IndexerMotors.IndexerStageOne.FEEDBACK_PORT)
@@ -57,7 +72,8 @@ public class Arm extends SubsystemBase{
             .withNeutralMode(IdleMode.kBrake)
             .withForwardSoftLimitEnabled(false)
             .build();
-    // lowerArmv2 = new Spark(42);
+
+    setGoal(0.8);
 
 
         
@@ -123,5 +139,19 @@ public class Arm extends SubsystemBase{
     super.initSendable(builder);
     builder.addDoubleProperty("Encoder 0", () -> getLowerArm(), null);
     builder.addDoubleProperty("Encoder 1", () -> getUpperArm(), null);
+  }
+
+  @Override
+  protected void useOutput(double output, State setpoint) {
+    if(setpoint.position >= 0.9 || setpoint.position <= 0.75){
+      lowerArm.motor.setVoltage(0);
+    }else{
+      lowerArm.motor.setVoltage(output);
+    }
+  }
+
+  @Override
+  protected double getMeasurement() {
+    return getLowerArm();
   }
 }

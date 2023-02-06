@@ -13,9 +13,11 @@ import frc.robot.subsystems.Manipulator;
 
 import java.sql.Driver;
 
+import edu.wpi.first.math.controller.ArmFeedforward;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
@@ -68,7 +70,12 @@ public class RobotContainer {
     // Schedule `exampleMethodCommand` when the Xbox controller's B button is pressed,
     // cancelling on release.
     // m_driverController.b().whileTrue(m_exampleSubsystem.exampleMethodCommand());
-
+    bButton.onTrue(Commands.runOnce(
+      () -> {
+        arm.setGoal(0.3);
+        arm.enable();
+      },
+      arm));
     arm.setDefaultCommand(driveLowerArm);
   }
 
