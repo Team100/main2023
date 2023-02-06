@@ -236,7 +236,7 @@ public class RobotContainer implements Sendable {
   }
 
   public void resetAHRS() {
-    System.out.println("GYYYYYYYYYYRPOOOOOOOOOOOOOOOOOOOOOO" + m_robotDrive.getHeading().getDegrees());
+    System.out.println("GYYYYYYYYYYRPOOOOOOOOOOOOOOOOOOOOOO " + m_robotDrive.getHeading().getDegrees());
     System.out.println("DEGREEEEEEEEEEEEES " + m_robotDrive.getPose().getRotation().getDegrees());
     m_robotDrive.resetAHRS2();
   }

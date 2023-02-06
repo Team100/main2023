@@ -264,6 +264,7 @@ public class Swerve2DriveSubsystem extends SubsystemBase {
         builder.addDoubleProperty("X Controller Error", () -> xController.getPositionError(), null );
         builder.addDoubleProperty("Y Controller Error", () -> yController.getPositionError(), null ); 
         builder.addDoubleProperty("estimatedtheta", () -> getPose().getRotation().getRadians(), null);
+        builder.addDoubleProperty("FusedHeading", () -> m_gyro.getFusedHeading(), null);
     }
 
     public void resetAHRS2() {
