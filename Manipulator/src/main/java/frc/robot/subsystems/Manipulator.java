@@ -38,7 +38,7 @@ public class Manipulator extends SubsystemBase {
   }
 
   public void pinch(double d){
-    pinch.drivePercentOutput(d);
+    pinch.drivePercentOutput(-0.6*d);
 
   }
 
