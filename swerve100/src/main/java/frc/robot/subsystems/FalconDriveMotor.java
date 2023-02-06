@@ -10,7 +10,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class FalconDriveMotor implements DriveMotor {
     private final WPI_TalonFX m_motor;
-    public static final double kDriveCurrentLimit = 40;
+    public static final double kDriveCurrentLimit = 5;
 
     public FalconDriveMotor(String name, int canId) {
         m_motor = new WPI_TalonFX(canId);
