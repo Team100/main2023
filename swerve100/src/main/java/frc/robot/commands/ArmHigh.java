@@ -2,21 +2,18 @@
 // Open Source Software; you can modify and/or share it under the terms of
 // the WPILib BSD license file in the root directory of this project.
 
-package frc.robot;
+package frc.robot.commands;
 
-import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.Arm;
 
-public class driveLowerArm extends CommandBase {
-  /** Creates a new driveLowerArm. */
+public class ArmHigh extends CommandBase {
+  /** Creates a new ArmHigh. */
   Arm arm;
-  XboxController controller;
-  public driveLowerArm(Arm a, XboxController xboxController) {
+  boolean done;
+  public ArmHigh(Arm a) {
     // Use addRequirements() here to declare subsystem dependencies.
     arm = a;
-    controller = xboxController;
-
     addRequirements(a);
   }
 
@@ -27,12 +24,12 @@ public class driveLowerArm extends CommandBase {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    //arm.setLowerArm(controller.getRightX());
-    //arm.setUpperArm(controller.getLeftY());
-
-
-    arm.setBoth(controller.getLeftY(), controller.getRightX());
-
+    if(arm.getUpperArm() <= 0.8){
+      arm.setUpperArm(0.2);
+    } else {
+      arm.setUpperArm(0);
+      done = true;
+    }
   }
 
   // Called once the command ends or is interrupted.
@@ -42,6 +39,6 @@ public class driveLowerArm extends CommandBase {
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    return false;
+    return done;
   }
 }

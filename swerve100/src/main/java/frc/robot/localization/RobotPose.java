@@ -2,7 +2,7 @@
 // Open Source Software; you can modify and/or share it under the terms of
 // the WPILib BSD license file in the root directory of this project.
 
-package frc.robot;
+package frc.robot.localization;
 
 import java.util.HashMap;
 
@@ -32,6 +32,11 @@ public class RobotPose {
     String i;
     HashMap <Integer, TestAprilTag> aprilHash;
     HashTag hashtag;
+    double kProcessingDelay = 0.3;
+    double kCameraYOffset = .13;
+    double kCameraXOffset = .076;
+
+
 
     public RobotPose(){
         table = NetworkTableInstance.getDefault().getTable("Vision");
@@ -39,15 +44,27 @@ public class RobotPose {
     }
 
     public boolean aprilPresent(){
-        // idValues = table.getEntry("id").getDoubleArray(defaultValue);
-        // if(idValues.length > 0){
-        //     return true;
-        // }
+        idValues = table.getEntry("id").getDoubleArray(defaultValue);
+        xValues = table.getEntry("pose_t_x").getDoubleArray(defaultValue);
+        zValues = table.getEntry("pose_t_z").getDoubleArray(defaultValue);
+        xRot = table.getEntry("pose_R_x").getStringArray(strDefaultValue);
+        zRot = table.getEntry("pose_R_z").getStringArray(strDefaultValue);
+        if (idValues.length == 0 ||
+            idValues.length != xValues.length || 
+            idValues.length != zValues.length ||
+            idValues.length != xRot.length ||
+            idValues.length != zRot.length) return false;
+        if(idValues.length > 0){
+            return true;
+        }
         return false;
     }
     
     public int getID(int i){
         idValues = table.getEntry("id").getDoubleArray(defaultValue);
+        if(idValues.length == 0){
+            return 32;
+        }
         return (int)idValues[i];
     }
     public int getIDlength(){
@@ -56,7 +73,7 @@ public class RobotPose {
     }
     public double getPosX(int i){
         xValues = table.getEntry("pose_t_x").getDoubleArray(defaultValue);
-        return xValues[i];
+        return -xValues[i] - kCameraYOffset;
     }
 
     public double getPosY(int i){
@@ -66,7 +83,7 @@ public class RobotPose {
 
     public double getPosZ(int i){
         zValues = table.getEntry("pose_t_z").getDoubleArray(defaultValue);
-        return zValues[i];
+        return zValues[i] + kCameraXOffset;
     }
 
     public String getRotX(int i){
@@ -102,14 +119,16 @@ public class RobotPose {
     }
 
     public Pose2d getRobotPose(int i){
-        Translation2d translation = new Translation2d(getPosX(i), getPosZ(i));
+
+        TestAprilTag aprilTag = hashtag.getCurrentTag(getID(i));
+        if (aprilTag == null) return null;
+        Translation2d translation = new Translation2d(getPosZ(i), getPosX(i));
         Rotation2d rotation = new Rotation2d(getRot(i));
-        Pose2d robotPose = toFieldCoordinates(translation, rotation, hashtag.getCurrentTag(getID(i)));
+        Pose2d robotPose = toFieldCoordinates(translation, rotation, aprilTag);
         // System.out.println("X Value: " + robotPose.getX());
         // System.out.println("Z Value: " + robotPose.getY());
         return robotPose;
     }
-
 
 
     public Pose2d poseCalc(double x, double y, double rads){

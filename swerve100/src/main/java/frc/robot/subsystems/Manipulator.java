@@ -25,7 +25,7 @@ public class Manipulator extends SubsystemBase {
     .withPeakOutputReverse(-0.5)
     //.withNeutralMode(Constants.DrivetrainConstants.DrivetrainMotors.LeftMaster.NEUTRAL_MODE)
     //.withCurrentLimitEnabled(true)
-    //.withCurrentLimit(5)
+    //.withCurrentLimit(7)
 
     .build();
   }

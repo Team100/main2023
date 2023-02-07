@@ -4,11 +4,17 @@
 
 package frc.robot;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.plaf.basic.BasicBorders.ButtonBorder;
 
+import com.kauailabs.navx.frc.AHRS;
+
+import edu.wpi.first.apriltag.AprilTag;
+import edu.wpi.first.apriltag.AprilTagFieldLayout;
+import edu.wpi.first.apriltag.AprilTagFields;
 // import frc.robot.commands.spin;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
@@ -21,15 +27,23 @@ import edu.wpi.first.math.trajectory.TrajectoryGenerator;
 import edu.wpi.first.util.sendable.Sendable;
 import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.RunCommand;
+import edu.wpi.first.wpilibj2.command.Subsystem;
 import edu.wpi.first.wpilibj2.command.SwerveControllerCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.AutoConstants;
 import frc.robot.Constants.OIConstants;
-// import frc.robot.commands.trajec;
-import frc.robot.subsystems.Swerve2DriveSubsystem;
+import frc.robot.commands.ResetPose;
+import frc.robot.subsystems.Arm;
+import frc.robot.subsystems.Manipulator;
+import frc.robot.subsystems.SwerveDriveSubsystem;
+import edu.wpi.first.apriltag.AprilTagFields;
+
+import frc.robot.commands.*;;
 
 /*
  * This class is where the bulk of the robot should be declared.  Since Command-based is a
@@ -42,22 +56,34 @@ public class RobotContainer implements Sendable {
   // For the first andymark base
   // private final DriveSubsystem m_robotDrive = new DriveSubsystem();
   // For the second andymark base
-  private final Swerve2DriveSubsystem m_robotDrive = new Swerve2DriveSubsystem();
+  private final SwerveDriveSubsystem m_robotDrive = new SwerveDriveSubsystem();
 
-  // The driver's controller
+  //Button Bindings
   private static final XboxController m_driverController = new XboxController(OIConstants.kDriverControllerPort);
-  // XboxController m_driverController = new XboxController(OIConstants.kDriverControllerPort);
-  private static final JoystickButton l2 = new JoystickButton(m_driverController, 9);
-  // final JoystickButton l2 = new JoystickButton(m_driverController, 9);
-  private static final JoystickButton bButton = new JoystickButton(m_driverController, 2);
-  // if true, test mode exercises module state (e.g. azimuth); if false, test mode
-  // exercises module output directly.
-  // boolean m_testModuleState = false;
+  Trigger LB = new JoystickButton(m_driverController, XboxController.Button.kLeftBumper.value);
+  Trigger yButton = new JoystickButton(m_driverController, XboxController.Button.kY.value);
+  
+  JoystickButton bButton = new JoystickButton(m_driverController2, 2);
+  public final static Field2d m_field = new Field2d();
 
-  /** The container for the robot. Contains subsystems, OI devices, and commands. */
+  private static final XboxController m_driverController2 = new XboxController(1);
+  // private static final JoystickButton bButton = new JoystickButton(m_driverController, 2);
+  private final Manipulator manipulator = new Manipulator();
+
+ private Arm arm = new Arm();
+
+  private driveLowerArm driveLowerArm = new driveLowerArm(arm, m_driverController2);
+
+
+  //Commands
+  ResetPose resetPose = new ResetPose(m_robotDrive, new Pose2d(new Translation2d(0, 0), new Rotation2d(0)));
+  autoLevel autoLevel = new autoLevel(m_robotDrive.m_gyro, m_robotDrive);
+  /**
+   * The container for the robot. Contains subsystems, OI devices, and commands.
+   */
   public RobotContainer() {
 
-          // An example trajectory to follow.  All units in meters.
+    // An example trajectory to follow. All units in meters.
     // Configure the button bindings
     configureButtonBindings();
 
@@ -65,26 +91,27 @@ public class RobotContainer implements Sendable {
     m_robotDrive.setDefaultCommand(
         // The left stick controls translation of the robot.
         // Turning is controlled by the X axis of the right stick.
+
+        //Dont change these
         new RunCommand(
             () -> {
               m_robotDrive.drive(
                   m_driverController.getRightY(),
                   m_driverController.getRightX(),
-                  m_driverController.getLeftX(),
+                  -m_driverController.getLeftX(),
                   true);
             },
             m_robotDrive));
 
-    // new RunCommand(
-    // () ->{
-    // m_robotDrive.drive(
-    // 0,
-    // 0,
-    // 0,
-    // true);
-    // },
-    // m_robotDrive));
     SmartDashboard.putData("Robot Container", this);
+
+    ArmHigh armHigh = new ArmHigh(arm);
+
+    manipulator.setDefaultCommand(new RunCommand( () -> manipulator.pinchv2(m_driverController2.getRightTriggerAxis(), m_driverController2.getLeftTriggerAxis()), manipulator));
+    arm.setDefaultCommand(driveLowerArm);
+
+    bButton.onTrue(armHigh);
+
 
   }
 
@@ -96,10 +123,10 @@ public class RobotContainer implements Sendable {
    * edu.wpi.first.wpilibj.Joystick} or {@link XboxController}), and then calling
    * passing it to a
    * {@link JoystickButton}.
-    */
+   */
   private void configureButtonBindings() {
-    // l2.whileTrue(swerveControllerCommand);
-
+    LB.onTrue(resetPose);
+    yButton.onTrue(autoLevel);
   }
 
   /**
@@ -107,105 +134,10 @@ public class RobotContainer implements Sendable {
    *
    * @return the command to run in autonomous
    */
-// this is sanjan's
-  public Command getAutonomousCommand() {
-      // Create config for trajectory
-      TrajectoryConfig config =
-          new TrajectoryConfig(
-                  AutoConstants.kMaxSpeedMetersPerSecond,
-                  AutoConstants.kMaxAccelerationMetersPerSecondSquared)
-              // Add kinematics to ensure max speed is actually obeyed
-              .setKinematics(Swerve2DriveSubsystem.kDriveKinematics);
 
-      // An example trajectory to follow.  All units in meters.
-
-
-      Trajectory exampleTrajectory =
-      TrajectoryGenerator.generateTrajectory(
-          // Start at the origin facing the +X direc  tion
-          new Pose2d(0, 0, new Rotation2d(-Math.PI/2)),
-          // Pass through these two interior waypoints, making an 's' curve path
-          // List.of(new Translation2d(1.5, 0)),
-          List.of(),
-
-          // End 3 meters straight ahead of where we started, facing forward
-          new Pose2d(4,0, new Rotation2d(Math.PI/2)),
-          // Pass config
-          config);
-    
-      // var thetaController =
-      //     new ProfiledPIDController(
-      //         AutoConstants.kPThetaController, 0, 0, AutoConstants.kThetaControllerConstraints);
-
-      // var xController = new PIDController(AutoConstants.kPXController, 0, 0);
-      // var yController = new PIDController(AutoConstants.kPYController, 0, 0);
-      m_robotDrive.thetaController.enableContinuousInput(-Math.PI, Math.PI);
-      System.out.println(exampleTrajectory);
-      SwerveControllerCommand swerveControllerCommand =
-          new SwerveControllerCommand(
-              exampleTrajectory,
-              m_robotDrive::getPose, // Functional interface to feed supplier
-              Swerve2DriveSubsystem.kDriveKinematics,
-
-              // Position controllers
-              m_robotDrive.xController,
-              m_robotDrive.yController,
-              m_robotDrive.thetaController,
-              () -> new Rotation2d(),
-              m_robotDrive::setModuleStates,
-              m_robotDrive);
-
-      // SmartDashboard.putNumber("Theta Controller Error", thetaController.getVelocityError());
-      // SmartDashboard.putNumber("x Controller Error", thetaController.getVelocityError());
-      // SmartDashboard.putNumber("y Controller Error", thetaController.getVelocityError());
-
-      // Reset odometry to the starting pose of the trajectory.
-
-
-      // Run path following command, then stop at the end.
-      // resetAHRS();
-      // m_robotDrive.resetPose();
-
-      return swerveControllerCommand;
-  }
-
-// this is ishan's
+  // this is ishan's
   public Command getAutonomousCommand2() {
-    // Create config for trajectory
-    TrajectoryConfig config = new TrajectoryConfig(
-        AutoConstants.kMaxSpeedMetersPerSecond,
-        AutoConstants.kMaxAccelerationMetersPerSecondSquared)
-        // Add kinematics to ensure max speed is actually obeyed
-        .setKinematics(Swerve2DriveSubsystem.kDriveKinematics);
-
-    // An example trajectory to follow. All units in meters.
-    Trajectory exampleTrajectory = TrajectoryGenerator.generateTrajectory(
-        // Start at the origin facing the +X direction
-        new Pose2d(0, 0, new Rotation2d(0)), List.of(new Translation2d(3, 3), new Translation2d(0, 6), new Translation2d(-3, 3)),
-        new Pose2d(0, 0, new Rotation2d(0)),
-        config);
-    System.out.println(exampleTrajectory);
-
-    m_robotDrive.thetaController.enableContinuousInput(-Math.PI, Math.PI);
-
-    SwerveControllerCommand swerveControllerCommand = new SwerveControllerCommand(
-        exampleTrajectory,
-        m_robotDrive::getPose, // Functional interface to feed supplier
-        Swerve2DriveSubsystem.kDriveKinematics,
-
-        // Position controllers
-        m_robotDrive.xController,
-        m_robotDrive.yController,
-        m_robotDrive.thetaController,
-        () -> new Rotation2d(),
-        m_robotDrive::setModuleStates,
-        m_robotDrive);
-
-    // Reset odometry to the starting pose of the trajectory.
-    // m_robotDrive.resetOdometry(exampleTrajectory.getInitialPose());
-
-    // Run path following command, then stop at the end.
-    return swerveControllerCommand.andThen(() -> m_robotDrive.drive(0, 0, 0, false));
+    return null;
   }
 
   public void runTest() {
@@ -233,15 +165,5 @@ public class RobotContainer implements Sendable {
     builder.addDoubleProperty("theta controller error", () -> m_robotDrive.thetaController.getPositionError(), null);
     builder.addDoubleProperty("x controller error", () -> m_robotDrive.xController.getPositionError(), null);
     builder.addDoubleProperty("y controller error", () -> m_robotDrive.yController.getPositionError(), null);
-  }
-
-  public void resetAHRS() {
-    System.out.println("GYYYYYYYYYYRPOOOOOOOOOOOOOOOOOOOOOO " + m_robotDrive.getHeading().getDegrees());
-    System.out.println("DEGREEEEEEEEEEEEES " + m_robotDrive.getPose().getRotation().getDegrees());
-    m_robotDrive.resetAHRS2();
-  }
-
-  public void resetPose(){
-    m_robotDrive.resetPose();
   }
 }

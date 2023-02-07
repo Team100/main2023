@@ -58,22 +58,12 @@ public class Robot extends TimedRobot {
   /** This autonomous runs the autonomous command selected by your {@link RobotContainer} class. */
   @Override
   public void autonomousInit() {
-    // m_robotContainer.resetAHRS();
-    // m_robotContainer.resetPose();
-    // m_robotContainer.resetAHRS();
 
-    m_autonomousCommand = m_robotContainer.getAutonomousCommand();
+    m_autonomousCommand = m_robotContainer.getAutonomousCommand2();
 
-    /*
-     * String autoSelected = SmartDashboard.getString("Auto Selector",
-     * "Default"); switch(autoSelected) { case "My Auto": autonomousCommand
-     * = new MyAutoCommand(); break; case "Default Auto": default:
-     * autonomousCommand = new ExampleCommand(); break; }
-     */
 
     // schedule the autonomous command (example)
     if (m_autonomousCommand != null) {
-      System.out.println("autonomous**************");
       m_autonomousCommand.schedule();
     }
   }
@@ -85,8 +75,6 @@ public class Robot extends TimedRobot {
   @Override
   public void teleopInit() {
     System.out.println("teleopInit");
-    m_robotContainer.resetPose();
-    m_robotContainer.resetAHRS();
 
     // This makes sure that the autonomous stops running when
     // teleop starts running. If you want the autonomous to

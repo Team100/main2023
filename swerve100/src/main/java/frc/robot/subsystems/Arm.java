@@ -27,12 +27,12 @@ public class Arm extends ProfiledPIDSubsystem{
 
   PIDController lowerArmController = new PIDController(0.1, 0, 0);
 
-  private final AnalogEncoder encoder0 = new AnalogEncoder(0);
-  private final AnalogEncoder encoder1 = new AnalogEncoder(1);
+  private final AnalogEncoder encoder0 = new AnalogEncoder(5);
+  private final AnalogEncoder encoder1 = new AnalogEncoder(4);
   
   public Arm() {
     
-
+  
     super(
         new ProfiledPIDController(
             0.1,
@@ -65,7 +65,7 @@ public class Arm extends ProfiledPIDSubsystem{
             .withSensorPhase(false)
             .withTimeout(10)
             .withCurrentLimitEnabled(true)
-            .withCurrentLimit(20)
+            .withCurrentLimit(30)
             // .withOpenLoopRampRate(Constants.IndexerConstants.IndexerMotors.IndexerStageOne.OPEN_LOOP_RAMP)
             .withPeakOutputForward(0.3)
             .withPeakOutputReverse(-0.3)
@@ -86,7 +86,7 @@ public class Arm extends ProfiledPIDSubsystem{
   }
 
   public void setLowerArm(double x){
-    if ((getLowerArm() >= 0.9 && x < 0) || (getLowerArm() <= 0.75 && x>0)) {
+    if ((getLowerArm() >= 0.97 && x < 0) || (getLowerArm() <= 0.73 && x>0)) {
       lowerArm.drivePercentOutput(0);
       upperArm.drivePercentOutput(0);
     }else{
@@ -115,7 +115,7 @@ public class Arm extends ProfiledPIDSubsystem{
   }
 
   public void setUpperArm(double x){
-    if ( (getUpperArm() < 0.2 && x < 0) || getUpperArm() > 0.48 && x > 0) {
+    if  (getUpperArm() > 0.44 && x > 0) {
       upperArm.drivePercentOutput(0);
     }else{
       upperArm.drivePercentOutput(x);
@@ -126,16 +126,16 @@ public class Arm extends ProfiledPIDSubsystem{
 
   public double getLowerArm(){
     
-    return encoder0.getAbsolutePosition(); 
+    return encoder1.getAbsolutePosition(); 
   }
 
   public double getUpperArm(){
-    return encoder1.getAbsolutePosition();
+    return encoder0.getAbsolutePosition();
     
   }
   
   @Override
-  public void initSendable(SendableBuilder builder) {
+  public void initSendable(SendableBuilder builder) { 
     super.initSendable(builder);
     builder.addDoubleProperty("Encoder 0", () -> getLowerArm(), null);
     builder.addDoubleProperty("Encoder 1", () -> getUpperArm(), null);
