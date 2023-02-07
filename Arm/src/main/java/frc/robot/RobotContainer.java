@@ -7,14 +7,19 @@ package frc.robot;
 import frc.robot.Constants.OperatorConstants;
 import frc.robot.commands.Autos;
 import frc.robot.commands.ExampleCommand;
+import frc.robot.commands.driveLowerArm;
 import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.ExampleSubsystem;
+import frc.robot.subsystems.Manipulator;
 
 import java.sql.Driver;
 
+import edu.wpi.first.math.controller.ArmFeedforward;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
@@ -28,7 +33,9 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 public class RobotContainer {
   // The robot's subsystems and commands are defined here...
   private final ExampleSubsystem m_exampleSubsystem = new ExampleSubsystem();
-
+  private static final XboxController m_driverController = new XboxController(0);
+  private static final JoystickButton bButton = new JoystickButton(m_driverController, 2);
+  private final Manipulator manipulator = new Manipulator();
   // Replace with CommandPS4Controller or CommandJoystick if needed
   private final XboxController xboxController = new XboxController(0);
 
@@ -53,6 +60,10 @@ public class RobotContainer {
    * joysticks}.
    */
   private void configureBindings() {
+    manipulator.setDefaultCommand(new RunCommand( () -> manipulator.pinch(m_driverController.getRightY()), manipulator));
+
+    // manipulator.setDefaultCommand(new RunCommand( () -> manipulator.pinchv2( m_driverController.getRightTriggerAxis(), m_driverController.getLeftTriggerAxis()), manipulator));
+
     // // Schedule `ExampleCommand` when `exampleCondition` changes to `true`
     // new Trigger(m_exampleSubsystem::exampleCondition)
     //     .onTrue(new ExampleCommand(m_exampleSubsystem));
@@ -60,7 +71,12 @@ public class RobotContainer {
     // Schedule `exampleMethodCommand` when the Xbox controller's B button is pressed,
     // cancelling on release.
     // m_driverController.b().whileTrue(m_exampleSubsystem.exampleMethodCommand());
-
+    bButton.onTrue(Commands.runOnce(
+      () -> {
+        arm.setGoal(0.3);
+        arm.enable();
+      },
+      arm));
     arm.setDefaultCommand(driveLowerArm);
   }
 
