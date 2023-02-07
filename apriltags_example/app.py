@@ -32,7 +32,7 @@ class MyColorAnalyzer(GreyYUVAnalysis):
         super(MyColorAnalyzer, self).__init__(camera)
         cs = CameraServer.getInstance()
         #NetworkTables Rio as server
-        NetworkTables.initialize(server = '10.1.0.14')
+        NetworkTables.initialize(server = '10.1.0.2')
         #NetworkTables Pi as server
         #NetworkTables.initialize()
         # Wait for NetworkTables to start
