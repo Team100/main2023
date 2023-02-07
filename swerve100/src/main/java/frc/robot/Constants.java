@@ -73,6 +73,39 @@ public final class Constants {
                 .setKinematics(SwerveDriveSubsystem.kDriveKinematics);
     }
 
+    // Constraint for the motion profiled robot angle controller
+    public static final TrapezoidProfile.Constraints kThetaControllerConstraints =
+        new TrapezoidProfile.Constraints(
+            kMaxAngularSpeedRadiansPerSecond, kMaxAngularSpeedRadiansPerSecondSquared);
+  }
+
+
+  // swerve 2
+  // public static final class SwerveConstants {
+  //   //public static final double FRONT_LEFT_TURNING_OFFSET = .86;
+  //   //public static final double FRONT_RIGHT_TURNING_OFFSET = .55;
+  //   //public static final double REAR_LEFT_TURNING_OFFSET = .75;
+  //   //public static final double REAR_RIGHT_TURNING_OFFSET = .75;
+
+  //   public static final double FRONT_LEFT_TURNING_OFFSET = 0.012360;
+  //   public static final double FRONT_RIGHT_TURNING_OFFSET = 0.543194;
+  //   public static final double REAR_LEFT_TURNING_OFFSET = 0.744816;
+  //   public static final double REAR_RIGHT_TURNING_OFFSET = 0.750468;
+  //   public static final double kTrackWidth = 0.38;
+  //   public static final double kWheelBase = 0.445;
+  // }
+
+  // swerve1
+
+  // public static final class SwerveConstants {
+  //   public static final double FRONT_LEFT_TURNING_OFFSET = .984;
+  //   public static final double FRONT_RIGHT_TURNING_OFFSET = .873 - 0.5;
+  //   public static final double REAR_LEFT_TURNING_OFFSET = .719;
+  //   public static final double REAR_RIGHT_TURNING_OFFSET = .688;
+  //   public static final double kTrackWidth = 0.449;
+  //   public static final double kWheelBase = 0.464;
+  // }
+
   // squarebot
   public static final class SwerveConstants {
 
