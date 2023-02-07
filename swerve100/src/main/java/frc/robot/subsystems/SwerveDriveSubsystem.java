@@ -18,11 +18,9 @@ import edu.wpi.first.wpilibj.SerialPort;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
-import frc.robot.RobotContainer;
 import frc.robot.Constants.AutoConstants;
+import frc.robot.RobotContainer;
 import frc.robot.localization.VisionDataProvider;
-import frc.robot.commands.ArmHigh;
-import frc.robot.localization.RobotPose;
 
 /**
  * This is a copy of DriveSubsystem for the second AndyMark swerve base.
