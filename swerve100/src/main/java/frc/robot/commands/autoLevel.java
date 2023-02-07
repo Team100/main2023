@@ -6,11 +6,9 @@ package frc.robot.commands;
 
 import com.kauailabs.navx.frc.AHRS;
 
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.SwerveDriveSubsystem;
-import edu.wpi.first.math.MathUtil;
-import edu.wpi.first.math.spline.PoseWithCurvature;
-import edu.wpi.first.wpilibj.SerialPort;
 
 public class autoLevel extends CommandBase {
   private final SwerveDriveSubsystem drivetrain;
