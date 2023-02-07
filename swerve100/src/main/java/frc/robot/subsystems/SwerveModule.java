@@ -19,10 +19,20 @@ public class SwerveModule implements Sendable {
     public static final double kMaxModuleAngularSpeedRadiansPerSecond = 20 * Math.PI;
     public static final double kMaxModuleAngularAccelerationRadiansPerSecondSquared = 20 * Math.PI;
 
-    public static final double kWheelDiameterMeters = 0.1016; // AndyMark Swerve & Steer has 4 inch wheel
-    public static final double kDriveReduction = 6.67; // see andymark.com/products/swerve-and-steer
+    /*
+     * THESE ARE FOR THE ANDYMARK BASES
+     */
+    //public static final double kWheelDiameterMeters = 0.1016; // AndyMark Swerve & Steer has 4 inch wheel
+    //public static final double kDriveReduction = 6.67; // see andymark.com/products/swerve-and-steer
 
-    public static final double kPModuleTurningController = 1;
+    /*
+     * THESE ARE FOR THE SQUAREBOT WCP BASE
+     */
+    public static final double kWheelDiameterMeters = 0.1005; // WCP 4 inch wheel
+    public static final double kDriveReduction = 6.55; // see wcproducts.com
+
+     
+    public static final double kPModuleTurningController = 0.5;
 
     public static final double kPModuleDriveController = .1;
 
@@ -69,7 +79,7 @@ public class SwerveModule implements Sendable {
 
         m_turningFeedforward = new SimpleMotorFeedforward(0.1, 0.005); // TODO: real values for kS and kV.
         SmartDashboard.putData(String.format("Swerve Module %s", m_name), this);
-        m_driveFeedforward = new SimpleMotorFeedforward(0.0, .25);
+        m_driveFeedforward = new SimpleMotorFeedforward(0.0, .5);
         // TODO: extract this config
     }
 
@@ -178,8 +188,7 @@ public class SwerveModule implements Sendable {
         builder.addDoubleProperty("driveFeedForwardOutput", this::getdFeedForward, null);
         builder.addDoubleProperty("drive controller position error", () -> m_drivePIDController.getPositionError(), null );
         builder.addDoubleProperty("drive controller velocity error", () -> m_drivePIDController.getVelocityError(), null );
-        builder.addDoubleProperty("turning controller velocity error", () -> m_turningPIDController.getPositionError(), null );
+        builder.addDoubleProperty("turning controller position error", () -> m_turningPIDController.getPositionError(), null );
         // builder.addDoubleProperty("TURNING OUTPUT", () -> m_turningMotor, null );
-
     }
 }

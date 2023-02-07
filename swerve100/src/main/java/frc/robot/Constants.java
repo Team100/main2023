@@ -6,7 +6,6 @@ package frc.robot;
 
 import edu.wpi.first.math.trajectory.TrajectoryConfig;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
-import edu.wpi.first.math.trajectory.constraint.TrajectoryConstraint;
 import frc.robot.subsystems.SwerveDriveSubsystem;
 
 /**
@@ -55,6 +54,8 @@ public final class Constants {
         public static final TrapezoidProfile.Constraints kThetaControllerConstraints = new TrapezoidProfile.Constraints(
                 kMaxAngularSpeedRadiansPerSecond, kMaxAngularSpeedRadiansPerSecondSquared);
 
+
+
         public static final TrapezoidProfile.Constraints kXControllerConstraints = new TrapezoidProfile.Constraints(
                 kMaxSpeedMetersPerSecond, kMaxAccelerationMetersPerSecondSquared);
 
@@ -71,34 +72,83 @@ public final class Constants {
                 .setKinematics(SwerveDriveSubsystem.kDriveKinematics);
     }
 
-    // swerve 2
-    // public static final class SwerveConstants {
-    //     // public static final double FRONT_LEFT_TURNING_OFFSET = .86;
-    //     // public static final double FRONT_RIGHT_TURNING_OFFSET = .55;
-    //     // public static final double REAR_LEFT_TURNING_OFFSET = .75;
-    //     // public static final double REAR_RIGHT_TURNING_OFFSET = .75;
-    //     public static final double FRONT_LEFT_TURNING_OFFSET = 0.012360;
-    //     public static final double FRONT_RIGHT_TURNING_OFFSET = 0.543194;
-    //     public static final double REAR_LEFT_TURNING_OFFSET = 0.744816;
-    //     public static final double REAR_RIGHT_TURNING_OFFSET = 0.750468;
-    //     public static final double kTrackWidth = 0.38;
-    //     public static final double kWheelBase = 0.445;
-    // }
+    // Constraint for the motion profiled robot angle controller
+    // public static final TrapezoidProfile.Constraints kThetaControllerConstraints =
+    //     new TrapezoidProfile.Constraints(
+    //         kMaxAngularSpeedRadiansPerSecond, kMaxAngularSpeedRadiansPerSecondSquared);
+  
+
+
+  // swerve 2
+  // public static final class SwerveConstants {
+  //   //public static final double FRONT_LEFT_TURNING_OFFSET = .86;
+  //   //public static final double FRONT_RIGHT_TURNING_OFFSET = .55;
+  //   //public static final double REAR_LEFT_TURNING_OFFSET = .75;
+  //   //public static final double REAR_RIGHT_TURNING_OFFSET = .75;
+
+  //   public static final double FRONT_LEFT_TURNING_OFFSET = 0.012360;
+  //   public static final double FRONT_RIGHT_TURNING_OFFSET = 0.543194;
+  //   public static final double REAR_LEFT_TURNING_OFFSET = 0.744816;
+  //   public static final double REAR_RIGHT_TURNING_OFFSET = 0.750468;
+  //   public static final double kTrackWidth = 0.38;
+  //   public static final double kWheelBase = 0.445;
+  // }
+
+  // swerve1
+
+  // public static final class SwerveConstants {
+  //   public static final double FRONT_LEFT_TURNING_OFFSET = .984;
+  //   public static final double FRONT_RIGHT_TURNING_OFFSET = .873 - 0.5;
+  //   public static final double REAR_LEFT_TURNING_OFFSET = .719;
+  //   public static final double REAR_RIGHT_TURNING_OFFSET = .688;
+  //   public static final double kTrackWidth = 0.449;
+  //   public static final double kWheelBase = 0.464;
+  // }
+
+  // squarebot
+  public static final class SwerveConstants {
+
+    public static final double FRONT_LEFT_TURNING_OFFSET = .812;
+    public static final double FRONT_RIGHT_TURNING_OFFSET = .382;
+    public static final double REAR_LEFT_TURNING_OFFSET = .172;
+    public static final double REAR_RIGHT_TURNING_OFFSET = .789;
+    public static final double kTrackWidth = 0.65;
+    public static final double kWheelBase = 0.65;
+  }
+
+  public static final class swerveMeasurments {
+    
+  }
+
+  // swerve 2
+  // public static final class SwerveConstants {
+  //   //public static final double FRONT_LEFT_TURNING_OFFSET = .86;
+  //   //public static final double FRONT_RIGHT_TURNING_OFFSET = .55;
+  //   //public static final double REAR_LEFT_TURNING_OFFSET = .75;
+  //   //public static final double REAR_RIGHT_TURNING_OFFSET = .75;
+
+  //   public static final double FRONT_LEFT_TURNING_OFFSET = 0.012360;
+  //   public static final double FRONT_RIGHT_TURNING_OFFSET = 0.543194;
+  //   public static final double REAR_LEFT_TURNING_OFFSET = 0.744816;
+  //   public static final double REAR_RIGHT_TURNING_OFFSET = 0.750468;
+  //   public static final double kTrackWidth = 0.38;
+  //   public static final double kWheelBase = 0.445;
+  // }
 
     // swerve1
 
-    public static final class SwerveConstants {
+    // public static final class SwerveConstants {
 
-    public static final double FRONT_LEFT_TURNING_OFFSET = 0.69;//.69;
-    public static final double FRONT_RIGHT_TURNING_OFFSET = 0.71; //.7;
-    public static final double REAR_LEFT_TURNING_OFFSET = 0.36; //36;
-    public static final double REAR_RIGHT_TURNING_OFFSET = 0.98; //.99;
-    public static final double kTrackWidth = 0.449;
-    public static final double kWheelBase = 0.464;
-    }
+    // public static final double FRONT_LEFT_TURNING_OFFSET = 0.69;//.69;
+    // public static final double FRONT_RIGHT_TURNING_OFFSET = 0.71; //.7;
+    // public static final double REAR_LEFT_TURNING_OFFSET = 0.36; //36;
+    // public static final double REAR_RIGHT_TURNING_OFFSET = 0.98; //.99;
+    // public static final double kTrackWidth = 0.449;
+    // public static final double kWheelBase = 0.464;
+    // }
 
-    public static final class swerveMeasurments {
+    // public static final class swerveMeasurments {
 
-    }
+    // }
 
 }

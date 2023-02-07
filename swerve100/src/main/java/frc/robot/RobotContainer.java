@@ -10,6 +10,8 @@ import java.util.List;
 
 import javax.swing.plaf.basic.BasicBorders.ButtonBorder;
 
+import com.kauailabs.navx.frc.AHRS;
+
 import edu.wpi.first.apriltag.AprilTag;
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
@@ -44,9 +46,12 @@ import frc.robot.autonomous.SanjanAutonomous;
 
 import frc.robot.autonomous.MoveToAprilTag;
 import frc.robot.commands.ResetPose;
-// import frc.robot.commands.trajec;
+import frc.robot.subsystems.Arm;
+import frc.robot.subsystems.Manipulator;
 import frc.robot.subsystems.SwerveDriveSubsystem;
 import edu.wpi.first.apriltag.AprilTagFields;
+
+import frc.robot.commands.*;;
 
 /*
  * This class is where the bulk of the robot should be declared.  Since Command-based is a
@@ -64,13 +69,31 @@ public class RobotContainer implements Sendable {
   //Button Bindings
   private static final XboxController m_driverController = new XboxController(OIConstants.kDriverControllerPort);
   Trigger LB = new JoystickButton(m_driverController, XboxController.Button.kLeftBumper.value);
+  ///////////////////////
+  //
+  // TODO: resolve the use of joystick buttons here.
   JoystickButton Y = new JoystickButton(m_driverController, XboxController.Button.kY.value);
+  // Trigger yButton = new JoystickButton(m_driverController, XboxController.Button.kY.value);
+  //
+  ///////////////////////
+  
+  JoystickButton bButton = new JoystickButton(m_driverController2, 2);
   public final static Field2d m_field = new Field2d();
   JoystickButton A = new JoystickButton(m_driverController, 1);
   JoystickButton B = new JoystickButton(m_driverController, 2);
 
+  private static final XboxController m_driverController2 = new XboxController(1);
+  // private static final JoystickButton bButton = new JoystickButton(m_driverController, 2);
+  private final Manipulator manipulator = new Manipulator();
+
+ private Arm arm = new Arm();
+
+  private driveLowerArm driveLowerArm = new driveLowerArm(arm, m_driverController2);
+
+
   //Commands
   ResetPose resetPose = new ResetPose(m_robotDrive, new Pose2d(new Translation2d(0, 0), new Rotation2d(0)));
+  autoLevel autoLevel = new autoLevel(m_robotDrive.m_gyro, m_robotDrive);
   /**
    * The container for the robot. Contains subsystems, OI devices, and commands.
    */
@@ -89,6 +112,13 @@ public class RobotContainer implements Sendable {
         new RunCommand(
             () -> {
               m_robotDrive.drive(
+////////////////////
+//
+// TODO: resolve the use of scaling here.
+//                  -m_driverController.getRightY(),
+//                  -m_driverController.getRightX(),
+//                  -m_driverController.getLeftX(),
+//                  false);
                   -m_driverController.getRightY() / 2,
                   -m_driverController.getRightX() / 2,
                   -m_driverController.getLeftX() / 2,
@@ -97,6 +127,15 @@ public class RobotContainer implements Sendable {
             m_robotDrive));
 
     SmartDashboard.putData("Robot Container", this);
+
+    ArmHigh armHigh = new ArmHigh(arm);
+
+    manipulator.setDefaultCommand(new RunCommand( () -> manipulator.pinchv2(m_driverController2.getRightTriggerAxis(), m_driverController2.getLeftTriggerAxis()), manipulator));
+    arm.setDefaultCommand(driveLowerArm);
+
+    bButton.onTrue(armHigh);
+
+
   }
 
   /**
@@ -109,9 +148,15 @@ public class RobotContainer implements Sendable {
    * {@link JoystickButton}.
    */
   private void configureButtonBindings() {
+//////////////////////////
+//
+// TODO: resolve the use of buttons here
+//
+    LB.onTrue(resetPose);
+    Y.onTrue(autoLevel);
+
     // LB.onTrue(resetPose);
     // Y.onTrue(new MoveToAprilTag(m_robotDrive, 3));
-
     Y.onTrue(new SanjanAutonomous(m_robotDrive));
 
     A.onTrue(resetPose);

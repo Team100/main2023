@@ -10,7 +10,11 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class FalconDriveMotor implements DriveMotor {
     private final WPI_TalonFX m_motor;
-    public static final double kDriveCurrentLimit = 40;
+////////////
+//
+// TODO make current limits part of the config
+    public static final double kDriveCurrentLimit = 5;
+    // public static final double kDriveCurrentLimit = 50;
 
     public FalconDriveMotor(String name, int canId) {
         m_motor = new WPI_TalonFX(canId);
@@ -18,8 +22,7 @@ public class FalconDriveMotor implements DriveMotor {
         m_motor.configStatorCurrentLimit(
             new StatorCurrentLimitConfiguration(true, kDriveCurrentLimit, kDriveCurrentLimit, 0));
         m_motor.configSupplyCurrentLimit(
-            new SupplyCurrentLimitConfiguration(true, kDriveCurrentLimit, kDriveCurrentLimit, 0));
-       
+            new SupplyCurrentLimitConfiguration(true, kDriveCurrentLimit, kDriveCurrentLimit, 0)); 
         SmartDashboard.putData(String.format("Falcon Drive Motor %s", name), this);
     }
 
