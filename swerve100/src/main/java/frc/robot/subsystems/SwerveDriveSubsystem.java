@@ -46,40 +46,44 @@ public class SwerveDriveSubsystem extends SubsystemBase {
     RobotPose m_pose = new RobotPose();
 
     private final SwerveModule m_frontLeft = SwerveModuleFactory
-            .newSwerveModuleWithFalconDriveAndAnalogSteeringEncoders(
+            .newSwerveModule(
                     "Front Left",
                     11,
-                    0, // motor
+                 //   0, // motor
+                    30, // motor
                     2, // encoder
                     false, // drive reverse
                     false, // steer encoder reverse
                     Constants.SwerveConstants.FRONT_LEFT_TURNING_OFFSET);
 
     private final SwerveModule m_frontRight = SwerveModuleFactory
-            .newSwerveModuleWithFalconDriveAndAnalogSteeringEncoders(
+            .newSwerveModule(
                     "Front Right",
                     12,
-                    2, // motor
+                   // 2, // motor
+                    32, // motor
                     0, // encoder
                     false, // drive reverse
                     false, // steer encoder reverse
                     Constants.SwerveConstants.FRONT_RIGHT_TURNING_OFFSET);
 
     private final SwerveModule m_rearLeft = SwerveModuleFactory
-            .newSwerveModuleWithFalconDriveAndAnalogSteeringEncoders(
+            .newSwerveModule(
                     "Rear Left",
                     21,
-                    1, // motor
+                    //1, // motor
+                    31, // motor
                     3, // encoder
                     false, // drive reverse
                     false, // steer encoder reverse
                     Constants.SwerveConstants.REAR_LEFT_TURNING_OFFSET);
 
     private final SwerveModule m_rearRight = SwerveModuleFactory
-            .newSwerveModuleWithFalconDriveAndAnalogSteeringEncoders(
+            .newSwerveModule(
                     "Rear Right",
                     22,
-                    3, // motor
+                    //3, // motor
+                    33, // motor
                     1, // encoder
                     false, // drive reverse
                     false, // steer encoder reverse

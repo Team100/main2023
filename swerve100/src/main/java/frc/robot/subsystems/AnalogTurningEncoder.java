@@ -45,5 +45,6 @@ public class AnalogTurningEncoder implements TurningEncoder {
         builder.addDoubleProperty("Channel", this::getChannel, null);
         builder.addDoubleProperty("Angle", this::getAngle, null);
         builder.addDoubleProperty("Turns", () -> m_encoder.get(), null);
+        builder.addDoubleProperty("absolute", () -> m_encoder.getAbsolutePosition(), null);
     }
 }
