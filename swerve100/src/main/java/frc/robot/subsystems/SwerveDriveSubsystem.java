@@ -21,6 +21,8 @@ import frc.robot.Constants;
 import frc.robot.RobotContainer;
 import frc.robot.Constants.AutoConstants;
 import frc.robot.localization.VisionDataProvider;
+import frc.robot.commands.ArmHigh;
+import frc.robot.localization.RobotPose;
 
 /**
  * This is a copy of DriveSubsystem for the second AndyMark swerve base.
@@ -46,6 +48,10 @@ public class SwerveDriveSubsystem extends SubsystemBase {
     public static final double kMaxSpeedMetersPerSecond = 4;
     public static final double kMaxAngularSpeedRadiansPerSecond = -5;
 
+
+///////////////////////
+//
+// TODO make the numbers below, and actually this whole factory, part of the config
     private final SwerveModule m_frontLeft = SwerveModuleFactory
             .newSwerveModule(
                     "Front Left",
@@ -91,7 +97,7 @@ public class SwerveDriveSubsystem extends SubsystemBase {
                     Constants.SwerveConstants.REAR_RIGHT_TURNING_OFFSET);
 
     // The gyro sensor. We have a Nav-X.
-    private final AHRS m_gyro;
+    public final AHRS m_gyro;
     // Odometry class for tracking robot pose
     SwerveDrivePoseEstimator m_poseEstimator;
 
@@ -102,6 +108,7 @@ public class SwerveDriveSubsystem extends SubsystemBase {
     VisionDataProvider visionDataProvider;
 
     boolean moving = false;
+
 
     public PIDController xController = new PIDController(AutoConstants.kPXController, AutoConstants.kIXController,
             AutoConstants.kDXController);
