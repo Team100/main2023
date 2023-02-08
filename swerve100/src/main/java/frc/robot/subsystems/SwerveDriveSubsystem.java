@@ -5,6 +5,7 @@ import com.kauailabs.navx.frc.AHRS;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
+import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -13,115 +14,208 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.SerialPort;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.Constants;
-import frc.robot.Constants.AutoConstants;
 import frc.robot.RobotContainer;
 import frc.robot.localization.VisionDataProvider;
+import team100.config.Identity;
 
-/**
- * This is a copy of DriveSubsystem for the second AndyMark swerve base.
- * 
- * It would be good to combine this with the DriveSubsystem somehow.
- */
+@SuppressWarnings("unused")
 public class SwerveDriveSubsystem extends SubsystemBase {
+    // TODO: make this an instance var
+    public static final SwerveDriveKinematics kDriveKinematics;
 
-    public static final double kTrackWidth = Constants.SwerveConstants.kTrackWidth;
-    public static final double kWheelBase = Constants.SwerveConstants.kWheelBase;
-    
+    static {
+        final double kTrackWidth;
+        final double kWheelBase;
+        switch (Identity.get()) {
+            case SQUAREBOT:
+                kTrackWidth = 0.650;
+                kWheelBase = 0.650;
+                break;
+            case SWERVE_TWO:
+                kTrackWidth = 0.380;
+                kWheelBase = 0.445;
+                break;
+            case SWERVE_ONE:
+                kTrackWidth = 0.449;
+                kWheelBase = 0.464;
+                break;
+            default:
+                throw new IllegalStateException("Identity is not swerve: " + Identity.get().name());
+        }
 
-    public static final SwerveDriveKinematics kDriveKinematics = new SwerveDriveKinematics(
-            new Translation2d(kWheelBase / 2, kTrackWidth / 2),
-            new Translation2d(kWheelBase / 2, -kTrackWidth / 2),
-            new Translation2d(-kWheelBase / 2, kTrackWidth / 2),
-            new Translation2d(-kWheelBase / 2, -kTrackWidth / 2));
+        kDriveKinematics = new SwerveDriveKinematics(
+                new Translation2d(kWheelBase / 2, kTrackWidth / 2),
+                new Translation2d(kWheelBase / 2, -kTrackWidth / 2),
+                new Translation2d(-kWheelBase / 2, kTrackWidth / 2),
+                new Translation2d(-kWheelBase / 2, -kTrackWidth / 2));
+    }
 
-    public static final double ksVolts = 2;
-    public static final double kvVoltSecondsPerMeter = 2.0;
-    public static final double kaVoltSecondsSquaredPerMeter = 0.5;
+    // TODO: what were these for?
+    // public static final double ksVolts = 2;
+    // public static final double kvVoltSecondsPerMeter = 2.0;
+    // public static final double kaVoltSecondsSquaredPerMeter = 0.5;
 
+    // SLOW SETTINGS
     public static final double kMaxSpeedMetersPerSecond = 4;
-    public static final double kMaxAngularSpeedRadiansPerSecond = -5;
+    public static final double kMaxAccelerationMetersPerSecondSquared = 1;
+    // NOTE joel 2/8 used to be negative; inversions broken somewhere?
+    public static final double kMaxAngularSpeedRadiansPerSecond = 5;
+    public static final double kMaxAngularSpeedRadiansPerSecondSquared = 10;
 
+    // FAST SETTINGS. can the robot actually go this fast?
+    // public static final double kMaxSpeedMetersPerSecond = 8;
+    // public static final double kMaxAccelerationMetersPerSecondSquared = 3;
+    // public static final double kMaxAngularSpeedRadiansPerSecond = 10;
+    // public static final double kMaxAngularSpeedRadiansPerSecondSquared = 100;
 
-///////////////////////
-//
-// TODO make the numbers below, and actually this whole factory, part of the config
-    private final SwerveModule m_frontLeft = SwerveModuleFactory
-            .newSwerveModule(
-                    "Front Left",
-                    11,
-                 //   0, // motor
-                    30, // motor
-                    2, // encoder
-                    false, // drive reverse
-                    false, // steer encoder reverse
-                    Constants.SwerveConstants.FRONT_LEFT_TURNING_OFFSET);
-
-    private final SwerveModule m_frontRight = SwerveModuleFactory
-            .newSwerveModule(
-                    "Front Right",
-                    12,
-                   // 2, // motor
-                    32, // motor
-                    0, // encoder
-                    false, // drive reverse
-                    false, // steer encoder reverse
-                    Constants.SwerveConstants.FRONT_RIGHT_TURNING_OFFSET);
-
-    private final SwerveModule m_rearLeft = SwerveModuleFactory
-            .newSwerveModule(
-                    "Rear Left",
-                    21,
-                    //1, // motor
-                    31, // motor
-                    3, // encoder
-                    false, // drive reverse
-                    false, // steer encoder reverse
-                    Constants.SwerveConstants.REAR_LEFT_TURNING_OFFSET);
-
-    private final SwerveModule m_rearRight = SwerveModuleFactory
-            .newSwerveModule(
-                    "Rear Right",
-                    22,
-                    //3, // motor
-                    33, // motor
-                    1, // encoder
-                    false, // drive reverse
-                    false, // steer encoder reverse
-                    Constants.SwerveConstants.REAR_RIGHT_TURNING_OFFSET);
+    private final SwerveModule m_frontLeft;
+    private final SwerveModule m_frontRight;
+    private final SwerveModule m_rearLeft;
+    private final SwerveModule m_rearRight;
 
     // The gyro sensor. We have a Nav-X.
     public final AHRS m_gyro;
     // Odometry class for tracking robot pose
-    SwerveDrivePoseEstimator m_poseEstimator;
+    private final SwerveDrivePoseEstimator m_poseEstimator;
 
-    double xVelocity = 0;
-    double yVelocity = 0;
-    double thetaVelociy = 0;
+    private double xVelocity = 0;
+    private double yVelocity = 0;
+    private double thetaVelociy = 0;
 
-    VisionDataProvider visionDataProvider;
+    private VisionDataProvider visionDataProvider;
 
-    boolean moving = false;
+    private boolean moving = false;
 
+    // TODO: this looks unfinished?
+    // public static final TrapezoidProfile.Constraints kXControllerConstraints =
+    // new TrapezoidProfile.Constraints(kMaxSpeedMetersPerSecond,
+    // kMaxAccelerationMetersPerSecondSquared);
 
-    public PIDController xController = new PIDController(AutoConstants.kPXController, AutoConstants.kIXController,
-            AutoConstants.kDXController);
+    public final PIDController xController;
+    public final PIDController yController;
+    public ProfiledPIDController thetaController;
 
+    public SwerveDriveSubsystem(double currentLimit) {
+        final double Px = .15;
+        final double Ix = 0;
+        final double Dx = 0;
+        final double xTolerance = 0.2;
+        xController = new PIDController(Px, Ix, Dx);
+        xController.setTolerance(xTolerance);
 
+        final double Py = 0.15;
+        final double Iy = 0;
+        final double Dy = 0;
+        final double yTolerance = 0.2;
+        yController = new PIDController(Py, Iy, Dy);
+        yController.setTolerance(yTolerance);
 
-    public PIDController yController = new PIDController(AutoConstants.kPYController, AutoConstants.kIYController,
-            AutoConstants.kDYController);
-    public ProfiledPIDController thetaController = new ProfiledPIDController(
-            AutoConstants.kPThetaController, AutoConstants.kIThetaController, AutoConstants.kDThetaController,
-            AutoConstants.kThetaControllerConstraints);
+        final double Ptheta = 2;
+        final double Itheta = 0;
+        final double Dtheta = 0;
+        final TrapezoidProfile.Constraints thetaControllerConstraints = new TrapezoidProfile.Constraints(
+                kMaxAngularSpeedRadiansPerSecond, kMaxAngularSpeedRadiansPerSecondSquared);
+        thetaController = new ProfiledPIDController(Ptheta, Itheta, Dtheta, thetaControllerConstraints);
 
-    public SwerveDriveSubsystem() {
-        xController.setTolerance(0.2);
-        yController.setTolerance(0.2);
+        switch (Identity.get()) {
+            case SQUAREBOT:
+                m_frontLeft = WCPModule(
+                        "Front Left",
+                        11, // drive CAN
+                        30, // turn CAN
+                        2, // turn encoder
+                        0.812, // turn offset
+                        currentLimit);
+                m_frontRight = WCPModule(
+                        "Front Right",
+                        12, // drive CAN
+                        32, // turn CAN
+                        0, // turn encoder
+                        0.382, // turn offset
+                        currentLimit);
+                m_rearLeft = WCPModule(
+                        "Rear Left",
+                        21, // drive CAN
+                        31, // turn CAN
+                        3, // turn encoder
+                        0.172, // turn offset
+                        currentLimit);
+                m_rearRight = WCPModule(
+                        "Rear Right",
+                        22, // drive CAN
+                        33, // turn CAN
+                        1, // turn encoder
+                        0.789, // turn offset
+                        currentLimit);
+                break;
+            case SWERVE_TWO:
+                m_frontLeft = AMModule(
+                        "Front Left",
+                        11, // drive CAN
+                        0, // turn PWM
+                        2, // turn encoder
+                        0.012360, // turn offset
+                        currentLimit);
+                m_frontRight = AMModule(
+                        "Front Right",
+                        12, // drive CAN
+                        2, // turn PWM
+                        0, // turn encoder
+                        0.543194, // turn offset
+                        currentLimit);
+                m_rearLeft = AMModule(
+                        "Rear Left",
+                        21, // drive CAN
+                        1, // turn PWM
+                        3, // turn encoder
+                        0.744816, // turn offset
+                        currentLimit);
+                m_rearRight = AMModule(
+                        "Rear Right",
+                        22, // drive CAN
+                        3, // turn PWM
+                        1, // turn encoder
+                        0.750468, // turn offset
+                        currentLimit);
+                break;
+            case SWERVE_ONE: // TODO: verify these offsets (merge conflicts)
+                m_frontLeft = AMModule(
+                        "Front Left",
+                        11, // drive CAN
+                        0, // turn PWM
+                        2, // turn encoder
+                        0.984, // turn offset
+                        currentLimit);
+                m_frontRight = AMModule(
+                        "Front Right",
+                        12, // drive CAN
+                        2, // turn PWM
+                        0, // turn encoder
+                        0.373, // turn offset
+                        currentLimit);
+                m_rearLeft = AMModule(
+                        "Rear Left",
+                        21, // drive CAN
+                        1, // turn PWM
+                        3, // turn encoder
+                        0.719, // turn offset
+                        currentLimit);
+                m_rearRight = AMModule(
+                        "Rear Right",
+                        22, // drive CAN
+                        3, // turn PWM
+                        1, // turn encoder
+                        0.688, // turn offset
+                        currentLimit);
+                break;
+            default:
+                throw new IllegalStateException("Identity is not swerve: " + Identity.get().name());
+        }
 
         m_gyro = new AHRS(SerialPort.Port.kUSB);
         m_poseEstimator = new SwerveDrivePoseEstimator(
@@ -135,12 +229,83 @@ public class SwerveDriveSubsystem extends SubsystemBase {
                 },
                 new Pose2d(),
                 VecBuilder.fill(0.1, 0.1, 0.1),
-                VecBuilder.fill(0.9, 0.9, Integer.MAX_VALUE)
-        );
+                VecBuilder.fill(0.9, 0.9, Integer.MAX_VALUE));
 
-        visionDataProvider = new VisionDataProvider(m_poseEstimator, ()-> getMoving());
+        visionDataProvider = new VisionDataProvider(m_poseEstimator, () -> getMoving());
         SmartDashboard.putData("Drive Subsystem", this);
+    }
 
+    private static SwerveModule WCPModule(
+            String name,
+            int driveMotorCanId,
+            int turningMotorCanId,
+            int turningEncoderChannel,
+            double turningOffset,
+            double currentLimit) {
+        final double kWheelDiameterMeters = 0.1005; // WCP 4 inch wheel
+        final double kDriveReduction = 6.55; // see wcproducts.com
+        final double driveEncoderDistancePerTurn = kWheelDiameterMeters * Math.PI / kDriveReduction;
+        final double turningGearRatio = 1.0;
+        final double kPModuleDriveController = 0.1;
+        final double kPModuleTurningController = 0.5;
+        final double kMaxModuleAngularSpeedRadiansPerSecond = 20 * Math.PI;
+        final double kMaxModuleAngularAccelerationRadiansPerSecondSquared = 20 * Math.PI;
+
+        FalconDriveMotor driveMotor = new FalconDriveMotor(name, driveMotorCanId, currentLimit);
+        FalconDriveEncoder driveEncoder = new FalconDriveEncoder(name, driveMotor, driveEncoderDistancePerTurn);
+        NeoTurningMotor turningMotor = new NeoTurningMotor(name, turningMotorCanId);
+        AnalogTurningEncoder turningEncoder = new AnalogTurningEncoder(name, turningEncoderChannel, turningOffset,
+                turningGearRatio);
+        PIDController driveController = new PIDController(kPModuleDriveController, 0, 0);
+        ProfiledPIDController turningController = new ProfiledPIDController(
+                kPModuleTurningController, 0, 0,
+                new TrapezoidProfile.Constraints(
+                        kMaxModuleAngularSpeedRadiansPerSecond,
+                        kMaxModuleAngularAccelerationRadiansPerSecondSquared));
+        turningController.enableContinuousInput(0, 2 * Math.PI);
+        SimpleMotorFeedforward driveFeedforward = new SimpleMotorFeedforward(0.0, .5);
+        // TODO: real values for kS and kV.
+        SimpleMotorFeedforward turningFeedforward = new SimpleMotorFeedforward(0.1, 0.005);
+
+        return new SwerveModule(name, driveMotor, turningMotor, driveEncoder, turningEncoder,
+                driveController, turningController, driveFeedforward, turningFeedforward);
+    }
+
+    private static SwerveModule AMModule(
+            String name,
+            int driveMotorCanId,
+            int turningMotorChannel,
+            int turningEncoderChannel,
+            double turningOffset,
+            double currentLimit) {
+        final double kWheelDiameterMeters = 0.1016; // AndyMark Swerve & Steer has 4 inch wheel
+        final double kDriveReduction = 6.67; // see andymark.com/products/swerve-and-steer
+        final double driveEncoderDistancePerTurn = kWheelDiameterMeters * Math.PI / kDriveReduction;
+        final double turningGearRatio = 1.0; // andymark ma3 encoder is 1:1
+        final double kPModuleDriveController = 0.1;
+        final double kPModuleTurningController = 0.5;
+        final double kMaxModuleAngularSpeedRadiansPerSecond = 20 * Math.PI;
+        final double kMaxModuleAngularAccelerationRadiansPerSecondSquared = 20 * Math.PI;
+
+
+        FalconDriveMotor driveMotor = new FalconDriveMotor(name, driveMotorCanId, currentLimit);
+        FalconDriveEncoder driveEncoder = new FalconDriveEncoder(name, driveMotor, driveEncoderDistancePerTurn);
+        PWMTurningMotor turningMotor = new PWMTurningMotor(name, turningMotorChannel);
+        AnalogTurningEncoder turningEncoder = new AnalogTurningEncoder(name, turningEncoderChannel, turningOffset,
+                turningGearRatio);
+        PIDController driveController = new PIDController(kPModuleDriveController, 0, 0);
+        ProfiledPIDController turningController = new ProfiledPIDController(
+                kPModuleTurningController, 0, 0,
+                new TrapezoidProfile.Constraints(
+                        kMaxModuleAngularSpeedRadiansPerSecond,
+                        kMaxModuleAngularAccelerationRadiansPerSecondSquared));
+        turningController.enableContinuousInput(0, 2 * Math.PI);
+        SimpleMotorFeedforward driveFeedforward = new SimpleMotorFeedforward(0.0, .5);
+        // TODO: real values for kS and kV.
+        SimpleMotorFeedforward turningFeedforward = new SimpleMotorFeedforward(0.1, 0.005);
+
+        return new SwerveModule(name, driveMotor, turningMotor, driveEncoder, turningEncoder,
+                driveController, turningController, driveFeedforward, turningFeedforward);
     }
 
     public void updateOdometry() {
@@ -180,22 +345,24 @@ public class SwerveDriveSubsystem extends SubsystemBase {
                 robotPose);
     }
 
-    public boolean getMoving(){
+    public boolean getMoving() {
         return moving;
     }
 
     /**
      * Method to drive the robot using joystick info.
      *
-     * @param xSpeed        Speed of the robot in the x direction (forward).
-     * @param ySpeed        Speed of the robot in the y direction (sideways).
-     * @param rot           Angular rate of the robot.
+     * @param xSpeed        Speed of the robot in the x direction (positive =
+     *                      forward).
+     * @param ySpeed        Speed of the robot in the y direction (positive =
+     *                      leftward).
+     * @param rot           Angular rate of the robot (positive = counterclockwise)
      * @param fieldRelative Whether the provided x and y speeds are relative to the
      *                      field.
      */
     @SuppressWarnings("ParameterName")
     public void drive(double xSpeed, double ySpeed, double rot, boolean fieldRelative) {
-        //TODO Fix this number
+        // TODO Fix this number
 
         if (Math.abs(xSpeed) < .01)
             xSpeed = 100 * xSpeed * xSpeed * Math.signum(xSpeed);
@@ -222,7 +389,6 @@ public class SwerveDriveSubsystem extends SubsystemBase {
         m_rearRight.setDesiredState(swerveModuleStates[3]);
     }
 
-
     public void setModuleStates(SwerveModuleState[] desiredStates) {
         SwerveDriveKinematics.desaturateWheelSpeeds(
                 desiredStates, kMaxSpeedMetersPerSecond);
@@ -242,13 +408,11 @@ public class SwerveDriveSubsystem extends SubsystemBase {
         yVelocity = chassisSpeeds.vyMetersPerSecond;
         thetaVelociy = chassisSpeeds.omegaRadiansPerSecond;
 
-
-        if(xVelocity >= 0.1 || yVelocity >= 0.1 || thetaVelociy >= 0.1){
+        if (xVelocity >= 0.1 || yVelocity >= 0.1 || thetaVelociy >= 0.1) {
             moving = true;
         } else {
             moving = false;
         }
-
 
     }
 
@@ -286,14 +450,20 @@ public class SwerveDriveSubsystem extends SubsystemBase {
         builder.addDoubleProperty("Theta Controller Measurment", () -> getPose().getRotation().getRadians(), null);
         builder.addDoubleProperty("Theta Controller Setpoint", () -> thetaController.getSetpoint().position, null);
 
-        builder.addDoubleProperty("Front Left Turning Controller Output", () -> m_frontLeft.getTControllerOutput(), null);
-        builder.addDoubleProperty("Front Right Turning Controller Output", () -> m_frontRight.getTControllerOutput(), null);
+        builder.addDoubleProperty("Front Left Turning Controller Output", () -> m_frontLeft.getTControllerOutput(),
+                null);
+        builder.addDoubleProperty("Front Right Turning Controller Output", () -> m_frontRight.getTControllerOutput(),
+                null);
         builder.addDoubleProperty("Rear Left Turning Controller Output", () -> m_rearLeft.getTControllerOutput(), null);
-        builder.addDoubleProperty("Rear Right Turning Controller Output", () -> m_rearRight.getTControllerOutput(), null);
-        builder.addDoubleProperty("Front Left Driving Controller Output", () -> m_frontLeft.getDControllerOutput(), null);
-        builder.addDoubleProperty("Front Right Driving Controller Output", () -> m_frontRight.getDControllerOutput(), null);
+        builder.addDoubleProperty("Rear Right Turning Controller Output", () -> m_rearRight.getTControllerOutput(),
+                null);
+        builder.addDoubleProperty("Front Left Driving Controller Output", () -> m_frontLeft.getDControllerOutput(),
+                null);
+        builder.addDoubleProperty("Front Right Driving Controller Output", () -> m_frontRight.getDControllerOutput(),
+                null);
         builder.addDoubleProperty("Rear Left Driving Controller Output", () -> m_rearLeft.getDControllerOutput(), null);
-        builder.addDoubleProperty("Rear Right Driving Controller Output", () -> m_rearRight.getDControllerOutput(), null);
+        builder.addDoubleProperty("Rear Right Driving Controller Output", () -> m_rearRight.getDControllerOutput(),
+                null);
 
         builder.addDoubleProperty("X controller Error", () -> xController.getPositionError(), null);
         builder.addDoubleProperty("X controller Setpoint", () -> xController.getSetpoint(), null);
@@ -305,11 +475,10 @@ public class SwerveDriveSubsystem extends SubsystemBase {
 
         builder.addBooleanProperty("Moving", () -> getMoving(), null);
 
-
         builder.addDoubleProperty("X controller Velocity", () -> xVelocity, null);
         builder.addDoubleProperty("Y controller Velocity", () -> yVelocity, null);
         builder.addDoubleProperty("Theta controller Velocity", () -> thetaVelociy, null);
 
-}
+    }
 
 }

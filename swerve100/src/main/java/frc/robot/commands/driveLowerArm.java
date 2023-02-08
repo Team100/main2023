@@ -12,6 +12,7 @@ public class driveLowerArm extends CommandBase {
   /** Creates a new driveLowerArm. */
   Arm arm;
   XboxController controller;
+  // TODO: remove the controller from here
   public driveLowerArm(Arm a, XboxController xboxController) {
     // Use addRequirements() here to declare subsystem dependencies.
     arm = a;

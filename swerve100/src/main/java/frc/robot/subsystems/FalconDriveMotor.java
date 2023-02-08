@@ -10,19 +10,14 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class FalconDriveMotor implements DriveMotor {
     private final WPI_TalonFX m_motor;
-////////////
-//
-// TODO make current limits part of the config
-    public static final double kDriveCurrentLimit = 5;
-    // public static final double kDriveCurrentLimit = 50;
 
-    public FalconDriveMotor(String name, int canId) {
+    public FalconDriveMotor(String name, int canId, double kDriveCurrentLimit) {
         m_motor = new WPI_TalonFX(canId);
         m_motor.configFactoryDefault();
         m_motor.configStatorCurrentLimit(
-            new StatorCurrentLimitConfiguration(true, kDriveCurrentLimit, kDriveCurrentLimit, 0));
+                new StatorCurrentLimitConfiguration(true, kDriveCurrentLimit, kDriveCurrentLimit, 0));
         m_motor.configSupplyCurrentLimit(
-            new SupplyCurrentLimitConfiguration(true, kDriveCurrentLimit, kDriveCurrentLimit, 0)); 
+                new SupplyCurrentLimitConfiguration(true, kDriveCurrentLimit, kDriveCurrentLimit, 0));
         SmartDashboard.putData(String.format("Falcon Drive Motor %s", name), this);
     }
 
@@ -41,11 +36,6 @@ public class FalconDriveMotor implements DriveMotor {
         builder.setSmartDashboardType("FalconDriveMotor");
         builder.addDoubleProperty("Device ID", () -> m_motor.getDeviceID(), null);
         builder.addDoubleProperty("Output", this::get, null);
-    }
-
-    public void setInverted(boolean reverseDirection) {
-        // m_motor.setInverted(reverseDirection);
-        m_motor.setSensorPhase(reverseDirection);
     }
 
     public TalonFXSensorCollection getSensorCollection() {
