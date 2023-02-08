@@ -217,7 +217,7 @@ public class SwerveDriveSubsystem extends SubsystemBase {
         FalconDriveEncoder driveEncoder = new FalconDriveEncoder(name, driveMotor, driveEncoderDistancePerTurn);
         NeoTurningMotor turningMotor = new NeoTurningMotor(name, turningMotorCanId);
         AnalogTurningEncoder turningEncoder = new AnalogTurningEncoder(name, turningEncoderChannel, turningOffset,
-                turningGearRatio, false);
+                turningGearRatio);
         PIDController driveController = new PIDController(kPModuleDriveController, 0, 0);
         ProfiledPIDController turningController = new ProfiledPIDController(
                 kPModuleTurningController, 0, 0,
@@ -226,8 +226,8 @@ public class SwerveDriveSubsystem extends SubsystemBase {
                         kMaxModuleAngularAccelerationRadiansPerSecondSquared));
         turningController.enableContinuousInput(0, 2 * Math.PI);
         SimpleMotorFeedforward driveFeedforward = new SimpleMotorFeedforward(0.0, .5);
-        SimpleMotorFeedforward turningFeedforward = new SimpleMotorFeedforward(0.1, 0.005); // TODO: real values for kS
-                                                                                            // and kV.
+        // TODO: real values for kS and kV.
+        SimpleMotorFeedforward turningFeedforward = new SimpleMotorFeedforward(0.1, 0.005);
 
         return new SwerveModule(name, driveMotor, turningMotor, driveEncoder, turningEncoder,
                 driveController, turningController, driveFeedforward, turningFeedforward);
@@ -253,8 +253,8 @@ public class SwerveDriveSubsystem extends SubsystemBase {
         FalconDriveMotor driveMotor = new FalconDriveMotor(name, driveMotorCanId, kDriveCurrentLimit);
         FalconDriveEncoder driveEncoder = new FalconDriveEncoder(name, driveMotor, driveEncoderDistancePerTurn);
         PWMTurningMotor turningMotor = new PWMTurningMotor(name, turningMotorChannel);
-        AnalogTurningEncoder turningEncoder = new AnalogTurningEncoder(name,
-                turningEncoderChannel, turningOffset, turningGearRatio, false);
+        AnalogTurningEncoder turningEncoder = new AnalogTurningEncoder(name, turningEncoderChannel, turningOffset,
+                turningGearRatio);
         PIDController driveController = new PIDController(kPModuleDriveController, 0, 0);
         ProfiledPIDController turningController = new ProfiledPIDController(
                 kPModuleTurningController, 0, 0,
@@ -263,8 +263,8 @@ public class SwerveDriveSubsystem extends SubsystemBase {
                         kMaxModuleAngularAccelerationRadiansPerSecondSquared));
         turningController.enableContinuousInput(0, 2 * Math.PI);
         SimpleMotorFeedforward driveFeedforward = new SimpleMotorFeedforward(0.0, .5);
-        SimpleMotorFeedforward turningFeedforward = new SimpleMotorFeedforward(0.1, 0.005); // TODO: real values for kS
-                                                                                            // and kV.
+        // TODO: real values for kS and kV.
+        SimpleMotorFeedforward turningFeedforward = new SimpleMotorFeedforward(0.1, 0.005);
 
         return new SwerveModule(name, driveMotor, turningMotor, driveEncoder, turningEncoder,
                 driveController, turningController, driveFeedforward, turningFeedforward);

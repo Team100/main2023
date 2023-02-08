@@ -16,11 +16,10 @@ public class AnalogTurningEncoder implements TurningEncoder {
             String name,
             int channel,
             double inputOffset,
-            double gearRatio,
-            boolean reversed) {
+            double gearRatio) {
         m_encoder = new AnalogEncoder(channel);
         m_encoder.setPositionOffset(inputOffset);
-        m_encoder.setDistancePerRotation((reversed ? -1 : 1) * 2 * Math.PI / gearRatio);
+        m_encoder.setDistancePerRotation(2.0 * Math.PI / gearRatio);
 
         SmartDashboard.putData(String.format("Analog Turning Encoder %s", name), this);
     }
