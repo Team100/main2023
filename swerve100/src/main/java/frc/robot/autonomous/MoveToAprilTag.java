@@ -21,9 +21,9 @@ public class MoveToAprilTag extends TrajectoryCommand {
     int tagID;
     HashTag hashTag = new HashTag();
 
-    public MoveToAprilTag(SwerveDriveSubsystem m_robotDrive, int tD) {
+    public MoveToAprilTag(SwerveDriveSubsystem m_robotDrive, int tagID) {
         super(m_robotDrive);
-        this.tagID = tD;
+        this.tagID = tagID;
 
     }
 
