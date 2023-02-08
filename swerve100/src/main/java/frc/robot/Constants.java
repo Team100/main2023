@@ -4,9 +4,7 @@
 
 package frc.robot;
 
-import edu.wpi.first.math.trajectory.TrajectoryConfig;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
-import frc.robot.subsystems.SwerveDriveSubsystem;
 
 /**
  * The Constants class provides a convenient place for teams to hold robot-wide
@@ -54,27 +52,9 @@ public final class Constants {
         public static final TrapezoidProfile.Constraints kThetaControllerConstraints = new TrapezoidProfile.Constraints(
                 kMaxAngularSpeedRadiansPerSecond, kMaxAngularSpeedRadiansPerSecondSquared);
 
-
-
         public static final TrapezoidProfile.Constraints kXControllerConstraints = new TrapezoidProfile.Constraints(
                 kMaxSpeedMetersPerSecond, kMaxAccelerationMetersPerSecondSquared);
 
-        public static final TrajectoryConfig kTrajectoryConfig = new TrajectoryConfig(
-                AutoConstants.kMaxSpeedMetersPerSecond,
-                AutoConstants.kMaxAccelerationMetersPerSecondSquared)
-                // Add kinematics to ensure max speed is actually obeyed
-                .setKinematics(SwerveDriveSubsystem.kDriveKinematics);
-
-        public static final TrajectoryConfig kTrajectoryConfigSlow = new TrajectoryConfig(
-                AutoConstants.kMaxSpeedMetersPerSecond,
-                AutoConstants.kMaxAccelerationMetersPerSecondSquared)
-                // Add kinematics to ensure max speed is actually obeyed
-                .setKinematics(SwerveDriveSubsystem.kDriveKinematics);
-    }
-
-    // Constraint for the motion profiled robot angle controller
-    // public static final TrapezoidProfile.Constraints kThetaControllerConstraints =
-    //     new TrapezoidProfile.Constraints(
-    //         kMaxAngularSpeedRadiansPerSecond, kMaxAngularSpeedRadiansPerSecondSquared);
   
+    }
 }

@@ -10,9 +10,10 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.trajectory.Trajectory;
+import edu.wpi.first.math.trajectory.TrajectoryConfig;
 import edu.wpi.first.math.trajectory.TrajectoryGenerator;
 import edu.wpi.first.wpilibj2.command.SwerveControllerCommand;
-import frc.robot.Constants;
+import frc.robot.Constants.AutoConstants;
 import frc.robot.subsystems.SwerveDriveSubsystem;
 
 /** Add your docs here. */
@@ -35,6 +36,11 @@ public class IshanAutonomous extends SwerveControllerCommand {
                 (1.071626 - m_robotDrive.getPose().getY()),
                 (14.513558 - m_robotDrive.getPose().getX())
         );
+         final TrajectoryConfig kTrajectoryConfig = new TrajectoryConfig(
+            AutoConstants.kMaxSpeedMetersPerSecond,
+            AutoConstants.kMaxAccelerationMetersPerSecondSquared)
+            // Add kinematics to ensure max speed is actually obeyed
+            .setKinematics(SwerveDriveSubsystem.kDriveKinematics);
         // An example trajectory to follow. All units in meters.
         Trajectory exampleTrajectory = TrajectoryGenerator.generateTrajectory(
                 // Start at the origin facing the +X direction
@@ -45,7 +51,7 @@ public class IshanAutonomous extends SwerveControllerCommand {
                         (14.513558 + m_robotDrive.getPose().getX()) / 2,
                         (1.071626 + m_robotDrive.getPose().getY()) / 2)),
                     new Pose2d(14.513558, 1.071626, new Rotation2d(controlPointAngle)),
-                Constants.AutoConstants.kTrajectoryConfig
+                kTrajectoryConfig
         );
 
         return exampleTrajectory;
