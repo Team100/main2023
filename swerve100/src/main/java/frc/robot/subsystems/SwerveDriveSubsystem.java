@@ -17,27 +17,41 @@ import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.SerialPort;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.Constants;
 import frc.robot.Constants.AutoConstants;
 import frc.robot.RobotContainer;
 import frc.robot.localization.VisionDataProvider;
+import team100.config.Identity;
 
-/**
- * This is a copy of DriveSubsystem for the second AndyMark swerve base.
- * 
- * It would be good to combine this with the DriveSubsystem somehow.
- */
 public class SwerveDriveSubsystem extends SubsystemBase {
+    // TODO: make this an instance var
+    public static final SwerveDriveKinematics kDriveKinematics;
 
-    public static final double kTrackWidth = Constants.SwerveConstants.kTrackWidth;
-    public static final double kWheelBase = Constants.SwerveConstants.kWheelBase;
-    
+    static {
+        final double kTrackWidth;
+        final double kWheelBase;
+        switch (Identity.get()) {
+            case SQUAREBOT:
+                kTrackWidth = 0.650;
+                kWheelBase = 0.650;
+                break;
+            case SWERVE_TWO:
+                kTrackWidth = 0.380;
+                kWheelBase = 0.445;
+                break;
+            case SWERVE_ONE:
+                kTrackWidth = 0.449;
+                kWheelBase = 0.464;
+                break;
+            default:
+                throw new IllegalStateException("Identity is not swerve: " + Identity.get().name());
+        }
 
-    public static final SwerveDriveKinematics kDriveKinematics = new SwerveDriveKinematics(
-            new Translation2d(kWheelBase / 2, kTrackWidth / 2),
-            new Translation2d(kWheelBase / 2, -kTrackWidth / 2),
-            new Translation2d(-kWheelBase / 2, kTrackWidth / 2),
-            new Translation2d(-kWheelBase / 2, -kTrackWidth / 2));
+        kDriveKinematics = new SwerveDriveKinematics(
+                new Translation2d(kWheelBase / 2, kTrackWidth / 2),
+                new Translation2d(kWheelBase / 2, -kTrackWidth / 2),
+                new Translation2d(-kWheelBase / 2, kTrackWidth / 2),
+                new Translation2d(-kWheelBase / 2, -kTrackWidth / 2));
+    }
 
     public static final double ksVolts = 2;
     public static final double kvVoltSecondsPerMeter = 2.0;
@@ -46,53 +60,10 @@ public class SwerveDriveSubsystem extends SubsystemBase {
     public static final double kMaxSpeedMetersPerSecond = 4;
     public static final double kMaxAngularSpeedRadiansPerSecond = -5;
 
-
-///////////////////////
-//
-// TODO make the numbers below, and actually this whole factory, part of the config
-    private final SwerveModule m_frontLeft = SwerveModuleFactory
-            .newSwerveModule(
-                    "Front Left",
-                    11,
-                 //   0, // motor
-                    30, // motor
-                    2, // encoder
-                    false, // drive reverse
-                    false, // steer encoder reverse
-                    Constants.SwerveConstants.FRONT_LEFT_TURNING_OFFSET);
-
-    private final SwerveModule m_frontRight = SwerveModuleFactory
-            .newSwerveModule(
-                    "Front Right",
-                    12,
-                   // 2, // motor
-                    32, // motor
-                    0, // encoder
-                    false, // drive reverse
-                    false, // steer encoder reverse
-                    Constants.SwerveConstants.FRONT_RIGHT_TURNING_OFFSET);
-
-    private final SwerveModule m_rearLeft = SwerveModuleFactory
-            .newSwerveModule(
-                    "Rear Left",
-                    21,
-                    //1, // motor
-                    31, // motor
-                    3, // encoder
-                    false, // drive reverse
-                    false, // steer encoder reverse
-                    Constants.SwerveConstants.REAR_LEFT_TURNING_OFFSET);
-
-    private final SwerveModule m_rearRight = SwerveModuleFactory
-            .newSwerveModule(
-                    "Rear Right",
-                    22,
-                    //3, // motor
-                    33, // motor
-                    1, // encoder
-                    false, // drive reverse
-                    false, // steer encoder reverse
-                    Constants.SwerveConstants.REAR_RIGHT_TURNING_OFFSET);
+    private final SwerveModule m_frontLeft ;
+    private final SwerveModule m_frontRight ;
+    private final SwerveModule m_rearLeft ;
+    private final SwerveModule m_rearRight ;
 
     // The gyro sensor. We have a Nav-X.
     public final AHRS m_gyro;
@@ -107,11 +78,8 @@ public class SwerveDriveSubsystem extends SubsystemBase {
 
     boolean moving = false;
 
-
     public PIDController xController = new PIDController(AutoConstants.kPXController, AutoConstants.kIXController,
             AutoConstants.kDXController);
-
-
 
     public PIDController yController = new PIDController(AutoConstants.kPYController, AutoConstants.kIYController,
             AutoConstants.kDYController);
@@ -120,6 +88,29 @@ public class SwerveDriveSubsystem extends SubsystemBase {
             AutoConstants.kThetaControllerConstraints);
 
     public SwerveDriveSubsystem() {
+        switch (Identity.get()) {
+            case SQUAREBOT:
+                m_frontLeft = SwerveModuleFactory.frontLeft(0.812);
+                m_frontRight = SwerveModuleFactory.frontRight(0.382);
+                m_rearLeft = SwerveModuleFactory.rearLeft(0.172);
+                m_rearRight = SwerveModuleFactory.rearRight(0.789);
+                break;
+            case SWERVE_TWO:
+                m_frontLeft = SwerveModuleFactory.frontLeft(0.012360);
+                m_frontRight = SwerveModuleFactory.frontRight(0.543194);
+                m_rearLeft = SwerveModuleFactory.rearLeft(0.744816);
+                m_rearRight = SwerveModuleFactory.rearRight(0.750468);
+                break;
+            case SWERVE_ONE: // TODO: verify these offsets (merge conflicts)
+                m_frontLeft = SwerveModuleFactory.frontLeft(0.984);
+                m_frontRight = SwerveModuleFactory.frontRight(0.373);
+                m_rearLeft = SwerveModuleFactory.rearLeft(0.719);
+                m_rearRight = SwerveModuleFactory.rearRight(0.688);
+                break;
+            default:
+                throw new IllegalStateException("Identity is not swerve: " + Identity.get().name());
+        }
+
         xController.setTolerance(0.2);
         yController.setTolerance(0.2);
 
