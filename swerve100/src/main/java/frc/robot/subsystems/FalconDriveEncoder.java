@@ -10,11 +10,9 @@ public class FalconDriveEncoder implements DriveEncoder {
 
     public FalconDriveEncoder(String name,
             FalconDriveMotor motor,
-            double distancePerTurn,
-            boolean reverseDirection) {
+            double distancePerTurn) {
         this.m_motor = motor;
         this.m_distancePerPulse = distancePerTurn / kIntegratedSensorPulsesPerTurn;
-        m_motor.setInverted(reverseDirection);
         SmartDashboard.putData(String.format("Falcon Drive Encoder %s", name), this);
     }
 

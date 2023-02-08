@@ -38,11 +38,6 @@ public class FalconDriveMotor implements DriveMotor {
         builder.addDoubleProperty("Output", this::get, null);
     }
 
-    public void setInverted(boolean reverseDirection) {
-        // m_motor.setInverted(reverseDirection);
-        m_motor.setSensorPhase(reverseDirection);
-    }
-
     public TalonFXSensorCollection getSensorCollection() {
         return m_motor.getSensorCollection();
     }
