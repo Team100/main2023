@@ -90,22 +90,82 @@ public class SwerveDriveSubsystem extends SubsystemBase {
     public SwerveDriveSubsystem() {
         switch (Identity.get()) {
             case SQUAREBOT:
-                m_frontLeft = SwerveModuleFactory.frontLeft(0.812);
-                m_frontRight = SwerveModuleFactory.frontRight(0.382);
-                m_rearLeft = SwerveModuleFactory.rearLeft(0.172);
-                m_rearRight = SwerveModuleFactory.rearRight(0.789);
+                m_frontLeft = WCPModule(
+                        "Front Left",
+                        11, // drive CAN
+                        30, // turn CAN
+                        2, // turn encoder
+                        0.812); // turn offset
+                m_frontRight = WCPModule(
+                        "Front Right",
+                        12, // drive CAN
+                        32, // turn CAN
+                        0, // turn encoder
+                        0.382);// turn offset
+                m_rearLeft = WCPModule(
+                        "Rear Left",
+                        21, // drive CAN
+                        31, // turn CAN
+                        3, // turn encoder
+                        0.172);// turn offset
+                m_rearRight = WCPModule(
+                        "Rear Right",
+                        22, // drive CAN
+                        33, // turn CAN
+                        1, // turn encoder
+                        0.789);// turn offset
                 break;
             case SWERVE_TWO:
-                m_frontLeft = SwerveModuleFactory.frontLeft(0.012360);
-                m_frontRight = SwerveModuleFactory.frontRight(0.543194);
-                m_rearLeft = SwerveModuleFactory.rearLeft(0.744816);
-                m_rearRight = SwerveModuleFactory.rearRight(0.750468);
+                m_frontLeft = AMModule(
+                        "Front Left",
+                        11, // drive CAN
+                        0, // turn PWM
+                        2, // turn encoder
+                        0.012360);// turn offset
+                m_frontRight = AMModule(
+                        "Front Right",
+                        12, // drive CAN
+                        2, // turn PWM
+                        0, // turn encoder
+                        0.543194);// turn offset
+                m_rearLeft = AMModule(
+                        "Rear Left",
+                        21, // drive CAN
+                        1, // turn PWM
+                        3, // turn encoder
+                        0.744816);// turn offset
+                m_rearRight = AMModule(
+                        "Rear Right",
+                        22, // drive CAN
+                        3, // turn PWM
+                        1, // turn encoder
+                        0.750468);// turn offset
                 break;
             case SWERVE_ONE: // TODO: verify these offsets (merge conflicts)
-                m_frontLeft = SwerveModuleFactory.frontLeft(0.984);
-                m_frontRight = SwerveModuleFactory.frontRight(0.373);
-                m_rearLeft = SwerveModuleFactory.rearLeft(0.719);
-                m_rearRight = SwerveModuleFactory.rearRight(0.688);
+                m_frontLeft = AMModule(
+                        "Front Left",
+                        11, // drive CAN
+                        0, // turn PWM
+                        2, // turn encoder
+                        0.984);// turn offset
+                m_frontRight = AMModule(
+                        "Front Right",
+                        12, // drive CAN
+                        2, // turn PWM
+                        0, // turn encoder
+                        0.373);// turn offset
+                m_rearLeft = AMModule(
+                        "Rear Left",
+                        21, // drive CAN
+                        1, // turn PWM
+                        3, // turn encoder
+                        0.719);// turn offset
+                m_rearRight = AMModule(
+                        "Rear Right",
+                        22, // drive CAN
+                        3, // turn PWM
+                        1, // turn encoder
+                        0.688);// turn offset
                 break;
             default:
                 throw new IllegalStateException("Identity is not swerve: " + Identity.get().name());
@@ -133,6 +193,44 @@ public class SwerveDriveSubsystem extends SubsystemBase {
         SmartDashboard.putData("Drive Subsystem", this);
 
     }
+
+    private static SwerveModule WCPModule(
+        String name,
+        int driveMotorCanId,
+        int turningMotorCanId,
+        int turningEncoderChannel,
+        double turningOffset) {
+    FalconDriveMotor driveMotor = new FalconDriveMotor(name, driveMotorCanId);
+    double driveEncoderDistancePerTurn = SwerveModule.kWheelDiameterMeters * Math.PI
+            / SwerveModule.kDriveReduction;
+    FalconDriveEncoder driveEncoder = new FalconDriveEncoder(name, driveMotor, driveEncoderDistancePerTurn,
+            false);
+    NeoTurningMotor turningMotor = new NeoTurningMotor(name, turningMotorCanId);
+    double turningGearRatio = 1.0;
+    AnalogTurningEncoder turningEncoder = new AnalogTurningEncoder(name, turningEncoderChannel,
+            turningOffset, turningGearRatio, false);
+    return new SwerveModule(name, driveMotor, turningMotor, driveEncoder, turningEncoder);
+}
+
+private static SwerveModule AMModule(
+    String name,
+    int driveMotorCanId,
+    int turningMotorChannel,
+    int turningEncoderChannel,
+    double turningOffset) {
+FalconDriveMotor driveMotor = new FalconDriveMotor(name, driveMotorCanId);
+double driveEncoderDistancePerTurn = SwerveModule.kWheelDiameterMeters * Math.PI /
+        SwerveModule.kDriveReduction;
+FalconDriveEncoder driveEncoder = new FalconDriveEncoder(name, driveMotor, driveEncoderDistancePerTurn,
+        false);
+PWMTurningMotor turningMotor = new PWMTurningMotor(name, turningMotorChannel);
+double turningGearRatio = 1.0; // andymark ma3 encoder is 1:1
+AnalogTurningEncoder turningEncoder = new AnalogTurningEncoder(name,
+        turningEncoderChannel, turningOffset,
+        turningGearRatio, false);
+
+return new SwerveModule(name, driveMotor, turningMotor, driveEncoder, turningEncoder);
+}
 
     public void updateOdometry() {
         m_poseEstimator.update(
