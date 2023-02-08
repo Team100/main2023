@@ -1,7 +1,3 @@
-// Copyright (c) FIRST and other WPILib contributors.
-// Open Source Software; you can modify and/or share it under the terms of
-// the WPILib BSD license file in the root directory of this project.
-
 package frc.robot.subsystems;
 
 import edu.wpi.first.math.controller.PIDController;
@@ -10,32 +6,22 @@ import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
-import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.util.sendable.Sendable;
 import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class SwerveModule implements Sendable {
-    public static final double kMaxModuleAngularSpeedRadiansPerSecond = 20 * Math.PI;
-    public static final double kMaxModuleAngularAccelerationRadiansPerSecondSquared = 20 * Math.PI;
-
-    public static final double kPModuleTurningController = 0.5;
-
-    public static final double kPModuleDriveController = .1;
-
     private final String m_name;
     private final DriveMotor m_driveMotor;
     private final TurningMotor m_turningMotor;
-
     private final DriveEncoder m_driveEncoder;
     private final TurningEncoder m_turningEncoder;
-
-    private final PIDController m_drivePIDController;
-    private final ProfiledPIDController m_turningPIDController;
-
+    private final PIDController m_driveController;
+    private final ProfiledPIDController m_turningController;
     private final SimpleMotorFeedforward m_turningFeedforward;
-    public double m_tFeedForwardOutput;
     private final SimpleMotorFeedforward m_driveFeedforward;
+
+    public double m_tFeedForwardOutput;
     public double m_dFeedForwardOutput;
     public double m_controllerOutput;
     public double m_driveOutput;
@@ -45,29 +31,21 @@ public class SwerveModule implements Sendable {
             DriveMotor driveMotor,
             TurningMotor turningMotor,
             DriveEncoder driveEncoder,
-            TurningEncoder turningEncoder) {
+            TurningEncoder turningEncoder,
+            PIDController driveController,
+            ProfiledPIDController turningController,
+            SimpleMotorFeedforward driveFeedforward,
+            SimpleMotorFeedforward turningFeedforward) {
         m_name = name;
         m_driveMotor = driveMotor;
         m_turningMotor = turningMotor;
         m_driveEncoder = driveEncoder;
         m_turningEncoder = turningEncoder;
-
-        m_drivePIDController = new PIDController(kPModuleDriveController, 0, 0);
-
-        m_turningPIDController = new ProfiledPIDController(
-                kPModuleTurningController,
-                0,
-                0,
-                new TrapezoidProfile.Constraints(
-                        kMaxModuleAngularSpeedRadiansPerSecond,
-                        kMaxModuleAngularAccelerationRadiansPerSecondSquared));
-
-        m_turningPIDController.enableContinuousInput(0, 2 * Math.PI);
-
-        m_turningFeedforward = new SimpleMotorFeedforward(0.1, 0.005); // TODO: real values for kS and kV.
+        m_driveController = driveController;
+        m_turningController = turningController;
+        m_driveFeedforward = driveFeedforward;
+        m_turningFeedforward = turningFeedforward;
         SmartDashboard.putData(String.format("Swerve Module %s", m_name), this);
-        m_driveFeedforward = new SimpleMotorFeedforward(0.0, .5);
-        // TODO: extract this config
     }
 
     public SwerveModuleState getState() {
@@ -83,10 +61,10 @@ public class SwerveModule implements Sendable {
         // Optimize the reference state to avoid spinning further than 90 degrees
         SwerveModuleState state = SwerveModuleState.optimize(desiredState, new Rotation2d(m_turningEncoder.getAngle()));
         // Calculate the drive output from the drive PID controller.
-        m_driveOutput = m_drivePIDController.calculate(m_driveEncoder.getRate(), state.speedMetersPerSecond);
+        m_driveOutput = m_driveController.calculate(m_driveEncoder.getRate(), state.speedMetersPerSecond);
 
         // Calculate the turning motor output from the turning PID controller.
-        m_controllerOutput = m_turningPIDController.calculate(m_turningEncoder.getAngle(), state.angle.getRadians());
+        m_controllerOutput = m_turningController.calculate(m_turningEncoder.getAngle(), state.angle.getRadians());
 
         m_tFeedForwardOutput = m_turningFeedforward.calculate(getSetpointVelocity(), 0);
         m_dFeedForwardOutput = m_driveFeedforward.calculate(getDriveSetpoint(), 0);
@@ -108,11 +86,11 @@ public class SwerveModule implements Sendable {
     }
 
     public double getSetpointVelocity() {
-        return m_turningPIDController.getSetpoint().velocity;
+        return m_turningController.getSetpoint().velocity;
     }
 
     public double getSetpointPosition() {
-        return m_turningPIDController.getSetpoint().position;
+        return m_turningController.getSetpoint().position;
     }
 
     public DriveEncoder getDriveEncoder() {
@@ -152,7 +130,7 @@ public class SwerveModule implements Sendable {
     }
 
     public double getDriveSetpoint() {
-        return m_drivePIDController.getSetpoint();
+        return m_driveController.getSetpoint();
     }
 
     public double getdFeedForward() {
@@ -173,9 +151,9 @@ public class SwerveModule implements Sendable {
         builder.addDoubleProperty("driveControllerOutput", this::getDControllerOutput, null);
         builder.addDoubleProperty("driveSetPoint", this::getDriveSetpoint, null);
         builder.addDoubleProperty("driveFeedForwardOutput", this::getdFeedForward, null);
-        builder.addDoubleProperty("drive controller position error", () -> m_drivePIDController.getPositionError(), null );
-        builder.addDoubleProperty("drive controller velocity error", () -> m_drivePIDController.getVelocityError(), null );
-        builder.addDoubleProperty("turning controller position error", () -> m_turningPIDController.getPositionError(), null );
+        builder.addDoubleProperty("drive controller position error", () -> m_driveController.getPositionError(), null );
+        builder.addDoubleProperty("drive controller velocity error", () -> m_driveController.getVelocityError(), null );
+        builder.addDoubleProperty("turning controller position error", () -> m_turningController.getPositionError(), null );
         // builder.addDoubleProperty("TURNING OUTPUT", () -> m_turningMotor, null );
     }
 }

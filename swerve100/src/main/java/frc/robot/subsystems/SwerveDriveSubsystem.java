@@ -5,6 +5,7 @@ import com.kauailabs.navx.frc.AHRS;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
+import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -13,6 +14,7 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.SerialPort;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -200,18 +202,33 @@ public class SwerveDriveSubsystem extends SubsystemBase {
             int turningMotorCanId,
             int turningEncoderChannel,
             double turningOffset) {
+        final double kWheelDiameterMeters = 0.1005; // WCP 4 inch wheel
+        final double kDriveReduction = 6.55; // see wcproducts.com
+        final double driveEncoderDistancePerTurn = kWheelDiameterMeters * Math.PI / kDriveReduction;
+        final double turningGearRatio = 1.0;
+        final double kPModuleDriveController = 0.1;
+        final double kPModuleTurningController = 0.5;
+        final double kMaxModuleAngularSpeedRadiansPerSecond = 20 * Math.PI;
+        final double kMaxModuleAngularAccelerationRadiansPerSecondSquared = 20 * Math.PI;
+
         FalconDriveMotor driveMotor = new FalconDriveMotor(name, driveMotorCanId);
-        double kWheelDiameterMeters = 0.1005; // WCP 4 inch wheel
-        double kDriveReduction = 6.55; // see wcproducts.com
-        double driveEncoderDistancePerTurn = kWheelDiameterMeters * Math.PI
-                / kDriveReduction;
-        FalconDriveEncoder driveEncoder = new FalconDriveEncoder(name, driveMotor, driveEncoderDistancePerTurn,
-                false);
+        FalconDriveEncoder driveEncoder = new FalconDriveEncoder(name, driveMotor, driveEncoderDistancePerTurn, false);
         NeoTurningMotor turningMotor = new NeoTurningMotor(name, turningMotorCanId);
-        double turningGearRatio = 1.0;
-        AnalogTurningEncoder turningEncoder = new AnalogTurningEncoder(name, turningEncoderChannel,
-                turningOffset, turningGearRatio, false);
-        return new SwerveModule(name, driveMotor, turningMotor, driveEncoder, turningEncoder);
+        AnalogTurningEncoder turningEncoder = new AnalogTurningEncoder(name, turningEncoderChannel, turningOffset,
+                turningGearRatio, false);
+        PIDController driveController = new PIDController(kPModuleDriveController, 0, 0);
+        ProfiledPIDController turningController = new ProfiledPIDController(
+                kPModuleTurningController, 0, 0,
+                new TrapezoidProfile.Constraints(
+                        kMaxModuleAngularSpeedRadiansPerSecond,
+                        kMaxModuleAngularAccelerationRadiansPerSecondSquared));
+        turningController.enableContinuousInput(0, 2 * Math.PI);
+        SimpleMotorFeedforward driveFeedforward = new SimpleMotorFeedforward(0.0, .5);
+        SimpleMotorFeedforward turningFeedforward = new SimpleMotorFeedforward(0.1, 0.005); // TODO: real values for kS
+                                                                                            // and kV.
+
+        return new SwerveModule(name, driveMotor, turningMotor, driveEncoder, turningEncoder,
+                driveController, turningController, driveFeedforward, turningFeedforward);
     }
 
     private static SwerveModule AMModule(
@@ -220,21 +237,33 @@ public class SwerveDriveSubsystem extends SubsystemBase {
             int turningMotorChannel,
             int turningEncoderChannel,
             double turningOffset) {
+        final double kWheelDiameterMeters = 0.1016; // AndyMark Swerve & Steer has 4 inch wheel
+        final double kDriveReduction = 6.67; // see andymark.com/products/swerve-and-steer
+        final double driveEncoderDistancePerTurn = kWheelDiameterMeters * Math.PI / kDriveReduction;
+        final double turningGearRatio = 1.0; // andymark ma3 encoder is 1:1
+        final double kPModuleDriveController = 0.1;
+        final double kPModuleTurningController = 0.5;
+        final double kMaxModuleAngularSpeedRadiansPerSecond = 20 * Math.PI;
+        final double kMaxModuleAngularAccelerationRadiansPerSecondSquared = 20 * Math.PI;
 
         FalconDriveMotor driveMotor = new FalconDriveMotor(name, driveMotorCanId);
-        double kWheelDiameterMeters = 0.1016; // AndyMark Swerve & Steer has 4 inch wheel
-        double kDriveReduction = 6.67; // see andymark.com/products/swerve-and-steer
-        double driveEncoderDistancePerTurn = kWheelDiameterMeters * Math.PI /
-                kDriveReduction;
-        FalconDriveEncoder driveEncoder = new FalconDriveEncoder(name, driveMotor, driveEncoderDistancePerTurn,
-                false);
+        FalconDriveEncoder driveEncoder = new FalconDriveEncoder(name, driveMotor, driveEncoderDistancePerTurn, false);
         PWMTurningMotor turningMotor = new PWMTurningMotor(name, turningMotorChannel);
-        double turningGearRatio = 1.0; // andymark ma3 encoder is 1:1
         AnalogTurningEncoder turningEncoder = new AnalogTurningEncoder(name,
-                turningEncoderChannel, turningOffset,
-                turningGearRatio, false);
+                turningEncoderChannel, turningOffset, turningGearRatio, false);
+        PIDController driveController = new PIDController(kPModuleDriveController, 0, 0);
+        ProfiledPIDController turningController = new ProfiledPIDController(
+                kPModuleTurningController, 0, 0,
+                new TrapezoidProfile.Constraints(
+                        kMaxModuleAngularSpeedRadiansPerSecond,
+                        kMaxModuleAngularAccelerationRadiansPerSecondSquared));
+        turningController.enableContinuousInput(0, 2 * Math.PI);
+        SimpleMotorFeedforward driveFeedforward = new SimpleMotorFeedforward(0.0, .5);
+        SimpleMotorFeedforward turningFeedforward = new SimpleMotorFeedforward(0.1, 0.005); // TODO: real values for kS
+                                                                                            // and kV.
 
-        return new SwerveModule(name, driveMotor, turningMotor, driveEncoder, turningEncoder);
+        return new SwerveModule(name, driveMotor, turningMotor, driveEncoder, turningEncoder,
+                driveController, turningController, driveFeedforward, turningFeedforward);
     }
 
     public void updateOdometry() {
