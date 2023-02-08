@@ -210,8 +210,10 @@ public class SwerveDriveSubsystem extends SubsystemBase {
         final double kPModuleTurningController = 0.5;
         final double kMaxModuleAngularSpeedRadiansPerSecond = 20 * Math.PI;
         final double kMaxModuleAngularAccelerationRadiansPerSecondSquared = 20 * Math.PI;
+        final double kDriveCurrentLimit = 5;
+        // final double kDriveCurrentLimit = 50;
 
-        FalconDriveMotor driveMotor = new FalconDriveMotor(name, driveMotorCanId);
+        FalconDriveMotor driveMotor = new FalconDriveMotor(name, driveMotorCanId, kDriveCurrentLimit);
         FalconDriveEncoder driveEncoder = new FalconDriveEncoder(name, driveMotor, driveEncoderDistancePerTurn, false);
         NeoTurningMotor turningMotor = new NeoTurningMotor(name, turningMotorCanId);
         AnalogTurningEncoder turningEncoder = new AnalogTurningEncoder(name, turningEncoderChannel, turningOffset,
@@ -245,8 +247,10 @@ public class SwerveDriveSubsystem extends SubsystemBase {
         final double kPModuleTurningController = 0.5;
         final double kMaxModuleAngularSpeedRadiansPerSecond = 20 * Math.PI;
         final double kMaxModuleAngularAccelerationRadiansPerSecondSquared = 20 * Math.PI;
+        final double kDriveCurrentLimit = 5;
+        // final double kDriveCurrentLimit = 50;
 
-        FalconDriveMotor driveMotor = new FalconDriveMotor(name, driveMotorCanId);
+        FalconDriveMotor driveMotor = new FalconDriveMotor(name, driveMotorCanId, kDriveCurrentLimit);
         FalconDriveEncoder driveEncoder = new FalconDriveEncoder(name, driveMotor, driveEncoderDistancePerTurn, false);
         PWMTurningMotor turningMotor = new PWMTurningMotor(name, turningMotorChannel);
         AnalogTurningEncoder turningEncoder = new AnalogTurningEncoder(name,
