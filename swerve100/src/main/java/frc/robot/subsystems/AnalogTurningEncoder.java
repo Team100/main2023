@@ -24,6 +24,9 @@ public class AnalogTurningEncoder implements TurningEncoder {
         SmartDashboard.putData(String.format("Analog Turning Encoder %s", name), this);
     }
 
+    /**
+     * Counterclockwise-positive
+     */
     @Override
     public double getAngle() {
         return m_encoder.getDistance();
@@ -34,14 +37,10 @@ public class AnalogTurningEncoder implements TurningEncoder {
         m_encoder.reset();
     }
 
-    public int getChannel() {
-        return m_encoder.getChannel();
-    }
-
     @Override
     public void initSendable(SendableBuilder builder) {
         builder.setSmartDashboardType("AnalogTurningEncoder");
-        builder.addDoubleProperty("Channel", this::getChannel, null);
+        builder.addDoubleProperty("Channel", () -> m_encoder.getChannel(), null);
         builder.addDoubleProperty("Angle", this::getAngle, null);
         builder.addDoubleProperty("Turns", () -> m_encoder.get(), null);
         builder.addDoubleProperty("absolute", () -> m_encoder.getAbsolutePosition(), null);
