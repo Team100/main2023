@@ -4,9 +4,12 @@
 
 package frc.robot;
 
+import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.TimedRobot;
+import edu.wpi.first.wpilibj.util.WPILibVersion;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import team100.config.Identity;
 
 /**
  * The VM is configured to automatically run this class, and to call the functions corresponding to
@@ -27,6 +30,9 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void robotInit() {
+    System.out.printf("WPILib Version: %s\n", WPILibVersion.Version); // 2023.2.1
+    System.out.printf("RoboRIO serial number: %s\n", RobotController.getSerialNumber());
+    System.out.printf("Identity: %s\n", Identity.get().name());
     // Instantiate our RobotContainer.  This will perform all our button bindings, and put our
     // autonomous chooser on the dashboard.
     m_robotContainer = new RobotContainer();
