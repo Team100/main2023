@@ -19,19 +19,6 @@ public class SwerveModule implements Sendable {
     public static final double kMaxModuleAngularSpeedRadiansPerSecond = 20 * Math.PI;
     public static final double kMaxModuleAngularAccelerationRadiansPerSecondSquared = 20 * Math.PI;
 
-    /*
-     * THESE ARE FOR THE ANDYMARK BASES
-     */
-    //public static final double kWheelDiameterMeters = 0.1016; // AndyMark Swerve & Steer has 4 inch wheel
-    //public static final double kDriveReduction = 6.67; // see andymark.com/products/swerve-and-steer
-
-    /*
-     * THESE ARE FOR THE SQUAREBOT WCP BASE
-     */
-    public static final double kWheelDiameterMeters = 0.1005; // WCP 4 inch wheel
-    public static final double kDriveReduction = 6.55; // see wcproducts.com
-
-     
     public static final double kPModuleTurningController = 0.5;
 
     public static final double kPModuleDriveController = .1;

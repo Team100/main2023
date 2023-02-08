@@ -195,42 +195,47 @@ public class SwerveDriveSubsystem extends SubsystemBase {
     }
 
     private static SwerveModule WCPModule(
-        String name,
-        int driveMotorCanId,
-        int turningMotorCanId,
-        int turningEncoderChannel,
-        double turningOffset) {
-    FalconDriveMotor driveMotor = new FalconDriveMotor(name, driveMotorCanId);
-    double driveEncoderDistancePerTurn = SwerveModule.kWheelDiameterMeters * Math.PI
-            / SwerveModule.kDriveReduction;
-    FalconDriveEncoder driveEncoder = new FalconDriveEncoder(name, driveMotor, driveEncoderDistancePerTurn,
-            false);
-    NeoTurningMotor turningMotor = new NeoTurningMotor(name, turningMotorCanId);
-    double turningGearRatio = 1.0;
-    AnalogTurningEncoder turningEncoder = new AnalogTurningEncoder(name, turningEncoderChannel,
-            turningOffset, turningGearRatio, false);
-    return new SwerveModule(name, driveMotor, turningMotor, driveEncoder, turningEncoder);
-}
+            String name,
+            int driveMotorCanId,
+            int turningMotorCanId,
+            int turningEncoderChannel,
+            double turningOffset) {
+        FalconDriveMotor driveMotor = new FalconDriveMotor(name, driveMotorCanId);
+        double kWheelDiameterMeters = 0.1005; // WCP 4 inch wheel
+        double kDriveReduction = 6.55; // see wcproducts.com
+        double driveEncoderDistancePerTurn = kWheelDiameterMeters * Math.PI
+                / kDriveReduction;
+        FalconDriveEncoder driveEncoder = new FalconDriveEncoder(name, driveMotor, driveEncoderDistancePerTurn,
+                false);
+        NeoTurningMotor turningMotor = new NeoTurningMotor(name, turningMotorCanId);
+        double turningGearRatio = 1.0;
+        AnalogTurningEncoder turningEncoder = new AnalogTurningEncoder(name, turningEncoderChannel,
+                turningOffset, turningGearRatio, false);
+        return new SwerveModule(name, driveMotor, turningMotor, driveEncoder, turningEncoder);
+    }
 
-private static SwerveModule AMModule(
-    String name,
-    int driveMotorCanId,
-    int turningMotorChannel,
-    int turningEncoderChannel,
-    double turningOffset) {
-FalconDriveMotor driveMotor = new FalconDriveMotor(name, driveMotorCanId);
-double driveEncoderDistancePerTurn = SwerveModule.kWheelDiameterMeters * Math.PI /
-        SwerveModule.kDriveReduction;
-FalconDriveEncoder driveEncoder = new FalconDriveEncoder(name, driveMotor, driveEncoderDistancePerTurn,
-        false);
-PWMTurningMotor turningMotor = new PWMTurningMotor(name, turningMotorChannel);
-double turningGearRatio = 1.0; // andymark ma3 encoder is 1:1
-AnalogTurningEncoder turningEncoder = new AnalogTurningEncoder(name,
-        turningEncoderChannel, turningOffset,
-        turningGearRatio, false);
+    private static SwerveModule AMModule(
+            String name,
+            int driveMotorCanId,
+            int turningMotorChannel,
+            int turningEncoderChannel,
+            double turningOffset) {
 
-return new SwerveModule(name, driveMotor, turningMotor, driveEncoder, turningEncoder);
-}
+        FalconDriveMotor driveMotor = new FalconDriveMotor(name, driveMotorCanId);
+        double kWheelDiameterMeters = 0.1016; // AndyMark Swerve & Steer has 4 inch wheel
+        double kDriveReduction = 6.67; // see andymark.com/products/swerve-and-steer
+        double driveEncoderDistancePerTurn = kWheelDiameterMeters * Math.PI /
+                kDriveReduction;
+        FalconDriveEncoder driveEncoder = new FalconDriveEncoder(name, driveMotor, driveEncoderDistancePerTurn,
+                false);
+        PWMTurningMotor turningMotor = new PWMTurningMotor(name, turningMotorChannel);
+        double turningGearRatio = 1.0; // andymark ma3 encoder is 1:1
+        AnalogTurningEncoder turningEncoder = new AnalogTurningEncoder(name,
+                turningEncoderChannel, turningOffset,
+                turningGearRatio, false);
+
+        return new SwerveModule(name, driveMotor, turningMotor, driveEncoder, turningEncoder);
+    }
 
     public void updateOdometry() {
         m_poseEstimator.update(
