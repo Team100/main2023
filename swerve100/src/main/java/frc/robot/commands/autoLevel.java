@@ -28,21 +28,21 @@ public class autoLevel extends CommandBase {
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-    previousPitch = m_gyro.getPitch()- 2.2;
-    revCount = 25;
-    isPitchMode = true;
-    previousPitch = 0;
+    // previousPitch = m_gyro.getPitch()- 2.2;
+    // revCount = 25;
+    // isPitchMode = true;
+    // previousPitch = 0;
   }
 
   // Called every time the scheduler runs while the command is scheduled.
   public void execute() {
+    double Roll = m_gyro.getRoll();
     double Pitch = m_gyro.getPitch();
-    System.out.println(Pitch);
-        double driveAmount = MathUtil.clamp(-0.016 * Pitch, -0.19, 0.19);
-       if(Pitch > 2.5){   
-        drivetrain.drive(driveAmount, 0, 0, true);     
-       } else if(Pitch < -2.5){
-        drivetrain.drive(driveAmount, 0, 0, true);  
+    // System.out.println(Roll);
+        double driveRollAmount = MathUtil.clamp(0.0045 * Roll, -0.06, 0.06);
+        double drivePitchAmount = MathUtil.clamp(0.0045 * Pitch, -0.06, 0.06);
+       if(Math.abs(Roll) > 2.5 || Math.abs(Pitch) > 2.5){   
+        drivetrain.drive(driveRollAmount, drivePitchAmount, 0, false);     
        }
       
     /*double Pitch = m_gyro.getPitch() - 3.4;
