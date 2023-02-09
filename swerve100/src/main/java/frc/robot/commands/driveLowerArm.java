@@ -1,48 +1,39 @@
-// Copyright (c) FIRST and other WPILib contributors.
-// Open Source Software; you can modify and/or share it under the terms of
-// the WPILib BSD license file in the root directory of this project.
-
 package frc.robot.commands;
 
-import edu.wpi.first.wpilibj.XboxController;
+import java.util.function.DoubleSupplier;
+
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.Arm;
 
+/**
+ * Moves the arm according to controller [-1,1] inputs.
+ */
 public class driveLowerArm extends CommandBase {
-  /** Creates a new driveLowerArm. */
-  Arm arm;
-  XboxController controller;
-  // TODO: remove the controller from here
-  public driveLowerArm(Arm a, XboxController xboxController) {
-    // Use addRequirements() here to declare subsystem dependencies.
-    arm = a;
-    controller = xboxController;
+    // INPUTS
+    private final DoubleSupplier lowerSpeed;
+    private final DoubleSupplier upperSpeed;
 
-    addRequirements(a);
-  }
+    // OUTPUT
+    private final Arm arm;
 
-  // Called when the command is initially scheduled.
-  @Override
-  public void initialize() {}
+    /**
+     * @param lowerSpeed forward-positive [-1,1]
+     * @param upperSpeed up-positive [-1,1]
+     */
+    public driveLowerArm(
+            DoubleSupplier lowerSpeed,
+            DoubleSupplier upperSpeed,
+            Arm arm) {
+        this.lowerSpeed = lowerSpeed;
+        this.upperSpeed = upperSpeed;
+        this.arm = arm;
+        addRequirements(arm);
+    }
 
-  // Called every time the scheduler runs while the command is scheduled.
-  @Override
-  public void execute() {
-    arm.setLowerArm(controller.getRightX());
-    arm.setUpperArm(controller.getLeftY());
-
-
-    // arm.setBoth(controller.getLeftY(), controller.getRightX());
-
-  }
-
-  // Called once the command ends or is interrupted.
-  @Override
-  public void end(boolean interrupted) {}
-
-  // Returns true when the command should end.
-  @Override
-  public boolean isFinished() {
-    return false;
-  }
+    @Override
+    public void execute() {
+        arm.setLowerArm(lowerSpeed.getAsDouble());
+        arm.setUpperArm(upperSpeed.getAsDouble());
+        // arm.setBoth(controller.getLeftY(), controller.getRightX());
+    }
 }

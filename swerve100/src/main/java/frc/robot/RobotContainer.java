@@ -61,8 +61,7 @@ public class RobotContainer implements Sendable {
 
         // COMMANDS
 
-        // TODO: remove controller from commands
-        driveLowerArm = new driveLowerArm(arm, controller1);
+  
         armHigh = new ArmHigh(arm);
         resetPose = new ResetPose(m_robotDrive, new Pose2d(new Translation2d(0, 0), new Rotation2d(0)));
         autoLevel = new autoLevel(m_robotDrive.m_gyro, m_robotDrive);
@@ -112,7 +111,12 @@ public class RobotContainer implements Sendable {
                                         controller1.getRightTriggerAxis(),
                                         controller1.getLeftTriggerAxis()),
                                 manipulator));
+
         // Controller 1 => arm motion
+        driveLowerArm = new driveLowerArm(
+                () -> controller1.getRightX(),
+                () -> controller1.getLeftY(),
+                arm);
         arm.setDefaultCommand(driveLowerArm);
 
 
