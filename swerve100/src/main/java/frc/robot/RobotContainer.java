@@ -46,7 +46,7 @@ public class RobotContainer implements Sendable {
     public RobotContainer() {
         // SUBSYSTEMS
 
-        final double kDriveCurrentLimit = 5;
+        final double kDriveCurrentLimit = 30;
         // final double kDriveCurrentLimit = 50;
         m_robotDrive = new SwerveDriveSubsystem(kDriveCurrentLimit);
         manipulator = new Manipulator();
