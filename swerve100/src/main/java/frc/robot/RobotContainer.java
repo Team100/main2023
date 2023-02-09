@@ -21,7 +21,8 @@ import frc.robot.commands.autoLevel;
 import frc.robot.commands.driveLowerArm;
 import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.Manipulator;
-import frc.robot.subsystems.SwerveDriveSubsystem;;
+import frc.robot.subsystems.SwerveDriveSubsystem;
+import team100.commands.DriveManually;;
 
 @SuppressWarnings("unused")
 public class RobotContainer implements Sendable {
@@ -40,6 +41,7 @@ public class RobotContainer implements Sendable {
     private final ResetPose resetPose;
     private final autoLevel autoLevel;
     private final MoveToAprilTag moveToAprilTag;
+    private final DriveManually driveManually;
 
     public final static Field2d m_field = new Field2d();
 
@@ -68,6 +70,7 @@ public class RobotContainer implements Sendable {
         int tagID = 3;
         moveToAprilTag = new MoveToAprilTag(m_robotDrive, tagID);
 
+
         // TRIGGERS/BUTTONS
 
         // NOTE: per binding-commands-to-triggers.html, triggers/buttons can be
@@ -94,17 +97,12 @@ public class RobotContainer implements Sendable {
 
         // DEFAULT COMMANDS
         // Controller 0 right => cartesian, left => rotation
-        m_robotDrive.setDefaultCommand(
-                new RunCommand(
-                        () -> {
-                            final double kSpeedModifier = 1.0; // 0.5 (to go slower)
-                            m_robotDrive.drive(
-                                    -controller0.getRightY() * kSpeedModifier,
-                                    -controller0.getRightX() * kSpeedModifier,
-                                    -controller0.getLeftX() * kSpeedModifier,
-                                    true);
-                        },
-                        m_robotDrive));
+        driveManually = new DriveManually(
+                () -> -1.0 * controller0.getRightY(),
+                () -> -1.0 * controller0.getRightX(),
+                () -> -1.0 * controller0.getLeftX(),
+                m_robotDrive);
+        m_robotDrive.setDefaultCommand(driveManually);
 
         // Controller 1 triggers => manipulator open/close
         manipulator
