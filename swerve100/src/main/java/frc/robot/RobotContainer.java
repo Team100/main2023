@@ -21,7 +21,9 @@ import frc.robot.commands.autoLevel;
 import frc.robot.commands.driveLowerArm;
 import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.Manipulator;
-import frc.robot.subsystems.SwerveDriveSubsystem;;
+import frc.robot.subsystems.SwerveDriveSubsystem;
+import team100.commands.DriveManually;
+import team100.commands.GripManually;
 
 @SuppressWarnings("unused")
 public class RobotContainer implements Sendable {
@@ -40,6 +42,8 @@ public class RobotContainer implements Sendable {
     private final ResetPose resetPose;
     private final autoLevel autoLevel;
     private final MoveToAprilTag moveToAprilTag;
+    private final DriveManually driveManually;
+    private final GripManually gripManually;
 
     public final static Field2d m_field = new Field2d();
 
@@ -59,14 +63,14 @@ public class RobotContainer implements Sendable {
 
         // COMMANDS
 
-        // TODO: remove controller from commands
-        driveLowerArm = new driveLowerArm(arm, controller1);
+  
         armHigh = new ArmHigh(arm);
         resetPose = new ResetPose(m_robotDrive, new Pose2d(new Translation2d(0, 0), new Rotation2d(0)));
         autoLevel = new autoLevel(m_robotDrive.m_gyro, m_robotDrive);
         // TODO: do something with tagid.
         int tagID = 3;
         moveToAprilTag = new MoveToAprilTag(m_robotDrive, tagID);
+
 
         // TRIGGERS/BUTTONS
 
@@ -94,29 +98,26 @@ public class RobotContainer implements Sendable {
 
         // DEFAULT COMMANDS
         // Controller 0 right => cartesian, left => rotation
-        m_robotDrive.setDefaultCommand(
-                new RunCommand(
-                        () -> {
-                            final double kSpeedModifier = 1.0; // 0.5 (to go slower)
-                            m_robotDrive.drive(
-                                    -controller0.getRightY() * kSpeedModifier,
-                                    -controller0.getRightX() * kSpeedModifier,
-                                    -controller0.getLeftX() * kSpeedModifier,
-                                    true);
-                        },
-                        m_robotDrive));
+        driveManually = new DriveManually(
+                () -> -1.0 * controller0.getRightY(),
+                () -> -1.0 * controller0.getRightX(),
+                () -> -1.0 * controller0.getLeftX(),
+                m_robotDrive);
+        m_robotDrive.setDefaultCommand(driveManually);
 
         // Controller 1 triggers => manipulator open/close
-        manipulator
-                .setDefaultCommand(
-                        new RunCommand(
-                                () -> manipulator.pinchv2(
-                                        controller1.getRightTriggerAxis(),
-                                        controller1.getLeftTriggerAxis()),
-                                manipulator));
-        // Controller 1 => arm motion
-        arm.setDefaultCommand(driveLowerArm);
+        gripManually = new GripManually(
+                () -> controller1.getRightTriggerAxis(),
+                () -> controller1.getLeftTriggerAxis(),
+                manipulator);
+        manipulator.setDefaultCommand(gripManually);
 
+        // Controller 1 => arm motion
+        driveLowerArm = new driveLowerArm(
+                () -> controller1.getRightX(),
+                () -> controller1.getLeftY(),
+                arm);
+        arm.setDefaultCommand(driveLowerArm);
 
         SmartDashboard.putData("Robot Container", this);
     }
