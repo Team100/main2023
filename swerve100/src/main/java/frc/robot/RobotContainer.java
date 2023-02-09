@@ -22,7 +22,8 @@ import frc.robot.commands.driveLowerArm;
 import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.Manipulator;
 import frc.robot.subsystems.SwerveDriveSubsystem;
-import team100.commands.DriveManually;;
+import team100.commands.DriveManually;
+import team100.commands.GripManually;
 
 @SuppressWarnings("unused")
 public class RobotContainer implements Sendable {
@@ -42,6 +43,7 @@ public class RobotContainer implements Sendable {
     private final autoLevel autoLevel;
     private final MoveToAprilTag moveToAprilTag;
     private final DriveManually driveManually;
+    private final GripManually gripManually;
 
     public final static Field2d m_field = new Field2d();
 
@@ -104,13 +106,11 @@ public class RobotContainer implements Sendable {
         m_robotDrive.setDefaultCommand(driveManually);
 
         // Controller 1 triggers => manipulator open/close
-        manipulator
-                .setDefaultCommand(
-                        new RunCommand(
-                                () -> manipulator.pinchv2(
-                                        controller1.getRightTriggerAxis(),
-                                        controller1.getLeftTriggerAxis()),
-                                manipulator));
+        gripManually = new GripManually(
+                () -> controller1.getRightTriggerAxis(),
+                () -> controller1.getLeftTriggerAxis(),
+                manipulator);
+        manipulator.setDefaultCommand(gripManually);
 
         // Controller 1 => arm motion
         driveLowerArm = new driveLowerArm(
@@ -118,7 +118,6 @@ public class RobotContainer implements Sendable {
                 () -> controller1.getLeftY(),
                 arm);
         arm.setDefaultCommand(driveLowerArm);
-
 
         SmartDashboard.putData("Robot Container", this);
     }
