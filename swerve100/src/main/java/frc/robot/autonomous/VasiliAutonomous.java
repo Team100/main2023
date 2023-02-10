@@ -4,6 +4,7 @@
 
 package frc.robot.autonomous;
 
+import edu.wpi.first.wpilibj.Watchdog;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.commands.autoLevel;
@@ -12,18 +13,15 @@ import frc.robot.subsystems.SwerveDriveSubsystem;
 // NOTE:  Consider using this command inline, rather than writing a subclass.  For more
 // information, see:
 // https://docs.wpilib.org/en/stable/docs/software/commandbased/convenience-features.html
-public class SanjanAutonomous extends SequentialCommandGroup {
+public class VasiliAutonomous extends SequentialCommandGroup {
   /** Creates a new autonomous. */
-  public SanjanAutonomous(SwerveDriveSubsystem m_robotDrive) {
+  public VasiliAutonomous(SwerveDriveSubsystem m_robotDrive) {
     // Add your commands in the addCommands() call, e.g.
     // addCommands(new FooCommand(), new BarCommand());
     addCommands(
-    //   new Forward(m_robotDrive, 0.5),
-    //   new WaitCommand(5),
-    //   new MoveToAprilTag(m_robotDrive, 3)
-    //   new Forward(m_robotDrive, 4)
-    new Forward(m_robotDrive, 1),
-     new autoLevel(m_robotDrive.m_gyro, m_robotDrive)
+      new Forward(m_robotDrive, 2),
+    //   new WaitCommand(3),
+      new autoLevel(m_robotDrive.m_gyro, m_robotDrive)
     );
     
 

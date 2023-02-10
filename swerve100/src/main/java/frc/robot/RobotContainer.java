@@ -15,6 +15,7 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.autonomous.Circle;
 import frc.robot.autonomous.MoveToAprilTag;
 import frc.robot.autonomous.SanjanAutonomous;
+import frc.robot.autonomous.VasiliAutonomous;
 import frc.robot.commands.ArmHigh;
 import frc.robot.commands.ResetPose;
 import frc.robot.commands.autoLevel;
@@ -122,15 +123,15 @@ public class RobotContainer implements Sendable {
         SmartDashboard.putData("Robot Container", this);
     }
 
-    // this is ishan's
     public Command getAutonomousCommand2() {
         // return new SequentialCommandGroup(
         // new IshanAutonomous(m_robotDrive),
         // new IshanAutonomous(m_robotDrive)
         // );
 
-        // return new Forward(m_robotDrive, 5);
-        return new Circle(m_robotDrive, 1.5);
+        return new VasiliAutonomous(m_robotDrive);
+
+        // return new SanjanAutonomous(m_robotDrive);
     }
 
     public void runTest() {

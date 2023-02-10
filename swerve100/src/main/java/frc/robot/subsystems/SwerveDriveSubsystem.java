@@ -61,7 +61,7 @@ public class SwerveDriveSubsystem extends SubsystemBase {
     // public static final double kaVoltSecondsSquaredPerMeter = 0.5;
 
     // SLOW SETTINGS
-    public static final double kMaxSpeedMetersPerSecond = 4; 
+    public static final double kMaxSpeedMetersPerSecond = 1; 
     public static final double kMaxAccelerationMetersPerSecondSquared = 1;
     // NOTE joel 2/8 used to be negative; inversions broken somewhere?
     public static final double kMaxAngularSpeedRadiansPerSecond = 1;
@@ -115,7 +115,7 @@ public class SwerveDriveSubsystem extends SubsystemBase {
         yController = new PIDController(Py, Iy, Dy);
         yController.setTolerance(yTolerance);
 
-        final double Ptheta = 2;
+        final double Ptheta = 3;
         final double Itheta = 0;
         final double Dtheta = 0;
         final TrapezoidProfile.Constraints thetaControllerConstraints = new TrapezoidProfile.Constraints(
