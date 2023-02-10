@@ -28,10 +28,6 @@ public class autoLevel extends CommandBase {
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-    // previousPitch = m_gyro.getPitch()- 2.2;
-    // revCount = 25;
-    // isPitchMode = true;
-    // previousPitch = 0;
   }
 
   // Called every time the scheduler runs while the command is scheduled.
@@ -44,34 +40,6 @@ public class autoLevel extends CommandBase {
        if(Math.abs(Roll) > 2.5 || Math.abs(Pitch) > 2.5){   
         drivetrain.drive(driveRollAmount, drivePitchAmount, 0, false);     
        }
-      
-    /*double Pitch = m_gyro.getPitch() - 3.4;
-    double changeInPitch = Pitch - previousPitch;
-    previousPitch = Pitch;
-    double driveAmount = MathUtil.clamp(0.5 * Pitch, -1, 1);
-    System.out.println(changeInPitch);
-    System.out.println(isPitchMode);
-    System.out.println(m_gyro.getPitch());
-    System.out.println(revCount);
-    if (revCount != 0) {
-      if (isPitchMode == true && changeInPitch > 1){
-        isPitchMode = false;
-        backwards = false;
-      } else if(isPitchMode == true && changeInPitch < -1) {
-        isPitchMode = false;
-        backwards = true;
-      } else if(isPitchMode == false && backwards == true) {
-        drivetrain.driveVelocity(-0.12, -0.12);
-        revCount = revCount - 1;
-      } else if (isPitchMode == false && backwards == false) {
-        drivetrain.driveVelocity(.12, .12);
-        revCount = revCount - 1;
-        } else if (Pitch > 2 && isPitchMode) {
-            drivetrain.driveVelocity(driveAmount, driveAmount);
-           } else if (Pitch < -2 && isPitchMode){
-            drivetrain.driveVelocity(driveAmount, driveAmount);
-            } 
-      }*/
     }
   // Called once the command ends or is interrupted.
   @Override
