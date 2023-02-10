@@ -17,9 +17,9 @@ public abstract class TrajectoryCommand extends CommandBase {
     /** Creates a new TrajectoryCommand. */
     public TrajectoryCommand(SwerveDriveSubsystem m_robotDrive) {
         this.m_robotDrive = m_robotDrive;
-
+            System.out.println("BAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAaa");
         // Use addRequirements() here to declare subsystem dependencies.
-        // addRequirements(this.m_robotDrive);
+       // addRequirements(this.m_robotDrive);
     }
 
     // Called when the command is initially scheduled.
@@ -64,6 +64,7 @@ public abstract class TrajectoryCommand extends CommandBase {
         }
 
         // return s.isFinished();
+        System.out.println("DOOOOOOOOOOONEEEEEEEEEEEEEEEEEEE");
         return false;
     }
 

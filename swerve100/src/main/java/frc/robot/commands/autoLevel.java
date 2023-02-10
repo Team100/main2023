@@ -22,21 +22,22 @@ public class autoLevel extends CommandBase {
     drivetrain = we;
     m_gyro = gyro;
     // Use addRequirements() here to declare subsystem dependencies.
-    addRequirements(drivetrain);
+    // addRequirements(drivetrain);
   }
 
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
+    System.out.println("EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE");
   }
 
   // Called every time the scheduler runs while the command is scheduled.
   public void execute() {
     double Roll = m_gyro.getRoll();
     double Pitch = m_gyro.getPitch();
-    // System.out.println(Roll);
-        double driveRollAmount = MathUtil.clamp(0.0045 * Roll, -0.06, 0.06);
-        double drivePitchAmount = MathUtil.clamp(0.0045 * Pitch, -0.06, 0.06);
+    System.out.println(Roll);
+        double driveRollAmount = MathUtil.clamp(0.017 * Roll, -0.25, 0.25);
+        double drivePitchAmount = MathUtil.clamp(0.017   * Pitch, -0.25, 0.25);
        if(Math.abs(Roll) > 2.5 || Math.abs(Pitch) > 2.5){   
         drivetrain.drive(driveRollAmount, drivePitchAmount, 0, false);     
        }

@@ -31,10 +31,10 @@ public class Forward extends TrajectoryCommand {
         double xRobot = currentRobotPose.getX();
         double yRobot = currentRobotPose.getY();
 
-        // System.out.println("FORWARD========================================================================");
+        System.out.println("FORWARD========================================================================");
 
         TrajectoryConfig trajectoryConfig = new TrajectoryConfig(
-                4,
+                0.5,
                 3)
                 // Add kinematics to ensure max speed is actually obeyed
                 .setKinematics(SwerveDriveSubsystem.kDriveKinematics);
