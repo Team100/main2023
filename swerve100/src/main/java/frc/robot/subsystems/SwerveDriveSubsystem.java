@@ -183,34 +183,34 @@ public class SwerveDriveSubsystem extends SubsystemBase {
                         0.747177, // turn offset
                         currentLimit);
                 break;
-            case SWERVE_ONE: // TODO: verify these offsets (merge conflicts)
+            case SWERVE_ONE:
                 m_frontLeft = AMModule(
                         "Front Left",
                         11, // drive CAN
                         0, // turn PWM
                         2, // turn encoder
-                        0.984, // turn offset
+                        0.693007, // turn offset
                         currentLimit);
                 m_frontRight = AMModule(
                         "Front Right",
                         12, // drive CAN
                         2, // turn PWM
                         0, // turn encoder
-                        0.373, // turn offset
+                        0.735136, // turn offset
                         currentLimit);
                 m_rearLeft = AMModule(
                         "Rear Left",
                         21, // drive CAN
                         1, // turn PWM
                         3, // turn encoder
-                        0.719, // turn offset
+                        0.367754, // turn offset
                         currentLimit);
                 m_rearRight = AMModule(
                         "Rear Right",
                         22, // drive CAN
                         3, // turn PWM
                         1, // turn encoder
-                        0.688, // turn offset
+                        0.984952, // turn offset
                         currentLimit);
                 break;
             default:

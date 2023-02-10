@@ -2,6 +2,7 @@ package team100.commands;
 
 import java.util.function.DoubleSupplier;
 
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.SwerveDriveSubsystem;
 
@@ -48,6 +49,19 @@ public class DriveManually extends CommandBase {
                 xSpeed.getAsDouble() * kSpeedModifier,
                 ySpeed.getAsDouble() * kSpeedModifier,
                 rotSpeed.getAsDouble() * kSpeedModifier,
+                fieldRelative);
+    }
+
+    // this is Ishan's work from feb 9.
+    //@Override
+    public void execute2() {
+        double xSwitch = MathUtil.applyDeadband(xSpeed.getAsDouble(), .1);
+        double ySwitch = MathUtil.applyDeadband(ySpeed.getAsDouble(), .1);
+        double rotSwitch = MathUtil.applyDeadband(rotSpeed.getAsDouble(), .1);
+        m_robotDrive.drive(
+                Math.signum(xSwitch) * kSpeedModifier,
+                Math.signum(ySwitch) * kSpeedModifier,
+                Math.signum(rotSwitch) * kSpeedModifier,
                 fieldRelative);
     }
 }
