@@ -6,6 +6,7 @@ package frc.robot;
 
 import frc.robot.Constants.OperatorConstants;
 import frc.robot.commands.Autos;
+import frc.robot.commands.Calibrate;
 // import frc.robot.commands.ExampleCommand;
 import frc.robot.subsystems.Manipulator;
 import edu.wpi.first.wpilibj.XboxController;
@@ -29,13 +30,13 @@ public class RobotContainer {
   private static final JoystickButton bButton = new JoystickButton(m_driverController, 2);
   private final Manipulator manipulator = new Manipulator();
 
+  private final Calibrate calibrate = new Calibrate(manipulator);
+
   
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
     // Configure the trigger bindings
-    configureBindings(
-      
-    );
+    configureBindings();
   }
 
   /**
@@ -50,6 +51,8 @@ public class RobotContainer {
   private void configureBindings() {
 
     manipulator.setDefaultCommand(new RunCommand( () -> manipulator.pinch(m_driverController.getLeftY()), manipulator));
+
+    new JoystickButton(m_driverController, 1).onTrue(calibrate);
 
     // bButton.whenPressed(new RunCommand( () -> manipulator.pinch(m_driverController.getLeftY())));
     // Schedule `ExampleCommand` when `exampleCondition` changes to `true`
