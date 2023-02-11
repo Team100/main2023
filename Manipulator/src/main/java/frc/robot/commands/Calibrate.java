@@ -23,20 +23,20 @@ private double outerSoftLimit;
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-    m_subsystem.pinch(-.1);
+    m_subsystem.pinch(0.2);
   }
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute(){
     if(!foundInnerLimitSwitch) {
-      System.out.println("Looking for Inner Switch...");
+      // System.out.println("Looking for Inner Switch...");
       if(m_subsystem.getInnerLimitSwitch()){
         System.out.println("Found Inner Switch!");
         m_subsystem.pinch(0);
         innerSoftLimit=m_subsystem.getEncoderPosition();
         foundInnerLimitSwitch=true;
-        m_subsystem.pinch(0.1);
+        m_subsystem.pinch(-0.2);
       }
     }
     else if (!foundOuterLimitSwitch){
@@ -52,6 +52,7 @@ private double outerSoftLimit;
   @Override
   public void end(boolean interrupted) {
     m_subsystem.configSoftLimits(innerSoftLimit, outerSoftLimit);
+    System.out.println("inner: " + innerSoftLimit + ", outer: " + outerSoftLimit);
   }
 
   // Returns true when the command should end.

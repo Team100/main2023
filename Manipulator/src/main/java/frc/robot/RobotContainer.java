@@ -7,6 +7,7 @@ package frc.robot;
 import frc.robot.Constants.OperatorConstants;
 import frc.robot.commands.Autos;
 import frc.robot.commands.Calibrate;
+import frc.robot.commands.CloseManipulator;
 // import frc.robot.commands.ExampleCommand;
 import frc.robot.subsystems.Manipulator;
 import edu.wpi.first.wpilibj.XboxController;
@@ -31,6 +32,7 @@ public class RobotContainer {
   private final Manipulator manipulator = new Manipulator();
 
   private final Calibrate calibrate = new Calibrate(manipulator);
+  private final CloseManipulator closeManipulator = new CloseManipulator(manipulator);
 
   
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
@@ -53,6 +55,7 @@ public class RobotContainer {
     manipulator.setDefaultCommand(new RunCommand( () -> manipulator.pinch(m_driverController.getLeftY()), manipulator));
 
     new JoystickButton(m_driverController, 1).onTrue(calibrate);
+    new JoystickButton(m_driverController, 8).onTrue(closeManipulator);
 
     // bButton.whenPressed(new RunCommand( () -> manipulator.pinch(m_driverController.getLeftY())));
     // Schedule `ExampleCommand` when `exampleCondition` changes to `true`
