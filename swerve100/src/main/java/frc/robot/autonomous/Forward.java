@@ -34,7 +34,7 @@ public class Forward extends TrajectoryCommand {
         System.out.println("FORWARD========================================================================");
 
         TrajectoryConfig trajectoryConfig = new TrajectoryConfig(
-                0.5,
+                4,
                 3)
                 // Add kinematics to ensure max speed is actually obeyed
                 .setKinematics(SwerveDriveSubsystem.kDriveKinematics);

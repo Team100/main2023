@@ -13,10 +13,6 @@ import frc.robot.subsystems.SwerveDriveSubsystem;
 public class autoLevel extends CommandBase {
   private final SwerveDriveSubsystem drivetrain;
   private AHRS m_gyro;
-  double previousPitch = 0;
-  int revCount;
-  boolean isPitchMode;
-  boolean backwards;
     /** Creates a new autoLevel. */
   public autoLevel(AHRS gyro, SwerveDriveSubsystem we) {
     drivetrain = we;

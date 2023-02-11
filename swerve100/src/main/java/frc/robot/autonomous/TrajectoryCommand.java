@@ -51,7 +51,6 @@ public abstract class TrajectoryCommand extends CommandBase {
 
     @Override
     public void execute(){
-        System.out.println("YOOOOOOOOOOO");
     }
 
     // Returns true when the command should end.
@@ -59,7 +58,6 @@ public abstract class TrajectoryCommand extends CommandBase {
     public boolean isFinished() {
 
         if(s.isFinished()){
-            System.out.println("FINISHED++++++++++++++++++++++++++++++++++++++++");
             return true;
         }
 
