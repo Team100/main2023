@@ -1,11 +1,8 @@
 package frc.robot.subsystems;
 
-import com.ctre.phoenix.motorcontrol.can.VictorSPX;
 import com.ctre.phoenix.motorcontrol.can.WPI_VictorSPX;
 
 import edu.wpi.first.util.sendable.SendableBuilder;
-import edu.wpi.first.wpilibj.motorcontrol.PWMMotorController;
-import edu.wpi.first.wpilibj.motorcontrol.VictorSP;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class CANTurningMotor implements TurningMotor {
@@ -15,7 +12,7 @@ public class CANTurningMotor implements TurningMotor {
 
     public CANTurningMotor(String name, int channel) {
         m_motor = new WPI_VictorSPX(channel);
-        this.channel=channel;
+        this.channel = channel;
         SmartDashboard.putData(String.format("CAN Turning Motor %s", name), this);
     }
 
@@ -35,5 +32,5 @@ public class CANTurningMotor implements TurningMotor {
         builder.addDoubleProperty("Device ID", () -> channel, null);
         builder.addDoubleProperty("Output", this::get, null);
     }
-    
+
 }
