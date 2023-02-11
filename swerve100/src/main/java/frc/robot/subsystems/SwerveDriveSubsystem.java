@@ -44,6 +44,10 @@ public class SwerveDriveSubsystem extends SubsystemBase {
                 kTrackWidth = 0.449;
                 kWheelBase = 0.464;
                 break;
+            case FROM_8048:
+                kTrackWidth = 0.46;
+                kWheelBase = 0.55; // approximate
+                break;
             default:
                 throw new IllegalStateException("Identity is not swerve: " + Identity.get().name());
         }
@@ -61,7 +65,7 @@ public class SwerveDriveSubsystem extends SubsystemBase {
     // public static final double kaVoltSecondsSquaredPerMeter = 0.5;
 
     // SLOW SETTINGS
-    public static final double kMaxSpeedMetersPerSecond = 1; 
+    public static final double kMaxSpeedMetersPerSecond = 1;
     public static final double kMaxAccelerationMetersPerSecondSquared = 1;
     // NOTE joel 2/8 used to be negative; inversions broken somewhere?
     public static final double kMaxAngularSpeedRadiansPerSecond = 1;
@@ -171,7 +175,7 @@ public class SwerveDriveSubsystem extends SubsystemBase {
                 m_rearLeft = AMModule(
                         "Rear Left",
                         21, // drive CAN
-                    2, // turn PWM
+                        2, // turn PWM
                         0, // turn encoder
                         0.746354, // turn offset
                         currentLimit);
@@ -211,6 +215,36 @@ public class SwerveDriveSubsystem extends SubsystemBase {
                         3, // turn PWM
                         1, // turn encoder
                         0.984952, // turn offset
+                        currentLimit);
+                break;
+            case FROM_8048:
+                m_frontLeft = AMCANModule(
+                        "Front Left",
+                        3, // drive CAN
+                        8, // turn CAN
+                        1, // turn encoder (confirmed)
+                        0.355157, // turn offset
+                        currentLimit);
+                m_frontRight = AMCANModule(
+                        "Front Right",
+                        2, // drive CAN
+                        6, // turn CAN
+                        0, // turn encoder (confirmed)
+                        0.404786, // turn offset
+                        currentLimit);
+                m_rearLeft = AMCANModule(
+                        "Rear Left",
+                        1, // drive CAN
+                        9, // turn CAN
+                        3, // turn encoder (confirmed)
+                        0.238757, // turn offset
+                        currentLimit);
+                m_rearRight = AMCANModule(
+                        "Rear Right",
+                        4, // drive CAN
+                        7, // turn CAN 
+                        2, // turn encoder (confirmed)
+                        0.233683, // turn offset
                         currentLimit);
                 break;
             default:
@@ -271,6 +305,44 @@ public class SwerveDriveSubsystem extends SubsystemBase {
                 driveController, turningController, driveFeedforward, turningFeedforward);
     }
 
+    // for 8048's config
+    private static SwerveModule AMCANModule(
+            String name,
+            int driveMotorCanId,
+            int turningMotorCanId,
+            int turningEncoderChannel,
+            double turningOffset,
+            double currentLimit) {
+        final double kWheelDiameterMeters = 0.1016; // AndyMark Swerve & Steer has 4 inch wheel
+        final double kDriveReduction = 6.67; // see andymark.com/products/swerve-and-steer
+        final double driveEncoderDistancePerTurn = kWheelDiameterMeters * Math.PI / kDriveReduction;
+        final double turningGearRatio = 1.0; // andymark ma3 encoder is 1:1
+        final double kPModuleDriveController = 0.1;
+        final double kPModuleTurningController = 0.5;
+        final double kMaxModuleAngularSpeedRadiansPerSecond = 20 * Math.PI;
+        final double kMaxModuleAngularAccelerationRadiansPerSecondSquared = 20 * Math.PI;
+
+        FalconDriveMotor driveMotor = new FalconDriveMotor(name, driveMotorCanId, currentLimit);
+        FalconDriveEncoder driveEncoder = new FalconDriveEncoder(name, driveMotor, driveEncoderDistancePerTurn);
+        CANTurningMotor turningMotor = new CANTurningMotor(name, turningMotorCanId);
+        AnalogTurningEncoder turningEncoder = new AnalogTurningEncoder(name, turningEncoderChannel, turningOffset,
+                turningGearRatio);
+        PIDController driveController = new PIDController(kPModuleDriveController, 0, 0);
+        ProfiledPIDController turningController = new ProfiledPIDController(
+                kPModuleTurningController, 0, 0,
+                new TrapezoidProfile.Constraints(
+                        kMaxModuleAngularSpeedRadiansPerSecond,
+                        kMaxModuleAngularAccelerationRadiansPerSecondSquared));
+        turningController.enableContinuousInput(0, 2 * Math.PI);
+        SimpleMotorFeedforward driveFeedforward = new SimpleMotorFeedforward(0.0, .5);
+        // TODO: real values for kS and kV.
+        SimpleMotorFeedforward turningFeedforward = new SimpleMotorFeedforward(0.1, 0.005);
+
+        return new SwerveModule(name, driveMotor, turningMotor, driveEncoder, turningEncoder,
+                driveController, turningController, driveFeedforward, turningFeedforward);
+
+    }
+
     private static SwerveModule AMModule(
             String name,
             int driveMotorCanId,
@@ -286,7 +358,6 @@ public class SwerveDriveSubsystem extends SubsystemBase {
         final double kPModuleTurningController = 0.5;
         final double kMaxModuleAngularSpeedRadiansPerSecond = 20 * Math.PI;
         final double kMaxModuleAngularAccelerationRadiansPerSecondSquared = 20 * Math.PI;
-
 
         FalconDriveMotor driveMotor = new FalconDriveMotor(name, driveMotorCanId, currentLimit);
         FalconDriveEncoder driveEncoder = new FalconDriveEncoder(name, driveMotor, driveEncoderDistancePerTurn);

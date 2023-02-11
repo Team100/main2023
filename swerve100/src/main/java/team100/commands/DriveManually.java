@@ -17,6 +17,7 @@ public class DriveManually extends CommandBase {
     // TODO: make speed adjustable on the fly
     // private static final double kSpeedModifier = 0.5
     private static final boolean fieldRelative = true;
+    //private static final boolean fieldRelative = false;
 
     // INPUTS
     private final DoubleSupplier xSpeed;
