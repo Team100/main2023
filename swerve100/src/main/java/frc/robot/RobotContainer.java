@@ -35,11 +35,7 @@ public class RobotContainer implements Sendable {
     private final Manipulator manipulator;
     private final Arm arm;
 
-    // CONTROLLERS
-    private final XboxController controller0;
-    private final XboxController controller1;
-
-    // NEW CONTROL
+    // CONTROL
     private final Control control;
 
     // COMMANDS
@@ -62,14 +58,8 @@ public class RobotContainer implements Sendable {
         manipulator = new Manipulator();
         arm = new Arm();
 
-        // CONTROLLERS
-
-        controller0 = new XboxController(0);
-        controller1 = new XboxController(1);
-
         // NEW CONTROL
         // TODO: react to whatever is plugged in
-
         control = new DualXboxControl();
 
         // COMMANDS
@@ -81,35 +71,34 @@ public class RobotContainer implements Sendable {
         int tagID = 3;
         moveToAprilTag = new MoveToAprilTag(m_robotDrive, tagID);
 
-
         // TRIGGERS/BUTTONS
 
         control.resetPose(resetPose);
         control.moveToAprilTag(moveToAprilTag);
         control.autoLevel(autoLevel);
-        //control.sanjanAuto(new SanjanAutonomous(m_robotDrive));
+        // control.sanjanAuto(new SanjanAutonomous(m_robotDrive));
         control.armHigh(armHigh);
 
         // DEFAULT COMMANDS
         // Controller 0 right => cartesian, left => rotation
         driveManually = new DriveManually(
-                () -> -1.0 * controller0.getRightY(),
-                () -> -1.0 * controller0.getRightX(),
-                () -> -1.0 * controller0.getLeftX(),
+                control::xSpeed,
+                control::ySpeed,
+                control::rotSpeed,
                 m_robotDrive);
         m_robotDrive.setDefaultCommand(driveManually);
 
         // Controller 1 triggers => manipulator open/close
         gripManually = new GripManually(
-                () -> controller1.getRightTriggerAxis(),
-                () -> controller1.getLeftTriggerAxis(),
+                control::openSpeed,
+                control::closeSpeed,
                 manipulator);
         manipulator.setDefaultCommand(gripManually);
 
         // Controller 1 => arm motion
         driveLowerArm = new driveLowerArm(
-                () -> controller1.getRightX(),
-                () -> controller1.getLeftY(),
+                control::lowerSpeed,
+                control::upperSpeed,
                 arm);
         arm.setDefaultCommand(driveLowerArm);
 
@@ -128,6 +117,7 @@ public class RobotContainer implements Sendable {
     }
 
     public void runTest() {
+        XboxController controller0 = new XboxController(0);
         boolean rearLeft = controller0.getAButton();
         boolean rearRight = controller0.getBButton();
         boolean frontLeft = controller0.getXButton();
@@ -146,9 +136,6 @@ public class RobotContainer implements Sendable {
     @Override
     public void initSendable(SendableBuilder builder) {
         builder.setSmartDashboardType("container");
-        builder.addDoubleProperty("right y", () -> controller0.getRightY(), null);
-        builder.addDoubleProperty("right x", () -> controller0.getRightX(), null);
-        builder.addDoubleProperty("left x", () -> controller0.getLeftX(), null);
         builder.addDoubleProperty("theta controller error", () -> m_robotDrive.thetaController.getPositionError(),
                 null);
         builder.addDoubleProperty("x controller error", () -> m_robotDrive.xController.getPositionError(), null);
