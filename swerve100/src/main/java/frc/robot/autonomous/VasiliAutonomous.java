@@ -4,9 +4,7 @@
 
 package frc.robot.autonomous;
 
-import edu.wpi.first.wpilibj.Watchdog;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
-import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.commands.autoLevel;
 import frc.robot.subsystems.SwerveDriveSubsystem;
 
@@ -19,8 +17,7 @@ public class VasiliAutonomous extends SequentialCommandGroup {
     // Add your commands in the addCommands() call, e.g.
     // addCommands(new FooCommand(), new BarCommand());
     addCommands(
-      new Forward(m_robotDrive, 2),
-    //   new WaitCommand(3),
+      new Forward(m_robotDrive, 10), 
       new autoLevel(m_robotDrive.m_gyro, m_robotDrive)
     );
     
