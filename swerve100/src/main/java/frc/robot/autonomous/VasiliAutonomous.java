@@ -17,7 +17,8 @@ public class VasiliAutonomous extends SequentialCommandGroup {
     // Add your commands in the addCommands() call, e.g.
     // addCommands(new FooCommand(), new BarCommand());
     addCommands(
-      new Forward(m_robotDrive, 10), 
+    //   new Forward(m_robotDrive, 3), 
+      new Rotate(m_robotDrive, Math.PI),
       new autoLevel(m_robotDrive.m_gyro, m_robotDrive)
     );
     

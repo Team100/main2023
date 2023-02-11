@@ -64,7 +64,7 @@ public class SwerveDriveSubsystem extends SubsystemBase {
     public static final double kMaxSpeedMetersPerSecond = 1; 
     public static final double kMaxAccelerationMetersPerSecondSquared = 1;
     // NOTE joel 2/8 used to be negative; inversions broken somewhere?
-    public static final double kMaxAngularSpeedRadiansPerSecond = 1;
+    public static final double kMaxAngularSpeedRadiansPerSecond = 3;
     public static final double kMaxAngularSpeedRadiansPerSecondSquared = 10;
 
     // FAST SETTINGS. can the robot actually go this fast?
@@ -115,7 +115,7 @@ public class SwerveDriveSubsystem extends SubsystemBase {
         yController = new PIDController(Py, Iy, Dy);
         yController.setTolerance(yTolerance);
 
-        final double Ptheta = 2.5;
+        final double Ptheta = 1.7;
         final double Itheta = 0;
         final double Dtheta = 0;
         final TrapezoidProfile.Constraints thetaControllerConstraints = new TrapezoidProfile.Constraints(
@@ -347,7 +347,11 @@ public class SwerveDriveSubsystem extends SubsystemBase {
 
     public boolean getMoving() {
         return moving;
-    }
+    }      
+        double x;
+        double y;
+        double rotation;
+        boolean isFieldRelative;
 
     /**
      * Method to drive the robot using joystick info.
@@ -363,7 +367,11 @@ public class SwerveDriveSubsystem extends SubsystemBase {
     @SuppressWarnings("ParameterName")
     public void drive(double xSpeed, double ySpeed, double rot, boolean fieldRelative) {
         // TODO Fix this number
-
+  
+         x = xSpeed;
+         y = ySpeed;
+         rotation = rot;
+         isFieldRelative = fieldRelative;
         if (Math.abs(xSpeed) < .01)
             xSpeed = 100 * xSpeed * xSpeed * Math.signum(xSpeed);
         if (Math.abs(ySpeed) < .01)
@@ -481,6 +489,10 @@ public class SwerveDriveSubsystem extends SubsystemBase {
         builder.addDoubleProperty("Pitch", () -> m_gyro.getPitch(), null);
         builder.addDoubleProperty("Roll", () -> m_gyro.getRoll(), null);
         builder.addDoubleProperty("Heading Degrees", () -> getHeading().getDegrees(), null);
+        builder.addDoubleProperty("xSpeed", () -> x, null);
+        builder.addDoubleProperty("ySpeed", () -> y, null);
+        builder.addDoubleProperty("Rotation", () -> rotation, null);
+        builder.addBooleanProperty("Field Relative", () -> isFieldRelative, null);
     }
 
 }
