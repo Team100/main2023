@@ -4,36 +4,45 @@
 
 package frc.robot.commands;
 
+import java.util.function.Supplier;
+
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.Manipulator;
 
 public class CloseManipulator extends CommandBase {
   private final Manipulator m_subsystem;
   private double closePosition = 1000;
+  private Supplier<Boolean> shouldEnd = () -> false;
 
-    
-  public CloseManipulator (Manipulator subsystem) {
+  public CloseManipulator(Manipulator subsystem, Supplier<Boolean> shouldEnd) {
+    this(subsystem);
+    this.shouldEnd = shouldEnd;
+  }
+
+  public CloseManipulator(Manipulator subsystem) {
     m_subsystem = subsystem;
 
-    closePosition += m_subsystem.getOrigin();
-
+   
     // Use addRequirements() here to declare subsystem dependencies.
     addRequirements(m_subsystem);
   }
 
   // Called when the command is initially scheduled.
   @Override
-  public void initialize() {
+  public void initialize() { 
+    closePosition =2500+ m_subsystem.getOrigin();
+    
+  }
+
+  // Called every time the scheduler runs while the command is scheduled.
+  @Override
+  public void execute() {
     if(m_subsystem.getEncoderPosition()>closePosition){
       m_subsystem.pinch(-0.2);
     } else {
       m_subsystem.pinch(0.2);
     }
   }
-
-  // Called every time the scheduler runs while the command is scheduled.
-  @Override
-  public void execute() {}
 
   // Called once the command ends or is interrupted.
   @Override
@@ -44,6 +53,7 @@ public class CloseManipulator extends CommandBase {
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
+    if (shouldEnd.get()) return true;
     return Math.abs(closePosition-m_subsystem.getEncoderPosition()) < 50;
   }
 }

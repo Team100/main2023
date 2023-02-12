@@ -10,8 +10,11 @@ import frc.robot.commands.Calibrate;
 import frc.robot.commands.CloseManipulator;
 // import frc.robot.commands.ExampleCommand;
 import frc.robot.subsystems.Manipulator;
+import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
@@ -30,6 +33,7 @@ public class RobotContainer {
   private static final XboxController m_driverController = new XboxController(0);
   private static final JoystickButton bButton = new JoystickButton(m_driverController, 2);
   private final Manipulator manipulator = new Manipulator();
+  private boolean manipulatorCalibrated = false;
 
   private final Calibrate calibrate = new Calibrate(manipulator);
   private final CloseManipulator closeManipulator = new CloseManipulator(manipulator);
@@ -52,10 +56,16 @@ public class RobotContainer {
    */
   private void configureBindings() {
 
-    manipulator.setDefaultCommand(new RunCommand( () -> manipulator.pinch(m_driverController.getLeftY()), manipulator));
+    manipulator.setDefaultCommand(new ConditionalCommand(
+      new ConditionalCommand(
+        new CloseManipulator(manipulator, () -> !manipulator.getSensor()), 
+        new RunCommand( () -> manipulator.pinch(m_driverController.getLeftY()), manipulator),
+        () -> manipulator.getSensor()),
+      calibrate.andThen(() -> { manipulatorCalibrated = true; }),
+      () -> manipulatorCalibrated));
 
-    new JoystickButton(m_driverController, 1).onTrue(calibrate);
-    new JoystickButton(m_driverController, 8).onTrue(closeManipulator);
+    // new JoystickButton(m_driverController, 1).onTrue(calibrate);
+    // new JoystickButton(m_driverController, 8).onTrue(closeManipulator);
 
     // bButton.whenPressed(new RunCommand( () -> manipulator.pinch(m_driverController.getLeftY())));
     // Schedule `ExampleCommand` when `exampleCondition` changes to `true`
@@ -66,7 +76,11 @@ public class RobotContainer {
     // cancelling on release.
     // m_driverController.b().whileTrue(m_exampleSubsystem.exampleMethodCommand());
   }
-
+  public void teleopPeriodic(){
+    // if(manipulator.getSensor()){
+    //   CommandScheduler.getInstance().schedule(closeManipulator);
+    // }
+  }
   /**
    * Use this to pass the autonomous command to the main {@link Robot} class.
    *
