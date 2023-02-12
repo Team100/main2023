@@ -16,38 +16,28 @@ import frc.robot.subsystems.SwerveDriveSubsystem;
 /** Add your docs here. */
 public class Forward extends TrajectoryCommand {
 
-    double x;
-
-    public Forward(SwerveDriveSubsystem m_robotDrive, double x) {
-        super(m_robotDrive);
-        this.x = x;
-
+    public Forward(SwerveDriveSubsystem m_robotDrive, Trajectory trajectory) {
+        super(m_robotDrive, trajectory);
+        
     }
-
-    @Override
-    public Trajectory genTrajectory(SwerveDriveSubsystem m_robotDrive) {
-
+    static Forward newForward(SwerveDriveSubsystem m_robotDrive, double x) {
         Pose2d currentRobotPose = m_robotDrive.getPose();
-        double xRobot = currentRobotPose.getX();
-        double yRobot = currentRobotPose.getY();
-
-        System.out.println("FORWARD========================================================================");
-
+            double xRobot = currentRobotPose.getX();
+            double yRobot = currentRobotPose.getY();
+            
         TrajectoryConfig trajectoryConfig = new TrajectoryConfig(
-                4,
-                3)
-                // Add kinematics to ensure max speed is actually obeyed
-                .setKinematics(SwerveDriveSubsystem.kDriveKinematics);
-
-        Trajectory exampleTrajectory = TrajectoryGenerator.generateTrajectory(
-                // Start at the origin facing the +X direction
-                currentRobotPose,
-                List.of(),
-                new Pose2d(xRobot + x, yRobot, new Rotation2d(0)),
-                trajectoryConfig);
-
-        return exampleTrajectory;
-
-    }
-
+                    4,
+                    3)
+                    // Add kinematics to ensure max speed is actually obeyed
+                    .setKinematics(SwerveDriveSubsystem.kDriveKinematics);
+    
+            Trajectory exampleTrajectory = TrajectoryGenerator.generateTrajectory(
+                    // Start at the origin facing the +X direction
+                    currentRobotPose,
+                    List.of(),
+                    new Pose2d(xRobot + x, yRobot, new Rotation2d(0)),
+                    trajectoryConfig);
+    
+            return new Forward(m_robotDrive, exampleTrajectory);
+       } 
 }

@@ -15,19 +15,11 @@ import frc.robot.subsystems.SwerveDriveSubsystem;
 
 public class Dodge extends TrajectoryCommand {
 
-  double y;
-  public Dodge(SwerveDriveSubsystem m_robotDrive, double y) {
-    // Use addRequirements() here to declare subsystem dependencies.
-    super(m_robotDrive);
-
-    this.y = y;
-  
+  public Dodge(SwerveDriveSubsystem m_robotDrive, Trajectory trajectory) {
+    super(m_robotDrive, trajectory);
   }
 
-
-
-  @Override
-    public Trajectory genTrajectory(SwerveDriveSubsystem m_robotDrive) {
+  static Dodge newDodge(SwerveDriveSubsystem m_robotDrive, double y) {
 
       Pose2d currentRobotPose = m_robotDrive.getPose();
       double xRobot = currentRobotPose.getX();
@@ -48,7 +40,7 @@ public class Dodge extends TrajectoryCommand {
               new Pose2d(xRobot, yRobot + y, new Rotation2d(currentRobotPose.getRotation().getRadians() + Math.PI/2)),
               trajectoryConfig);
 
-        return exampleTrajectory;
+        return new Dodge(m_robotDrive, exampleTrajectory);
 
     }
 }
