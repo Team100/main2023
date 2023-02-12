@@ -22,6 +22,7 @@ public enum Identity {
     RIO_2_AC("032363AC"),
     TEST_BOARD_6B("030d286b"),
     RIO_2022("foo"),
+    FROM_8048("031823bc"), // maybe don't check this in.
     BLANK(""), // e.g. test default or simulation
     UNKNOWN(null);
 

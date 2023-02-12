@@ -5,6 +5,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.util.sendable.Sendable;
 import edu.wpi.first.util.sendable.SendableBuilder;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -25,6 +26,9 @@ import frc.robot.subsystems.Manipulator;
 import frc.robot.subsystems.SwerveDriveSubsystem;
 import team100.commands.DriveManually;
 import team100.commands.GripManually;
+import team100.control.Control;
+import team100.control.ControlSelect;
+import team100.control.DualXboxControl;
 
 @SuppressWarnings("unused")
 public class RobotContainer implements Sendable {
@@ -33,9 +37,8 @@ public class RobotContainer implements Sendable {
     private final Manipulator manipulator;
     private final Arm arm;
 
-    // CONTROLLERS
-    private final XboxController controller0;
-    private final XboxController controller1;
+    // CONTROL
+    private final Control control;
 
     // COMMANDS
     private final driveLowerArm driveLowerArm;
@@ -56,14 +59,11 @@ public class RobotContainer implements Sendable {
         manipulator = new Manipulator();
         arm = new Arm();
 
-        // CONTROLLERS
-
-        controller0 = new XboxController(0);
-        controller1 = new XboxController(1);
+        // // NEW CONTROL
+        control = ControlSelect.getControl();
 
         // COMMANDS
 
-  
         armHigh = new ArmHigh(arm);
         resetPose = new ResetPose(m_robotDrive, new Pose2d(new Translation2d(0, 0), new Rotation2d(0)));
         autoLevel = new autoLevel(m_robotDrive.m_gyro, m_robotDrive);
@@ -71,51 +71,35 @@ public class RobotContainer implements Sendable {
         int tagID = 3;
         moveToAprilTag = MoveToAprilTag.newMoveToAprilTag(m_robotDrive, tagID);
 
-
         // TRIGGERS/BUTTONS
 
-        // NOTE: per binding-commands-to-triggers.html, triggers/buttons can be
-        // temporary, they're just to tell the scheduler what to do.
+        control.resetPose(resetPose);
+        control.moveToAprilTag(moveToAprilTag);
+        control.autoLevel(autoLevel);
+        // control.sanjanAuto(new SanjanAutonomous(m_robotDrive));
+        control.armHigh(armHigh);
 
-        // TODO: sort out which button should reset the pose
-        // Left Bumper => Reset Pose
-        new JoystickButton(controller0, XboxController.Button.kLeftBumper.value).onTrue(resetPose);
-        // A button => Reset Pose
-        new JoystickButton(controller0, XboxController.Button.kA.value).onTrue(resetPose);
-
-        // B Button => Move to AprilTag
-        // new JoystickButton(controller0, XboxController.Button.kB.value).onTrue(moveToAprilTag);
-
-        // TODO: sort out what the "Y" button should do
-        // Y Button => Auto Level
-        new JoystickButton(controller0, XboxController.Button.kY.value).onTrue(autoLevel);
-        // Y Button => Sanjan Auton
-        // new JoystickButton(controller0, XboxController.Button.kY.value).onTrue(new
-        // SanjanAutonomous(m_robotDrive));
-
-        // Controller 1 B Button => Arm high preset
-        new JoystickButton(controller1, XboxController.Button.kB.value).onTrue(armHigh);
 
         // DEFAULT COMMANDS
         // Controller 0 right => cartesian, left => rotation
         driveManually = new DriveManually(
-                () -> -1.0 * controller0.getRightY(),
-                () -> -1.0 * controller0.getRightX(),
-                () -> -1.0 * controller0.getLeftX(),
+                control::xSpeed,
+                control::ySpeed,
+                control::rotSpeed,
                 m_robotDrive);
         m_robotDrive.setDefaultCommand(driveManually);
 
         // Controller 1 triggers => manipulator open/close
         gripManually = new GripManually(
-                () -> controller1.getRightTriggerAxis(),
-                () -> controller1.getLeftTriggerAxis(),
+                control::openSpeed,
+                control::closeSpeed,
                 manipulator);
         manipulator.setDefaultCommand(gripManually);
 
         // Controller 1 => arm motion
         driveLowerArm = new driveLowerArm(
-                () -> controller1.getRightX(),
-                () -> controller1.getLeftY(),
+                control::lowerSpeed,
+                control::upperSpeed,
                 arm);
         arm.setDefaultCommand(driveLowerArm);
 
@@ -134,6 +118,22 @@ public class RobotContainer implements Sendable {
     }
 
     public void runTest() {
+        XboxController controller0 = new XboxController(0);
+        System.out.printf(
+                "name: %s   left X: %5.2f   left Y: %5.2f   right X: %5.2f   right Y: %5.2f   left T: %5.2f   right T: %5.2f\n",
+                DriverStation.getJoystickName(0),
+                // DriverStation.getStickAxis(0, 0),
+                controller0.getLeftX(), // 0 = GP right X, -0.66 to 0.83
+                controller0.getLeftY(), // 1 = GP right Y, -0.64 to 0.64
+                controller0.getRightX(), // 4 = GP left X, -0.7 to 0.8
+                controller0.getRightY(), // 5
+                controller0.getLeftTriggerAxis(), // 2 = GP left Y, -0.64 to 0.6
+                controller0.getRightTriggerAxis() // 3
+        );
+    }
+
+    public void runTest2() {
+        XboxController controller0 = new XboxController(0);
         boolean rearLeft = controller0.getAButton();
         boolean rearRight = controller0.getBButton();
         boolean frontLeft = controller0.getXButton();
@@ -152,9 +152,6 @@ public class RobotContainer implements Sendable {
     @Override
     public void initSendable(SendableBuilder builder) {
         builder.setSmartDashboardType("container");
-        builder.addDoubleProperty("right y", () -> controller0.getRightY(), null);
-        builder.addDoubleProperty("right x", () -> controller0.getRightX(), null);
-        builder.addDoubleProperty("left x", () -> controller0.getLeftX(), null);
         builder.addDoubleProperty("theta controller error", () -> m_robotDrive.thetaController.getPositionError(),
                 null);
         builder.addDoubleProperty("x controller error", () -> m_robotDrive.xController.getPositionError(), null);
