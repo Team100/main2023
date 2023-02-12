@@ -43,25 +43,28 @@ public class DriveManually extends CommandBase {
         addRequirements(drivetrain);
     }
 
-    @Override
-    public void execute() {
-        m_robotDrive.drive(
-                xSpeed.getAsDouble() * kSpeedModifier,
-                ySpeed.getAsDouble() * kSpeedModifier,
-                rotSpeed.getAsDouble() * kSpeedModifier,
-                fieldRelative);
-    }
+    // @Override
+    // public void execute() {
+    //     m_robotDrive.drive(
+    //             xSpeed.getAsDouble() * kSpeedModifier,
+    //             ySpeed.getAsDouble() * kSpeedModifier,
+    //             rotSpeed.getAsDouble() * kSpeedModifier,
+    //             fieldRelative);
+    // }
 
     // this is Ishan's work from feb 9.
-    //@Override
-    public void execute2() {
+    @Override
+    public void execute() {
         double xSwitch = MathUtil.applyDeadband(xSpeed.getAsDouble(), .1);
         double ySwitch = MathUtil.applyDeadband(ySpeed.getAsDouble(), .1);
         double rotSwitch = MathUtil.applyDeadband(rotSpeed.getAsDouble(), .1);
+        double xDBRemoved = (xSwitch-.1*Math.signum(xSwitch))/.9;
+        double yDBRemoved = (ySwitch-.1*Math.signum(ySwitch))/.9;
+        double rotDBRemoved = (rotSwitch-.1*Math.signum(rotSwitch))/.9;
         m_robotDrive.drive(
-                Math.signum(xSwitch) * kSpeedModifier,
-                Math.signum(ySwitch) * kSpeedModifier,
-                Math.signum(rotSwitch) * kSpeedModifier,
+                xDBRemoved * xDBRemoved * xDBRemoved * kSpeedModifier,
+                yDBRemoved * yDBRemoved * yDBRemoved * kSpeedModifier,
+                rotDBRemoved * rotDBRemoved * rotDBRemoved * kSpeedModifier,
                 fieldRelative);
     }
 }
