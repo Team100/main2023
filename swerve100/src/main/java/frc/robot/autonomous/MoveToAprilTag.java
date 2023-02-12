@@ -18,20 +18,14 @@ import frc.robot.subsystems.SwerveDriveSubsystem;
 /** Add your docs here. */
 public class MoveToAprilTag extends TrajectoryCommand {
 
-    int tagID;
-    HashTag hashTag = new HashTag();
-
-    public MoveToAprilTag(SwerveDriveSubsystem m_robotDrive, int tagID) {
-        super(m_robotDrive);
-        this.tagID = tagID;
-
+    public MoveToAprilTag(SwerveDriveSubsystem m_robotDrive, Trajectory trajectory) {
+        super(m_robotDrive, trajectory);
     }
 
-    @Override
-    public Trajectory genTrajectory(SwerveDriveSubsystem m_robotDrive) {
-
+    public static MoveToAprilTag newMoveToAprilTag(SwerveDriveSubsystem m_robotDrive, int tagID) {
+        HashTag hashTag = new HashTag();
         Pose3d aprilPose = hashTag.getTagIDPose(tagID);
-
+        
         TrajectoryConfig trajectoryConfig = new TrajectoryConfig(
                 2,
                 1)
@@ -48,7 +42,7 @@ public class MoveToAprilTag extends TrajectoryCommand {
                 new Pose2d(aprilPose.getX() - 1, aprilPose.getY(), new Rotation2d(aprilPose.getRotation().getAngle())),
                 trajectoryConfig);
 
-        return exampleTrajectory;
+        return new MoveToAprilTag(m_robotDrive, exampleTrajectory);
 
     }
 

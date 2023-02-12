@@ -55,7 +55,6 @@ public class RobotContainer implements Sendable {
         // SUBSYSTEMS
 
         final double kDriveCurrentLimit = 30;
-        // final double kDriveCurrentLimit = 50;
         m_robotDrive = new SwerveDriveSubsystem(kDriveCurrentLimit);
         manipulator = new Manipulator();
         arm = new Arm();
@@ -70,7 +69,7 @@ public class RobotContainer implements Sendable {
         autoLevel = new autoLevel(m_robotDrive.m_gyro, m_robotDrive);
         // TODO: do something with tagid.
         int tagID = 3;
-        moveToAprilTag = new MoveToAprilTag(m_robotDrive, tagID);
+        moveToAprilTag = MoveToAprilTag.newMoveToAprilTag(m_robotDrive, tagID);
 
         // TRIGGERS/BUTTONS
 
@@ -79,6 +78,7 @@ public class RobotContainer implements Sendable {
         control.autoLevel(autoLevel);
         // control.sanjanAuto(new SanjanAutonomous(m_robotDrive));
         control.armHigh(armHigh);
+
 
         // DEFAULT COMMANDS
         // Controller 0 right => cartesian, left => rotation
