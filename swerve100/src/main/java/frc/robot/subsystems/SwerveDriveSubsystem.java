@@ -115,7 +115,7 @@ public class SwerveDriveSubsystem extends SubsystemBase {
         yController = new PIDController(Py, Iy, Dy);
         yController.setTolerance(yTolerance);
 
-        final double Ptheta = 1.7;
+        final double Ptheta = 1;
         final double Itheta = 0;
         final double Dtheta = 0;
         final TrapezoidProfile.Constraints thetaControllerConstraints = new TrapezoidProfile.Constraints(

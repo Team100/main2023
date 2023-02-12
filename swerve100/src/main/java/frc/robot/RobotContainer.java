@@ -52,7 +52,6 @@ public class RobotContainer implements Sendable {
         // SUBSYSTEMS
 
         final double kDriveCurrentLimit = 30;
-        // final double kDriveCurrentLimit = 50;
         m_robotDrive = new SwerveDriveSubsystem(kDriveCurrentLimit);
         manipulator = new Manipulator();
         arm = new Arm();
@@ -70,7 +69,7 @@ public class RobotContainer implements Sendable {
         autoLevel = new autoLevel(m_robotDrive.m_gyro, m_robotDrive);
         // TODO: do something with tagid.
         int tagID = 3;
-        moveToAprilTag = new MoveToAprilTag(m_robotDrive, tagID);
+        moveToAprilTag = MoveToAprilTag.newMoveToAprilTag(m_robotDrive, tagID);
 
 
         // TRIGGERS/BUTTONS
@@ -85,7 +84,7 @@ public class RobotContainer implements Sendable {
         new JoystickButton(controller0, XboxController.Button.kA.value).onTrue(resetPose);
 
         // B Button => Move to AprilTag
-        new JoystickButton(controller0, XboxController.Button.kB.value).onTrue(moveToAprilTag);
+        // new JoystickButton(controller0, XboxController.Button.kB.value).onTrue(moveToAprilTag);
 
         // TODO: sort out what the "Y" button should do
         // Y Button => Auto Level

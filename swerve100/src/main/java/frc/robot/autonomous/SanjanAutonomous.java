@@ -5,7 +5,6 @@
 package frc.robot.autonomous;
 
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
-import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.commands.autoLevel;
 import frc.robot.subsystems.SwerveDriveSubsystem;
 
@@ -22,7 +21,7 @@ public class SanjanAutonomous extends SequentialCommandGroup {
     //   new WaitCommand(5),
     //   new MoveToAprilTag(m_robotDrive, 3)
     //   new Forward(m_robotDrive, 4)
-    new Forward(m_robotDrive, 1),
+    // new Forward(m_robotDrive, 1),
      new autoLevel(m_robotDrive.m_gyro, m_robotDrive)
     );
     
