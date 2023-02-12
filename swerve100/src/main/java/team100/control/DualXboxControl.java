@@ -72,6 +72,11 @@ public class DualXboxControl implements Control, Sendable {
     }
 
     @Override
+    public double throttle() {
+        return 1.0;
+    }
+
+    @Override
     public double openSpeed() {
         return controller1.getRightTriggerAxis();
     }

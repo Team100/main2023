@@ -27,6 +27,9 @@ public interface Control {
     /** @return [-1,1] */
     public double rotSpeed();
 
+    /** @return [0, 1] */
+    public double throttle();
+
     // MANIPULATOR
     /** @return [-1,1] */
     public double openSpeed();

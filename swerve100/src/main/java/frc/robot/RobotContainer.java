@@ -5,6 +5,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.util.sendable.Sendable;
 import edu.wpi.first.util.sendable.SendableBuilder;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -26,6 +27,7 @@ import frc.robot.subsystems.SwerveDriveSubsystem;
 import team100.commands.DriveManually;
 import team100.commands.GripManually;
 import team100.control.Control;
+import team100.control.ControlSelect;
 import team100.control.DualXboxControl;
 
 @SuppressWarnings("unused")
@@ -58,9 +60,8 @@ public class RobotContainer implements Sendable {
         manipulator = new Manipulator();
         arm = new Arm();
 
-        // NEW CONTROL
-        // TODO: react to whatever is plugged in
-        control = new DualXboxControl();
+        // // NEW CONTROL
+        control = ControlSelect.getControl();
 
         // COMMANDS
 
@@ -117,6 +118,21 @@ public class RobotContainer implements Sendable {
     }
 
     public void runTest() {
+        XboxController controller0 = new XboxController(0);
+        System.out.printf(
+                "name: %s   left X: %5.2f   left Y: %5.2f   right X: %5.2f   right Y: %5.2f   left T: %5.2f   right T: %5.2f\n",
+                DriverStation.getJoystickName(0),
+                // DriverStation.getStickAxis(0, 0),
+                controller0.getLeftX(), // 0 = GP right X, -0.66 to 0.83
+                controller0.getLeftY(), // 1 = GP right Y, -0.64 to 0.64
+                controller0.getRightX(), // 4 = GP left X, -0.7 to 0.8
+                controller0.getRightY(), // 5
+                controller0.getLeftTriggerAxis(), // 2 = GP left Y, -0.64 to 0.6
+                controller0.getRightTriggerAxis() // 3
+        );
+    }
+
+    public void runTest2() {
         XboxController controller0 = new XboxController(0);
         boolean rearLeft = controller0.getAButton();
         boolean rearRight = controller0.getBButton();

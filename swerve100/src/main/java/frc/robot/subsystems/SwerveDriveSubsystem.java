@@ -48,6 +48,10 @@ public class SwerveDriveSubsystem extends SubsystemBase {
                 kTrackWidth = 0.46;
                 kWheelBase = 0.55; // approximate
                 break;
+            case BLANK: // for simulation
+                kTrackWidth = 0.5;
+                kWheelBase = 0.5;
+                break;
             default:
                 throw new IllegalStateException("Identity is not swerve: " + Identity.get().name());
         }
@@ -246,6 +250,36 @@ public class SwerveDriveSubsystem extends SubsystemBase {
                         2, // turn encoder (confirmed)
                         0.233683, // turn offset
                         currentLimit);
+                break;
+            case BLANK: // for simulation; just like squarebot for now
+            m_frontLeft = WCPModule(
+                    "Front Left",
+                    11, // drive CAN
+                    30, // turn CAN
+                    2, // turn encoder
+                    0.812, // turn offset
+                    currentLimit);
+            m_frontRight = WCPModule(
+                    "Front Right",
+                    12, // drive CAN
+                    32, // turn CAN
+                    0, // turn encoder
+                    0.382, // turn offset
+                    currentLimit);
+            m_rearLeft = WCPModule(
+                    "Rear Left",
+                    21, // drive CAN
+                    31, // turn CAN
+                    3, // turn encoder
+                    0.172, // turn offset
+                    currentLimit);
+            m_rearRight = WCPModule(
+                    "Rear Right",
+                    22, // drive CAN
+                    33, // turn CAN
+                    1, // turn encoder
+                    0.789, // turn offset
+                    currentLimit);
                 break;
             default:
                 throw new IllegalStateException("Identity is not swerve: " + Identity.get().name());

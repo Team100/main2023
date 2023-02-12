@@ -4,8 +4,6 @@
 
 package frc.robot.autonomous;
 
-import java.util.List;
-
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj2.command.PIDCommand;
 import frc.robot.subsystems.SwerveDriveSubsystem;
