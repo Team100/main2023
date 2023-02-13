@@ -20,11 +20,13 @@ public class Dodge extends TrajectoryCommand {
   }
 
   static Dodge newDodge(SwerveDriveSubsystem m_robotDrive, double y) {
-
-      Pose2d currentRobotPose = m_robotDrive.getPose();
+    Pose2d currentRobotPose = m_robotDrive.getPose();
       double xRobot = currentRobotPose.getX();
       double yRobot = currentRobotPose.getY();
-
+      Rotation2d rotRobot = currentRobotPose.getRotation();
+      if (y < 0) {
+          rotRobot = new Rotation2d(rotRobot.getRadians()-Math.PI);
+      }
 
       
       TrajectoryConfig trajectoryConfig = new TrajectoryConfig(
@@ -35,9 +37,9 @@ public class Dodge extends TrajectoryCommand {
 
       Trajectory exampleTrajectory = TrajectoryGenerator.generateTrajectory(
               // Start at the origin facing the +X direction
-              new Pose2d(xRobot, yRobot, new Rotation2d(currentRobotPose.getRotation().getRadians() + Math.PI/2)),
+              new Pose2d(xRobot, yRobot, rotRobot),
               List.of(),
-              new Pose2d(xRobot, yRobot + y, new Rotation2d(currentRobotPose.getRotation().getRadians() + Math.PI/2)),
+              new Pose2d(xRobot, yRobot + y, rotRobot),
               trajectoryConfig);
 
         return new Dodge(m_robotDrive, exampleTrajectory);
