@@ -69,10 +69,10 @@ public class SwerveDriveSubsystem extends SubsystemBase {
     // public static final double kaVoltSecondsSquaredPerMeter = 0.5;
 
     // SLOW SETTINGS
-    public static final double kMaxSpeedMetersPerSecond = 1;
-    public static final double kMaxAccelerationMetersPerSecondSquared = 1;
+    public static final double kMaxSpeedMetersPerSecond = 5; 
+    public static final double kMaxAccelerationMetersPerSecondSquared = 10;
     // NOTE joel 2/8 used to be negative; inversions broken somewhere?
-    public static final double kMaxAngularSpeedRadiansPerSecond = 3;
+    public static final double kMaxAngularSpeedRadiansPerSecond = 5;
     public static final double kMaxAngularSpeedRadiansPerSecondSquared = 10;
 
     // FAST SETTINGS. can the robot actually go this fast?
@@ -94,6 +94,11 @@ public class SwerveDriveSubsystem extends SubsystemBase {
     private double xVelocity = 0;
     private double yVelocity = 0;
     private double thetaVelociy = 0;
+
+    private double x;
+    private double y;
+    private double rotation;
+    private boolean isFieldRelative;
 
     private VisionDataProvider visionDataProvider;
 
@@ -137,28 +142,28 @@ public class SwerveDriveSubsystem extends SubsystemBase {
                         11, // drive CAN
                         30, // turn CAN
                         2, // turn encoder
-                        0.812, // turn offset
+                        0.27, // turn offset
                         currentLimit);
                 m_frontRight = WCPModule(
                         "Front Right",
                         12, // drive CAN
                         32, // turn CAN
                         0, // turn encoder
-                        0.382, // turn offset
+                        0.87, // turn offset
                         currentLimit);
                 m_rearLeft = WCPModule(
                         "Rear Left",
                         21, // drive CAN
                         31, // turn CAN
                         3, // turn encoder
-                        0.172, // turn offset
+                        0.28, // turn offset
                         currentLimit);
                 m_rearRight = WCPModule(
                         "Rear Right",
                         22, // drive CAN
                         33, // turn CAN
                         1, // turn encoder
-                        0.789, // turn offset
+                        0.47, // turn offset
                         currentLimit);
                 break;
             case SWERVE_TWO:
@@ -453,10 +458,6 @@ public class SwerveDriveSubsystem extends SubsystemBase {
     public boolean getMoving() {
         return moving;
     }      
-        double x;
-        double y;
-        double rotation;
-        boolean isFieldRelative;
 
     /**
      * Method to drive the robot using joystick info.
@@ -477,12 +478,15 @@ public class SwerveDriveSubsystem extends SubsystemBase {
          y = ySpeed;
          rotation = rot;
          isFieldRelative = fieldRelative;
-        if (Math.abs(xSpeed) < .01)
-            xSpeed = 100 * xSpeed * xSpeed * Math.signum(xSpeed);
-        if (Math.abs(ySpeed) < .01)
-            ySpeed = 100 * ySpeed * ySpeed * Math.signum(ySpeed);
+
+        if (Math.abs(xSpeed) < .1)
+            xSpeed = 0;//100 * xSpeed * xSpeed * Math.signum(xSpeed);
+        if (Math.abs(ySpeed) < .1)
+            ySpeed = 0; //100 * ySpeed * ySpeed * Math.signum(ySpeed);
+
         if (Math.abs(rot) < .1)
             rot = 0;
+
         var swerveModuleStates = kDriveKinematics.toSwerveModuleStates(
                 fieldRelative
                         ? ChassisSpeeds.fromFieldRelativeSpeeds(kMaxSpeedMetersPerSecond * xSpeed,
@@ -598,6 +602,6 @@ public class SwerveDriveSubsystem extends SubsystemBase {
         builder.addDoubleProperty("ySpeed", () -> y, null);
         builder.addDoubleProperty("Rotation", () -> rotation, null);
         builder.addBooleanProperty("Field Relative", () -> isFieldRelative, null);
+        // builder.addDoubleProperty("Identity", () -> Identity.get(), null);
     }
-
 }
