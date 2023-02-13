@@ -24,6 +24,10 @@ public class Forward extends TrajectoryCommand {
         Pose2d currentRobotPose = m_robotDrive.getPose();
             double xRobot = currentRobotPose.getX();
             double yRobot = currentRobotPose.getY();
+            Rotation2d rotRobot = currentRobotPose.getRotation();
+            if (x < 0) {
+                rotRobot = new Rotation2d(rotRobot.getRadians()-Math.PI);
+            }
             
         TrajectoryConfig trajectoryConfig = new TrajectoryConfig(
                     4,
@@ -33,9 +37,9 @@ public class Forward extends TrajectoryCommand {
     
             Trajectory exampleTrajectory = TrajectoryGenerator.generateTrajectory(
                     // Start at the origin facing the +X direction
-                    currentRobotPose,
+                    new Pose2d(xRobot, yRobot, rotRobot),
                     List.of(),
-                    new Pose2d(xRobot + x, yRobot, new Rotation2d(0)),
+                    new Pose2d(xRobot + x, yRobot, rotRobot),
                     trajectoryConfig);
     
             return new Forward(m_robotDrive, exampleTrajectory);
