@@ -442,6 +442,7 @@ public class SwerveDriveSubsystem extends SubsystemBase {
     }
 
     public Pose2d getPose() {
+        updateOdometry();
         return m_poseEstimator.getEstimatedPosition();
     }
 
