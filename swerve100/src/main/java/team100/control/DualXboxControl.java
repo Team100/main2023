@@ -64,12 +64,14 @@ public class DualXboxControl implements Control, Sendable {
 
     @Override
     public double xSpeed() {
-        return m_xspeedLimiter.calculate(-1.0 * controller0.getRightY());
+        return -1.0 * controller0.getRightY();
+        //return m_xspeedLimiter.calculate(-1.0 * controller0.getRightY());
     }
 
     @Override
     public double ySpeed() {
-        return m_yspeedLimiter.calculate(-1.0 * controller0.getRightX());
+        return -1.0 * controller0.getRightX();
+        //return m_yspeedLimiter.calculate(-1.0 * controller0.getRightX());
     }
 
     @Override
