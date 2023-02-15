@@ -69,7 +69,7 @@ public class SwerveDriveSubsystem extends SubsystemBase {
     // public static final double kaVoltSecondsSquaredPerMeter = 0.5;
 
     // SLOW SETTINGS
-    public static final double kMaxSpeedMetersPerSecond = 4; 
+    public static final double kMaxSpeedMetersPerSecond = 5; 
     public static final double kMaxAccelerationMetersPerSecondSquared = 10;
     // NOTE joel 2/8 used to be negative; inversions broken somewhere?
     public static final double kMaxAngularSpeedRadiansPerSecond = 3;
@@ -479,12 +479,12 @@ public class SwerveDriveSubsystem extends SubsystemBase {
          rotation = rot;
          isFieldRelative = fieldRelative;
 
-        if (Math.abs(xSpeed) < .1)
+        if (Math.abs(xSpeed) < .01)
             xSpeed = 0;//100 * xSpeed * xSpeed * Math.signum(xSpeed);
-        if (Math.abs(ySpeed) < .1)
+        if (Math.abs(ySpeed) < .01)
             ySpeed = 0; //100 * ySpeed * ySpeed * Math.signum(ySpeed);
 
-        if (Math.abs(rot) < .1)
+        if (Math.abs(rot) < .01)
             rot = 0;
 
         var swerveModuleStates = kDriveKinematics.toSwerveModuleStates(
@@ -603,5 +603,14 @@ public class SwerveDriveSubsystem extends SubsystemBase {
         builder.addDoubleProperty("Rotation", () -> rotation, null);
         builder.addBooleanProperty("Field Relative", () -> isFieldRelative, null);
         // builder.addDoubleProperty("Identity", () -> Identity.get(), null);
+
+        builder.addDoubleProperty("Front Left Output", () -> m_frontLeft.getDriveOutput(), null);
+        builder.addDoubleProperty("Front Right Output", () -> m_frontRight.getDriveOutput(), null);
+        builder.addDoubleProperty("Rear Left Output", () -> m_rearLeft.getDriveOutput(), null);
+        builder.addDoubleProperty("Rear Right Output", () -> m_rearLeft.getDriveOutput(), null);
+
+        builder.addDoubleProperty("GYRO ROLL", () -> m_gyro.getRoll(), null);
+
+
     }
 }

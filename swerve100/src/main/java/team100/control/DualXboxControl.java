@@ -1,6 +1,5 @@
 package team100.control;
 
-import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.util.sendable.Sendable;
 import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -22,8 +21,8 @@ public class DualXboxControl implements Control, Sendable {
     private final CommandXboxController controller0;
     private final CommandXboxController controller1;
 
-    private final SlewRateLimiter m_xspeedLimiter = new SlewRateLimiter(xSlewRateLimit);
-    private final SlewRateLimiter m_yspeedLimiter = new SlewRateLimiter(ySlewRateLimit);
+    // private final SlewRateLimiter m_xspeedLimiter = new SlewRateLimiter(xSlewRateLimit);
+    // private final SlewRateLimiter m_yspeedLimiter = new SlewRateLimiter(ySlewRateLimit);
 
     public DualXboxControl() {
         controller0 = new CommandXboxController(0);
@@ -64,14 +63,12 @@ public class DualXboxControl implements Control, Sendable {
 
     @Override
     public double xSpeed() {
-        return -1.0 * controller0.getRightY();
-        //return m_xspeedLimiter.calculate(-1.0 * controller0.getRightY());
+        return m_xspeedLimiter.calculate(-1.0 * controller0.getRightY());
     }
 
     @Override
     public double ySpeed() {
-        return -1.0 * controller0.getRightX();
-        //return m_yspeedLimiter.calculate(-1.0 * controller0.getRightX());
+        return m_yspeedLimiter.calculate(-1.0 * controller0.getRightX());
     }
 
     @Override
