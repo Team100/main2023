@@ -8,9 +8,11 @@ import frc.robot.Constants.OperatorConstants;
 import frc.robot.commands.Autos;
 import frc.robot.commands.Calibrate;
 import frc.robot.commands.CloseManipulator;
+import frc.robot.commands.OpenManipulator;
 // import frc.robot.commands.ExampleCommand;
 import frc.robot.subsystems.Manipulator;
 import edu.wpi.first.wpilibj.DigitalInput;
+import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
@@ -30,13 +32,18 @@ public class RobotContainer {
   // The robot's subsystems and commands are defined here...
 
   // Replace with CommandPS4Controller or CommandJoystick if needed
-  private static final XboxController m_driverController = new XboxController(0);
-  private static final JoystickButton bButton = new JoystickButton(m_driverController, 2);
+  // private static final XboxController m_driverController = new XboxController(0);
+  // private static final Joystick LEFT_JOYSTICK = new Joystick(0);
+  private static final Joystick RIGHT_JOYSTICK = new Joystick(1);
+
+
+  // private static final JoystickButton bButton = new JoystickButton(m_driverController, 2);
   private final Manipulator manipulator = new Manipulator();
   private boolean manipulatorCalibrated = false;
 
   private final Calibrate calibrate = new Calibrate(manipulator);
   private final CloseManipulator closeManipulator = new CloseManipulator(manipulator);
+  private final OpenManipulator openManipulator = new OpenManipulator(manipulator);
 
   
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
@@ -59,11 +66,14 @@ public class RobotContainer {
     manipulator.setDefaultCommand(new ConditionalCommand(
       new ConditionalCommand(
         new CloseManipulator(manipulator, () -> !manipulator.getSensor()), 
-        new RunCommand( () -> manipulator.pinch(m_driverController.getLeftY()), manipulator),
-        () -> manipulator.getSensor()),
-      calibrate.andThen(() -> { manipulatorCalibrated = true; }),
-      () -> manipulatorCalibrated));
+        new RunCommand( () -> manipulator.pinch(-RIGHT_JOYSTICK.getY()), manipulator),
+        () -> { return false;}),
+      new Calibrate(manipulator).andThen(() -> { manipulatorCalibrated = true; }),
+      () -> {return true;}));
 
+    new JoystickButton(RIGHT_JOYSTICK, 2).onTrue(calibrate);
+    new JoystickButton(RIGHT_JOYSTICK, 1).onTrue(closeManipulator);
+    new JoystickButton(RIGHT_JOYSTICK, 3).onTrue(openManipulator);
     // new JoystickButton(m_driverController, 1).onTrue(calibrate);
     // new JoystickButton(m_driverController, 8).onTrue(closeManipulator);
 
