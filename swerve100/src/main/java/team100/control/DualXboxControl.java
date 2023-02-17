@@ -8,6 +8,7 @@ import frc.robot.autonomous.MoveToAprilTag;
 //import frc.robot.autonomous.SanjanAutonomous;
 import frc.robot.commands.ArmHigh;
 import frc.robot.commands.ResetPose;
+import frc.robot.subsystems.SwerveDriveSubsystem;
 
 /**
  * see
@@ -34,6 +35,10 @@ public class DualXboxControl implements Control, Sendable {
         controller0.a().onTrue(command);
     }
 
+    public void driveSlow(SwerveDriveSubsystem m_robotDrive){
+        // controller0.rightBumper().onTrue(m_robotDrive.driveSl)
+    }
+
     @Override
     public void moveToAprilTag(MoveToAprilTag command) {
         controller0.b().onTrue(command);
@@ -43,7 +48,7 @@ public class DualXboxControl implements Control, Sendable {
 
     @Override
     public void autoLevel(frc.robot.commands.autoLevel command) {
-        controller0.y().onTrue(command);
+        controller0.y().whileTrue(command);
     }
 
     // @Override

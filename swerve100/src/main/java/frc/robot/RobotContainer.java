@@ -67,6 +67,7 @@ public class RobotContainer implements Sendable {
         armHigh = new ArmHigh(arm);
         resetPose = new ResetPose(m_robotDrive, new Pose2d(new Translation2d(0, 0), new Rotation2d(0)));
         autoLevel = new autoLevel(m_robotDrive.m_gyro, m_robotDrive);
+        
         // TODO: do something with tagid.
         int tagID = 3;
         moveToAprilTag = MoveToAprilTag.newMoveToAprilTag(m_robotDrive, tagID);

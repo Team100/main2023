@@ -32,8 +32,8 @@ public class autoLevel extends CommandBase {
     double Roll = m_gyro.getRoll();
     double Pitch = m_gyro.getPitch();
     System.out.println(Roll);
-        double driveRollAmount = MathUtil.clamp(0.02 * Roll, -0.25, 0.25);
-        double drivePitchAmount = MathUtil.clamp(0.02   * Pitch, -0.25, 0.25);
+        double driveRollAmount = MathUtil.clamp(0.005 * Roll, -0.06, 0.06);
+        double drivePitchAmount = MathUtil.clamp(0.005   * Pitch, -0.06, 0.06);
        if(Math.abs(Roll) > 2.5 || Math.abs(Pitch) > 2.5){   
         drivetrain.drive(driveRollAmount, drivePitchAmount, 0, false);     
        }
