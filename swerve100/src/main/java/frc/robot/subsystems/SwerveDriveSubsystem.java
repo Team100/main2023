@@ -128,7 +128,7 @@ public class SwerveDriveSubsystem extends SubsystemBase {
         yController = new PIDController(Py, Iy, Dy);
         yController.setTolerance(yTolerance);
 
-        final double Ptheta = 1.5;
+        final double Ptheta = 1;
         final double Itheta = 0;
         final double Dtheta = 0;
         final TrapezoidProfile.Constraints thetaControllerConstraints = new TrapezoidProfile.Constraints(
@@ -172,28 +172,28 @@ public class SwerveDriveSubsystem extends SubsystemBase {
                         11, // drive CAN
                         3, // turn PWM
                         1, // turn encoder
-                        0.027946, // turn offset
+                        0.032635, // turn offset
                         currentLimit);
                 m_frontRight = AMModule(
                         "Front Right",
                         12, // drive CAN
                         1, // turn PWM
                         3, // turn encoder
-                        0.089358, // turn offset
+                        0.083566, // turn offset
                         currentLimit);
                 m_rearLeft = AMModule(
                         "Rear Left",
                         21, // drive CAN
                         2, // turn PWM
                         0, // turn encoder
-                        0.740359, // turn offset
+                        0.747865, // turn offset
                         currentLimit);
                 m_rearRight = AMModule(
                         "Rear Right",
                         22, // drive CAN
                         0, // turn PWM
                         2, // turn encoder
-                        0.731232, // turn offset
+                        0.727833, // turn offset
                         currentLimit);
                 break;
             case SWERVE_ONE:
