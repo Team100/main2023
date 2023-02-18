@@ -216,7 +216,7 @@ public class SwerveDriveSubsystem extends SubsystemBase {
                         21, // drive CAN
                         1, // turn PWM
                         3, // turn encoder
-                        0.367754, // turn offset
+                        0.200968, // turn offset
                         currentLimit);
                 m_rearRight = AMModule(
                         "Rear Right",
