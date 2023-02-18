@@ -18,7 +18,7 @@ public class HashTag {
     public HashTag(){
         aprilHash = new HashMap<Integer, TestAprilTag>();
 
-        TestAprilTag tag1 = new TestAprilTag(3, new Pose3d ( new Translation3d(10, 4 ,0), new Rotation3d()) );
+        TestAprilTag tag1 = new TestAprilTag(5, new Pose3d ( new Translation3d(0, 0 ,0), new Rotation3d()) );
         // TestAprilTag tag2 = new TestAprilTag(2, new Pose3d(new Translation3d(15.513558, 0, 2.748026), new Rotation3d()));
         // TestAprilTag tag3 = new TestAprilTag(1, new Pose3d(new Translation3d(15.513558, 0, 4.424426), new Rotation3d()));
 
