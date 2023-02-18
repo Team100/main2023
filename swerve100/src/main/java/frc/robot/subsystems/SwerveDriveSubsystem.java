@@ -480,9 +480,9 @@ public class SwerveDriveSubsystem extends SubsystemBase {
          isFieldRelative = fieldRelative;
 
         if (Math.abs(xSpeed) < .01)
-            xSpeed = 0;//100 * xSpeed * xSpeed * Math.signum(xSpeed);
+            xSpeed = 100 * xSpeed * xSpeed * Math.signum(xSpeed);
         if (Math.abs(ySpeed) < .01)
-            ySpeed = 0; //100 * ySpeed * ySpeed * Math.signum(ySpeed);
+            ySpeed = 100 * ySpeed * ySpeed * Math.signum(ySpeed);
 
         if (Math.abs(rot) < .01)
             rot = 0;

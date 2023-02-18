@@ -23,7 +23,7 @@ public class Rotate extends ProfiledPIDCommand {
                 m_robotDrive.thetaController,
                 () -> m_robotDrive.getPose().getRotation().getRadians(),
                 targetAngleRadians,
-                (outPut, state) -> m_robotDrive.drive(0, 0, outPut, false),
+                (output, state) -> m_robotDrive.drive(0, 0, output, false),
                 m_robotDrive);
 
         getController().enableContinuousInput(-Math.PI, Math.PI);
