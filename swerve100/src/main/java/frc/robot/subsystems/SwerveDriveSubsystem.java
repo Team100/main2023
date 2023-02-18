@@ -33,8 +33,8 @@ public class SwerveDriveSubsystem extends SubsystemBase {
         final double kWheelBase;
         switch (Identity.get()) {
             case SQUAREBOT:
-                kTrackWidth = 0.650;
-                kWheelBase = 0.650;
+                kTrackWidth = 0.699;
+                kWheelBase = 0.512;
                 break;
             case SWERVE_TWO:
                 kTrackWidth = 0.380;
@@ -301,7 +301,7 @@ public class SwerveDriveSubsystem extends SubsystemBase {
                         m_rearRight.getPosition()
                 },
                 new Pose2d(),
-                VecBuilder.fill(0.1, 0.1, 0.1),
+                VecBuilder.fill(0.05, 0.05, 0.05),
                 VecBuilder.fill(0.9, 0.9, Integer.MAX_VALUE));
 
         visionDataProvider = new VisionDataProvider(m_poseEstimator, () -> getMoving());
@@ -315,8 +315,8 @@ public class SwerveDriveSubsystem extends SubsystemBase {
             int turningEncoderChannel,
             double turningOffset,
             double currentLimit) {
-        final double kWheelDiameterMeters = 0.1005; // WCP 4 inch wheel
-        final double kDriveReduction = 6.55; // see wcproducts.com
+        final double kWheelDiameterMeters = 0.1015; // WCP 4 inch wheel
+        final double kDriveReduction = 5.50; // see wcproducts.com
         final double driveEncoderDistancePerTurn = kWheelDiameterMeters * Math.PI / kDriveReduction;
         final double turningGearRatio = 1.0;
         final double kPModuleDriveController = 0.1;
