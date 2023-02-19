@@ -18,6 +18,8 @@ import frc.robot.autonomous.MoveToAprilTag;
 import frc.robot.autonomous.SanjanAutonomous;
 import frc.robot.autonomous.VasiliAutonomous;
 import frc.robot.commands.ArmHigh;
+import frc.robot.commands.DriveRotation;
+import frc.robot.commands.DriveWithHeading;
 import frc.robot.commands.ResetPose;
 import frc.robot.commands.autoLevel;
 import frc.robot.commands.driveLowerArm;
@@ -48,7 +50,8 @@ public class RobotContainer implements Sendable {
     private final MoveToAprilTag moveToAprilTag;
     private final DriveManually driveManually;
     private final GripManually gripManually;
-
+    private final DriveWithHeading driveWithHeading0, driveWithHeading90, driveWithHeading180, driveWithHeading270;
+    private final DriveRotation driveRotation;
     public final static Field2d m_field = new Field2d();
 
     public RobotContainer() {
@@ -67,6 +70,36 @@ public class RobotContainer implements Sendable {
         armHigh = new ArmHigh(arm);
         resetPose = new ResetPose(m_robotDrive, new Pose2d(new Translation2d(0, 0), new Rotation2d(0)));
         autoLevel = new autoLevel(m_robotDrive.m_gyro, m_robotDrive);
+        
+        driveWithHeading0 = new DriveWithHeading(
+            m_robotDrive, 
+            control::xSpeed,
+            control::ySpeed,
+            Rotation2d.fromDegrees(0),
+            "0 Degrees");
+
+        driveWithHeading90 = new DriveWithHeading(
+            m_robotDrive, 
+            control::xSpeed,
+            control::ySpeed,
+            Rotation2d.fromDegrees(90),
+            "90 Degrees");
+
+        driveWithHeading180 = new DriveWithHeading(
+            m_robotDrive, 
+            control::xSpeed,
+            control::ySpeed,
+            Rotation2d.fromDegrees(180),
+            "180 Degrees");
+        
+        driveWithHeading270 = new DriveWithHeading(
+            m_robotDrive, 
+            control::xSpeed,
+            control::ySpeed,
+            Rotation2d.fromDegrees(270),
+            "270 Degrees");
+        
+        driveRotation = new DriveRotation(m_robotDrive, control::rotSpeed);
         
         // TODO: do something with tagid.
         int tagID = 3;
@@ -89,6 +122,15 @@ public class RobotContainer implements Sendable {
                 control::rotSpeed,
                 m_robotDrive);
         m_robotDrive.setDefaultCommand(driveManually);
+        
+        control.driveWithHeading0(driveWithHeading0);
+        control.driveWithHeading90(driveWithHeading90);
+        control.driveWithHeading180(driveWithHeading180);
+        control.driveWithHeading270(driveWithHeading270);
+        control.driveRotation(driveRotation);
+
+
+
 
         // Controller 1 triggers => manipulator open/close
         gripManually = new GripManually(

@@ -2,11 +2,14 @@ package team100.control;
 
 import edu.wpi.first.util.sendable.Sendable;
 import edu.wpi.first.util.sendable.SendableBuilder;
+import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.autonomous.MoveToAprilTag;
 //import frc.robot.autonomous.SanjanAutonomous;
 import frc.robot.commands.ArmHigh;
+import frc.robot.commands.DriveRotation;
+import frc.robot.commands.DriveWithHeading;
 import frc.robot.commands.ResetPose;
 import frc.robot.subsystems.SwerveDriveSubsystem;
 
@@ -28,11 +31,12 @@ public class DualXboxControl implements Control, Sendable {
         SmartDashboard.putData("Robot Container", this);
     }
 
+
     @Override
     public void resetPose(ResetPose command) {
         // TODO: choose one
         controller0.leftBumper().onTrue(command);
-        controller0.a().onTrue(command);
+        // controller0.a().onTrue(command);
     }
 
     public void driveSlow(SwerveDriveSubsystem m_robotDrive){
@@ -60,6 +64,32 @@ public class DualXboxControl implements Control, Sendable {
     public void armHigh(ArmHigh command) {
         controller1.b().onTrue(command);
     }
+
+    @Override
+    public void driveWithHeading0(DriveWithHeading command){
+        controller0.povUp().onTrue(command);
+    }
+
+    @Override
+    public void driveWithHeading90(DriveWithHeading command){
+        controller0.povLeft().onTrue(command);
+    }
+
+    @Override
+    public void driveWithHeading180(DriveWithHeading command){
+        controller0.povDown().onTrue(command);
+    }
+
+    @Override
+    public void driveWithHeading270(DriveWithHeading command){
+        controller0.povRight().onTrue(command);
+    }
+
+    @Override
+    public void driveRotation(DriveRotation command){
+        controller0.rightBumper().whileTrue(command);
+    }
+
 
     @Override
     public double xSpeed() {

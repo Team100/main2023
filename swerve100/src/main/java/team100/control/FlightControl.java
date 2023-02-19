@@ -3,6 +3,8 @@ package team100.control;
 import edu.wpi.first.wpilibj.DriverStation;
 import frc.robot.autonomous.MoveToAprilTag;
 import frc.robot.commands.ArmHigh;
+import frc.robot.commands.DriveRotation;
+import frc.robot.commands.DriveWithHeading;
 import frc.robot.commands.ResetPose;
 
 /* Uses my RealFlight controller, does not support buttons. */
@@ -25,6 +27,21 @@ public class FlightControl implements Control {
     public void armHigh(ArmHigh command) {
     }
 
+    @Override
+    public void driveWithHeading0(DriveWithHeading command){}
+
+    @Override
+    public void driveWithHeading90(DriveWithHeading command){}
+
+    @Override
+    public void driveWithHeading180(DriveWithHeading command){}
+
+    @Override
+    public void driveWithHeading270(DriveWithHeading command){}
+
+    @Override
+    public void driveRotation(DriveRotation command){}
+    
     @Override
     public double xSpeed() {
         return -1.25 * DriverStation.getStickAxis(kPort, 1);

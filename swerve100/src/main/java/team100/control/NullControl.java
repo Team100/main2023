@@ -2,6 +2,8 @@ package team100.control;
 
 import frc.robot.autonomous.MoveToAprilTag;
 import frc.robot.commands.ArmHigh;
+import frc.robot.commands.DriveRotation;
+import frc.robot.commands.DriveWithHeading;
 import frc.robot.commands.ResetPose;
 
 public class NullControl implements Control {
@@ -21,6 +23,21 @@ public class NullControl implements Control {
     @Override
     public void armHigh(ArmHigh command) {
     }
+
+    @Override
+    public void driveWithHeading0(DriveWithHeading command){}
+
+    @Override
+    public void driveWithHeading90(DriveWithHeading command){}
+
+    @Override
+    public void driveWithHeading180(DriveWithHeading command){}
+
+    @Override
+    public void driveWithHeading270(DriveWithHeading command){}
+
+    @Override
+    public void driveRotation(DriveRotation command){}
 
     @Override
     public double xSpeed() {

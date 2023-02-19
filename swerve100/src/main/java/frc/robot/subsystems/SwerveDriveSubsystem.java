@@ -111,7 +111,9 @@ public class SwerveDriveSubsystem extends SubsystemBase {
 
     public final PIDController xController;
     public final PIDController yController;
+    public final PIDController headingController;
     public ProfiledPIDController thetaController;
+
 
     public SwerveDriveSubsystem(double currentLimit) {
         final double Px = .15;
@@ -128,12 +130,15 @@ public class SwerveDriveSubsystem extends SubsystemBase {
         yController = new PIDController(Py, Iy, Dy);
         yController.setTolerance(yTolerance);
 
-        final double Ptheta = 1;
+        final double Ptheta = 3;
         final double Itheta = 0;
         final double Dtheta = 0;
         final TrapezoidProfile.Constraints thetaControllerConstraints = new TrapezoidProfile.Constraints(
                 kMaxAngularSpeedRadiansPerSecond, kMaxAngularSpeedRadiansPerSecondSquared);
         thetaController = new ProfiledPIDController(Ptheta, Itheta, Dtheta, thetaControllerConstraints);
+        
+        headingController = new PIDController(3, 0.05, 0.2, 0.01);
+        headingController.setTolerance(0.2);
 
         switch (Identity.get()) {
             case SQUAREBOT:
@@ -555,7 +560,7 @@ public class SwerveDriveSubsystem extends SubsystemBase {
     @Override
     public void initSendable(SendableBuilder builder) {
         super.initSendable(builder);
-        builder.addDoubleProperty("heading_degrees", () -> this.getHeading().getDegrees(), null);
+        builder.addDoubleProperty("heading_radians", () -> 2 + this.getHeading().getRadians(), null);
         builder.addDoubleProperty("translationalx", () -> getPose().getX(), null);
         builder.addDoubleProperty("translationaly", () -> getPose().getY(), null);
         builder.addDoubleProperty("theta", () -> getPose().getRotation().getRadians(), null);
