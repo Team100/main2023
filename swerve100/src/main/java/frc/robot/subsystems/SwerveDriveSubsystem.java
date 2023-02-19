@@ -202,28 +202,28 @@ public class SwerveDriveSubsystem extends SubsystemBase {
                         11, // drive CAN
                         0, // turn PWM
                         2, // turn encoder
-                        0.693007, // turn offset
+                        0.69, // turn offset
                         currentLimit);
                 m_frontRight = AMModule(
                         "Front Right",
                         12, // drive CAN
                         2, // turn PWM
                         0, // turn encoder
-                        0.735136, // turn offset
+                        0.72, // turn offset
                         currentLimit);
                 m_rearLeft = AMModule(
                         "Rear Left",
                         21, // drive CAN
                         1, // turn PWM
                         3, // turn encoder
-                        0.200968, // turn offset
+                        0.3, // turn offset
                         currentLimit);
                 m_rearRight = AMModule(
                         "Rear Right",
                         22, // drive CAN
                         3, // turn PWM
                         1, // turn encoder
-                        0.984952, // turn offset
+                        0.976726, // turn offset
                         currentLimit);
                 break;
             case FROM_8048:
@@ -301,8 +301,8 @@ public class SwerveDriveSubsystem extends SubsystemBase {
                         m_rearRight.getPosition()
                 },
                 new Pose2d(),
-                VecBuilder.fill(0.1, 0.1, 0.1),
-                VecBuilder.fill(0.9, 0.9, Integer.MAX_VALUE));
+                VecBuilder.fill(0.03, 0.03, .03),
+                VecBuilder.fill(0.01, 0.01, Integer.MAX_VALUE));
 
         visionDataProvider = new VisionDataProvider(m_poseEstimator, () -> getMoving());
         SmartDashboard.putData("Drive Subsystem", this);

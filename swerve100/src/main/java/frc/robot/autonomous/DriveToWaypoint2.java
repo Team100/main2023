@@ -43,8 +43,9 @@ public class DriveToWaypoint2 extends CommandBase {
         this.goal = goal;
         this.m_swerve = m_swerve;
         m_rotationController = new ProfiledPIDController(1, 0, 0, rotationConstraints);
-        xController = new PIDController(1, 0.5, 0);
-        yController = new PIDController(1, 0.5, 0);
+        xController = new PIDController(1, 1, 0);
+        xController.setIntegratorRange(-0.5, 0.5);   
+        yController = new PIDController(1, 1, 0);
         m_controller = new HolonomicDriveController(xController, yController, m_rotationController);
         translationConfig = new TrajectoryConfig(5.0, 20.0).setKinematics(SwerveDriveSubsystem.kDriveKinematics);
         addRequirements(m_swerve);

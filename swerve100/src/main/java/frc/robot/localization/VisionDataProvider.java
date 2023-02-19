@@ -34,6 +34,7 @@ public class VisionDataProvider {
     private static double kCameraZOffset = .0;
 
     public VisionDataProvider(SwerveDrivePoseEstimator pE, Supplier<Boolean> getM) {
+        System.out.println("EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE");
         getMoving = getM;
         poseEstimator = pE;
         NetworkTableInstance inst = NetworkTableInstance.getDefault();
@@ -74,6 +75,7 @@ public class VisionDataProvider {
      * @return a Pose3d representing the blip
      */
     private Pose3d blipToPose(Blip b) {
+        System.out.println("EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE");
         Translation3d t = new Translation3d(b.pose_t[0][0], b.pose_t[1][0], b.pose_t[2][0]);
         // Matrix<N3, N3> rot = new Matrix<N3, N3>(Nat.N3(), Nat.N3());
 
@@ -100,14 +102,15 @@ public class VisionDataProvider {
     }
 
     private void estimateRobotPose(Blips blips) {
+        System.out.println("BAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAALLLLLLLLLLLLLLLLLLIIIIIIIIIN");
         for (Blip b : blips.tags) {
             Pose3d p = blipToPose(b);
-            // System.out.printf("TAG ID: %d\n", b.id);
-            // System.out.printf("POSE: %s\n", p);
+            System.out.printf("TAG ID: %d\n", b.id);
+            System.out.printf("POSE: %s\n", p);
 
             if (p != null) {
                 if (hashTag.getTag((int)b.id) != null) {
-                    if(!getMoving.get()){
+                        System.out.println("*********************************************************************************");
                         Pose3d tagPose = cameraToRobot(p);
                         // Rotation3d tagRotation3d = new Rotation2d().
                         // double headingtoRad = getHeading.;
@@ -116,10 +119,7 @@ public class VisionDataProvider {
                         // System.out.println("rotttttttt: " + tagPose.getRotation().getAngle() * 180.0 / Math.PI);
                         Pose2d robotPose = toFieldCoordinates(tagPose.getTranslation(), tagPose.getRotation(), hashTag.getTag((int)b.id)).toPose2d();
                         // System.out.println("ROBOT ROTATION: " + robotPose.getRotation().getDegrees());
-                        poseEstimator.addVisionMeasurement(robotPose, Timer.getFPGATimestamp() - 0.3);
-
-                    }
-                    
+                        poseEstimator.addVisionMeasurement(robotPose, Timer.getFPGATimestamp() - 0.3);    
                 }
             }
         }

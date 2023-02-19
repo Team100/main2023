@@ -47,8 +47,8 @@ class MyColorAnalyzer(Output):
         self.at_circle_detector = Detector(families="tagCircle21h7")
         self.output_stream = CameraServer.putVideo("Processed", width, height)
         self.camera_params = [
-            357.1,
-            357.1,
+            512,
+            864,
             width / 2,
             height / 2,
         ]
