@@ -4,8 +4,6 @@
 
 package frc.robot.autonomous;
 
-import edu.wpi.first.math.controller.PIDController;
-import edu.wpi.first.wpilibj2.command.PIDCommand;
 import edu.wpi.first.util.sendable.SendableBuilder;
 // import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -42,11 +40,6 @@ public class Rotate extends ProfiledPIDCommand {
 
     @Override
     public boolean isFinished() {
-        // boolean hasElapsed = m_timer.hasElapsed(3);
-        // if (hasElapsed) {
-        // System.out.println("BAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAALSLLSLSLSLSLSLS");
-        // }
-        // return hasElapsed;return
 
         // return m_haveMeasurement
         // && m_haveSetpoint
@@ -97,7 +90,6 @@ public class Rotate extends ProfiledPIDCommand {
 
     @Override
     public void end(boolean isInterupted) {
-        System.out.println("DONEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE");
         // m_timer.stop();
     }
 

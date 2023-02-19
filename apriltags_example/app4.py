@@ -40,6 +40,9 @@ class TagFinder:
         self.height = height
 
         # NetworkTables Rio as server
+        inst = NetworkTableInstance.getDefault()
+        inst.startClient4("app4")
+        inst.setServer("10.1.0.2")
         
         # NetworkTables.initialize(server="10.1.0.14")
         # NetworkTables Pi as server (for testing)

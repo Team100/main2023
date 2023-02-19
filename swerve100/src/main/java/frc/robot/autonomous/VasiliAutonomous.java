@@ -7,12 +7,9 @@ package frc.robot.autonomous;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
-import edu.wpi.first.wpilibj2.command.WaitCommand;
-import frc.robot.commands.autoLevel;
 // import edu.wpi.first.wpilibj2.command.WaitCommand;
 // import frc.robot.commands.autoLevel;
 import frc.robot.subsystems.SwerveDriveSubsystem;
-import frc.robot.autonomous.DriveToWaypoint2;
 
 // NOTE:  Consider using this command inline, rather than writing a subclass.  For more
 // information, see:

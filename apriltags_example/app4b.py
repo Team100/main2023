@@ -41,14 +41,14 @@ class MyColorAnalyzer(Output):
         self.vision_nt_rx = self.vision_nt.getStringArrayTopic("pose_R_x").publish()
         self.vision_nt_ry = self.vision_nt.getStringArrayTopic("pose_R_y").publish()
         self.vision_nt_rz = self.vision_nt.getStringArrayTopic("pose_R_z").publish()
-        self.tag_size = 0.2
+        self.tag_size = 0.15
         self.circle_tag_size = 0.8
         self.at_detector = Detector(families="tag16h5")
         self.at_circle_detector = Detector(families="tagCircle21h7")
         self.output_stream = CameraServer.putVideo("Processed", width, height)
         self.camera_params = [
-            512,
-            864,
+            666,
+            666,
             width / 2,
             height / 2,
         ]
