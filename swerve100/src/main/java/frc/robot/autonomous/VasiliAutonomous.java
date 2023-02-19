@@ -4,9 +4,9 @@
 
 package frc.robot.autonomous;
 
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
-import edu.wpi.first.wpilibj2.command.WaitCommand;
-import frc.robot.commands.autoLevel;
 // import edu.wpi.first.wpilibj2.command.WaitCommand;
 // import frc.robot.commands.autoLevel;
 import frc.robot.subsystems.SwerveDriveSubsystem;
@@ -19,13 +19,15 @@ public class VasiliAutonomous extends SequentialCommandGroup {
   public VasiliAutonomous(SwerveDriveSubsystem m_robotDrive) {
     // Add your commands in the addCommands() call, e.g.
     // addCommands(new FooCommand(), new BarCommand());
+    
     addCommands(
-      Forward.newForward(m_robotDrive, -3), 
-      new Rotate(m_robotDrive, Math.PI),
-      new WaitCommand(1),
-      new Rotate(m_robotDrive, 0),
-      Forward.newForward(m_robotDrive, 3),
-      new autoLevel(m_robotDrive.m_gyro, m_robotDrive)
+        new DriveToWaypoint2(new Pose2d(-1, 0, new Rotation2d()), m_robotDrive)
+    //   Forward.newForward(m_robotDrive, -3), 
+    //   new Rotate(m_robotDrive, Math.PI)
+    //   new WaitCommand(1),
+    //   new Rotate(m_robotDrive, Math.PI),
+    //   Forward.newForward(m_robotDrive, 3),
+    //   new autoLevel(m_robotDrive.m_gyro, m_robotDrive)
         // Dodge.newDodge(m_robotDrive, 3),
         // Dodge.newDodge(m_robotDrive, -3)
     );

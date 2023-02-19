@@ -29,11 +29,11 @@ public class VisionDataProvider {
     private final ObjectMapper object_mapper;
     SwerveDrivePoseEstimator poseEstimator;
 
-    private static double kCameraXOffset = .076;
-    private static double kCameraYOffset = -.13;
-    private static double kCameraZOffset = .0;
+    private static double kCameraXOffset = 0;
+    private static double kCameraYOffset = 0;
+    private static double kCameraZOffset = 0;
 
-    public VisionDataProvider(SwerveDrivePoseEstimator pE, Supplier<Boolean> getM) {
+    public VisionDataProvider(SwerveDrivePoseEstimator pE, Supplier<Boolean> getM) {        
         getMoving = getM;
         poseEstimator = pE;
         NetworkTableInstance inst = NetworkTableInstance.getDefault();
@@ -46,22 +46,20 @@ public class VisionDataProvider {
                 vision_table.getEntry("tags"),
                 EnumSet.of(NetworkTableEvent.Kind.kValueAll),
                 (event) -> accept(event));
-
     }
 
     /***
      * Accept a NetworkTableEvent and convert it to a Blips object
      * 
-     * @param event the event to accept
+     * @param event the event to acceptx
      */
     private void accept(NetworkTableEvent event) {
         try {
             Blips blips = object_mapper.readValue(event.valueData.value.getRaw(), Blips.class);
-            // System.out.printf("PAYLOAD %s\n", blips);
-            // System.out.printf("DELAY (s): %f\n", blips.et);
-            // System.out.printf("BLIP COUNT: %d\n", blips.tags.size());
-            estimateRobotPose(blips);
-            // System.out.println("YOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO");
+            System.out.printf("PAYLOAD %s\n", blips);
+            System.out.printf("DELAY (s): %f\n", blips.et);
+            System.out.printf("BLIP COUNT: %d\n", blips.tags.size());
+            estimateRobotPose(blips);;
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -102,12 +100,11 @@ public class VisionDataProvider {
     private void estimateRobotPose(Blips blips) {
         for (Blip b : blips.tags) {
             Pose3d p = blipToPose(b);
-            // System.out.printf("TAG ID: %d\n", b.id);
-            // System.out.printf("POSE: %s\n", p);
+            System.out.printf("TAG ID: %d\n", b.id);
+            System.out.printf("POSE: %s\n", p);
 
             if (p != null) {
                 if (hashTag.getTag((int)b.id) != null) {
-                    if(!getMoving.get()){
                         Pose3d tagPose = cameraToRobot(p);
                         // Rotation3d tagRotation3d = new Rotation2d().
                         // double headingtoRad = getHeading.;
@@ -116,10 +113,7 @@ public class VisionDataProvider {
                         // System.out.println("rotttttttt: " + tagPose.getRotation().getAngle() * 180.0 / Math.PI);
                         Pose2d robotPose = toFieldCoordinates(tagPose.getTranslation(), tagPose.getRotation(), hashTag.getTag((int)b.id)).toPose2d();
                         // System.out.println("ROBOT ROTATION: " + robotPose.getRotation().getDegrees());
-                        poseEstimator.addVisionMeasurement(robotPose, Timer.getFPGATimestamp() - 0.3);
-
-                    }
-                    
+                        poseEstimator.addVisionMeasurement(robotPose, Timer.getFPGATimestamp() - 0.3);    
                 }
             }
         }

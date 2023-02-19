@@ -48,7 +48,7 @@ public class DualXboxControl implements Control, Sendable {
 
     @Override
     public void autoLevel(frc.robot.commands.autoLevel command) {
-        controller0.y().onTrue(command);
+        controller0.y().whileTrue(command);
     }
 
     // @Override
@@ -63,13 +63,11 @@ public class DualXboxControl implements Control, Sendable {
 
     @Override
     public double xSpeed() {
-        //return m_xspeedLimiter.calculate(-1.0 * controller0.getRightY());
         return -1.0 * controller0.getRightY();
     }
 
     @Override
     public double ySpeed() {
-        //return m_yspeedLimiter.calculate(-1.0 * controller0.getRightX());
         return -1.0 * controller0.getRightX();
     }
 

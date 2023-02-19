@@ -69,11 +69,11 @@ public class SwerveDriveSubsystem extends SubsystemBase {
     // public static final double kaVoltSecondsSquaredPerMeter = 0.5;
 
     // SLOW SETTINGS
-    public static final double kMaxSpeedMetersPerSecond = 10; 
+    public static final double kMaxSpeedMetersPerSecond = 5; 
     public static final double kMaxAccelerationMetersPerSecondSquared = 10;
     // NOTE joel 2/8 used to be negative; inversions broken somewhere?
-    public static final double kMaxAngularSpeedRadiansPerSecond = 5;
-    public static final double kMaxAngularSpeedRadiansPerSecondSquared = 10;
+    public static final double kMaxAngularSpeedRadiansPerSecond = 3;
+    public static final double kMaxAngularSpeedRadiansPerSecondSquared = 5;
 
     // FAST SETTINGS. can the robot actually go this fast?
     // public static final double kMaxSpeedMetersPerSecond = 8;
@@ -172,28 +172,28 @@ public class SwerveDriveSubsystem extends SubsystemBase {
                         11, // drive CAN
                         3, // turn PWM
                         1, // turn encoder
-                        0.036860, // turn offset
+                        0.032635, // turn offset
                         currentLimit);
                 m_frontRight = AMModule(
                         "Front Right",
                         12, // drive CAN
                         1, // turn PWM
                         3, // turn encoder
-                        0.548857, // turn offset
+                        0.083566, // turn offset
                         currentLimit);
                 m_rearLeft = AMModule(
                         "Rear Left",
                         21, // drive CAN
                         2, // turn PWM
                         0, // turn encoder
-                        0.746354, // turn offset
+                        0.747865, // turn offset
                         currentLimit);
                 m_rearRight = AMModule(
                         "Rear Right",
                         22, // drive CAN
                         0, // turn PWM
                         2, // turn encoder
-                        0.747177, // turn offset
+                        0.727833, // turn offset
                         currentLimit);
                 break;
             case SWERVE_ONE:
@@ -202,28 +202,28 @@ public class SwerveDriveSubsystem extends SubsystemBase {
                         11, // drive CAN
                         0, // turn PWM
                         2, // turn encoder
-                        0.693007, // turn offset
+                        0.69, // turn offset
                         currentLimit);
                 m_frontRight = AMModule(
                         "Front Right",
                         12, // drive CAN
                         2, // turn PWM
                         0, // turn encoder
-                        0.735136, // turn offset
+                        0.72, // turn offset
                         currentLimit);
                 m_rearLeft = AMModule(
                         "Rear Left",
                         21, // drive CAN
                         1, // turn PWM
                         3, // turn encoder
-                        0.367754, // turn offset
+                        0.37, // turn offset
                         currentLimit);
                 m_rearRight = AMModule(
                         "Rear Right",
                         22, // drive CAN
                         3, // turn PWM
                         1, // turn encoder
-                        0.984952, // turn offset
+                        0.976726, // turn offset
                         currentLimit);
                 break;
             case FROM_8048:
@@ -301,8 +301,8 @@ public class SwerveDriveSubsystem extends SubsystemBase {
                         m_rearRight.getPosition()
                 },
                 new Pose2d(),
-                VecBuilder.fill(0.1, 0.1, 0.1),
-                VecBuilder.fill(0.9, 0.9, Integer.MAX_VALUE));
+                VecBuilder.fill(0.03, 0.03, .03),
+                VecBuilder.fill(0.01, 0.01, Integer.MAX_VALUE));
 
         visionDataProvider = new VisionDataProvider(m_poseEstimator, () -> getMoving());
         SmartDashboard.putData("Drive Subsystem", this);
@@ -442,7 +442,6 @@ public class SwerveDriveSubsystem extends SubsystemBase {
     }
 
     public Pose2d getPose() {
-        updateOdometry();
         return m_poseEstimator.getEstimatedPosition();
     }
 
