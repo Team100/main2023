@@ -16,7 +16,7 @@ public class Pinch extends CommandBase {
 
   @Override
   public void initialize(){
-    m_subsystem.pinch(1);
+    m_subsystem.pinch(0);
   }
 
   @Override

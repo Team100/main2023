@@ -33,11 +33,11 @@ public class Manipulator extends SubsystemBase {
     .withInverted(false)
     .withSensorPhase(false)
     // .withSensorPhase(Constants.DrivetrainConstants.DrivetrainMotors.LeftMaster.SENSOR_PHASE)
-    .withPeakOutputForward(0.5)
-    .withPeakOutputReverse(-0.5)
+    .withPeakOutputForward(0.8)
+    .withPeakOutputReverse(-0.8)
     //.withNeutralMode(Constants.DrivetrainConstants.DrivetrainMotors.LeftMaster.NEUTRAL_MODE)
     .withCurrentLimitEnabled(true)
-    .withCurrentLimit(7)
+    .withCurrentLimit(20)
     .withNeutralMode(NeutralMode.Brake)
 
     .build();
@@ -54,14 +54,14 @@ public class Manipulator extends SubsystemBase {
 
     // System.out.println(pinch.getSelectedSensorPosition());
     SmartDashboard.putData("Manipulator", this);
-    
+    //System.out.println("in Manipulator");
   }
   public double getOrigin(){
     return origin;
   }
 
   public void pinch(double d){
-    pinch.drivePercentOutput(0.6*d);
+    pinch.drivePercentOutput(1.0*d);
 
   }
  

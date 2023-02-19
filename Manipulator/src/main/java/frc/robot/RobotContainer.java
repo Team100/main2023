@@ -9,6 +9,7 @@ import frc.robot.commands.Autos;
 import frc.robot.commands.Calibrate;
 import frc.robot.commands.CloseManipulator;
 import frc.robot.commands.OpenManipulator;
+import frc.robot.commands.TimedClose;
 // import frc.robot.commands.ExampleCommand;
 import frc.robot.subsystems.Manipulator;
 import edu.wpi.first.wpilibj.DigitalInput;
@@ -40,11 +41,14 @@ public class RobotContainer {
   // private static final JoystickButton bButton = new JoystickButton(m_driverController, 2);
   private final Manipulator manipulator = new Manipulator();
   private boolean manipulatorCalibrated = false;
+  // private int duration;
+  // private double force;
+
 
   private final Calibrate calibrate = new Calibrate(manipulator);
   private final CloseManipulator closeManipulator = new CloseManipulator(manipulator);
   private final OpenManipulator openManipulator = new OpenManipulator(manipulator);
-
+  private TimedClose timedClose = new TimedClose (manipulator, 300, 0.7);
   
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
@@ -66,7 +70,7 @@ public class RobotContainer {
     manipulator.setDefaultCommand(new ConditionalCommand(
       new ConditionalCommand(
         new CloseManipulator(manipulator, () -> !manipulator.getSensor()), 
-        new RunCommand( () -> manipulator.pinch(-RIGHT_JOYSTICK.getY()), manipulator),
+        new RunCommand( () -> manipulator.pinch(-0.6*RIGHT_JOYSTICK.getY()), manipulator),
         () -> { return false;}),
       new Calibrate(manipulator).andThen(() -> { manipulatorCalibrated = true; }),
       () -> {return true;}));
@@ -74,6 +78,12 @@ public class RobotContainer {
     new JoystickButton(RIGHT_JOYSTICK, 2).onTrue(calibrate);
     new JoystickButton(RIGHT_JOYSTICK, 1).onTrue(closeManipulator);
     new JoystickButton(RIGHT_JOYSTICK, 3).onTrue(openManipulator);
+    new JoystickButton(RIGHT_JOYSTICK, 4).onTrue(timedClose);
+
+    DigitalInput timeFlightSensor = new DigitalInput(3);
+    Trigger tofTrigger = new Trigger(timeFlightSensor::get);
+    tofTrigger.onFalse(timedClose);
+
     // new JoystickButton(m_driverController, 1).onTrue(calibrate);
     // new JoystickButton(m_driverController, 8).onTrue(closeManipulator);
 
