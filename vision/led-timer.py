@@ -3,7 +3,7 @@
 # pylint: disable=missing-class-docstring
 
 """
-app4-timing.py
+led-timer.py
 
 This is a standalone app for the WPILibPi vision system, specifically
 to investigate video pipeline latency, separate from any video
@@ -11,7 +11,7 @@ interpretation logic.
 
 To use it, navigate to the "Application" tab of the WPILibPi webserver,
 click "Writable" at the top, choose "Uploaded Python File," choose this
-file and clikc "Upload and Save."
+file and click "Upload and Save."
 """
 
 import time

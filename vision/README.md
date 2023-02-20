@@ -1,5 +1,9 @@
 # Vision
 
+What's here:
+
+* led-timer.py: exploration by @Vasili into image capture pipeline latency
+
 TODO: clean up the stuff here.
 
 
@@ -12,10 +16,7 @@ OLDER BELOW
 
 What's here:
 
-* app.py: capture images, detect apriltags, publish on using pynetworktables on nt3 using a messy multi-key string-delimited encoding
-* pic.py: example that works on one image at a time, uses a display
-* vid.py: example that uses video capture, uses a display
-* draw.py: opencv image drawing functions used by all three of the above
+
 * app4.py: capture images, detect apriltags, publish on the new networktables four using msgpack.  no dependency on draw.py.  uses pyntcore instead of pynetworktables python library, since pynetworktables doesn't support nt4.
 
 # More about the example
