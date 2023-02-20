@@ -1,3 +1,7 @@
+# pylint: disable=missing-module-docstring
+# pylint: disable=missing-function-docstring
+# pylint: disable=missing-class-docstring
+# pylint: disable=import-error
 import time
 
 import cv2
@@ -58,8 +62,8 @@ class TagFinder:
         metadata = request.get_metadata()
         # print(metadata)
         # sensor timestamp is the boottime when the first byte was received from the sensor
-        sensor_timestamp = metadata["SensorTimestamp"]
-        system_time_ns = time.clock_gettime_ns(time.CLOCK_BOOTTIME)
+        sensor_timestamp = metadata["SensorTimestamp"]# pylint: disable=unused-variable
+        system_time_ns = time.clock_gettime_ns(time.CLOCK_BOOTTIME) # pylint: disable=no-member, unused-variable
         # time_delta_ns = system_time_ns - sensor_timestamp
         # print(sensor_timestamp, system_time_ns, time_delta_ns//1000000) # ms
 
