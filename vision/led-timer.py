@@ -30,7 +30,7 @@ class LEDFinder:
         self.height = height
 
         inst = NetworkTableInstance.getDefault()
-        inst.startClient4("app4")
+        inst.startClient4("led-finder")
         inst.setServer("10.1.0.2")  # RoboRIO IP
 
         # Table for vision output information
