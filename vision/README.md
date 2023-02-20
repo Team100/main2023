@@ -1,3 +1,13 @@
+# Vision
+
+TODO: clean up the stuff here.
+
+
+
+OLDER BELOW
+
+-------------------------------------
+
 # AprilTags Example
 
 What's here:
