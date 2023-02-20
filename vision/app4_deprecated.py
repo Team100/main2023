@@ -2,6 +2,11 @@
 # pylint: disable=missing-function-docstring
 # pylint: disable=missing-class-docstring
 
+##########################
+# DEPRECATED DO NOT USE
+# I'll delete it soon
+##########################
+
 import io
 import json
 import time
