@@ -1,8 +1,11 @@
 package frc.robot;
 
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.util.sendable.Sendable;
 import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -50,6 +53,7 @@ public class RobotContainer implements Sendable {
     private final GripManually gripManually;
 
     public final static Field2d m_field = new Field2d();
+    public final Pose2d m_reset;
 
     public RobotContainer() {
         // SUBSYSTEMS
@@ -65,7 +69,8 @@ public class RobotContainer implements Sendable {
         // COMMANDS
 
         armHigh = new ArmHigh(arm);
-        resetPose = new ResetPose(m_robotDrive, new Pose2d(new Translation2d(0, 0), new Rotation2d(0)));
+        m_reset = m_robotDrive.visionDataProvider.layout.getTagPose(5).get().toPose2d();
+        resetPose = new ResetPose(m_robotDrive, m_reset);
         autoLevel = new autoLevel(m_robotDrive.m_gyro, m_robotDrive);
         // TODO: do something with tagid.
         int tagID = 5;

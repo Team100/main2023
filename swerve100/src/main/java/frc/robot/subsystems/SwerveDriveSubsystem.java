@@ -100,7 +100,7 @@ public class SwerveDriveSubsystem extends SubsystemBase {
     private double rotation;
     private boolean isFieldRelative;
 
-    private VisionDataProvider visionDataProvider;
+    public VisionDataProvider visionDataProvider;
 
     private boolean moving = false;
 

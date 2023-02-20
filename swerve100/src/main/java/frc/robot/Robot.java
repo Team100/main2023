@@ -43,20 +43,6 @@ public class Robot extends TimedRobot {
         System.out.printf("RoboRIO serial number: %s\n", RobotController.getSerialNumber());
         System.out.printf("Identity: %s\n", Identity.get().name());
 
-        // TAG MAP
-        System.out.println(Filesystem.getDeployDirectory());
-        try {
-            Path path = Filesystem.getDeployDirectory().toPath().resolve("2023-chargedup.json");
-            AprilTagFieldLayout layout = new AprilTagFieldLayout(path);
-            System.out.println("JSON map loaded");
-            for (AprilTag t : layout.getTags()) {
-                System.out.printf("tag %s\n", t.toString());
-            }
-        } catch (IOException e) {
-            System.out.println("Could not find JSON map");
-            e.printStackTrace();
-        }
-
         // Instantiate our RobotContainer. This will perform all our button bindings,
         // and put our
         // autonomous chooser on the dashboard.
