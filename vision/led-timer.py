@@ -54,17 +54,17 @@ class LEDFinder:
     #        with MappedArray(request, "lores") as mapped_array:
     #            self.analyze(mapped_array.array)
 
-    #def analyze(self, buffer):
+    # def analyze(self, buffer):
     def analyze(self, request):
         buffer = request.make_buffer("lores")
-#        buffer = request.make_buffer("main")
+        #        buffer = request.make_buffer("main")
         metadata = request.get_metadata()
-        #print(metadata)
+        # print(metadata)
         # sensor timestamp is the boottime when the first byte was received from the sensor
-        sensor_timestamp = metadata['SensorTimestamp']
+        sensor_timestamp = metadata["SensorTimestamp"]
         system_time_ns = time.clock_gettime_ns(time.CLOCK_BOOTTIME)
         time_delta_ns = system_time_ns - sensor_timestamp
-        #print(sensor_timestamp, system_time_ns, time_delta_ns//1000000) # ms
+        # print(sensor_timestamp, system_time_ns, time_delta_ns//1000000) # ms
         y_len = self.width * self.height
         # truncate, ignore chrominance
         # this makes a view, takes 300ns
@@ -106,31 +106,31 @@ def main():
     fullwidth = 1664  # slightly larger than the detector, to match stride
     fullheight = 1232
     # fast path, 200fps, narrow crop
-    #fullwidth = 640
-    #fullheight = 480
+    # fullwidth = 640
+    # fullheight = 480
     # medium crop
-    #fullwidth = 1920
-    #fullheight = 1080
+    # fullwidth = 1920
+    # fullheight = 1080
 
     # lores for apriltag detector
     # option 1: big, all the pixels yields 270ms delay, but seems even higher
     # docs say 41 fps is possible
-    #width=1664
-    #height=1232
+    # width=1664
+    # height=1232
     # option 2: medium, two circles, three squares, timer says ~80ms but seems more like 500ms
     # remember to note this delay in the kalman filter input
     # TODO: report the actual delay in network tables
     width = 832
     height = 616
     # option 3: tiny, trade speed for detection distance; two circles, three squraes, ~40ms
-    #width=448
-    #height=308
+    # width=448
+    # height=308
     # fast path
-    #width=640
-    #height=480
+    # width=640
+    # height=480
     # medium crop
-    #width=1920
-    #height=1080
+    # width=1920
+    # height=1080
 
     camera = Picamera2()
     # don't use video, it tries to process all the frames?
@@ -153,8 +153,8 @@ def main():
             # the flashing LED makes the Auto-Exposure freak out, so turn it off:
             "ExposureTime": 5000,
             # go as fast as possible but no slower than 30fps
-            #"FrameDurationLimits": (100, 33333),
-            "FrameDurationLimits": (24000, 33333), # 41 fps
+            # "FrameDurationLimits": (100, 33333),
+            "FrameDurationLimits": (24000, 33333),  # 41 fps
             # noise reduction takes time
             "NoiseReductionMode": libcamera.controls.draft.NoiseReductionModeEnum.Off,
         },
