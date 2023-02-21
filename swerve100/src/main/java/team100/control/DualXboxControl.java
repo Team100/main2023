@@ -11,7 +11,7 @@ import frc.robot.commands.ArmHigh;
 
 import frc.robot.commands.DriveRotation;
 import frc.robot.commands.DriveWithHeading;
-import frc.robot.commands.ResetPose;
+// import frc.robot.commands.ResetPose;
 import frc.robot.subsystems.SwerveDriveSubsystem;
 
 // import frc.robot.commands.ResetPose;
@@ -43,16 +43,16 @@ public class DualXboxControl implements Control, Sendable {
 
 
 
-    @Override
-    public void resetPose(ResetPose command) {
-        // TODO: choose one
-        controller0.leftBumper().onTrue(command);
-        // controller0.a().onTrue(command);
-    }
+    // @Override
+    // public void resetRotation(ResetRotation command) {
+    //     // TODO: choose one
+    //     controller0.leftBumper().onTrue(command);
+    //     // controller0.a().onTrue(command);
+    // }
 
     public void driveSlow(SwerveDriveSubsystem m_robotDrive){
         // controller0.rightBumper().onTrue(m_robotDrive.driveSl)
-    
+    }
 
     @Override
     public void driveToAprilTag(DriveToAprilTag command) {
