@@ -1,4 +1,4 @@
-package frc.robot.subsystems;
+ package frc.robot.subsystems;
 
 import com.kauailabs.navx.frc.AHRS;
 
@@ -138,7 +138,7 @@ public class SwerveDriveSubsystem extends SubsystemBase {
         thetaController = new ProfiledPIDController(Ptheta, Itheta, Dtheta, thetaControllerConstraints);
         
         headingController = new PIDController(3, 0.05, 0.2, 0.01);
-        headingController.setTolerance(0.2);
+        headingController.setTolerance(0.01);
 
         switch (Identity.get()) {
             case SQUAREBOT:
@@ -325,7 +325,7 @@ public class SwerveDriveSubsystem extends SubsystemBase {
         final double driveEncoderDistancePerTurn = kWheelDiameterMeters * Math.PI / kDriveReduction;
         final double turningGearRatio = 1.0;
         final double kPModuleDriveController = 0.1;
-        final double kPModuleTurningController = 0.5;
+        final double kPModuleTurningController = 0.08;
         final double kMaxModuleAngularSpeedRadiansPerSecond = 20 * Math.PI;
         final double kMaxModuleAngularAccelerationRadiansPerSecondSquared = 20 * Math.PI;
 
@@ -334,16 +334,18 @@ public class SwerveDriveSubsystem extends SubsystemBase {
         NeoTurningMotor turningMotor = new NeoTurningMotor(name, turningMotorCanId);
         AnalogTurningEncoder turningEncoder = new AnalogTurningEncoder(name, turningEncoderChannel, turningOffset,
                 turningGearRatio);
-        PIDController driveController = new PIDController(kPModuleDriveController, 0, 0);
+        PIDController driveController = new PIDController(kPModuleDriveController, 0.3, 0);
+        driveController.setIntegratorRange(-0.01, 0.01);
         ProfiledPIDController turningController = new ProfiledPIDController(
                 kPModuleTurningController, 0, 0,
                 new TrapezoidProfile.Constraints(
                         kMaxModuleAngularSpeedRadiansPerSecond,
                         kMaxModuleAngularAccelerationRadiansPerSecondSquared));
         turningController.enableContinuousInput(0, 2 * Math.PI);
-        SimpleMotorFeedforward driveFeedforward = new SimpleMotorFeedforward(0.0, .5);
+        SimpleMotorFeedforward driveFeedforward = new SimpleMotorFeedforward(0.04, .5);
         // TODO: real values for kS and kV.
-        SimpleMotorFeedforward turningFeedforward = new SimpleMotorFeedforward(0.1, 0.005);
+        SimpleMotorFeedforward turningFeedforward = new SimpleMotorFeedforward(0.0, 0.02);
+        //Swerve bot turning feedforward 0.1, 0.005 
 
         return new SwerveModule(name, driveMotor, turningMotor, driveEncoder, turningEncoder,
                 driveController, turningController, driveFeedforward, turningFeedforward);
