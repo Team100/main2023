@@ -33,8 +33,8 @@ public class SwerveDriveSubsystem extends SubsystemBase {
         final double kWheelBase;
         switch (Identity.get()) {
             case SQUAREBOT:
-                kTrackWidth = 0.650;
-                kWheelBase = 0.650;
+                kTrackWidth = 0.699;
+                kWheelBase = 0.512;
                 break;
             case SWERVE_TWO:
                 kTrackWidth = 0.380;
@@ -111,7 +111,9 @@ public class SwerveDriveSubsystem extends SubsystemBase {
 
     public final PIDController xController;
     public final PIDController yController;
+    public final PIDController headingController;
     public ProfiledPIDController thetaController;
+
 
     public SwerveDriveSubsystem(double currentLimit) {
         final double Px = .15;
@@ -128,12 +130,15 @@ public class SwerveDriveSubsystem extends SubsystemBase {
         yController = new PIDController(Py, Iy, Dy);
         yController.setTolerance(yTolerance);
 
-        final double Ptheta = 1;
+        final double Ptheta = 3;
         final double Itheta = 0;
         final double Dtheta = 0;
         final TrapezoidProfile.Constraints thetaControllerConstraints = new TrapezoidProfile.Constraints(
                 kMaxAngularSpeedRadiansPerSecond, kMaxAngularSpeedRadiansPerSecondSquared);
         thetaController = new ProfiledPIDController(Ptheta, Itheta, Dtheta, thetaControllerConstraints);
+        
+        headingController = new PIDController(3, 0.05, 0.2, 0.01);
+        headingController.setTolerance(0.2);
 
         switch (Identity.get()) {
             case SQUAREBOT:
@@ -303,8 +308,8 @@ public class SwerveDriveSubsystem extends SubsystemBase {
                 new Pose2d(),
                 VecBuilder.fill(0.03, 0.03, 0.03),
                 VecBuilder.fill(0.01, 0.01, Integer.MAX_VALUE));
-
-        visionDataProvider = new VisionDataProvider(m_poseEstimator, () -> getMoving(), () -> getPose());
+                visionDataProvider = new VisionDataProvider(m_poseEstimator, () -> getMoving(), () -> getPose());
+                
         SmartDashboard.putData("Drive Subsystem", this);
     }
 
@@ -315,8 +320,8 @@ public class SwerveDriveSubsystem extends SubsystemBase {
             int turningEncoderChannel,
             double turningOffset,
             double currentLimit) {
-        final double kWheelDiameterMeters = 0.1005; // WCP 4 inch wheel
-        final double kDriveReduction = 6.55; // see wcproducts.com
+        final double kWheelDiameterMeters = 0.1015; // WCP 4 inch wheel
+        final double kDriveReduction = 5.50; // see wcproducts.com
         final double driveEncoderDistancePerTurn = kWheelDiameterMeters * Math.PI / kDriveReduction;
         final double turningGearRatio = 1.0;
         final double kPModuleDriveController = 0.1;
@@ -484,9 +489,9 @@ public class SwerveDriveSubsystem extends SubsystemBase {
          isFieldRelative = fieldRelative;
 
         if (Math.abs(xSpeed) < .01)
-            xSpeed = 0;//100 * xSpeed * xSpeed * Math.signum(xSpeed);
+            xSpeed = 100 * xSpeed * xSpeed * Math.signum(xSpeed);
         if (Math.abs(ySpeed) < .01)
-            ySpeed = 0; //100 * ySpeed * ySpeed * Math.signum(ySpeed);
+            ySpeed = 100 * ySpeed * ySpeed * Math.signum(ySpeed);
 
         if (Math.abs(rot) < .01)
             rot = 0;
@@ -559,7 +564,7 @@ public class SwerveDriveSubsystem extends SubsystemBase {
     @Override
     public void initSendable(SendableBuilder builder) {
         super.initSendable(builder);
-        builder.addDoubleProperty("heading_degrees", () -> this.getHeading().getDegrees(), null);
+        builder.addDoubleProperty("heading_radians", () -> 2 + this.getHeading().getRadians(), null);
         builder.addDoubleProperty("translationalx", () -> getPose().getX(), null);
         builder.addDoubleProperty("translationaly", () -> getPose().getY(), null);
         builder.addDoubleProperty("theta", () -> getPose().getRotation().getRadians(), null);
