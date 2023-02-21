@@ -69,11 +69,11 @@ public class SwerveDriveSubsystem extends SubsystemBase {
     // public static final double kaVoltSecondsSquaredPerMeter = 0.5;
 
     // SLOW SETTINGS
-    public static final double kMaxSpeedMetersPerSecond = 10; 
+    public static final double kMaxSpeedMetersPerSecond = 5; 
     public static final double kMaxAccelerationMetersPerSecondSquared = 10;
     // NOTE joel 2/8 used to be negative; inversions broken somewhere?
-    public static final double kMaxAngularSpeedRadiansPerSecond = 5;
-    public static final double kMaxAngularSpeedRadiansPerSecondSquared = 10;
+    public static final double kMaxAngularSpeedRadiansPerSecond = 3;
+    public static final double kMaxAngularSpeedRadiansPerSecondSquared = 5;
 
     // FAST SETTINGS. can the robot actually go this fast?
     // public static final double kMaxSpeedMetersPerSecond = 8;
@@ -100,7 +100,7 @@ public class SwerveDriveSubsystem extends SubsystemBase {
     private double rotation;
     private boolean isFieldRelative;
 
-    private VisionDataProvider visionDataProvider;
+    public VisionDataProvider visionDataProvider;
 
     private boolean moving = false;
 
@@ -206,29 +206,29 @@ public class SwerveDriveSubsystem extends SubsystemBase {
                         "Front Left",
                         11, // drive CAN
                         0, // turn PWM
-                        2, // turn encoder
-                        0.693007, // turn offset
+                        3, // turn encoder
+                        0.69, // turn offset
                         currentLimit);
                 m_frontRight = AMModule(
                         "Front Right",
                         12, // drive CAN
                         2, // turn PWM
                         0, // turn encoder
-                        0.715, // turn offset
+                        0.72, // turn offset
                         currentLimit);
                 m_rearLeft = AMModule(
                         "Rear Left",
                         21, // drive CAN
                         1, // turn PWM
-                        3, // turn encoder
-                        0.360, // turn offset
+                        2, // turn encoder
+                        0.37, // turn offset
                         currentLimit);
                 m_rearRight = AMModule(
                         "Rear Right",
                         22, // drive CAN
                         3, // turn PWM
                         1, // turn encoder
-                        0.976, // turn offset
+                        0.976726, // turn offset
                         currentLimit);
                 break;
             case FROM_8048:
@@ -306,10 +306,10 @@ public class SwerveDriveSubsystem extends SubsystemBase {
                         m_rearRight.getPosition()
                 },
                 new Pose2d(),
-                VecBuilder.fill(0.05, 0.05, 0.05),
-                VecBuilder.fill(0.9, 0.9, Integer.MAX_VALUE));
-
-        visionDataProvider = new VisionDataProvider(m_poseEstimator, () -> getMoving());
+                VecBuilder.fill(0.03, 0.03, 0.03),
+                VecBuilder.fill(0.01, 0.01, Integer.MAX_VALUE));
+                visionDataProvider = new VisionDataProvider(m_poseEstimator, () -> getMoving(), () -> getPose());
+                
         SmartDashboard.putData("Drive Subsystem", this);
     }
 
@@ -448,6 +448,10 @@ public class SwerveDriveSubsystem extends SubsystemBase {
 
     public Pose2d getPose() {
         return m_poseEstimator.getEstimatedPosition();
+    }
+
+    public double getRadians() {
+        return m_poseEstimator.getEstimatedPosition().getRotation().getRadians();
     }
 
     public void resetPose(Pose2d robotPose) {

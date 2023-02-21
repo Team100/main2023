@@ -5,31 +5,42 @@ import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
-import frc.robot.autonomous.MoveToAprilTag;
+import frc.robot.autonomous.DriveToAprilTag;
 //import frc.robot.autonomous.SanjanAutonomous;
 import frc.robot.commands.ArmHigh;
+
 import frc.robot.commands.DriveRotation;
 import frc.robot.commands.DriveWithHeading;
 import frc.robot.commands.ResetPose;
 import frc.robot.subsystems.SwerveDriveSubsystem;
+
+// import frc.robot.commands.ResetPose;
+import frc.robot.commands.ResetRotation;
+
 
 /**
  * see
  * https://docs.google.com/document/d/1M89x_IiguQdY0VhQlOjqADMa6SYVp202TTuXZ1Ps280/edit#
  */
 public class DualXboxControl implements Control, Sendable {
+    // TODO: express these limits in m/s.
+    private static final int ySlewRateLimit = 3;
+    private static final int xSlewRateLimit = 3;
+    
     private final CommandXboxController controller0;
     private final CommandXboxController controller1;
 
+    // private final SlewRateLimiter m_xspeedLimiter = new SlewRateLimiter(xSlewRateLimit);
+    // private final SlewRateLimiter m_yspeedLimiter = new SlewRateLimiter(ySlewRateLimit);
+
     public DualXboxControl() {
         controller0 = new CommandXboxController(0);
-        System.out.printf("Controller0: %s\n",
-                controller0.getHID().getName());
+        System.out.printf("Controller0: %s\n", controller0.getHID().getName());
         controller1 = new CommandXboxController(1);
-        System.out.printf("Controller1: %s\n",
-                controller1.getHID().getName());
+        System.out.printf("Controller1: %s\n", controller1.getHID().getName());
         SmartDashboard.putData("Robot Container", this);
     }
+
 
 
     @Override
@@ -41,14 +52,24 @@ public class DualXboxControl implements Control, Sendable {
 
     public void driveSlow(SwerveDriveSubsystem m_robotDrive){
         // controller0.rightBumper().onTrue(m_robotDrive.driveSl)
-    }
+    
 
     @Override
-    public void moveToAprilTag(MoveToAprilTag command) {
-        controller0.b().onTrue(command);
+    public void driveToAprilTag(DriveToAprilTag command) {
+        controller0.x().whileTrue(command);
     }
 
     // TODO: decide what "Y" should do.
+
+    @Override 
+    public void driveToAprilTag2(DriveToAprilTag command) {
+        controller0.rightBumper().whileTrue(command);
+    }
+
+    @Override
+    public void resetRotation(ResetRotation command) {
+        controller0.leftBumper().onTrue(command);
+    }
 
     @Override
     public void autoLevel(frc.robot.commands.autoLevel command) {

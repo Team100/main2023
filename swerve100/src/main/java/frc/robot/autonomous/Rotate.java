@@ -4,8 +4,6 @@
 
 package frc.robot.autonomous;
 
-import edu.wpi.first.math.controller.PIDController;
-import edu.wpi.first.wpilibj2.command.PIDCommand;
 import edu.wpi.first.util.sendable.SendableBuilder;
 // import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -27,7 +25,7 @@ public class Rotate extends ProfiledPIDCommand {
                 m_robotDrive);
 
         getController().enableContinuousInput(-Math.PI, Math.PI);
-        getController().setTolerance(.1, .1);
+        getController().setTolerance(.05, .05);
         m_robotDrive.thetaController.atSetpoint();
         this.m_robotDrive = m_robotDrive;
 
@@ -42,12 +40,7 @@ public class Rotate extends ProfiledPIDCommand {
 
     @Override
     public boolean isFinished() {
-        // boolean hasElapsed = m_timer.hasElapsed(3);
-        // if (hasElapsed) {
-        // System.out.println("BAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAALSLLSLSLSLSLSLS");
-        // }
-        // return hasElapsed;return
-
+        System.out.println("ROTATTITINNNGNNGNGNGNGNG");
         // return m_haveMeasurement
         // && m_haveSetpoint
         // && Math.abs(m_positionError) < m_positionTolerance
@@ -81,10 +74,10 @@ public class Rotate extends ProfiledPIDCommand {
                 velocityTolerance);
         double setpointMinusGoal = setpointVelocity - goalVelocity;
         double setpointMinusGoalPosition = setpointPosition - goalPosition;
-        if (setpointMinusGoal < 0.1) {
-            if (setpointMinusGoalPosition < 0.1) {
-                if (setpointMinusMeasurement < 0.1) {
-                    if (setpointMinusMeasurementVelocity < 0.1) {
+        if (setpointMinusGoal < 0.05) {
+            if (setpointMinusGoalPosition < 0.05) {
+                if (setpointMinusMeasurement < 0.05) {
+                    if (setpointMinusMeasurementVelocity < 0.05) {
                         return true;
                     }
                 }
@@ -97,7 +90,7 @@ public class Rotate extends ProfiledPIDCommand {
 
     @Override
     public void end(boolean isInterupted) {
-        System.out.println("DONEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE");
+        System.out.println("DONEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE");
         // m_timer.stop();
     }
 

@@ -2,9 +2,11 @@ package frc.robot.subsystems;
 
 import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.AnalogEncoder;
+import edu.wpi.first.wpilibj.AnalogInput;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class AnalogTurningEncoder implements TurningEncoder {
+    private final AnalogInput m_input;
     private final AnalogEncoder m_encoder;
 
     /**
@@ -17,7 +19,8 @@ public class AnalogTurningEncoder implements TurningEncoder {
             int channel,
             double inputOffset,
             double gearRatio) {
-        m_encoder = new AnalogEncoder(channel);
+        m_input = new AnalogInput(channel);
+        m_encoder = new AnalogEncoder(m_input);
         m_encoder.setPositionOffset(inputOffset);
         m_encoder.setDistancePerRotation(2.0 * Math.PI / gearRatio);
 
@@ -44,5 +47,6 @@ public class AnalogTurningEncoder implements TurningEncoder {
         builder.addDoubleProperty("Angle", this::getAngle, null);
         builder.addDoubleProperty("Turns", () -> m_encoder.get(), null);
         builder.addDoubleProperty("absolute", () -> m_encoder.getAbsolutePosition(), null);
+        builder.addDoubleProperty("Volts", () -> m_input.getVoltage(), null);
     }
 }

@@ -24,14 +24,13 @@ public class autoLevel extends CommandBase {
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-    System.out.println("EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE");
   }
 
   // Called every time the scheduler runs while the command is scheduled.
   public void execute() {
     double Roll = m_gyro.getRoll();
     double Pitch = m_gyro.getPitch();
-    System.out.println(Roll);
+        System.out.println(Roll);
         double driveRollAmount = MathUtil.clamp(0.005 * Roll, -0.06, 0.06);
         double drivePitchAmount = MathUtil.clamp(0.005   * Pitch, -0.06, 0.06);
        if(Math.abs(Roll) > 2.5 || Math.abs(Pitch) > 2.5){   

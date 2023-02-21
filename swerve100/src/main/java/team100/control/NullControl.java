@@ -1,20 +1,19 @@
 package team100.control;
 
-import frc.robot.autonomous.MoveToAprilTag;
+import frc.robot.autonomous.DriveToAprilTag;
 import frc.robot.commands.ArmHigh;
 import frc.robot.commands.DriveRotation;
 import frc.robot.commands.DriveWithHeading;
 import frc.robot.commands.ResetPose;
+// import frc.robot.commands.ResetPose;
+import frc.robot.commands.ResetRotation;
+
 
 public class NullControl implements Control {
 
-    @Override
-    public void resetPose(ResetPose command) {
-    }
-
-    @Override
-    public void moveToAprilTag(MoveToAprilTag command) {
-    }
+    // @Override
+    // public void resetPose(ResetPose command) {
+    // }
 
     @Override
     public void autoLevel(frc.robot.commands.autoLevel command) {
@@ -22,6 +21,10 @@ public class NullControl implements Control {
 
     @Override
     public void armHigh(ArmHigh command) {
+    }
+
+    @Override
+    public void resetRotation(ResetRotation command) {
     }
 
     @Override
@@ -78,6 +81,18 @@ public class NullControl implements Control {
     @Override
     public double upperSpeed() {
         return 0;
+    }
+
+    @Override
+    public void driveToAprilTag(DriveToAprilTag command) {
+        // TODO Auto-generated method stub
+        
+    }
+
+    @Override
+    public void driveToAprilTag2(DriveToAprilTag command) {
+        // TODO Auto-generated method stub
+        
     }
     
 }

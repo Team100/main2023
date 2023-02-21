@@ -4,12 +4,6 @@
 
 package frc.robot;
 
-import java.io.IOException;
-import java.nio.file.Path;
-
-import edu.wpi.first.apriltag.AprilTag;
-import edu.wpi.first.apriltag.AprilTagFieldLayout;
-import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.util.WPILibVersion;
@@ -42,20 +36,6 @@ public class Robot extends TimedRobot {
         System.out.printf("WPILib Version: %s\n", WPILibVersion.Version); // 2023.2.1
         System.out.printf("RoboRIO serial number: %s\n", RobotController.getSerialNumber());
         System.out.printf("Identity: %s\n", Identity.get().name());
-
-        // TAG MAP
-        System.out.println(Filesystem.getDeployDirectory());
-        try {
-            Path path = Filesystem.getDeployDirectory().toPath().resolve("2023-chargedup.json");
-            AprilTagFieldLayout layout = new AprilTagFieldLayout(path);
-            System.out.println("JSON map loaded");
-            for (AprilTag t : layout.getTags()) {
-                System.out.printf("tag %s\n", t.toString());
-            }
-        } catch (IOException e) {
-            System.out.println("Could not find JSON map");
-            e.printStackTrace();
-        }
 
         // Instantiate our RobotContainer. This will perform all our button bindings,
         // and put our
@@ -140,6 +120,6 @@ public class Robot extends TimedRobot {
     /** This function is called periodically during test mode. */
     @Override
     public void testPeriodic() {
-        m_robotContainer.runTest();
+        m_robotContainer.runTest2();
     }
 }
