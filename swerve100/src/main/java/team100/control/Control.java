@@ -1,5 +1,12 @@
 package team100.control;
 
+
+import edu.wpi.first.wpilibj.XboxController;
+import frc.robot.autonomous.MoveToAprilTag;
+import frc.robot.commands.DriveRotation;
+import frc.robot.commands.DriveWithHeading;
+import frc.robot.commands.ResetPose;
+import frc.robot.commands.autoLevel;
 import frc.robot.autonomous.DriveToAprilTag;
 //import frc.robot.autonomous.SanjanAutonomous;
 import frc.robot.commands.ArmHigh;
@@ -10,6 +17,7 @@ import frc.robot.commands.autoLevel;
 public interface Control {
     // public void resetPose(ResetPose command);
 
+
     public void driveToAprilTag2(DriveToAprilTag command); 
 
     public void driveToAprilTag(DriveToAprilTag command);
@@ -18,9 +26,22 @@ public interface Control {
 
     // public void sanjanAuto(SanjanAutonomous command);
 
+
     public void armHigh(ArmHigh command);
 
+
+    public void driveWithHeading0(DriveWithHeading command);
+
+    public void driveWithHeading90(DriveWithHeading command);
+
+    public void driveWithHeading180(DriveWithHeading command);
+
+    public void driveWithHeading270(DriveWithHeading command);
+
+    public void driveRotation(DriveRotation command);
+
     public void resetRotation(ResetRotation command);
+
 
     // DRIVETRAIN
     /** @return [-1,1] */
