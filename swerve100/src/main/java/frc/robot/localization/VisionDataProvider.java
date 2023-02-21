@@ -12,6 +12,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import edu.wpi.first.apriltag.AprilTag;
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
+import edu.wpi.first.apriltag.AprilTagFieldLayout.OriginPosition;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
@@ -25,12 +26,14 @@ import edu.wpi.first.networktables.NetworkTableEvent;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.Timer;
+import frc.robot.subsystems.SwerveDriveSubsystem;
 
 public class VisionDataProvider {
 
     Supplier<Boolean> getMoving;
+    Supplier<Pose2d> getPose;
     private final DoublePublisher timestamp_publisher;
-    private final HashTag hashTag = new HashTag();
+    // private final HashTag hashTag = new HashTag();
     private final ObjectMapper object_mapper;
     SwerveDrivePoseEstimator poseEstimator;
 
@@ -39,7 +42,12 @@ public class VisionDataProvider {
     private static double kCameraZOffset = 0;
     public AprilTagFieldLayout layout;
 
-    public VisionDataProvider(SwerveDrivePoseEstimator pE, Supplier<Boolean> getM) {
+    SwerveDriveSubsystem m_robotDrive;
+
+    public VisionDataProvider(SwerveDrivePoseEstimator pE, Supplier<Boolean> getM, Supplier<Pose2d> getP) {
+        
+        getPose = getP;
+        
         getMoving = getM;
         poseEstimator = pE;
 
@@ -48,6 +56,7 @@ public class VisionDataProvider {
         try {
             Path path = Filesystem.getDeployDirectory().toPath().resolve("2023-chargedup.json");
             layout = new AprilTagFieldLayout(path);
+            // layout.setOrigin(OriginPosition.kRedAllianceWallRightSide);
             System.out.println("JSON map loaded");
             for (AprilTag t : layout.getTags()) {
                 System.out.printf("tag %s\n", t.toString());
@@ -103,13 +112,14 @@ public class VisionDataProvider {
         // }
         // }
 
-        Rotation2d rotation2d = new Rotation2d(b.pose_R[0][0], b.pose_R[2][0]);
-        Rotation3d r = new Rotation3d(0, 0, rotation2d.getRadians());
+        // Rotation2d rotation2d = new Rotation2d(b.pose_R[0][0], b.pose_R[2][0]);
+        Rotation3d poseEstimatorRotation = new Rotation3d(0, 0, getPose.get().getRotation().getRadians());
 
         // Rotation3d r = new Rotation3d(rot);
 
-        Pose3d p = new Pose3d(t, r);
-        return p;
+        Pose3d TagInCameraCords = new Pose3d(t, poseEstimatorRotation);
+
+        return TagInCameraCords;
     }
 
     /***
@@ -121,41 +131,42 @@ public class VisionDataProvider {
 
     private void estimateRobotPose(Blips blips) {
         for (Blip b : blips.tags) {
-            Pose3d p = blipToPose(b);
-            // System.out.printf("TAG ID: %d\n", b.id);
-            // System.out.printf("POSE: %s\n", p);
+            Pose3d TagInCameraCords = blipToPose(b);
+            System.out.printf("TAG ID: %d\n", b.id);
+            System.out.printf("POSE: %s\n", TagInCameraCords);
 
-            if (p != null) {
+            if (TagInCameraCords != null) {
                 
-                Optional<Pose3d> tagPose = layout.getTagPose(b.id);
+                Optional<Pose3d> tagInFieldCords = layout.getTagPose(b.id);
 
-                if (tagPose.isPresent()) {
-                    Pose3d robotRelative = cameraToRobot(p);
-                    Pose2d robotPose = toFieldCoordinates(robotRelative.getTranslation(), robotRelative.getRotation(),
-                            tagPose.get()).toPose2d();
-                    poseEstimator.addVisionMeasurement(robotPose, blips.et);
+                if (tagInFieldCords.isPresent()) {
+                    Pose3d tagInRobotCords = cameraToRobot(TagInCameraCords);
+                    Pose2d robotInFieldCords = toFieldCoordinates(tagInRobotCords.getTranslation(), tagInRobotCords.getRotation(),
+                            tagInFieldCords.get()).toPose2d();
+                    System.out.println("ROBOOOOOOOT POSE: " + robotInFieldCords);
+                    poseEstimator.addVisionMeasurement(robotInFieldCords, blips.et);
                 }
             }
         }
 
     }
 
-    private Pose3d toFieldCoordinates(Translation3d translation, Rotation3d rotation, Pose3d tagPose) {
-        Transform3d robotRelative = new Transform3d(translation, rotation);
-        Transform3d tagRelative = robotRelative.inverse();
-        Pose3d fieldRelative = tagPose.plus(tagRelative);
-        return fieldRelative;
+    private Pose3d toFieldCoordinates(Translation3d tagTranslationInRobotCords, Rotation3d tagRotationInRobotCords, Pose3d tagInFieldCords) {
+        Transform3d tagInRobotCords = new Transform3d(tagTranslationInRobotCords, tagRotationInRobotCords);
+        Transform3d robotInTagCords = tagInRobotCords.inverse();
+        Pose3d robotInFieldCords = tagInFieldCords.plus(robotInTagCords);
+        return robotInFieldCords;
     }
 
-    private static Pose3d cameraToRobot(Pose3d cameraPose) {
-        double robotX, robotY, robotZ; // X is forward, Y is left, Z is up
+    private static Pose3d cameraToRobot(Pose3d tagInCameraCords) {
+        double tagXInRobotCords, tagYInRobotCords, tagZInRobotCords; // X is forward, Y is left, Z is up
 
-        robotX = cameraPose.getZ() - kCameraXOffset;
-        robotY = -cameraPose.getX() - kCameraYOffset;
-        robotZ = cameraPose.getY() - kCameraZOffset;
+        tagXInRobotCords = tagInCameraCords.getZ() - kCameraXOffset;
+        tagYInRobotCords = -tagInCameraCords.getX() - kCameraYOffset;
+        tagZInRobotCords = -tagInCameraCords.getY() - kCameraZOffset;
 
-        Translation3d translation = new Translation3d(robotX, robotY, robotZ);
-        Rotation3d rotation = cameraPose.getRotation();
+        Translation3d translation = new Translation3d(tagXInRobotCords, tagYInRobotCords, tagZInRobotCords);
+        Rotation3d rotation = tagInCameraCords.getRotation();
 
         return new Pose3d(translation, rotation);
     }

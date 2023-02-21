@@ -4,10 +4,11 @@ import edu.wpi.first.util.sendable.Sendable;
 import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
-import frc.robot.autonomous.MoveToAprilTag;
+import frc.robot.autonomous.DriveToAprilTag;
 //import frc.robot.autonomous.SanjanAutonomous;
 import frc.robot.commands.ArmHigh;
-import frc.robot.commands.ResetPose;
+// import frc.robot.commands.ResetPose;
+import frc.robot.commands.ResetRotation;
 
 /**
  * see
@@ -32,19 +33,29 @@ public class DualXboxControl implements Control, Sendable {
         SmartDashboard.putData("Robot Container", this);
     }
 
-    @Override
-    public void resetPose(ResetPose command) {
-        // TODO: choose one
-        controller0.leftBumper().onTrue(command);
-        controller0.a().onTrue(command);
-    }
+    // @Override
+    // public void resetPose(ResetPose command) {
+    //     // TODO: choose one
+    //     controller0.leftBumper().onTrue(command);
+    //     controller0.a().onTrue(command);
+    // }
 
     @Override
-    public void moveToAprilTag(MoveToAprilTag command) {
-        controller0.b().onTrue(command);
+    public void driveToAprilTag(DriveToAprilTag command) {
+        controller0.x().whileTrue(command);
     }
 
     // TODO: decide what "Y" should do.
+
+    @Override 
+    public void driveToAprilTag2(DriveToAprilTag command) {
+        controller0.rightBumper().whileTrue(command);
+    }
+
+    @Override
+    public void resetRotation(ResetRotation command) {
+        controller0.leftBumper().onTrue(command);
+    }
 
     @Override
     public void autoLevel(frc.robot.commands.autoLevel command) {

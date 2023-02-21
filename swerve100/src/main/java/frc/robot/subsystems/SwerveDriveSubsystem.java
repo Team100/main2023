@@ -304,7 +304,7 @@ public class SwerveDriveSubsystem extends SubsystemBase {
                 VecBuilder.fill(0.03, 0.03, 0.03),
                 VecBuilder.fill(0.01, 0.01, Integer.MAX_VALUE));
 
-        visionDataProvider = new VisionDataProvider(m_poseEstimator, () -> getMoving());
+        visionDataProvider = new VisionDataProvider(m_poseEstimator, () -> getMoving(), () -> getPose());
         SmartDashboard.putData("Drive Subsystem", this);
     }
 
@@ -443,6 +443,10 @@ public class SwerveDriveSubsystem extends SubsystemBase {
 
     public Pose2d getPose() {
         return m_poseEstimator.getEstimatedPosition();
+    }
+
+    public double getRadians() {
+        return m_poseEstimator.getEstimatedPosition().getRotation().getRadians();
     }
 
     public void resetPose(Pose2d robotPose) {
