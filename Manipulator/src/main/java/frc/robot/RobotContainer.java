@@ -70,7 +70,7 @@ public class RobotContainer {
     manipulator.setDefaultCommand(new ConditionalCommand(
       new ConditionalCommand(
         new CloseManipulator(manipulator, () -> !manipulator.getSensor()), 
-        new RunCommand( () -> manipulator.pinch(-0.6*RIGHT_JOYSTICK.getY()), manipulator),
+        new RunCommand( () -> manipulator.pinch(-0.7*RIGHT_JOYSTICK.getY()), manipulator),
         () -> { return false;}),
       new Calibrate(manipulator).andThen(() -> { manipulatorCalibrated = true; }),
       () -> {return true;}));
@@ -83,6 +83,7 @@ public class RobotContainer {
     DigitalInput timeFlightSensor = new DigitalInput(3);
     Trigger tofTrigger = new Trigger(timeFlightSensor::get);
     tofTrigger.onFalse(timedClose);
+    //tofTrigger.negate().and(new JoystickButton(RIGHT_JOYSTICK, 5)).onTrue(timedClose);
 
     // new JoystickButton(m_driverController, 1).onTrue(calibrate);
     // new JoystickButton(m_driverController, 8).onTrue(closeManipulator);

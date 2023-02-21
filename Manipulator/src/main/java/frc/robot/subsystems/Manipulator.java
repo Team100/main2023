@@ -33,10 +33,10 @@ public class Manipulator extends SubsystemBase {
     .withInverted(false)
     .withSensorPhase(false)
     // .withSensorPhase(Constants.DrivetrainConstants.DrivetrainMotors.LeftMaster.SENSOR_PHASE)
-    .withPeakOutputForward(0.8)
-    .withPeakOutputReverse(-0.8)
+    .withPeakOutputForward(0.7)
+    .withPeakOutputReverse(-0.5)
     //.withNeutralMode(Constants.DrivetrainConstants.DrivetrainMotors.LeftMaster.NEUTRAL_MODE)
-    .withCurrentLimitEnabled(true)
+    .withCurrentLimitEnabled(false)
     .withCurrentLimit(20)
     .withNeutralMode(NeutralMode.Brake)
 
@@ -61,7 +61,9 @@ public class Manipulator extends SubsystemBase {
   }
 
   public void pinch(double d){
-    pinch.drivePercentOutput(1.0*d);
+    pinch.drivePercentOutput(1.0*d);  
+      SmartDashboard.putNumber("Manip Voltage",d);
+      SmartDashboard.putNumber("Manip Current", pinch.motor.getStatorCurrent());
 
   }
  
