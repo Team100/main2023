@@ -1,8 +1,11 @@
 package frc.robot;
 
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.util.sendable.Sendable;
 import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -14,11 +17,12 @@ import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.autonomous.Circle;
+import frc.robot.autonomous.DriveToAprilTag;
 import frc.robot.autonomous.MoveToAprilTag;
 import frc.robot.autonomous.SanjanAutonomous;
 import frc.robot.autonomous.VasiliAutonomous;
 import frc.robot.commands.ArmHigh;
-import frc.robot.commands.ResetPose;
+import frc.robot.commands.ResetRotation;
 import frc.robot.commands.autoLevel;
 import frc.robot.commands.driveLowerArm;
 import frc.robot.subsystems.Arm;
@@ -43,11 +47,13 @@ public class RobotContainer implements Sendable {
     // COMMANDS
     private final driveLowerArm driveLowerArm;
     private final ArmHigh armHigh;
-    private final ResetPose resetPose;
+    // private final ResetPose resetPose;
     private final autoLevel autoLevel;
     private final MoveToAprilTag moveToAprilTag;
     private final DriveManually driveManually;
     private final GripManually gripManually;
+    private final DriveToAprilTag driveToAprilTag4;
+    private final DriveToAprilTag driveToAprilTag5;
 
     public final static Field2d m_field = new Field2d();
 
@@ -63,18 +69,20 @@ public class RobotContainer implements Sendable {
         control = ControlSelect.getControl();
 
         // COMMANDS
-
+        driveToAprilTag5 = DriveToAprilTag.newDriveToAprilTag(5, m_robotDrive);
+        driveToAprilTag4 = DriveToAprilTag.newDriveToAprilTag(4, m_robotDrive);
         armHigh = new ArmHigh(arm);
-        resetPose = new ResetPose(m_robotDrive, new Pose2d(new Translation2d(0, 0), new Rotation2d(0)));
+        // m_reset = m_robotDrive.visionDataProvider.layout.getTagPose(5).get().toPose2d();
+        ResetRotation resetRotation = new ResetRotation(m_robotDrive, new Rotation2d());
         autoLevel = new autoLevel(m_robotDrive.m_gyro, m_robotDrive);
         // TODO: do something with tagid.
         int tagID = 5;
         moveToAprilTag = MoveToAprilTag.newMoveToAprilTag(m_robotDrive, tagID);
 
         // TRIGGERS/BUTTONS
-
-        control.resetPose(resetPose);
-        control.moveToAprilTag(moveToAprilTag);
+        control.driveToAprilTag(driveToAprilTag5);
+        control.driveToAprilTag2(driveToAprilTag4);
+        control.resetRotation(resetRotation);
         control.autoLevel(autoLevel);
         // control.sanjanAuto(new SanjanAutonomous(m_robotDrive));
         control.armHigh(armHigh);

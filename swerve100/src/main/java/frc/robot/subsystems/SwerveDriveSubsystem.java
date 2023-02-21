@@ -100,7 +100,7 @@ public class SwerveDriveSubsystem extends SubsystemBase {
     private double rotation;
     private boolean isFieldRelative;
 
-    private VisionDataProvider visionDataProvider;
+    public VisionDataProvider visionDataProvider;
 
     private boolean moving = false;
 
@@ -201,7 +201,7 @@ public class SwerveDriveSubsystem extends SubsystemBase {
                         "Front Left",
                         11, // drive CAN
                         0, // turn PWM
-                        2, // turn encoder
+                        3, // turn encoder
                         0.69, // turn offset
                         currentLimit);
                 m_frontRight = AMModule(
@@ -215,7 +215,7 @@ public class SwerveDriveSubsystem extends SubsystemBase {
                         "Rear Left",
                         21, // drive CAN
                         1, // turn PWM
-                        3, // turn encoder
+                        2, // turn encoder
                         0.37, // turn offset
                         currentLimit);
                 m_rearRight = AMModule(
@@ -301,10 +301,10 @@ public class SwerveDriveSubsystem extends SubsystemBase {
                         m_rearRight.getPosition()
                 },
                 new Pose2d(),
-                VecBuilder.fill(0.03, 0.03, .03),
+                VecBuilder.fill(0.03, 0.03, 0.03),
                 VecBuilder.fill(0.01, 0.01, Integer.MAX_VALUE));
 
-        visionDataProvider = new VisionDataProvider(m_poseEstimator, () -> getMoving());
+        visionDataProvider = new VisionDataProvider(m_poseEstimator, () -> getMoving(), () -> getPose());
         SmartDashboard.putData("Drive Subsystem", this);
     }
 
@@ -443,6 +443,10 @@ public class SwerveDriveSubsystem extends SubsystemBase {
 
     public Pose2d getPose() {
         return m_poseEstimator.getEstimatedPosition();
+    }
+
+    public double getRadians() {
+        return m_poseEstimator.getEstimatedPosition().getRotation().getRadians();
     }
 
     public void resetPose(Pose2d robotPose) {

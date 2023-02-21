@@ -31,7 +31,7 @@ public class RobotPoseTest {
 
         Pose2d robotPose = toFieldCoordinates(tagTranslation2d, tagRotation2d, testAprilTag);
 
-        System.out.println(robotPose.getX());
+        // System.out.println(robotPose.getX());
 
         
 

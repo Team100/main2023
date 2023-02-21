@@ -1,21 +1,18 @@
 package team100.control;
 
 import edu.wpi.first.wpilibj.DriverStation;
-import frc.robot.autonomous.MoveToAprilTag;
+import frc.robot.autonomous.DriveToAprilTag;
 import frc.robot.commands.ArmHigh;
-import frc.robot.commands.ResetPose;
+// import frc.robot.commands.ResetPose;
+import frc.robot.commands.ResetRotation;
 
 /* Uses my RealFlight controller, does not support buttons. */
 public class FlightControl implements Control {
     private static final int kPort = 0;
 
-    @Override
-    public void resetPose(ResetPose command) {
-    }
-
-    @Override
-    public void moveToAprilTag(MoveToAprilTag command) {
-    }
+    // @Override
+    // public void resetPose(ResetPose command) {
+    // }
 
     @Override
     public void autoLevel(frc.robot.commands.autoLevel command) {
@@ -23,6 +20,10 @@ public class FlightControl implements Control {
 
     @Override
     public void armHigh(ArmHigh command) {
+    }
+
+    @Override
+    public void resetRotation(ResetRotation command) {
     }
 
     @Override
@@ -65,4 +66,15 @@ public class FlightControl implements Control {
         return 0;
     }
 
+    @Override
+    public void driveToAprilTag(DriveToAprilTag command) {
+        // TODO Auto-generated method stub
+        
+    }
+
+    @Override
+    public void driveToAprilTag2(DriveToAprilTag command) {
+        // TODO Auto-generated method stub
+
+    }
 }
