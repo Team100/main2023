@@ -15,6 +15,10 @@ import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
+import edu.wpi.first.networktables.DoubleArrayPublisher;
+import edu.wpi.first.networktables.NetworkTable;
+import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.networktables.StringPublisher;
 import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.SerialPort;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -114,8 +118,17 @@ public class SwerveDriveSubsystem extends SubsystemBase {
     public final PIDController headingController;
     public ProfiledPIDController thetaController;
 
+    private final DoubleArrayPublisher robotPosePub;
+    private final StringPublisher fieldTypePub;
 
     public SwerveDriveSubsystem(double currentLimit) {
+        // Sets up Field2d pose tracking for glass.
+        NetworkTableInstance inst = NetworkTableInstance.getDefault();
+        NetworkTable fieldTable = inst.getTable("field");
+        robotPosePub = fieldTable.getDoubleArrayTopic("robotPose").publish();
+        fieldTypePub = fieldTable.getStringTopic(".type").publish();
+        fieldTypePub.set("Field2d");
+
         final double Px = .15;
         final double Ix = 0;
         final double Dx = 0;
@@ -440,6 +453,14 @@ public class SwerveDriveSubsystem extends SubsystemBase {
         // m_pose.getRobotPose(0),
         // Timer.getFPGATimestamp() - 0.3);
         // }
+
+        // Update the Field2d widget
+        Pose2d newEstimate = m_poseEstimator.getEstimatedPosition();
+        robotPosePub.set(new double[] {
+            newEstimate.getX(),
+            newEstimate.getY(),
+            newEstimate.getRotation().getDegrees()
+        });
     }
 
     @Override

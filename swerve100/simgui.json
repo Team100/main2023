@@ -23,7 +23,19 @@
       "/LiveWindow/Ungrouped/Talon SRX [3]": "Motor Controller",
       "/LiveWindow/Ungrouped/navX-Sensor[2]": "Gyro",
       "/SmartDashboard/Arm": "Subsystem",
-      "/SmartDashboard/Drive Subsystem": "Subsystem"
+      "/SmartDashboard/Drive Subsystem": "Subsystem",
+      "/SmartDashboard/Drive with Heading: 0 Degrees": "Command",
+      "/SmartDashboard/Drive with Heading: 180 Degrees": "Command",
+      "/SmartDashboard/Drive with Heading: 270 Degrees": "Command",
+      "/SmartDashboard/Drive with Heading: 90 Degrees": "Command",
+      "/field": "Field2d"
+    },
+    "windows": {
+      "/field": {
+        "window": {
+          "visible": true
+        }
+      }
     }
   }
 }
