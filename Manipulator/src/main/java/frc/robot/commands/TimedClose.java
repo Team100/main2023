@@ -21,6 +21,7 @@ public class TimedClose extends CommandBase {
     manip = subsystem;
     duration = durationParm;
     force = forceParm;
+    addRequirements(subsystem);
     
 
     // Use addRequirements() here to declare subsystem dependencies.

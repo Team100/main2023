@@ -86,7 +86,7 @@ public class RobotContainer {
     DigitalInput timeFlightSensor = new DigitalInput(3);
     Trigger tofTrigger = new Trigger(timeFlightSensor::get);
     tofTrigger.onFalse(currentFeedbackClose);
-    //tofTrigger.negate().and(new JoystickButton(RIGHT_JOYSTICK, 5)).onTrue(timedClose);
+  
 
     // new JoystickButton(m_driverController, 1).onTrue(calibrate);
     // new JoystickButton(m_driverController, 8).onTrue(closeManipulator);
