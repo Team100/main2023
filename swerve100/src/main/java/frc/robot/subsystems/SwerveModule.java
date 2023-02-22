@@ -154,7 +154,7 @@ public class SwerveModule implements Sendable {
         builder.addDoubleProperty("driveFeedForwardOutput", this::getdFeedForward, null);
         builder.addDoubleProperty("drive controller position error", () -> m_driveController.getPositionError(), null );
         builder.addDoubleProperty("drive controller velocity error", () -> m_driveController.getVelocityError(), null );
-        builder.addDoubleProperty("turning controller position error", () -> m_turningController.getPositionError(), null );
+        builder.addDoubleProperty("turning controller position error", () -> m_turningController.getPositionError(), null);
         // builder.addDoubleProperty("TURNING OUTPUT", () -> m_turningMotor, null );
     }
 }
