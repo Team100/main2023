@@ -16,6 +16,10 @@ jobs:
   build:
     # The type of runner that the job will run on
     runs-on: ubuntu-latest
+    
+    defaults:
+      run:
+        working-directory: ./swerve100
 
     # This grabs the WPILib docker container
     container: wpilib/roborio-cross-ubuntu:2023-22.04
