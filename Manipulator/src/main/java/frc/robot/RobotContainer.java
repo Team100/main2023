@@ -10,6 +10,7 @@ import frc.robot.commands.Calibrate;
 import frc.robot.commands.CloseManipulator;
 import frc.robot.commands.OpenManipulator;
 import frc.robot.commands.TimedClose;
+import frc.robot.commands.CurrentFeedbackClose;
 // import frc.robot.commands.ExampleCommand;
 import frc.robot.subsystems.Manipulator;
 import edu.wpi.first.wpilibj.DigitalInput;
@@ -49,6 +50,7 @@ public class RobotContainer {
   private final CloseManipulator closeManipulator = new CloseManipulator(manipulator);
   private final OpenManipulator openManipulator = new OpenManipulator(manipulator);
   private TimedClose timedClose = new TimedClose (manipulator, 300, 0.7);
+  private CurrentFeedbackClose currentFeedbackClose = new CurrentFeedbackClose(manipulator, 15.0, 0.4);
   
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
@@ -78,7 +80,8 @@ public class RobotContainer {
     new JoystickButton(RIGHT_JOYSTICK, 2).onTrue(calibrate);
     new JoystickButton(RIGHT_JOYSTICK, 1).onTrue(closeManipulator);
     new JoystickButton(RIGHT_JOYSTICK, 3).onTrue(openManipulator);
-    new JoystickButton(RIGHT_JOYSTICK, 4).onTrue(timedClose);
+    new JoystickButton(RIGHT_JOYSTICK, 4).onTrue(currentFeedbackClose);
+    // new JoystickButton(RIGHT_JOYSTICK, 4).onTrue(timedClose);
 
     DigitalInput timeFlightSensor = new DigitalInput(3);
     Trigger tofTrigger = new Trigger(timeFlightSensor::get);
