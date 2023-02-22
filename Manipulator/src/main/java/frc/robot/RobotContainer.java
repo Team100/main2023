@@ -50,7 +50,7 @@ public class RobotContainer {
   private final CloseManipulator closeManipulator = new CloseManipulator(manipulator);
   private final OpenManipulator openManipulator = new OpenManipulator(manipulator);
   private TimedClose timedClose = new TimedClose (manipulator, 300, 0.7);
-  private CurrentFeedbackClose currentFeedbackClose = new CurrentFeedbackClose(manipulator, 15.0, 0.4);
+  private CurrentFeedbackClose currentFeedbackClose = new CurrentFeedbackClose(manipulator, 14.0, 0.5);
   
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
@@ -85,7 +85,7 @@ public class RobotContainer {
 
     DigitalInput timeFlightSensor = new DigitalInput(3);
     Trigger tofTrigger = new Trigger(timeFlightSensor::get);
-    tofTrigger.onFalse(timedClose);
+    tofTrigger.onFalse(currentFeedbackClose);
     //tofTrigger.negate().and(new JoystickButton(RIGHT_JOYSTICK, 5)).onTrue(timedClose);
 
     // new JoystickButton(m_driverController, 1).onTrue(calibrate);

@@ -7,6 +7,7 @@ package frc.robot.commands;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.Manipulator;
 import frc.robot.FRCLib.Motors.FRCTalonSRX;
+import java.lang.Math;
 
 
 public class CurrentFeedbackClose extends CommandBase {
@@ -14,7 +15,8 @@ public class CurrentFeedbackClose extends CommandBase {
   double closedCurrent;
   double force;
   boolean finishedFlag;
-  FRCTalonSRX pinch;
+  double stepForce;
+  //FRCTalonSRX pinch;
 
   private final Manipulator manip;
 
@@ -31,13 +33,15 @@ public class CurrentFeedbackClose extends CommandBase {
   @Override
   public void initialize() {
     finishedFlag = false;
+    stepForce = 0.0;
   }
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    if (pinch.motor.getStatorCurrent() <= closedCurrent) {
-      manip.pinch(force);
+    if (manip.getStatorCurrent() <= closedCurrent) {
+      stepForce = Math.min(stepForce + 0.07 * force, force);
+      manip.pinch(stepForce);
     } else {
     manip.pinch (0); 
     finishedFlag = true;

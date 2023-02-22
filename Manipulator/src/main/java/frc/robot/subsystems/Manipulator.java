@@ -79,6 +79,11 @@ public class Manipulator extends SubsystemBase {
     return pinch.motor.isRevLimitSwitchClosed()==1;
   }
 
+  public double getStatorCurrent(){
+    return pinch.motor.getStatorCurrent();
+  } 
+
+
   public void configSoftLimits(double innerSoftLimit, double outerSoftLimit){ 
     pinch.motor.configForwardSoftLimitThreshold(innerSoftLimit); 
     pinch.motor.configReverseSoftLimitThreshold(outerSoftLimit);
@@ -98,6 +103,7 @@ public class Manipulator extends SubsystemBase {
     builder.addBooleanProperty("Inner Limit Switch", () -> { return pinch.motor.isRevLimitSwitchClosed() == 1; }, null);
     builder.addBooleanProperty("Outer Limit Switch", () -> { return pinch.motor.isFwdLimitSwitchClosed() == 1; }, null);
   }
+
 
  
 
