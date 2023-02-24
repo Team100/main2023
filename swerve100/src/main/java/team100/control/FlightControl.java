@@ -8,6 +8,8 @@ import frc.robot.commands.ArmHigh;
 
 import frc.robot.commands.DriveRotation;
 import frc.robot.commands.DriveWithHeading;
+import frc.robot.commands.ResetPose;
+
 // import frc.robot.commands.ResetPose;
 
 import frc.robot.commands.ResetPose;

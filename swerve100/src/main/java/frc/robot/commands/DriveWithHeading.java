@@ -4,36 +4,31 @@
 
 package frc.robot.commands;
 
-import team100.control.*;
-
 import java.util.function.Supplier;
 
-import javax.naming.ContextNotEmptyException;
-
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
-import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.util.sendable.SendableBuilder;
-import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
-import edu.wpi.first.wpilibj2.command.ProfiledPIDCommand;
 import frc.robot.subsystems.SwerveDriveSubsystem;
-import frc.robot.subsystems.SwerveModule;
 
 public class DriveWithHeading extends CommandBase {
   /** Creates a new DrivePID. */
   SwerveDriveSubsystem m_robotDrive;
   PIDController m_headingController;
   Rotation2d m_desiredRotation;
+  ChassisSpeeds targetChasisSpeeds = new ChassisSpeeds();
 
   Supplier<Double> xSpeed;
   Supplier<Double> ySpeed;
   Pose2d currentPose;
 //   Supplier<Double> rotSpeed;
+  double radiantsPerSecond = 0;
 
   public DriveWithHeading(SwerveDriveSubsystem robotDrive, Supplier<Double> xSpeed, Supplier<Double> ySpeed, Rotation2d desiredRotation, String name) {
     // Use addRequirements() here to declare subsystem dependencies.
@@ -46,7 +41,7 @@ public class DriveWithHeading extends CommandBase {
     // this.rotSpeed = rotSpeed;
 
     // m_headingController.setTolerance(0.1);
-    // m_headingController.enableContinuousInput(-Math.PI, Math.PI);
+    m_headingController.enableContinuousInput(-Math.PI, Math.PI);
     currentPose = m_robotDrive.getPose();
 
     SmartDashboard.putData("Drive with Heading: " + name, this);
@@ -86,16 +81,15 @@ public class DriveWithHeading extends CommandBase {
     // }
 
     currentPose = m_robotDrive.getPose();
-    double currentRads = currentPose.getRotation().getRadians();
-    double desiredRads = m_desiredRotation.getRadians();
-    double thetaOuput = 0;
+    double currentRads = MathUtil.angleModulus(currentPose.getRotation().getRadians());
+    double desiredRads = MathUtil.angleModulus(m_desiredRotation.getRadians());
+    radiantsPerSecond = m_headingController.calculate(currentRads, desiredRads);
 
-    if (Math.abs(currentRads - desiredRads) >= 0.1) {
-        thetaOuput = m_headingController.calculate(currentRads, desiredRads);
-    }
 
     
-    ChassisSpeeds targetChasisSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(x, y, thetaOuput, currentPose.getRotation());
+    targetChasisSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(x, y, radiantsPerSecond, currentPose.getRotation());
+
+    
 
     SwerveModuleState[] targetModuleStates = SwerveDriveSubsystem.kDriveKinematics.toSwerveModuleStates(targetChasisSpeeds);
 
@@ -120,8 +114,8 @@ public class DriveWithHeading extends CommandBase {
         builder.addDoubleProperty("Error", () -> m_headingController.getPositionError(), null);
         builder.addDoubleProperty("Measurment", () -> currentPose.getRotation().getRadians(), null);
         builder.addDoubleProperty("Setpoint", () ->  m_headingController.getSetpoint(), null);
-
-
+        builder.addDoubleProperty("ControllerOutput", () -> radiantsPerSecond, null);
+        builder.addDoubleProperty("Chassis Speeds", () -> targetChasisSpeeds.omegaRadiansPerSecond, null);
 
     }
 }

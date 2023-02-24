@@ -50,12 +50,12 @@ public class DualXboxControl implements Control, Sendable {
     };
 
 
-    @Override
-    public void resetPose(ResetPose command) {
-        // TODO: choose one
-        controller0.leftBumper().onTrue(command);
-        // controller0.a().onTrue(command);
-    }
+    // @Override
+    // public void resetRotation(ResetRotation command) {
+    //     // TODO: choose one
+    //     controller0.leftBumper().onTrue(command);
+    //     // controller0.a().onTrue(command);
+    // }
 
     public void driveSlow(SwerveDriveSubsystem m_robotDrive){
         // controller0.rightBumper().onTrue(m_robotDrive.driveSl)
@@ -113,22 +113,22 @@ public class DualXboxControl implements Control, Sendable {
 
     @Override
     public void driveWithHeading0(DriveWithHeading command){
-        controller0.povUp().onTrue(command);
+        controller0.povUp().whileTrue(command);
     }
 
     @Override
     public void driveWithHeading90(DriveWithHeading command){
-        controller0.povLeft().onTrue(command);
+        controller0.povLeft().whileTrue(command);
     }
 
     @Override
     public void driveWithHeading180(DriveWithHeading command){
-        controller0.povDown().onTrue(command);
+        controller0.povDown().whileTrue(command);
     }
 
     @Override
     public void driveWithHeading270(DriveWithHeading command){
-        controller0.povRight().onTrue(command);
+        controller0.povRight().whileTrue(command);
     }
 
     @Override
