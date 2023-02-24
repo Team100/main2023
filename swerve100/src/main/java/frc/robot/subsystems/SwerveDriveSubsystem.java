@@ -424,6 +424,7 @@ public class SwerveDriveSubsystem extends SubsystemBase {
     }
 
     public void updateOdometry() {
+
         m_poseEstimator.update(
                 getHeading(),
                 new SwerveModulePosition[] {

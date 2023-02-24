@@ -5,6 +5,7 @@
 package frc.robot.autonomous;
 
 import java.util.List;
+import java.util.function.Supplier;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
@@ -22,9 +23,9 @@ public class MoveToAprilTag extends TrajectoryCommand {
         super(m_robotDrive, trajectory);
     }
 
-    public static MoveToAprilTag newMoveToAprilTag(SwerveDriveSubsystem m_robotDrive, int tagID) {
-        HashTag hashTag = new HashTag();
-        Pose3d aprilPose = hashTag.getTagIDPose(tagID);
+    public static MoveToAprilTag newMoveToAprilTag(SwerveDriveSubsystem m_robotDrive, Supplier<Pose2d> getPose, int tagID) {
+        // HashTag hashTag = new HashTag();
+        Pose2d aprilPose = m_robotDrive.visionDataProvider.layout.getTagPose(tagID).get().toPose2d();
         
         TrajectoryConfig trajectoryConfig = new TrajectoryConfig(
                 2,
@@ -32,18 +33,19 @@ public class MoveToAprilTag extends TrajectoryCommand {
                 // Add kinematics to ensure max speed is actually obeyed
                 .setKinematics(SwerveDriveSubsystem.kDriveKinematics);
 
-        System.out.println("MOVE TO APRIL TAG");
+        System.out.println("MOVE TO APRIL TAG****************************************************************");
 
 
         Trajectory exampleTrajectory = TrajectoryGenerator.generateTrajectory(
                 // Start at the origin facing the +X direction
-                m_robotDrive.getPose(),
+                getPose.get(),
                 List.of(),
-                new Pose2d(aprilPose.getX() - 1, aprilPose.getY(), new Rotation2d(aprilPose.getRotation().getAngle())),
+                new Pose2d(aprilPose.getX()-1, aprilPose.getY(), new Rotation2d(aprilPose.getRotation().getDegrees())),
                 trajectoryConfig);
 
         return new MoveToAprilTag(m_robotDrive, exampleTrajectory);
 
     }
+
 
 }
