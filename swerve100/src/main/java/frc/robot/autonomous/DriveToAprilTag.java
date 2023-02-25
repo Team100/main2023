@@ -8,7 +8,7 @@ import edu.wpi.first.math.geometry.Translation2d;
 
 public class DriveToAprilTag extends DriveToWaypoint2 {
 
-    static Transform2d m_offset = new Transform2d(new Translation2d(-1, 0), new Rotation2d());
+    static Transform2d m_offset = new Transform2d(new Translation2d(1, 0), new Rotation2d(Math.PI));
 
     public DriveToAprilTag(Pose2d goal, SwerveDriveSubsystem robotDrive) {
         super(goal, robotDrive);
@@ -17,6 +17,7 @@ public class DriveToAprilTag extends DriveToWaypoint2 {
     public static DriveToAprilTag newDriveToAprilTag(int tagID, SwerveDriveSubsystem robotDrive) {
         Pose2d m_tagPose = robotDrive.visionDataProvider.layout.getTagPose(tagID).get().toPose2d();
         System.out.println(m_tagPose);
-        return new DriveToAprilTag(m_tagPose, robotDrive);
+        Pose2d m_goal = m_tagPose.plus(m_offset);
+        return new DriveToAprilTag(m_goal, robotDrive);
     }
 }
