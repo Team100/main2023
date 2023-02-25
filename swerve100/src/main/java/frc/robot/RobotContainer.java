@@ -61,7 +61,7 @@ public class RobotContainer implements Sendable {
     private final DriveRotation driveRotation;
     private final DriveToAprilTag driveToAprilTag1;
     private final DriveToAprilTag driveToAprilTag5;
-    private final DriveToWaypoint2 driveToID4, driveToID3, driveToID2, driveToID1;
+    private final DriveToAprilTag driveToID4, driveToID3, driveToID2, driveToID1;
 
     // private final MoveToAprilTag moveToAprilTag2;
 
@@ -82,10 +82,10 @@ public class RobotContainer implements Sendable {
         driveToAprilTag1 = DriveToAprilTag.newDriveToAprilTag(1, m_robotDrive);
         driveToAprilTag5 = DriveToAprilTag.newDriveToAprilTag(4, m_robotDrive);
 
-        driveToID1 = new DriveToWaypoint2(new Pose2d(14.513558, 1.071626, new Rotation2d(0)), m_robotDrive);
-        driveToID2 = new DriveToWaypoint2(new Pose2d(14.513558, 2.748026, new Rotation2d(0)), m_robotDrive);
-        driveToID3 = new DriveToWaypoint2(new Pose2d(14.513558, 4.424426, new Rotation2d(0)), m_robotDrive);
-        driveToID4 = new DriveToWaypoint2(new Pose2d(15.178784, 6.749796, new Rotation2d(0)), m_robotDrive);
+        driveToID1 = DriveToAprilTag.newDriveToAprilTag(1, m_robotDrive);
+        driveToID2 = DriveToAprilTag.newDriveToAprilTag(2, m_robotDrive);
+        driveToID3 = DriveToAprilTag.newDriveToAprilTag(3, m_robotDrive);
+        driveToID4 = DriveToAprilTag.newDriveToAprilTag(4, m_robotDrive);
         
         // moveToAprilTag2 = MoveToAprilTag.newMoveToAprilTag(m_robotDrive, 1);
 
