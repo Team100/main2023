@@ -184,4 +184,10 @@ public class DualXboxControl implements Control, Sendable {
         builder.addDoubleProperty("right x", () -> controller0.getRightX(), null);
         builder.addDoubleProperty("left x", () -> controller0.getLeftX(), null);
     }
+
+    @Override
+    public void resetPose(ResetPose command) {
+        controller0.leftBumper().onTrue(command);
+        
+    }
 }

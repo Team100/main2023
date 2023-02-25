@@ -143,6 +143,7 @@ public class RobotContainer implements Sendable {
         control.driveToID2(driveToID2);
         control.driveToID3(driveToID3);
         control.driveToID4(driveToID4);
+        control.resetPose(resetPose);
 
 
 

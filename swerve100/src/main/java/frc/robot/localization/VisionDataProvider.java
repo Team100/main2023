@@ -52,6 +52,8 @@ public class VisionDataProvider extends SubsystemBase{
     Pose2d currentRobotinFieldCoords;
     Pose2d currentTagInRobotCoords;
     Pose2d currentTagInFieldCoords;
+    Pose2d pastRobotPose;
+    boolean first = true;
 
 
     public VisionDataProvider(SwerveDrivePoseEstimator pE, Supplier<Boolean> getM, Supplier<Pose2d> getP) {
@@ -61,6 +63,7 @@ public class VisionDataProvider extends SubsystemBase{
         getMoving = getM;
         poseEstimator = pE;
 
+        pastRobotPose = new Pose2d();
         currentRobotinFieldCoords = new Pose2d();
         currentTagInRobotCoords = new Pose2d();
         currentTagInFieldCoords = new Pose2d();
@@ -171,8 +174,16 @@ public class VisionDataProvider extends SubsystemBase{
                     currentRobotinFieldCoords = new Pose2d(robotInFieldCords.getTranslation(), getPose.get().getRotation());
                     currentTagInFieldCoords = tagInFieldCords.get().toPose2d();
                     // System.out.println("ROBOOOOOOOT POSE: " + robotInFieldCords);
-                    poseEstimator.addVisionMeasurement(currentRobotinFieldCoords, Timer.getFPGATimestamp() - .075);
-                }
+
+                    // if(first){
+                        poseEstimator.addVisionMeasurement(currentRobotinFieldCoords, Timer.getFPGATimestamp() - .075);
+                    // }else if( Math.abs(currentRobotinFieldCoords.getX() - pastRobotPose.getX()) <= 0.5 && !first ){
+                        // poseEstimator.addVisionMeasurement(currentRobotinFieldCoords, Timer.getFPGATimestamp() - .075);
+                    }
+
+                    // pastRobotPose = currentRobotinFieldCoords;
+                    first = false;
+                // }
             }
         }
 

@@ -15,6 +15,9 @@ import edu.wpi.first.math.trajectory.TrajectoryConfig;
 import edu.wpi.first.math.trajectory.TrajectoryGenerator;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.trajectory.Trajectory.State;
+import edu.wpi.first.math.trajectory.constraint.RectangularRegionConstraint;
+import edu.wpi.first.math.trajectory.constraint.SwerveDriveKinematicsConstraint;
+import edu.wpi.first.math.trajectory.constraint.TrajectoryConstraint;
 import edu.wpi.first.networktables.DoublePublisher;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
@@ -73,19 +76,27 @@ public class DriveToWaypoint2 extends CommandBase {
         // desiredY = 0;
         desiredPose = new Pose2d();
         // desiredStateGlobal = new State();
-        m_rotationController = new ProfiledPIDController(1, 0, 0, rotationConstraints);
+        m_rotationController = new ProfiledPIDController(1.3, 0, 0, rotationConstraints);
         m_rotationController.setTolerance(Math.PI/180);
 
-        xController = new PIDController(0.3, 1.5, 0);
+        xController = new PIDController(1.5, 1.5, 0);
         xController.setIntegratorRange(-0.5, 0.1);
         xController.setTolerance(0.01);   
         
-        yController = new PIDController(0.3, 1.5, 0);
+        yController = new PIDController(1.5, 1.5, 0);
         yController.setIntegratorRange(-0.5, 0.5);   
         yController.setTolerance(0.01);
         m_controller = new HolonomicDriveController2(xController, yController, m_rotationController);
-        translationConfig = new TrajectoryConfig(3.0, 0.9).setKinematics(SwerveDriveSubsystem.kDriveKinematics);
+
+         
+        translationConfig = new TrajectoryConfig(3.0, 1.5).setKinematics(SwerveDriveSubsystem.kDriveKinematics);
         
+        // translationConfig.addConstraint(
+        //     new RectangularRegionConstraint(
+        //         new Translation2d(11.4935, 3.9878), 
+        //         new Translation2d(13.29436, 1.6256), 
+        //         new SwerveDriveKinematicsConstraint(SwerveDriveSubsystem.kDriveKinematics, 3))
+        // );
         addRequirements(m_swerve);
 
         // SmartDashboard.putData("Drive To Waypoint", this);
@@ -98,6 +109,8 @@ public class DriveToWaypoint2 extends CommandBase {
         Translation2d goalTranslation = goal.getTranslation();
         Translation2d translationToGoal = goalTranslation.minus(currentTranslation);
         Rotation2d angleToGoal = translationToGoal.getAngle();
+
+        
 
         return TrajectoryGenerator.generateTrajectory(
                 new Pose2d(currentTranslation, angleToGoal),
