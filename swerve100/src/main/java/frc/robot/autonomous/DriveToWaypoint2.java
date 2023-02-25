@@ -2,8 +2,6 @@ package frc.robot.autonomous;
 
 import java.util.List;
 
-import org.opencv.core.Mat;
-
 import edu.wpi.first.math.controller.HolonomicDriveController;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;

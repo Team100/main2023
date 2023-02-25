@@ -1,8 +1,9 @@
 package team100.control;
 
+import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.util.sendable.Sendable;
 import edu.wpi.first.util.sendable.SendableBuilder;
-import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.autonomous.DriveToAprilTag;
@@ -86,25 +87,25 @@ public class DualXboxControl implements Control, Sendable {
         controller1.b().onTrue(command);
     }
 
-    @Override
-    public void driveWithHeading0(DriveWithHeading command){
-        controller0.povUp().whileTrue(command);
-    }
+    // @Override
+    // public void driveWithHeading0(DriveWithHeading command){
+    //     controller0.povUp().whileTrue(command);
+    // }
 
-    @Override
-    public void driveWithHeading90(DriveWithHeading command){
-        controller0.povLeft().whileTrue(command);
-    }
+    // @Override
+    // public void driveWithHeading90(DriveWithHeading command){
+    //     controller0.povLeft().whileTrue(command);
+    // }
 
-    @Override
-    public void driveWithHeading180(DriveWithHeading command){
-        controller0.povDown().whileTrue(command);
-    }
+    // @Override
+    // public void driveWithHeading180(DriveWithHeading command){
+    //     controller0.povDown().whileTrue(command);
+    // }
 
-    @Override
-    public void driveWithHeading270(DriveWithHeading command){
-        controller0.povRight().whileTrue(command);
-    }
+    // @Override
+    // public void driveWithHeading270(DriveWithHeading command){
+    //     controller0.povRight().whileTrue(command);
+    // }
 
     @Override
     public void driveRotation(DriveRotation command){
@@ -158,5 +159,22 @@ public class DualXboxControl implements Control, Sendable {
         builder.addDoubleProperty("right y", () -> controller0.getRightY(), null);
         builder.addDoubleProperty("right x", () -> controller0.getRightX(), null);
         builder.addDoubleProperty("left x", () -> controller0.getLeftX(), null);
+    }
+
+
+    Rotation2d previousRotation = new Rotation2d(0);
+
+
+    @Override
+    public Rotation2d desiredRotation() {
+        // return new Rotation2d(-controller0.getLeftX(), -controller0.getLeftY());
+        double foo = -controller0.getHID().getPOV();
+        if (foo > 0) {
+            return previousRotation;
+        } 
+        previousRotation = Rotation2d.fromDegrees(foo);
+        return previousRotation;
+        
+        
     }
 }

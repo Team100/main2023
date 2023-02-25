@@ -21,7 +21,7 @@ public class DriveWithHeading extends CommandBase {
   /** Creates a new DrivePID. */
   SwerveDriveSubsystem m_robotDrive;
   PIDController m_headingController;
-  Rotation2d m_desiredRotation;
+  Supplier<Rotation2d> m_desiredRotation;
   ChassisSpeeds targetChasisSpeeds = new ChassisSpeeds();
 
   Supplier<Double> xSpeed;
@@ -30,7 +30,7 @@ public class DriveWithHeading extends CommandBase {
 //   Supplier<Double> rotSpeed;
   double radiantsPerSecond = 0;
 
-  public DriveWithHeading(SwerveDriveSubsystem robotDrive, Supplier<Double> xSpeed, Supplier<Double> ySpeed, Rotation2d desiredRotation, String name) {
+  public DriveWithHeading(SwerveDriveSubsystem robotDrive, Supplier<Double> xSpeed, Supplier<Double> ySpeed, Supplier<Rotation2d> desiredRotation, String name) {
     // Use addRequirements() here to declare subsystem dependencies.
     m_robotDrive = robotDrive;
     m_headingController = m_robotDrive.headingController;
@@ -82,7 +82,7 @@ public class DriveWithHeading extends CommandBase {
 
     currentPose = m_robotDrive.getPose();
     double currentRads = MathUtil.angleModulus(currentPose.getRotation().getRadians());
-    double desiredRads = MathUtil.angleModulus(m_desiredRotation.getRadians());
+    double desiredRads = MathUtil.angleModulus(m_desiredRotation.get().getRadians());
     radiantsPerSecond = m_headingController.calculate(currentRads, desiredRads);
 
 

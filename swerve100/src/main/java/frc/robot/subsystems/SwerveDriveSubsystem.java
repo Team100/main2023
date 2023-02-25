@@ -152,12 +152,13 @@ public class SwerveDriveSubsystem extends SubsystemBase {
         thetaController = new ProfiledPIDController(Ptheta, Itheta, Dtheta, thetaControllerConstraints);
 
         headingController = new PIDController( //
-                3, // kP
+                1.5, // kP
                 0.05, // kI
-                0.2); // kD
+                0.1); // kD
 
+        headingController.setIntegratorRange(-0.1, 0.1);
         // Note very low heading tolerance.
-        headingController.setTolerance(Units.degreesToRadians(0.5));
+        headingController.setTolerance(Units.degreesToRadians(0.1));
 
         switch (Identity.get()) {
             case SQUAREBOT:
@@ -369,7 +370,7 @@ public class SwerveDriveSubsystem extends SubsystemBase {
 
         // DRIVE FF
         SimpleMotorFeedforward driveFeedforward = new SimpleMotorFeedforward( //
-                0.04, // kS: from experiment; overcome friction for low-effort moves
+                0.05, // kS: from experiment; overcome friction for low-effort moves
                 .5);// kV
 
         // TURNING FF
@@ -468,7 +469,7 @@ public class SwerveDriveSubsystem extends SubsystemBase {
 
         // DRIVE FF
         SimpleMotorFeedforward driveFeedforward = new SimpleMotorFeedforward(//
-                0.0, // kS TODO: too low?
+                0.04, // kS TODO: too low?
                 .5); // kV
 
         // TURNING FF
@@ -682,8 +683,5 @@ public class SwerveDriveSubsystem extends SubsystemBase {
         builder.addDoubleProperty("Front Right Output", () -> m_frontRight.getDriveOutput(), null);
         builder.addDoubleProperty("Rear Left Output", () -> m_rearLeft.getDriveOutput(), null);
         builder.addDoubleProperty("Rear Right Output", () -> m_rearLeft.getDriveOutput(), null);
-
-        builder.addDoubleProperty("GYRO ROLL", () -> m_gyro.getRoll(), null);
-
     }
 }
