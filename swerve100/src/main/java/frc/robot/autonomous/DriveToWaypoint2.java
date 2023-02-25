@@ -80,7 +80,7 @@ public class DriveToWaypoint2 extends CommandBase {
         m_rotationController.setTolerance(Math.PI/180);
 
         xController = new PIDController(1.5, 1.5, 0);
-        xController.setIntegratorRange(-0.5, 0.1);
+        xController.setIntegratorRange(-0.5, 0.5);
         xController.setTolerance(0.01);   
         
         yController = new PIDController(1.5, 1.5, 0);
@@ -89,7 +89,7 @@ public class DriveToWaypoint2 extends CommandBase {
         m_controller = new HolonomicDriveController2(xController, yController, m_rotationController);
 
          
-        translationConfig = new TrajectoryConfig(3.0, 1.5).setKinematics(SwerveDriveSubsystem.kDriveKinematics);
+        translationConfig = new TrajectoryConfig(6, 3).setKinematics(SwerveDriveSubsystem.kDriveKinematics);
         
         // translationConfig.addConstraint(
         //     new RectangularRegionConstraint(
