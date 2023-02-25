@@ -469,7 +469,7 @@ public class SwerveDriveSubsystem extends SubsystemBase {
         // DRIVE FF
         SimpleMotorFeedforward driveFeedforward = new SimpleMotorFeedforward(//
                 0.0, // kS TODO: too low?
-                .5); // kV
+                .1); // kV
 
         // TURNING FF
         SimpleMotorFeedforward turningFeedforward = new SimpleMotorFeedforward(//
@@ -481,6 +481,7 @@ public class SwerveDriveSubsystem extends SubsystemBase {
     }
 
     public void updateOdometry() {
+
         m_poseEstimator.update(
                 getHeading(),
                 new SwerveModulePosition[] {

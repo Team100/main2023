@@ -14,7 +14,16 @@ import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.math.trajectory.TrajectoryConfig;
 import edu.wpi.first.math.trajectory.TrajectoryGenerator;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
+import edu.wpi.first.math.trajectory.Trajectory.State;
+import edu.wpi.first.math.trajectory.constraint.RectangularRegionConstraint;
+import edu.wpi.first.math.trajectory.constraint.SwerveDriveKinematicsConstraint;
+import edu.wpi.first.math.trajectory.constraint.TrajectoryConstraint;
+import edu.wpi.first.networktables.DoublePublisher;
+import edu.wpi.first.networktables.NetworkTable;
+import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.SwerveDriveSubsystem;
 
@@ -28,6 +37,18 @@ import frc.robot.subsystems.SwerveDriveSubsystem;
 public class DriveToWaypoint2 extends CommandBase {
     private static final TrapezoidProfile.Constraints rotationConstraints = new TrapezoidProfile.Constraints(6, 12);
 
+    private double desiredX = 0; 
+    private double desiredY = 0;
+    private Pose2d desiredPose;
+
+    NetworkTableInstance inst = NetworkTableInstance.getDefault();
+
+    DoublePublisher desiredXPublisher = inst.getTable("Drive To Waypoint").getDoubleTopic("Desired X PUB").publish();
+    DoublePublisher desiredYPublisher = inst.getTable("Drive To Waypoint").getDoubleTopic("Desired Y PUB").publish();
+    DoublePublisher poseXPublisher = inst.getTable("Drive To Waypoint").getDoubleTopic("Pose X PUB").publish();
+    DoublePublisher poseYPublisher = inst.getTable("Drive To Waypoint").getDoubleTopic("Pose Y PUB").publish();
+
+
     private final Timer m_timer = new Timer();
 
     private final SwerveDriveSubsystem m_swerve;
@@ -37,24 +58,49 @@ public class DriveToWaypoint2 extends CommandBase {
     private final ProfiledPIDController m_rotationController;
     private final PIDController xController;
     private final PIDController yController;
-    private final HolonomicDriveController m_controller;
+    private final HolonomicDriveController2 m_controller;
 
     private Trajectory m_trajectory;
+
+    
+    // private State desiredStateGlobal;
+
+
 
     public DriveToWaypoint2(Pose2d goal, SwerveDriveSubsystem m_swerve) {
         this.goal = goal;
         this.m_swerve = m_swerve;
-        m_rotationController = new ProfiledPIDController(1, 0, 0, rotationConstraints);
+
+
+        System.out.println("CONSTRUCTOR****************************************************");
+        // desiredY = 0;
+        desiredPose = new Pose2d();
+        // desiredStateGlobal = new State();
+        m_rotationController = new ProfiledPIDController(1.3, 0, 0, rotationConstraints);
         m_rotationController.setTolerance(Math.PI/180);
-        xController = new PIDController(1.2, 1.5, 0);
+
+        xController = new PIDController(1.5, 1.5, 0);
         xController.setIntegratorRange(-0.5, 0.1);
         xController.setTolerance(0.01);   
-        yController = new PIDController(1.2, 1.5, 0);
+        
+        yController = new PIDController(1.5, 1.5, 0);
         yController.setIntegratorRange(-0.5, 0.5);   
         yController.setTolerance(0.01);
-        m_controller = new HolonomicDriveController(xController, yController, m_rotationController);
-        translationConfig = new TrajectoryConfig(5.0, 20.0).setKinematics(SwerveDriveSubsystem.kDriveKinematics);
+        m_controller = new HolonomicDriveController2(xController, yController, m_rotationController);
+
+         
+        translationConfig = new TrajectoryConfig(3.0, 1.5).setKinematics(SwerveDriveSubsystem.kDriveKinematics);
+        
+        // translationConfig.addConstraint(
+        //     new RectangularRegionConstraint(
+        //         new Translation2d(11.4935, 3.9878), 
+        //         new Translation2d(13.29436, 1.6256), 
+        //         new SwerveDriveKinematicsConstraint(SwerveDriveSubsystem.kDriveKinematics, 3))
+        // );
         addRequirements(m_swerve);
+
+        // SmartDashboard.putData("Drive To Waypoint", this);
+
     }
 
     private Trajectory makeTrajectory() {
@@ -63,6 +109,8 @@ public class DriveToWaypoint2 extends CommandBase {
         Translation2d goalTranslation = goal.getTranslation();
         Translation2d translationToGoal = goalTranslation.minus(currentTranslation);
         Rotation2d angleToGoal = translationToGoal.getAngle();
+
+        
 
         return TrajectoryGenerator.generateTrajectory(
                 new Pose2d(currentTranslation, angleToGoal),
@@ -73,9 +121,10 @@ public class DriveToWaypoint2 extends CommandBase {
 
     @Override
     public void initialize() {
-        System.out.println("START TO WAYPOINT");
-        m_timer.reset();
-        m_timer.start();
+        this.desiredX = 14;
+        System.out.println("START TO WAYPOINT*************************" + this.desiredX);
+        m_timer.restart();
+        // m_timer.start();
         m_trajectory = makeTrajectory();
     }
 
@@ -97,10 +146,50 @@ public class DriveToWaypoint2 extends CommandBase {
         double curTime = m_timer.get();
         var desiredState = m_trajectory.sample(curTime);
 
+
+        // System.out.println(curTime);
+        
+        this.desiredX = desiredState.poseMeters.getX();
+
+        desiredY = desiredState.poseMeters.getY();
+
+        desiredPose = desiredState.poseMeters;
+        
+        // System.out.print ln(desiredX);
+
+        // System.out.println("*****************"+goal);
         var targetChassisSpeeds = m_controller.calculate(m_swerve.getPose(), desiredState, goal.getRotation());
         var targetModuleStates = SwerveDriveSubsystem.kDriveKinematics.toSwerveModuleStates(targetChassisSpeeds);
 
+        desiredXPublisher.set(desiredX);
+        desiredYPublisher.set(desiredY);
+        poseXPublisher.set(m_swerve.getPose().getX());
+        poseYPublisher.set(m_swerve.getPose().getY());
+
+
         m_swerve.setModuleStates(targetModuleStates);
     }
+
+    public double getDesiredX(){
+        // System.out.println("GLAAAAAAAAAAAAAAAAAA: "+ this.desiredX);
+        return this.desiredX;
+        
+    }
+
+    // @Override
+    // public void initSendable(SendableBuilder builder) {
+    //     super.initSendable(builder);
+    //     // builder.addDoubleProperty("Holonomic X Error", () -> m_controller.getXController().getPositionError(), null);
+    //     // builder.addDoubleProperty("Desired X", () -> getDesiredX(), null);
+    //     builder.addDoubleProperty("X Measurment", () -> m_swerve.getPose().getX(), null);
+
+    //     // builder.addDoubleProperty("Holonomic Y Error", () -> m_controller.getYController().getPositionError(), null);
+    //     builder.addDoubleProperty("Desired Y", () -> desiredY, null);
+    //     builder.addDoubleProperty(  "Holonomic Y Measurment", () -> m_swerve.getPose().getY(), null);
+
+        
+
+       
+    // }
 
 }

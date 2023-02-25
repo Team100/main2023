@@ -1,19 +1,28 @@
 package team100.control;
 
 import frc.robot.autonomous.DriveToAprilTag;
+import frc.robot.autonomous.DriveToWaypoint2;
+import frc.robot.autonomous.MoveToAprilTag;
 import frc.robot.commands.ArmHigh;
 import frc.robot.commands.DriveRotation;
 import frc.robot.commands.DriveWithHeading;
+import frc.robot.commands.ResetPose;
+// import frc.robot.commands.ResetPose;
 // import frc.robot.commands.ResetPose;
 // import frc.robot.commands.ResetPose;
 import frc.robot.commands.ResetRotation;
+import frc.robot.subsystems.SwerveDriveSubsystem;
 
 
 public class NullControl implements Control {
 
-    // @Override
-    // public void resetPose(ResetPose command) {
-    // }
+    @Override
+    public void resetPose(ResetPose command) {
+    }
+
+    @Override
+    public void trajtoApril(SwerveDriveSubsystem m_robotDrive, int ID){
+    };
 
     @Override
     public void autoLevel(frc.robot.commands.autoLevel command) {
@@ -91,6 +100,36 @@ public class NullControl implements Control {
 
     @Override
     public void driveToAprilTag2(DriveToAprilTag command) {
+        // TODO Auto-generated method stub
+        
+    }
+
+    // @Override
+    // public void driveToWaypoint(DriveToWaypoint2 command) {
+    //     // TODO Auto-generated method stub
+        
+    // }
+
+    @Override
+    public void driveToID1(DriveToWaypoint2 command) {
+        // TODO Auto-generated method stub
+        
+    }
+
+    @Override
+    public void driveToID2(DriveToWaypoint2 command) {
+        // TODO Auto-generated method stub
+        
+    }
+
+    @Override
+    public void driveToID3(DriveToWaypoint2 command) {
+        // TODO Auto-generated method stub
+        
+    }
+
+    @Override
+    public void driveToID4(DriveToWaypoint2 command) {
         // TODO Auto-generated method stub
         
     }

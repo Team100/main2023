@@ -16,6 +16,7 @@ public class DriveToAprilTag extends DriveToWaypoint2 {
 
     public static DriveToAprilTag newDriveToAprilTag(int tagID, SwerveDriveSubsystem robotDrive) {
         Pose2d m_tagPose = robotDrive.visionDataProvider.layout.getTagPose(tagID).get().toPose2d();
-        return new DriveToAprilTag(m_tagPose.plus(m_offset), robotDrive);
+        System.out.println(m_tagPose);
+        return new DriveToAprilTag(m_tagPose, robotDrive);
     }
 }
