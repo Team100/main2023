@@ -108,7 +108,7 @@ public class RobotContainer implements Sendable {
             control::xSpeed,
             control::ySpeed,
             control::desiredRotation,
-            "270 Degrees");
+            "");
         
         driveRotation = new DriveRotation(m_robotDrive, control::rotSpeed);
         

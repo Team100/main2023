@@ -74,10 +74,10 @@ public class SwerveDriveSubsystem extends SubsystemBase {
     // public static final double kaVoltSecondsSquaredPerMeter = 0.5;
 
     // SLOW SETTINGS
-    public static final double kMaxSpeedMetersPerSecond = 5;
+    public static final double kMaxSpeedMetersPerSecond = 2;
     public static final double kMaxAccelerationMetersPerSecondSquared = 10;
     // NOTE joel 2/8 used to be negative; inversions broken somewhere?
-    public static final double kMaxAngularSpeedRadiansPerSecond = 3;
+    public static final double kMaxAngularSpeedRadiansPerSecond = 5;
     public static final double kMaxAngularSpeedRadiansPerSecondSquared = 5;
 
     // FAST SETTINGS. can the robot actually go this fast?
@@ -116,7 +116,7 @@ public class SwerveDriveSubsystem extends SubsystemBase {
 
     public final PIDController xController;
     public final PIDController yController;
-    public final PIDController headingController;
+    public final ProfiledPIDController headingController;
     public ProfiledPIDController thetaController;
 
     private final DoubleArrayPublisher robotPosePub;
@@ -151,10 +151,15 @@ public class SwerveDriveSubsystem extends SubsystemBase {
                 kMaxAngularSpeedRadiansPerSecond, kMaxAngularSpeedRadiansPerSecondSquared);
         thetaController = new ProfiledPIDController(Ptheta, Itheta, Dtheta, thetaControllerConstraints);
 
-        headingController = new PIDController( //
-                1.5, // kP
-                0.05, // kI
-                0.1); // kD
+        final TrapezoidProfile.Constraints headingControllConstraints = new TrapezoidProfile.Constraints(
+                3, 1);
+        thetaController = new ProfiledPIDController(Ptheta, Itheta, Dtheta, thetaControllerConstraints);
+
+        headingController = new ProfiledPIDController( //
+                1, // kP
+                0.1, // kI
+                0,
+                headingControllConstraints); // kD
 
         headingController.setIntegratorRange(-0.1, 0.1);
         // Note very low heading tolerance.
@@ -225,7 +230,7 @@ public class SwerveDriveSubsystem extends SubsystemBase {
                 m_frontLeft = AMModule(
                         "Front Left",
                         11, // drive CAN
-                        0, // turn PWM
+                        0, // turn PWM0
                         3, // turn encoder
                         0.69, // turn offset
                         currentLimit);
@@ -469,13 +474,13 @@ public class SwerveDriveSubsystem extends SubsystemBase {
 
         // DRIVE FF
         SimpleMotorFeedforward driveFeedforward = new SimpleMotorFeedforward(//
-                0.04, // kS TODO: too low?
-                .5); // kV
+                0, // kS TODO: too low?
+                .4); // kV
 
         // TURNING FF
         SimpleMotorFeedforward turningFeedforward = new SimpleMotorFeedforward(//
-                0.1, // kS TODO too high?
-                0.005); // kV TODO: too low?
+                0.05, // kS TODO too high?
+                0.003); // kV TODO: too low?
 
         return new SwerveModule(name, driveMotor, turningMotor, driveEncoder, turningEncoder,
                 driveController, turningController, driveFeedforward, turningFeedforward);
