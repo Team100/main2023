@@ -6,6 +6,7 @@ import frc.robot.autonomous.MoveToAprilTag;
 import frc.robot.commands.ArmHigh;
 import frc.robot.commands.DriveRotation;
 import frc.robot.commands.DriveWithHeading;
+import frc.robot.commands.GoalOffset;
 import frc.robot.commands.ResetPose;
 // import frc.robot.commands.ResetPose;
 // import frc.robot.commands.ResetPose;
@@ -132,6 +133,12 @@ public class NullControl implements Control {
     public void driveToID4(DriveToWaypoint2 command) {
         // TODO Auto-generated method stub
         
+    }
+
+    @Override
+    public GoalOffset goalOffset() {
+        // TODO Auto-generated method stub
+        return null;
     }
     
 }

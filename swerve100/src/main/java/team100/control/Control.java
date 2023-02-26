@@ -5,6 +5,7 @@ import edu.wpi.first.wpilibj.XboxController;
 import frc.robot.autonomous.MoveToAprilTag;
 import frc.robot.commands.DriveRotation;
 import frc.robot.commands.DriveWithHeading;
+import frc.robot.commands.GoalOffset;
 import frc.robot.commands.ResetPose;
 import frc.robot.commands.autoLevel;
 import frc.robot.subsystems.SwerveDriveSubsystem;
@@ -59,6 +60,7 @@ public interface Control {
 
 
     // DRIVETRAIN
+    public GoalOffset goalOffset();
     /** @return [-1,1] */
     public double xSpeed();
 

@@ -44,7 +44,7 @@ public class VisionDataProvider extends SubsystemBase{
     private static double kCameraYOffset = 0;
     private static double kCameraZOffset = 0;
     // public AprilTagFieldLayout layout;
-    public AprilFieldLayout2 layout;
+    public AprilTagFieldLayout layout;
 
 
     SwerveDriveSubsystem m_robotDrive;
@@ -71,9 +71,7 @@ public class VisionDataProvider extends SubsystemBase{
         // TAG MAP
         System.out.println(Filesystem.getDeployDirectory());
         try {
-            Path path = Filesystem.getDeployDirectory().toPath().resolve("2023-chargedup.json");
-            // layout = new AprilTagFieldLayout(path);
-            layout = new AprilFieldLayout2(path);
+            layout = new AprilTagFieldLayout(JSONFile.getPath());
 
 
             // layout.setOrigin(OriginPosition.kRedAllianceWallRightSide);

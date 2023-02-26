@@ -1,6 +1,7 @@
 package frc.robot.autonomous;
 
 import java.util.List;
+import java.util.function.Supplier;
 
 import org.opencv.core.Mat;
 
@@ -9,6 +10,7 @@ import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.math.trajectory.TrajectoryConfig;
@@ -25,6 +27,7 @@ import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
+import frc.robot.commands.GoalOffset;
 import frc.robot.subsystems.SwerveDriveSubsystem;
 
 /**
@@ -53,6 +56,8 @@ public class DriveToWaypoint2 extends CommandBase {
 
     private final SwerveDriveSubsystem m_swerve;
     private final Pose2d goal;
+    private final Supplier<GoalOffset> goalOffsetSupplier;
+    private GoalOffset previousOffset;
 
     private final TrajectoryConfig translationConfig;
     private final ProfiledPIDController m_rotationController;
@@ -67,10 +72,11 @@ public class DriveToWaypoint2 extends CommandBase {
 
 
 
-    public DriveToWaypoint2(Pose2d goal, SwerveDriveSubsystem m_swerve) {
+    public DriveToWaypoint2(Pose2d goal, Supplier<GoalOffset> offsetSupplier, SwerveDriveSubsystem m_swerve) {
         this.goal = goal;
         this.m_swerve = m_swerve;
-
+        goalOffsetSupplier = offsetSupplier;
+        previousOffset = goalOffsetSupplier.get();
 
         System.out.println("CONSTRUCTOR****************************************************");
         // desiredY = 0;
@@ -103,14 +109,17 @@ public class DriveToWaypoint2 extends CommandBase {
 
     }
 
-    private Trajectory makeTrajectory() {
+    private Trajectory makeTrajectory(GoalOffset goalOffset) {
         Pose2d currentPose = m_swerve.getPose();
         Translation2d currentTranslation = currentPose.getTranslation();
-        Translation2d goalTranslation = goal.getTranslation();
+
+        if (goalOffset == GoalOffset.left) {
+            Transform2d goalTransform2d
+        }
+        Pose2d transformedGoal = goal.plus(goalTransform);
+        Translation2d goalTranslation = transformedGoal.getTranslation();
         Translation2d translationToGoal = goalTranslation.minus(currentTranslation);
         Rotation2d angleToGoal = translationToGoal.getAngle();
-
-        
 
         return TrajectoryGenerator.generateTrajectory(
                 new Pose2d(currentTranslation, angleToGoal),

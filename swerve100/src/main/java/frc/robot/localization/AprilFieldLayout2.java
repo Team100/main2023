@@ -16,6 +16,8 @@ import edu.wpi.first.apriltag.AprilTag;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Translation3d;
+import edu.wpi.first.wpilibj.Filesystem;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -65,22 +67,13 @@ public class AprilFieldLayout2 {
    * @param path Path of the JSON file to import from.
    * @throws IOException If reading from the file fails.
    */
-  public AprilFieldLayout2(String path) throws IOException {
-    this(Path.of(path));
-  }
-
-  /**
-   * Construct a new AprilFieldLayout2 with values imported from a JSON file.
-   *
-   * @param path Path of the JSON file to import from.
-   * @throws IOException If reading from the file fails.
-   */
-  public AprilFieldLayout2(Path path) throws IOException {
+  public AprilFieldLayout2(OriginPosition origin) throws IOException {
+    Path path = Filesystem.getDeployDirectory().toPath().resolve("2023-chargedup.json");
     AprilFieldLayout2 layout =
         new ObjectMapper().readValue(path.toFile(), AprilFieldLayout2.class);
     m_apriltags.putAll(layout.m_apriltags);
     m_fieldDimensions = layout.m_fieldDimensions;
-    setOrigin(OriginPosition.kBlueAllianceWallRightSide);
+    setOrigin(origin);
   }
 
   /**

@@ -13,6 +13,7 @@ import frc.robot.commands.ArmHigh;
 
 import frc.robot.commands.DriveRotation;
 import frc.robot.commands.DriveWithHeading;
+import frc.robot.commands.GoalOffset;
 import frc.robot.commands.ResetPose;
 // import frc.robot.commands.ResetPose;
 import frc.robot.subsystems.SwerveDriveSubsystem;
@@ -189,5 +190,22 @@ public class DualXboxControl implements Control, Sendable {
     public void resetPose(ResetPose command) {
         controller0.leftBumper().onTrue(command);
         
+    }
+
+    @Override
+    public GoalOffset goalOffset() {
+        double left = controller0.getLeftTriggerAxis();
+        double right = controller0.getRightTriggerAxis();
+        double kThreshold = .5;
+        if (left > kThreshold) {
+            if (right > kThreshold) {
+                return GoalOffset.center;
+            }
+            return GoalOffset.left;
+        }
+        if (right > kThreshold) {
+            return GoalOffset.right;
+        }
+        return GoalOffset.center;
     }
 }
