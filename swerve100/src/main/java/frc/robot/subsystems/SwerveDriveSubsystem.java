@@ -74,7 +74,7 @@ public class SwerveDriveSubsystem extends SubsystemBase {
     // public static final double kaVoltSecondsSquaredPerMeter = 0.5;
 
     // SLOW SETTINGS
-    public static final double kMaxSpeedMetersPerSecond = 2;
+    public static final double kMaxSpeedMetersPerSecond = 3;
     public static final double kMaxAccelerationMetersPerSecondSquared = 10;
     // NOTE joel 2/8 used to be negative; inversions broken somewhere?
     public static final double kMaxAngularSpeedRadiansPerSecond = 5;
@@ -152,11 +152,11 @@ public class SwerveDriveSubsystem extends SubsystemBase {
         thetaController = new ProfiledPIDController(Ptheta, Itheta, Dtheta, thetaControllerConstraints);
 
         final TrapezoidProfile.Constraints headingControllConstraints = new TrapezoidProfile.Constraints(
-                3, 1);
+                3, 3);
         thetaController = new ProfiledPIDController(Ptheta, Itheta, Dtheta, thetaControllerConstraints);
 
         headingController = new ProfiledPIDController( //
-                1, // kP
+                0.8, // kP
                 0.1, // kI
                 0,
                 headingControllConstraints); // kD
@@ -475,7 +475,7 @@ public class SwerveDriveSubsystem extends SubsystemBase {
         // DRIVE FF
         SimpleMotorFeedforward driveFeedforward = new SimpleMotorFeedforward(//
                 0, // kS TODO: too low?
-                .4); // kV
+                0.4); // kV
 
         // TURNING FF
         SimpleMotorFeedforward turningFeedforward = new SimpleMotorFeedforward(//
