@@ -25,7 +25,7 @@ public class DriveWithHeading extends CommandBase{
   SwerveDriveSubsystem m_robotDrive;
   ProfiledPIDController m_headingController;
   Supplier<Rotation2d> m_desiredRotation;
-  ChassisSpeeds targetChasisSpeeds = new ChassisSpeeds();
+  //ChassisSpeeds targetChasisSpeeds = new ChassisSpeeds();
 
   private final DoubleSupplier xSpeed;
   private final DoubleSupplier ySpeed;
@@ -117,9 +117,8 @@ public class DriveWithHeading extends CommandBase{
         builder.addDoubleProperty("Measurment", () -> currentPose.getRotation().getRadians(), null);
         builder.addDoubleProperty("Setpoint", () ->  m_headingController.getSetpoint().position, null);
         builder.addDoubleProperty("Goal", () ->  m_headingController.getGoal().position, null);
-
-        // builder.addDoubleProperty("ControllerOutput", () -> radiansPerSecond, null);
-        // builder.addDoubleProperty("Chassis Speeds", () -> targetChasisSpeeds.omegaRadiansPerSecond, null);
+        builder.addDoubleProperty("ControllerOutput", () -> radiansPerSecond, null);
+       // builder.addDoubleProperty("Chassis Speeds", () -> targetChasisSpeeds.omegaRadiansPerSecond, null);
 
     }
 }

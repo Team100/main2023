@@ -152,13 +152,12 @@ public class SwerveDriveSubsystem extends SubsystemBase {
         thetaController = new ProfiledPIDController(Ptheta, Itheta, Dtheta, thetaControllerConstraints);
 
         final TrapezoidProfile.Constraints headingControllConstraints = new TrapezoidProfile.Constraints(
-                3, 3);
-        thetaController = new ProfiledPIDController(Ptheta, Itheta, Dtheta, thetaControllerConstraints);
+                2*Math.PI, 2*Math.PI);
 
         headingController = new ProfiledPIDController( //
-                0.8, // kP
+                0.7, // kP
                 0.1, // kI
-                0,
+                0, //kD
                 headingControllConstraints); // kD
 
         headingController.setIntegratorRange(-0.1, 0.1);
@@ -474,7 +473,7 @@ public class SwerveDriveSubsystem extends SubsystemBase {
 
         // DRIVE FF
         SimpleMotorFeedforward driveFeedforward = new SimpleMotorFeedforward(//
-                0, // kS TODO: too low?
+                0.04, // kS TODO: too low?
                 0.4); // kV
 
         // TURNING FF
