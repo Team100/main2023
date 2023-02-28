@@ -40,17 +40,11 @@ class TagFinder:
         # for now use the full frame
         #        self.output_stream = CameraServer.putVideo("Processed", width, int(height / 2))
         self.output_stream = CameraServer.putVideo("Processed", width, height)
-        # self.camera_params = [
-        #     666,
-        #     666,
-        #     width / 2,
-        #     height / 2,
-        # ]
         self.camera_params = [
             666,
             666,
-            width,
-            height,
+            width / 2,
+            height / 2,
         ]
 
     def analyze(self, request):
@@ -92,6 +86,7 @@ class TagFinder:
         # led_on = np.amax(img) > 200
         # self.vision_nt_led.set(led_on)
 
+        # TODO: add big  tag detection?
         result = self.at_detector.detect(
             img,
             estimate_tag_pose=True,
@@ -154,20 +149,66 @@ class TagFinder:
 
             tag_id = result_item.tag_id
             self.draw_text(image, f"id {tag_id}", (c_x, c_y))
-            tag_family = result_item.tag_family.decode("utf-8")
-            self.draw_text(image, f"id {tag_family}", (c_x, c_y + 40))
+            # TODO: differentiate big (circle) and little tags?
+            # tag_family = result_item.tag_family.decode("utf-8")
+            # self.draw_text(image, f"id {tag_family}", (c_x, c_y + 40))
 
             # put the pose translation in the image
             # the use of 'item' here is to force a scalar to format
+            float_formatter={'float_kind':lambda x: f'{x:4.1f}'}
             if result_item.pose_t is not None:
+                wpi_axes = np.array([[0,0,1],[-1,0,0],[0,-1,0]])
+                #wpi_t = np.matmul(wpi_axes, result_item.pose_t)
+                t = result_item.pose_t
+                wpi_t = np.array([
+                    [t[2][0]],
+                    [-t[0][0]],
+                    [-t[1][0]]
+                ])
+                R = result_item.pose_R
+                # wpi_R = np.matmul(wpi_axes, result_item.pose_R)
+                wpi_R = np.array([
+                    # [R[0][0], R[0][1], R[0][2]],
+                    # [R[1][0], R[1][1], R[1][2]],
+                    # [R[2][0], R[2][1], R[2][2]]
+                    [R[2][2], -R[2][0], -R[2][1]],
+                    [-R[0][2], R[0][0], R[0][1]],
+                    [-R[1][2], R[1][0], R[1][1]]
+                ])
+
+                # this matrix is not necessarily exactly special orthogonal
+                # this is sort of a hack to fix it.
+                wpi_RV, _ = cv2.Rodrigues(wpi_R)
+                wpi_R, _ = cv2.Rodrigues(wpi_RV)
+                
+                # self.draw_text(
+                #     image, f"X {result_item.pose_t.item(0):.2f}m", (c_x, c_y + 80)
+                # )
+                # self.draw_text(
+                #     image, f"Y {result_item.pose_t.item(1):.2f}m", (c_x, c_y + 120)
+                # )
+                # self.draw_text(
+                #     image, f"Z {result_item.pose_t.item(2):.2f}m", (c_x, c_y + 160)
+                # )
                 self.draw_text(
-                    image, f"X {result_item.pose_t.item(0):.2f}m", (c_x, c_y + 80)
+                    image,
+                    f"t: {np.array2string(wpi_t.flatten(), formatter=float_formatter)}",
+                    (c_x, c_y + 40),
                 )
                 self.draw_text(
-                    image, f"Y {result_item.pose_t.item(1):.2f}m", (c_x, c_y + 120)
+                    image,
+                    f"R: [{np.array2string(wpi_R[0], formatter=float_formatter)},",
+                    (c_x, c_y + 80),
                 )
                 self.draw_text(
-                    image, f"Z {result_item.pose_t.item(2):.2f}m", (c_x, c_y + 160)
+                    image,
+                    f"    {np.array2string(wpi_R[1], formatter=float_formatter)},",
+                    (c_x, c_y + 120),
+                )
+                self.draw_text(
+                    image,
+                    f"    {np.array2string(wpi_R[2], formatter=float_formatter)}]",
+                    (c_x, c_y + 160),
                 )
 
     # these are white with black outline
@@ -190,8 +231,9 @@ class TagFinder:
 
     def reconnect_nt(self):
         inst = NetworkTableInstance.getDefault()
-        inst.stopClient() # without this, reconnecting doesn't work
+        inst.stopClient()  # without this, reconnecting doesn't work
         inst.startClient4("tag-finder")
+
 
 def getserial():
     with open("/proc/cpuinfo", "r", encoding="ascii") as cpuinfo:
@@ -280,7 +322,7 @@ def main():
     try:
         while True:
             # periodically reconnect to NT.
-            # without these attempts, network disruption results in 
+            # without these attempts, network disruption results in
             # permanent disconnection
             frame_counter += 1
             if frame_counter > 20:
