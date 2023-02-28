@@ -122,7 +122,7 @@ public class VisionDataProvider extends SubsystemBase implements TableEventListe
      * @param b the blip to convert
      * @return a Pose3d representing the blip
      */
-    private Pose3d blipToPose(Blip b) {
+    public static Pose3d blipToPose(Blip b) {
         Translation3d t = new Translation3d(b.pose_t[0][0], b.pose_t[1][0], b.pose_t[2][0]);
         // Matrix<N3, N3> rot = new Matrix<N3, N3>(Nat.N3(), Nat.N3());
 
@@ -167,7 +167,7 @@ public class VisionDataProvider extends SubsystemBase implements TableEventListe
                 if (tagInFieldCords.isPresent()) {
 
                     Pose3d tagInRobotCords = cameraToRobot(key, TagInCameraCords);
-                    Pose2d robotInFieldCords = toFieldCoordinates(tagInRobotCords.getTranslation(),
+                    Pose2d robotInFieldCords = toFieldCoordinates(getPose.get(), tagInRobotCords.getTranslation(),
                             tagInRobotCords.getRotation(),
                             tagInFieldCords.get()).toPose2d();
 
@@ -200,12 +200,12 @@ public class VisionDataProvider extends SubsystemBase implements TableEventListe
      *                                   rotation
      * @return robot pose in field coordinates.
      */
-    private Pose3d toFieldCoordinates(Translation3d tagTranslationInRobotCords, Rotation3d tagRotationInRobotCords,
+    public static Pose3d toFieldCoordinates(Pose2d robotPose, Translation3d tagTranslationInRobotCords, Rotation3d tagRotationInRobotCords,
             Pose3d tagInFieldCords) {
         // TODO: i think there's a bug in here about the substitution of robot rotation
         // TODO: is the Math.PI here correct in all cases?  what does it mean?
         Transform3d tagInRobotCords = new Transform3d(tagTranslationInRobotCords,
-                new Rotation3d(0, 0, Math.PI - getPose.get().getRotation().getRadians()));
+                new Rotation3d(0, 0, Math.PI - robotPose.getRotation().getRadians()));
         Transform3d robotInTagCords = tagInRobotCords.inverse();
         Pose3d robotInFieldCords = tagInFieldCords.plus(robotInTagCords);
         return robotInFieldCords;
@@ -219,7 +219,7 @@ public class VisionDataProvider extends SubsystemBase implements TableEventListe
      * @param tagInCameraCords one tag pose relative to the camera
      * @return tag in robot coordinates
      */
-    private static Pose3d cameraToRobot(String key, Pose3d tagInCameraCords) {
+    public static Pose3d cameraToRobot(String key, Pose3d tagInCameraCords) {
         // TODO: fill out these offsets
         Translation3d cameraOffsetTranslation;
         Rotation3d cameraRotationOffset;
