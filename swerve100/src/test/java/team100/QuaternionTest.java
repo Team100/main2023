@@ -10,9 +10,7 @@ import org.opencv.calib3d.Calib3d;
 import org.opencv.core.CvType;
 import org.opencv.core.Mat;
 
-import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.cscore.CameraServerCvJNI;
-import edu.wpi.first.cscore.CvSink;
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.Nat;
 import edu.wpi.first.math.geometry.Rotation3d;
@@ -20,7 +18,6 @@ import edu.wpi.first.math.numbers.N3;
 
 /**
  * Figure out if renormalization works.
- * This is actually done in python but the rodrigues logic is the same.
  */
 public class QuaternionTest {
     private static final double kDelta = 0.01;

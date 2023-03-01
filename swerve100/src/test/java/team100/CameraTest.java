@@ -10,7 +10,7 @@ import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.numbers.N3;
 
 /**
- * remind myself how 3d rotations work.
+ * Remind myself how 3d rotations work.
  */
 public class CameraTest {
     private static final double kDelta = 0.01;
