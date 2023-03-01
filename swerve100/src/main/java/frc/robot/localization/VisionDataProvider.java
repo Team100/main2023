@@ -1,7 +1,6 @@
 package frc.robot.localization;
 
 import java.io.IOException;
-import java.nio.file.Path;
 import java.util.EnumSet;
 import java.util.Optional;
 import java.util.function.Supplier;
@@ -11,6 +10,7 @@ import org.msgpack.jackson.dataformat.MessagePackFactory;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import edu.wpi.first.apriltag.AprilTag;
+import frc.robot.localization.AprilTagFieldLayoutWithCorrectOrientation;
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFieldLayout.OriginPosition;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
@@ -43,8 +43,8 @@ public class VisionDataProvider extends SubsystemBase{
     private static double kCameraXOffset = 0;
     private static double kCameraYOffset = 0;
     private static double kCameraZOffset = 0;
-    // public AprilTagFieldLayout layout;
-    public AprilTagFieldLayout layout;
+    // public AprilTagFieldLayoutWithCorrectOrientation layout;
+    public AprilTagFieldLayoutWithCorrectOrientation layout;
 
 
     SwerveDriveSubsystem m_robotDrive;
@@ -69,14 +69,14 @@ public class VisionDataProvider extends SubsystemBase{
         currentTagInFieldCoords = new Pose2d();
 
         // TAG MAP
+        // TODO: get driverstation alliance
         System.out.println(Filesystem.getDeployDirectory());
         try {
-            layout = new AprilTagFieldLayout(JSONFile.getPath());
-
+            layout = new AprilTagFieldLayoutWithCorrectOrientation(OriginPosition.kRedAllianceWallRightSide);
 
             // layout.setOrigin(OriginPosition.kRedAllianceWallRightSide);
             System.out.println("JSON map loaded");
-            for (AprilTag t : layout.getTags()) {
+            for (AprilTag t : layout.layout.getTags()) {
                 System.out.printf("tag %s\n", t.toString());
             }
         } catch (IOException e) {
@@ -190,6 +190,7 @@ public class VisionDataProvider extends SubsystemBase{
     private Pose3d toFieldCoordinates(Translation3d tagTranslationInRobotCords, Rotation3d tagRotationInRobotCords, Pose3d tagInFieldCords) {
         Transform3d tagInRobotCords = new Transform3d(tagTranslationInRobotCords, new Rotation3d(0, 0, Math.PI-getPose.get().getRotation().getRadians()));
         Transform3d robotInTagCords = tagInRobotCords.inverse();
+        System.out.println(tagInRobotCords.getRotation().toRotation2d());
         Pose3d robotInFieldCords = tagInFieldCords.plus(robotInTagCords);
         return robotInFieldCords;
     }

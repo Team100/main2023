@@ -1,8 +1,6 @@
 package team100.control;
 
 
-import edu.wpi.first.wpilibj.XboxController;
-import frc.robot.autonomous.MoveToAprilTag;
 import frc.robot.commands.DriveRotation;
 import frc.robot.commands.DriveWithHeading;
 import frc.robot.commands.GoalOffset;
@@ -14,8 +12,6 @@ import frc.robot.autonomous.DriveToWaypoint2;
 //import frc.robot.autonomous.SanjanAutonomous;
 import frc.robot.commands.ArmHigh;
 import frc.robot.commands.ResetRotation;
-// import frc.robot.commands.ResetPose;
-import frc.robot.commands.autoLevel;
 
 public interface Control {
     public void resetPose(ResetPose command);

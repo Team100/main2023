@@ -548,7 +548,6 @@ public class SwerveDriveSubsystem extends SubsystemBase {
     @SuppressWarnings("ParameterName")
     public void drive(double xSpeed, double ySpeed, double rot, boolean fieldRelative) {
         // TODO Fix this number
-
         x = xSpeed;
         y = ySpeed;
         rotation = rot;
