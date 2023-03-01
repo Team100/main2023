@@ -167,7 +167,7 @@ public class VisionDataProvider extends SubsystemBase implements TableEventListe
                 if (tagInFieldCords.isPresent()) {
 
                     Pose3d tagInRobotCords = cameraToRobot(key, TagInCameraCords);
-                    Pose2d robotInFieldCords = toFieldCoordinates(getPose.get(), tagInRobotCords.getTranslation(),
+                    Pose2d robotInFieldCords = toFieldCoordinates(getPose.get().getRotation(), tagInRobotCords.getTranslation(),
                             tagInRobotCords.getRotation(),
                             tagInFieldCords.get()).toPose2d();
 
@@ -194,18 +194,22 @@ public class VisionDataProvider extends SubsystemBase implements TableEventListe
     }
 
     /**
+     * @param robotRotation from the gyro
      * @param tagTranslationInRobotCords tag translation in robot coords
      * @param tagRotationInRobotCords    tag rotation in robot coords -- this is NOT
      *                                   USED, instead we substitute the robot's
      *                                   rotation
      * @return robot pose in field coordinates.
      */
-    public static Pose3d toFieldCoordinates(Pose2d robotPose, Translation3d tagTranslationInRobotCords, Rotation3d tagRotationInRobotCords,
+    public static Pose3d toFieldCoordinates(
+            Rotation2d robotRotation,
+            Translation3d tagTranslationInRobotCords,
+            Rotation3d tagRotationInRobotCords,
             Pose3d tagInFieldCords) {
         // TODO: i think there's a bug in here about the substitution of robot rotation
-        // TODO: is the Math.PI here correct in all cases?  what does it mean?
+        // TODO: is the Math.PI here correct in all cases? what does it mean?
         Transform3d tagInRobotCords = new Transform3d(tagTranslationInRobotCords,
-                new Rotation3d(0, 0, Math.PI - robotPose.getRotation().getRadians()));
+                new Rotation3d(0, 0, Math.PI - robotRotation.getRadians()));
         Transform3d robotInTagCords = tagInRobotCords.inverse();
         Pose3d robotInFieldCords = tagInFieldCords.plus(robotInTagCords);
         return robotInFieldCords;
