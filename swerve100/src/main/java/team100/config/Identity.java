@@ -19,7 +19,7 @@ public enum Identity {
     TEAM100_2018("0313baf3"), // on my desk
     TEST_BOARD_8D("03063c8d"),
     TEST_BOARD_B0("030628b0"),
-    RIO_2_AC("032363ac"), // this is used for the 2023 competition robot
+    COMP_BOT("032363AC"),
     TEST_BOARD_6B("030d286b"),
     RIO_2022("foo"),
     FROM_8048("031823bc"), // maybe don't check this in.
