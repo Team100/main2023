@@ -1,5 +1,7 @@
 package frc.robot.subsystems;
 
+import com.ctre.phoenix.motorcontrol.ControlMode;
+
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
@@ -23,7 +25,7 @@ public class SwerveModule implements Sendable {
 
     public double m_tFeedForwardOutput;
     public double m_dFeedForwardOutput;
-    public double m_controllerOutput;
+    public double m_controllerTurnOutput;
     public double m_driveOutput;
 
     public SwerveModule(
@@ -51,11 +53,11 @@ public class SwerveModule implements Sendable {
     public SwerveModuleState getState() {
         return new SwerveModuleState(m_driveEncoder.getRate(), new Rotation2d(m_turningEncoder.getAngle()));
     }
-    
+
     public SwerveModulePosition getPosition() {
         return new SwerveModulePosition(
-            m_driveEncoder.getDistance(), new Rotation2d(m_turningEncoder.getAngle()));
-      }
+                m_driveEncoder.getDistance(), new Rotation2d(m_turningEncoder.getAngle()));
+    }
 
     public void setDesiredState(SwerveModuleState desiredState) {
         // Optimize the reference state to avoid spinning further than 90 degrees
@@ -64,15 +66,19 @@ public class SwerveModule implements Sendable {
         m_driveOutput = m_driveController.calculate(m_driveEncoder.getRate(), state.speedMetersPerSecond);
 
         // Calculate the turning motor output from the turning PID controller.
-        m_controllerOutput = m_turningController.calculate(m_turningEncoder.getAngle(), state.angle.getRadians());
+        m_controllerTurnOutput = m_turningController.calculate(m_turningEncoder.getAngle(), state.angle.getRadians());
 
-        m_tFeedForwardOutput = m_turningFeedforward.calculate(getSetpointVelocity(), 0);
-        m_dFeedForwardOutput = m_driveFeedforward.calculate(getDriveSetpoint(), 0);
-        setOutput(m_driveOutput + m_dFeedForwardOutput, m_controllerOutput + m_tFeedForwardOutput);
+        m_tFeedForwardOutput = m_turningFeedforward.calculate(getTurnSetpointVelocity(), 0);
+        m_dFeedForwardOutput = m_driveFeedforward.calculate(driveSetpointMS(), 0);
+       // setOutput(m_driveOutput + m_dFeedForwardOutput, m_controllerOutput + m_tFeedForwardOutput);
+        setOutput(driveSetpointMS(), m_controllerTurnOutput + m_tFeedForwardOutput);
+
     }
 
-    public void setOutput(double driveOutput, double turnOutput) {
-        m_driveMotor.set(driveOutput);
+    // public void setOutput(double driveOutput, double turnOutput) {
+    public void setOutput(double driveOutputMs, double turnOutput) {
+        // m_driveMotor.set(driveOutput);
+        m_driveMotor.set(driveOutputMs);
         m_turningMotor.set(turnOutput);
     }
 
@@ -85,7 +91,7 @@ public class SwerveModule implements Sendable {
         m_driveEncoder.reset();
     }
 
-    public double getSetpointVelocity() {
+    public double getTurnSetpointVelocity() {
         return m_turningController.getSetpoint().velocity;
     }
 
@@ -122,21 +128,20 @@ public class SwerveModule implements Sendable {
     }
 
     public double getTControllerOutput() {
-        return m_controllerOutput;
+        return m_controllerTurnOutput;
     }
 
     public double getDControllerOutput() {
         return m_driveOutput;
     }
 
-    public double getDriveSetpoint() {
+    public double driveSetpointMS() {
         return m_driveController.getSetpoint();
     }
 
     public double getdFeedForward() {
         return m_dFeedForwardOutput;
     }
-
 
     @Override
     public void initSendable(SendableBuilder builder) {
@@ -145,16 +150,18 @@ public class SwerveModule implements Sendable {
         builder.addDoubleProperty("drive_output", this::getDriveOutput, null);
         builder.addDoubleProperty("azimuth_degrees", this::getAzimuthDegrees, null);
         builder.addDoubleProperty("turning_output", this::getTurningOutput, null);
-        builder.addDoubleProperty("setpoint velocity", this::getSetpointVelocity, null);
+        builder.addDoubleProperty("Turning Setpoint velocity", this::getTurnSetpointVelocity, null);
         builder.addDoubleProperty("feed_forward_output", this::gettFeedForward, null);
         builder.addDoubleProperty("controller_Output", this::getTControllerOutput, null);
         builder.addDoubleProperty("turningSetPoint", this::getSetpointPosition, null);
         builder.addDoubleProperty("driveControllerOutput", this::getDControllerOutput, null);
-        builder.addDoubleProperty("driveSetPoint", this::getDriveSetpoint, null);
+        builder.addDoubleProperty("driveSetPoint MS", this::driveSetpointMS, null);
         builder.addDoubleProperty("driveFeedForwardOutput", this::getdFeedForward, null);
-        builder.addDoubleProperty("drive controller position error", () -> m_driveController.getPositionError(), null );
-        builder.addDoubleProperty("drive controller velocity error", () -> m_driveController.getVelocityError(), null );
-        builder.addDoubleProperty("turning controller position error", () -> m_turningController.getPositionError(), null);
+        builder.addDoubleProperty("drive controller position error", () -> m_driveController.getPositionError(), null);
+        builder.addDoubleProperty("drive controller velocity error", () -> m_driveController.getVelocityError(), null);
+        builder.addDoubleProperty("turning controller position error", () -> m_turningController.getPositionError(),
+                null);
+        builder.addDoubleProperty("Drive Measurement MS", () -> m_driveEncoder.getRate(), null);
         // builder.addDoubleProperty("TURNING OUTPUT", () -> m_turningMotor, null );
     }
 }

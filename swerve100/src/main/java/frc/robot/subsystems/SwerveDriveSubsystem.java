@@ -437,7 +437,7 @@ public class SwerveDriveSubsystem extends SubsystemBase {
                 driveController, turningController, driveFeedforward, turningFeedforward);
 
     }
-
+    
     private static SwerveModule AMModule(
             String name,
             int driveMotorCanId,
@@ -459,7 +459,7 @@ public class SwerveDriveSubsystem extends SubsystemBase {
         PIDController driveController = new PIDController(//
                 0.1, // kP
                 0, // kI
-                0);// kD
+                0.05);// kD
 
         // TURNING PID
         ProfiledPIDController turningController = new ProfiledPIDController(//
@@ -474,12 +474,14 @@ public class SwerveDriveSubsystem extends SubsystemBase {
         // DRIVE FF
         SimpleMotorFeedforward driveFeedforward = new SimpleMotorFeedforward(//
                 0.04, // kS TODO: too low?
-                0.4); // kV
+                0.2,// kV
+                0.05); 
 
         // TURNING FF
         SimpleMotorFeedforward turningFeedforward = new SimpleMotorFeedforward(//
                 0.05, // kS TODO too high?
-                0.003); // kV TODO: too low?
+                0.003,
+                0); // kV TODO: too low?
 
         return new SwerveModule(name, driveMotor, turningMotor, driveEncoder, turningEncoder,
                 driveController, turningController, driveFeedforward, turningFeedforward);
