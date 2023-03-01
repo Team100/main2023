@@ -2,23 +2,16 @@ package team100.control;
 
 import edu.wpi.first.util.sendable.Sendable;
 import edu.wpi.first.util.sendable.SendableBuilder;
-import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.autonomous.DriveToAprilTag;
 import frc.robot.autonomous.DriveToWaypoint2;
-import frc.robot.autonomous.MoveToAprilTag;
-//import frc.robot.autonomous.SanjanAutonomous;
 import frc.robot.commands.ArmHigh;
-
 import frc.robot.commands.DriveRotation;
 import frc.robot.commands.DriveWithHeading;
 import frc.robot.commands.ResetPose;
-// import frc.robot.commands.ResetPose;
-import frc.robot.subsystems.SwerveDriveSubsystem;
-
-// import frc.robot.commands.ResetPose;
 import frc.robot.commands.ResetRotation;
+import frc.robot.subsystems.SwerveDriveSubsystem;
 
 
 /**
@@ -27,8 +20,8 @@ import frc.robot.commands.ResetRotation;
  */
 public class DualXboxControl implements Control, Sendable {
     // TODO: express these limits in m/s.
-    private static final int ySlewRateLimit = 3;
-    private static final int xSlewRateLimit = 3;
+    // private static final int ySlewRateLimit = 3;
+    // private static final int xSlewRateLimit = 3;
     
     private final CommandXboxController controller0;
     private final CommandXboxController controller1;

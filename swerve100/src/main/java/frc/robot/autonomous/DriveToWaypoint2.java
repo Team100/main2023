@@ -2,9 +2,6 @@ package frc.robot.autonomous;
 
 import java.util.List;
 
-import org.opencv.core.Mat;
-
-import edu.wpi.first.math.controller.HolonomicDriveController;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -14,16 +11,9 @@ import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.math.trajectory.TrajectoryConfig;
 import edu.wpi.first.math.trajectory.TrajectoryGenerator;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
-import edu.wpi.first.math.trajectory.Trajectory.State;
-import edu.wpi.first.math.trajectory.constraint.RectangularRegionConstraint;
-import edu.wpi.first.math.trajectory.constraint.SwerveDriveKinematicsConstraint;
-import edu.wpi.first.math.trajectory.constraint.TrajectoryConstraint;
 import edu.wpi.first.networktables.DoublePublisher;
-import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
-import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.Timer;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.SwerveDriveSubsystem;
 
@@ -39,7 +29,7 @@ public class DriveToWaypoint2 extends CommandBase {
 
     private double desiredX = 0; 
     private double desiredY = 0;
-    private Pose2d desiredPose;
+    //private Pose2d desiredPose;
 
     NetworkTableInstance inst = NetworkTableInstance.getDefault();
 
@@ -74,7 +64,7 @@ public class DriveToWaypoint2 extends CommandBase {
 
         System.out.println("CONSTRUCTOR****************************************************");
         // desiredY = 0;
-        desiredPose = new Pose2d();
+        // desiredPose = new Pose2d();
         // desiredStateGlobal = new State();
         m_rotationController = new ProfiledPIDController(1.3, 0, 0, rotationConstraints);
         m_rotationController.setTolerance(Math.PI/180);
@@ -153,7 +143,7 @@ public class DriveToWaypoint2 extends CommandBase {
 
         desiredY = desiredState.poseMeters.getY();
 
-        desiredPose = desiredState.poseMeters;
+        // desiredPose = desiredState.poseMeters;
         
         // System.out.print ln(desiredX);
 

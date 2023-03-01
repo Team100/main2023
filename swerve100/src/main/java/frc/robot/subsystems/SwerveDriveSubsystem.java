@@ -1,5 +1,7 @@
 package frc.robot.subsystems;
 
+import java.io.IOException;
+
 import com.kauailabs.navx.frc.AHRS;
 
 import edu.wpi.first.math.VecBuilder;
@@ -28,7 +30,7 @@ import frc.robot.RobotContainer;
 import frc.robot.localization.VisionDataProvider;
 import team100.config.Identity;
 
-@SuppressWarnings("unused")
+
 public class SwerveDriveSubsystem extends SubsystemBase {
     // TODO: make this an instance var
     public static final SwerveDriveKinematics kDriveKinematics;
@@ -122,7 +124,7 @@ public class SwerveDriveSubsystem extends SubsystemBase {
     private final DoubleArrayPublisher robotPosePub;
     private final StringPublisher fieldTypePub;
 
-    public SwerveDriveSubsystem(double currentLimit) {
+    public SwerveDriveSubsystem(double currentLimit) throws IOException {
         // Sets up Field2d pose tracking for glass.
         NetworkTableInstance inst = NetworkTableInstance.getDefault();
         NetworkTable fieldTable = inst.getTable("field");

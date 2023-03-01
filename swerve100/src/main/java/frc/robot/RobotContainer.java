@@ -1,5 +1,7 @@
 package frc.robot;
 
+import java.io.IOException;
+
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -67,7 +69,7 @@ public class RobotContainer implements Sendable {
 
     public final static Field2d m_field = new Field2d();
 
-    public RobotContainer() {
+    public RobotContainer() throws IOException {
         // SUBSYSTEMS
 
         final double kDriveCurrentLimit = 20;
