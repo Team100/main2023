@@ -32,6 +32,7 @@ import team100.config.Identity;
 public class SwerveDriveSubsystem extends SubsystemBase {
     // TODO: make this an instance var
     public static final SwerveDriveKinematics kDriveKinematics;
+    public ChassisSpeeds robotStates;
 
     static {
         final double kTrackWidth;
@@ -74,7 +75,7 @@ public class SwerveDriveSubsystem extends SubsystemBase {
     // public static final double kaVoltSecondsSquaredPerMeter = 0.5;
 
     // SLOW SETTINGS
-    public static final double kMaxSpeedMetersPerSecond = 3;
+    public static final double kMaxSpeedMetersPerSecond = 5;
     public static final double kMaxAccelerationMetersPerSecondSquared = 10;
     // NOTE joel 2/8 used to be negative; inversions broken somewhere?
     public static final double kMaxAngularSpeedRadiansPerSecond = 5;
@@ -474,7 +475,7 @@ public class SwerveDriveSubsystem extends SubsystemBase {
         // DRIVE FF
         SimpleMotorFeedforward driveFeedforward = new SimpleMotorFeedforward(//
                 0.04, // kS TODO: too low?
-                0.2,// kV
+                0.1,// kV
                 0); 
 
         // TURNING FF
@@ -554,17 +555,27 @@ public class SwerveDriveSubsystem extends SubsystemBase {
     @SuppressWarnings("ParameterName")
     public void drive(double xSpeed, double ySpeed, double rot, boolean fieldRelative) {
         // TODO Fix this number
+        robotStates = getRobotStates();
+        x = robotStates.vxMetersPerSecond;
+        y = robotStates.vyMetersPerSecond;
+        double observedVelocity = Math.hypot(x, y);
+        double observedThetaAngle = Math.atan2(y, x);
 
-        x = xSpeed;
-        y = ySpeed;
         rotation = rot;
         isFieldRelative = fieldRelative;
-        double kRotMix = 0.6;
-        double speed = Math.hypot(x, y);
-        double thetaAngle = Math.atan2(y, x);
-        thetaAngle = thetaAngle - kRotMix*rot*speed;
-        xSpeed = speed * Math.cos(thetaAngle);
-        ySpeed = speed * Math.sin(thetaAngle);
+
+        double velocity = Math.hypot(xSpeed, ySpeed);
+        double thetaAngle = Math.atan2(ySpeed, xSpeed);
+
+        double kRotMix = 0.5;      
+        thetaAngle = thetaAngle - kRotMix*rot*observedVelocity;
+        // if (speed > 10) {
+        //     speed = 2*speed;
+        // }
+         if (velocity > 1) {
+            xSpeed = velocity * Math.cos(thetaAngle);
+            ySpeed = velocity * Math.sin(thetaAngle);
+         }
 
 
         if (Math.abs(xSpeed) < .01)
@@ -604,6 +615,15 @@ public class SwerveDriveSubsystem extends SubsystemBase {
 
         getRobotVelocity(desiredStates);
 
+    }
+
+    public ChassisSpeeds getRobotStates() {
+        ChassisSpeeds chassisSpeeds = kDriveKinematics.toChassisSpeeds(
+            m_frontLeft.getState(),
+        m_frontRight.getState(),
+        m_rearLeft.getState(),
+        m_rearRight.getState());
+        return chassisSpeeds;
     }
 
     public void getRobotVelocity(SwerveModuleState[] desiredStates) {
@@ -698,3 +718,4 @@ public class SwerveDriveSubsystem extends SubsystemBase {
         builder.addDoubleProperty("Rear Right Output", () -> m_rearLeft.getDriveOutput(), null);
     }
 }
+

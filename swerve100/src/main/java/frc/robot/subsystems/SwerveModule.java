@@ -142,10 +142,10 @@ public class SwerveModule implements Sendable {
         builder.addDoubleProperty("speed_meters_per_sec", this::getSpeedMetersPerSecond, null);
         builder.addDoubleProperty("drive_output", this::getDriveOutput, null);
         builder.addDoubleProperty("azimuth_degrees", this::getAzimuthDegrees, null);
-        builder.addDoubleProperty("turning_output", this::getTurningOutput, null);
+        builder.addDoubleProperty("turning output Radians per second", this::getTurningOutput, null);
         builder.addDoubleProperty("Turning Setpoint velocity", this::getTurnSetpointVelocity, null);
         builder.addDoubleProperty("feed_forward_output", this::gettFeedForward, null);
-        builder.addDoubleProperty("controller_Output", this::getTControllerOutput, null);
+        builder.addDoubleProperty("controller_Output_turning", this::getTControllerOutput, null);
         builder.addDoubleProperty("turningSetPoint", this::getSetpointPosition, null);
         builder.addDoubleProperty("driveControllerOutput", this::getDControllerOutput, null);
         builder.addDoubleProperty("driveSetPoint MS", this::driveSetpointMS, null);
@@ -155,6 +155,8 @@ public class SwerveModule implements Sendable {
         builder.addDoubleProperty("turning controller position error", () -> m_turningController.getPositionError(),
                 null);
         builder.addDoubleProperty("Drive Measurement MS", () -> m_driveEncoder.getRate(), null);
+        builder.addDoubleProperty("Turning Measurement Angle Radians", () -> m_turningEncoder.getAngle(), null);
+
         // builder.addDoubleProperty("TURNING OUTPUT", () -> m_turningMotor, null );
     }
 }
