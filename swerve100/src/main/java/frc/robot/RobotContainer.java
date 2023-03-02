@@ -59,7 +59,8 @@ public class RobotContainer implements Sendable {
     private final DriveManually driveManually;
     private final GripManually gripManually;
 
-    private final DriveWithHeading driveWithHeading0, driveWithHeading90, driveWithHeading180, driveWithHeading270;
+    // private final DriveWithHeading driveWithHeading0, driveWithHeading90, driveWithHeading180, driveWithHeading270;
+    private final DriveWithHeading driveWithHeading;
     private final DriveRotation driveRotation;
     private final DriveToAprilTag driveToAprilTag1;
     private final DriveToAprilTag driveToAprilTag5;
@@ -98,33 +99,33 @@ public class RobotContainer implements Sendable {
 
         ResetPose resetPose = new ResetPose(m_robotDrive, 0, 0, 0);
         
-        driveWithHeading0 = new DriveWithHeading(
-            m_robotDrive, 
-            control::xSpeed,
-            control::ySpeed,
-            Rotation2d.fromDegrees(0),
-            "0 Degrees");
+        // driveWithHeading0 = new DriveWithHeading(
+        //     m_robotDrive, 
+        //     control::xSpeed,
+        //     control::ySpeed,
+        //     () -> Rotation2d.fromDegrees(0),
+        //     "0 Degrees");
 
-        driveWithHeading90 = new DriveWithHeading(
-            m_robotDrive, 
-            control::xSpeed,
-            control::ySpeed,
-            Rotation2d.fromDegrees(90),
-            "90 Degrees");
+        // driveWithHeading90 = new DriveWithHeading(
+        //     m_robotDrive, 
+        //     control::xSpeed,
+        //     control::ySpeed,
+        //     () -> Rotation2d.fromDegrees(90),
+        //     "90 Degrees");
 
-        driveWithHeading180 = new DriveWithHeading(
-            m_robotDrive, 
-            control::xSpeed,
-            control::ySpeed,
-            Rotation2d.fromDegrees(180),
-            "180 Degrees");
+        // driveWithHeading180 = new DriveWithHeading(
+        //     m_robotDrive, 
+        //     control::xSpeed,
+        //     control::ySpeed,
+        //     () -> Rotation2d.fromDegrees(180),
+        //     "180 Degrees");
         
-        driveWithHeading270 = new DriveWithHeading(
+        driveWithHeading = new DriveWithHeading(
             m_robotDrive, 
             control::xSpeed,
             control::ySpeed,
-            Rotation2d.fromDegrees(270),
-            "270 Degrees");
+            control::desiredRotation,
+            "");
         
         driveRotation = new DriveRotation(m_robotDrive, control::rotSpeed);
         
@@ -158,12 +159,13 @@ public class RobotContainer implements Sendable {
                 control::ySpeed,
                 control::rotSpeed,
                 m_robotDrive);
-        m_robotDrive.setDefaultCommand(driveManually);
+        // m_robotDrive.setDefaultCommand(driveManually);
+        m_robotDrive.setDefaultCommand(driveWithHeading);
         
-        control.driveWithHeading0(driveWithHeading0);
-        control.driveWithHeading90(driveWithHeading90);
-        control.driveWithHeading180(driveWithHeading180);
-        control.driveWithHeading270(driveWithHeading270);
+        // control.driveWithHeading0(driveWithHeading0);
+        // control.driveWithHeading90(driveWithHeading90);
+        // control.driveWithHeading180(driveWithHeading180);
+        // control.driveWithHeading270(driveWithHeading270);
         control.driveRotation(driveRotation);
 
 

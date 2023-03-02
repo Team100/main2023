@@ -1,5 +1,6 @@
 package team100.control;
 
+import edu.wpi.first.math.geometry.Rotation2d;
 import frc.robot.autonomous.DriveToAprilTag;
 import frc.robot.autonomous.DriveToWaypoint2;
 import frc.robot.commands.ArmHigh;
@@ -32,17 +33,17 @@ public class NullControl implements Control {
     public void resetRotation(ResetRotation command) {
     }
 
-    @Override
-    public void driveWithHeading0(DriveWithHeading command){}
+    // @Override
+    // public void driveWithHeading0(DriveWithHeading command){}
 
-    @Override
-    public void driveWithHeading90(DriveWithHeading command){}
+    // @Override
+    // public void driveWithHeading90(DriveWithHeading command){}
 
-    @Override
-    public void driveWithHeading180(DriveWithHeading command){}
+    // @Override
+    // public void driveWithHeading180(DriveWithHeading command){}
 
-    @Override
-    public void driveWithHeading270(DriveWithHeading command){}
+    // @Override
+    // public void driveWithHeading270(DriveWithHeading command){}
 
     @Override
     public void driveRotation(DriveRotation command){}
@@ -128,6 +129,10 @@ public class NullControl implements Control {
     public void driveToID4(DriveToWaypoint2 command) {
         // TODO Auto-generated method stub
         
+    @Override
+    public Rotation2d desiredRotation() {
+        // TODO Auto-generated method stub
+        return null;
     }
     
 }
