@@ -94,12 +94,16 @@ public class DriveToWaypoint2 extends CommandBase {
         goalTransform = new Transform2d();
         // TODO: Change based on task
         if (goalOffset == GoalOffset.left) {
-            goalTransform = new Transform2d(new Translation2d(0, 55.88), new Rotation2d());
+            
+            goalTransform = new Transform2d(new Translation2d(0, .55), new Rotation2d());
+            System.out.println("lalallalalalalalalalalalalallalalalala");
         }
         if (goalOffset == GoalOffset.right) {
-            goalTransform = new Transform2d(new Translation2d(0, -55.88), new Rotation2d());
+            goalTransform = new Transform2d(new Translation2d(0, -.55), new Rotation2d());
+            System.out.println("fffffffffffffffffffffffffffffffffffffffffffff");
         }
         Pose2d transformedGoal = goal.plus(goalTransform);
+        System.out.println(goalOffset);
         Translation2d goalTranslation = transformedGoal.getTranslation();
         Translation2d translationToGoal = goalTranslation.minus(currentTranslation);
         Rotation2d angleToGoal = translationToGoal.getAngle();
