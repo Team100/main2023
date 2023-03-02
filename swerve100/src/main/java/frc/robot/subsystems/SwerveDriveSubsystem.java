@@ -1,5 +1,7 @@
 package frc.robot.subsystems;
 
+import java.io.IOException;
+
 import com.kauailabs.navx.frc.AHRS;
 
 import edu.wpi.first.math.VecBuilder;
@@ -28,7 +30,7 @@ import frc.robot.RobotContainer;
 import frc.robot.localization.VisionDataProvider;
 import team100.config.Identity;
 
-@SuppressWarnings("unused")
+
 public class SwerveDriveSubsystem extends SubsystemBase {
     // TODO: make this an instance var
     public static final SwerveDriveKinematics kDriveKinematics;
@@ -38,9 +40,9 @@ public class SwerveDriveSubsystem extends SubsystemBase {
         final double kTrackWidth;
         final double kWheelBase;
         switch (Identity.get()) {
-            case SQUAREBOT:
-                kTrackWidth = 0.699;
-                kWheelBase = 0.512;
+            case COMP_BOT:
+                kTrackWidth = 0.491;
+                kWheelBase = 0.765;
                 break;
             case SWERVE_TWO:
                 kTrackWidth = 0.380;
@@ -123,7 +125,7 @@ public class SwerveDriveSubsystem extends SubsystemBase {
     private final DoubleArrayPublisher robotPosePub;
     private final StringPublisher fieldTypePub;
 
-    public SwerveDriveSubsystem(double currentLimit) {
+    public SwerveDriveSubsystem(double currentLimit) throws IOException {
         // Sets up Field2d pose tracking for glass.
         NetworkTableInstance inst = NetworkTableInstance.getDefault();
         NetworkTable fieldTable = inst.getTable("field");
@@ -166,34 +168,34 @@ public class SwerveDriveSubsystem extends SubsystemBase {
         headingController.setTolerance(Units.degreesToRadians(0.1));
 
         switch (Identity.get()) {
-            case SQUAREBOT:
+            case COMP_BOT:
                 m_frontLeft = WCPModule(
                         "Front Left",
                         11, // drive CAN
                         30, // turn CAN
-                        2, // turn encoder
-                        0.27, // turn offset
+                        0, // turn encoder
+                        0.77, // turn offset
                         currentLimit);
                 m_frontRight = WCPModule(
                         "Front Right",
                         12, // drive CAN
                         32, // turn CAN
-                        0, // turn encoder
-                        0.87, // turn offset
+                        1, // turn encoder
+                        0.39, // turn offset
                         currentLimit);
                 m_rearLeft = WCPModule(
                         "Rear Left",
                         21, // drive CAN
                         31, // turn CAN
-                        3, // turn encoder
-                        0.28, // turn offset
+                        2, // turn encoder
+                        0.78, // turn offset
                         currentLimit);
                 m_rearRight = WCPModule(
                         "Rear Right",
                         22, // drive CAN
                         33, // turn CAN
-                        1, // turn encoder
-                        0.47, // turn offset
+                        3, // turn encoder
+                        0.96, // turn offset
                         currentLimit);
                 break;
             case SWERVE_TWO:
@@ -489,6 +491,7 @@ public class SwerveDriveSubsystem extends SubsystemBase {
     }
 
     public void updateOdometry() {
+
         m_poseEstimator.update(
                 getHeading(),
                 new SwerveModulePosition[] {
@@ -555,6 +558,7 @@ public class SwerveDriveSubsystem extends SubsystemBase {
     @SuppressWarnings("ParameterName")
     public void drive(double xSpeed, double ySpeed, double rot, boolean fieldRelative) {
         // TODO Fix this number
+
         robotStates = getRobotStates();
         x = robotStates.vxMetersPerSecond;
         y = robotStates.vyMetersPerSecond;
@@ -716,6 +720,11 @@ public class SwerveDriveSubsystem extends SubsystemBase {
         builder.addDoubleProperty("Front Right Output", () -> m_frontRight.getDriveOutput(), null);
         builder.addDoubleProperty("Rear Left Output", () -> m_rearLeft.getDriveOutput(), null);
         builder.addDoubleProperty("Rear Right Output", () -> m_rearLeft.getDriveOutput(), null);
+
+        builder.addDoubleProperty("GYRO ROLL", () -> m_gyro.getRoll(), null);
+
+        builder.addDoubleProperty("GYRO Fused", () -> m_gyro.getFusedHeading(), null);
+
     }
 }
 
