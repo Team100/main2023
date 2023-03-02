@@ -1,9 +1,11 @@
 package team100.control;
 
-
+import frc.robot.commands.DriveRotation;
+import frc.robot.commands.DriveWithHeading;
+import frc.robot.commands.autoLevel;
+import edu.wpi.first.math.geometry.Rotation2d;
 import frc.robot.autonomous.DriveToAprilTag;
 import frc.robot.autonomous.DriveToWaypoint2;
-//import frc.robot.autonomous.SanjanAutonomous;
 import frc.robot.commands.ArmHigh;
 import frc.robot.commands.DriveRotation;
 import frc.robot.commands.DriveWithHeading;
@@ -41,13 +43,13 @@ public interface Control {
     public void armHigh(ArmHigh command);
 
 
-    public void driveWithHeading0(DriveWithHeading command);
+    // public void driveWithHeading0(DriveWithHeading command);
 
-    public void driveWithHeading90(DriveWithHeading command);
+    // public void driveWithHeading90(DriveWithHeading command);
 
-    public void driveWithHeading180(DriveWithHeading command);
+    // public void driveWithHeading180(DriveWithHeading command);
 
-    public void driveWithHeading270(DriveWithHeading command);
+    // public void driveWithHeading270(DriveWithHeading command);
 
     public void driveRotation(DriveRotation command);
 
@@ -64,6 +66,8 @@ public interface Control {
     /** @return [-1,1] */
     public double rotSpeed();
 
+    public Rotation2d desiredRotation();
+
     /** @return [0, 1] */
     public double throttle();
 
@@ -73,6 +77,8 @@ public interface Control {
 
     /** @return [-1,1] */
     public double closeSpeed();
+
+    
 
     // ARM
     /** @return [-1,1] */
