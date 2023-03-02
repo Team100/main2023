@@ -105,7 +105,9 @@ public class VisionDataProvider extends SubsystemBase implements TableEventListe
     }
 
     /***
-     * Convert a Blip to a Pose3d
+     * Convert a Blip to a Pose3d.
+     * 
+     * This respects YAW ONLY. TODO: remove it.
      * 
      * @param b the blip to convert
      * @return a Pose3d representing the blip
@@ -129,6 +131,15 @@ public class VisionDataProvider extends SubsystemBase implements TableEventListe
         Pose3d TagInCameraCords = new Pose3d(t, tagRotation);
 
         return TagInCameraCords;
+    }
+
+    /**
+     * Extract the translation from the blip without changing the frame (i.e.
+     * returned translation is Z-forward)
+     * TODO: avoid using Translatoin3d for z-forward.
+     */
+    public static Translation3d blipToTranslation(Blip b) {
+        return new Translation3d(b.pose_t[0][0], b.pose_t[1][0], b.pose_t[2][0]);
     }
 
     /***
@@ -273,6 +284,14 @@ public class VisionDataProvider extends SubsystemBase implements TableEventListe
         Rotation3d rotationInRobotCoords = tagInCameraCords.getRotation().minus(cameraRotationOffset);
 
         return new Pose3d(translationInRobotCoords, rotationInRobotCoords);
+    }
+
+    /**
+     * Accept a translation expressed as "z forward" camera frame and return the
+     * same translation expressed as "x forward" NWU frame.
+     */
+    public static Translation3d cameraToNWU(Translation3d t) {
+        return new Translation3d(t.getZ(), -t.getX(), -t.getY());
     }
 
     @Override
