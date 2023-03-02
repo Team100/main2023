@@ -10,6 +10,7 @@ import org.msgpack.jackson.dataformat.MessagePackFactory;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import edu.wpi.first.apriltag.AprilTag;
+import frc.robot.localization.AprilTagFieldLayoutWithCorrectOrientation;
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -36,7 +37,10 @@ public class VisionDataProvider extends SubsystemBase implements TableEventListe
     private final ObjectMapper object_mapper;
     SwerveDrivePoseEstimator poseEstimator;
 
-    public AprilTagFieldLayoutWithCorrectOrientation layout;
+    private AprilTagFieldLayoutWithCorrectOrientation layout;
+    private static double kCameraXOffset = 0;
+    private static double kCameraYOffset = 0;
+    private static double kCameraZOffset = 0;
 
     SwerveDriveSubsystem m_robotDrive;
 
@@ -57,7 +61,9 @@ public class VisionDataProvider extends SubsystemBase implements TableEventListe
         currentTagInRobotCoords = new Pose2d();
         currentTagInFieldCoords = new Pose2d();
     
-        layout =  AprilTagFieldLayoutWithCorrectOrientation.blueLayout();
+        // TODO: get driverstation alliance
+        // layout =  AprilTagFieldLayoutWithCorrectOrientation.blueLayout();
+        layout =  AprilTagFieldLayoutWithCorrectOrientation.redLayout();
 
         NetworkTableInstance inst = NetworkTableInstance.getDefault();
         inst.startServer("example server");
@@ -195,6 +201,7 @@ public class VisionDataProvider extends SubsystemBase implements TableEventListe
                 tagTranslationInRobotCords,
                 realTagRotationInRobotCoords);
         Transform3d robotInTagCords = tagInRobotCords.inverse();
+        System.out.println(tagInRobotCords.getRotation().toRotation2d());
         Pose3d robotInFieldCords = tagInFieldCords.plus(robotInTagCords);
         return robotInFieldCords;
     }

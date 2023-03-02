@@ -42,6 +42,9 @@ import team100.control.DualXboxControl;
 
 @SuppressWarnings("unused")
 public class RobotContainer implements Sendable {
+    // CONFIG
+    private final DriverStation.Alliance m_alliance;
+
     // SUBSYSTEMS
     private final SwerveDriveSubsystem m_robotDrive;
     private final Manipulator manipulator;
@@ -62,8 +65,8 @@ public class RobotContainer implements Sendable {
     // private final DriveWithHeading driveWithHeading0, driveWithHeading90, driveWithHeading180, driveWithHeading270;
     private final DriveWithHeading driveWithHeading;
     private final DriveRotation driveRotation;
-    private final DriveToAprilTag driveToAprilTag1;
-    private final DriveToAprilTag driveToAprilTag5;
+    // private final DriveToAprilTag driveToAprilTag1;
+    // private final DriveToAprilTag driveToAprilTag5;
     private final DriveToAprilTag driveToID4, driveToID3, driveToID2, driveToID1;
 
     // private final MoveToAprilTag moveToAprilTag2;
@@ -72,7 +75,6 @@ public class RobotContainer implements Sendable {
 
     public RobotContainer() throws IOException {
         // SUBSYSTEMS
-
         final double kDriveCurrentLimit = 20;
         m_robotDrive = new SwerveDriveSubsystem(kDriveCurrentLimit);
         manipulator = new Manipulator();
@@ -82,13 +84,23 @@ public class RobotContainer implements Sendable {
         control = ControlSelect.getControl();
 
         // COMMANDS
-        driveToAprilTag1 = DriveToAprilTag.newDriveToAprilTag(1, m_robotDrive);
-        driveToAprilTag5 = DriveToAprilTag.newDriveToAprilTag(4, m_robotDrive);
-
-        driveToID1 = DriveToAprilTag.newDriveToAprilTag(1, m_robotDrive);
-        driveToID2 = DriveToAprilTag.newDriveToAprilTag(2, m_robotDrive);
-        driveToID3 = DriveToAprilTag.newDriveToAprilTag(3, m_robotDrive);
-        driveToID4 = DriveToAprilTag.newDriveToAprilTag(4, m_robotDrive);
+        // driveToAprilTag1 = DriveToAprilTag.newDriveToAprilTag(1, m_robotDrive);
+        // driveToAprilTag5 = DriveToAprilTag.newDriveToAprilTag(4, m_robotDrive);
+        m_alliance = DriverStation.getAlliance();
+        if (m_alliance == DriverStation.Alliance.Blue) {
+            System.out.println("bbbbbbbbbbbbbbbbbbbbbbbbbbbbbb");
+            driveToID1 = DriveToAprilTag.newDriveToAprilTag(8, control::goalOffset, m_robotDrive);
+            driveToID2 = DriveToAprilTag.newDriveToAprilTag(7, control::goalOffset, m_robotDrive);
+            driveToID3 = DriveToAprilTag.newDriveToAprilTag(6, control::goalOffset, m_robotDrive);
+            driveToID4 = DriveToAprilTag.newDriveToAprilTag(5, control::goalOffset, m_robotDrive);
+        }
+        else {
+            System.out.println("Aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
+            driveToID1 = DriveToAprilTag.newDriveToAprilTag(1, control::goalOffset, m_robotDrive);
+            driveToID2 = DriveToAprilTag.newDriveToAprilTag(2, control::goalOffset, m_robotDrive);
+            driveToID3 = DriveToAprilTag.newDriveToAprilTag(3, control::goalOffset, m_robotDrive);
+            driveToID4 = DriveToAprilTag.newDriveToAprilTag(4, control::goalOffset, m_robotDrive);
+        }
         
         // moveToAprilTag2 = MoveToAprilTag.newMoveToAprilTag(m_robotDrive, 1);
 
@@ -134,8 +146,8 @@ public class RobotContainer implements Sendable {
         // moveToAprilTag = MoveToAprilTag.newMoveToAprilTag(m_robotDrive, tagID);
 
         // TRIGGERS/BUTTXONS
-        control.driveToAprilTag(driveToAprilTag1);
-        control.driveToAprilTag2(driveToAprilTag1);
+        // control.driveToAprilTag(driveToAprilTag1);
+        // control.driveToAprilTag2(driveToAprilTag1);
         control.resetRotation(resetRotation);
         control.autoLevel(autoLevel);
         // control.sanjanAuto(new SanjanAutonomous(m_robotDrive));

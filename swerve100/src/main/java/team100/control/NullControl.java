@@ -6,6 +6,7 @@ import frc.robot.autonomous.DriveToWaypoint2;
 import frc.robot.commands.ArmHigh;
 import frc.robot.commands.DriveRotation;
 import frc.robot.commands.DriveWithHeading;
+import frc.robot.commands.GoalOffset;
 import frc.robot.commands.ResetPose;
 import frc.robot.commands.ResetRotation;
 import frc.robot.subsystems.SwerveDriveSubsystem;
@@ -131,6 +132,12 @@ public class NullControl implements Control {
         
     @Override
     public Rotation2d desiredRotation() {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public GoalOffset goalOffset() {
         // TODO Auto-generated method stub
         return null;
     }

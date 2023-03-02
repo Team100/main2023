@@ -64,6 +64,7 @@ public class DriveWithHeading extends CommandBase{
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
+    System.out.println("aaaaaaaaaaaaaaaaaaaaaaaaaaaa");
 
     // if(Math.abs(rot) < 0.1){
     //     rot = 0;
