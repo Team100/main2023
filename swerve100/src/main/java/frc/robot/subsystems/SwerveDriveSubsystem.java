@@ -459,7 +459,7 @@ public class SwerveDriveSubsystem extends SubsystemBase {
         PIDController driveController = new PIDController(//
                 0.1, // kP
                 0, // kI
-                0.05);// kD
+                0);// kD
 
         // TURNING PID
         ProfiledPIDController turningController = new ProfiledPIDController(//
@@ -475,7 +475,7 @@ public class SwerveDriveSubsystem extends SubsystemBase {
         SimpleMotorFeedforward driveFeedforward = new SimpleMotorFeedforward(//
                 0.04, // kS TODO: too low?
                 0.2,// kV
-                0.05); 
+                0); 
 
         // TURNING FF
         SimpleMotorFeedforward turningFeedforward = new SimpleMotorFeedforward(//
@@ -559,6 +559,13 @@ public class SwerveDriveSubsystem extends SubsystemBase {
         y = ySpeed;
         rotation = rot;
         isFieldRelative = fieldRelative;
+        double kRotMix = 0.6;
+        double speed = Math.hypot(x, y);
+        double thetaAngle = Math.atan2(y, x);
+        thetaAngle = thetaAngle - kRotMix*rot*speed;
+        xSpeed = speed * Math.cos(thetaAngle);
+        ySpeed = speed * Math.sin(thetaAngle);
+
 
         if (Math.abs(xSpeed) < .01)
             xSpeed = 100 * xSpeed * xSpeed * Math.signum(xSpeed);

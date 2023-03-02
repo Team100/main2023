@@ -1,7 +1,5 @@
 package frc.robot.subsystems;
 
-import com.ctre.phoenix.motorcontrol.ControlMode;
-
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
@@ -25,7 +23,7 @@ public class SwerveModule implements Sendable {
 
     public double m_tFeedForwardOutput;
     public double m_dFeedForwardOutput;
-    public double m_controllerTurnOutput;
+    public double m_controllerOutput;
     public double m_driveOutput;
 
     public SwerveModule(
@@ -62,23 +60,18 @@ public class SwerveModule implements Sendable {
     public void setDesiredState(SwerveModuleState desiredState) {
         // Optimize the reference state to avoid spinning further than 90 degrees
         SwerveModuleState state = SwerveModuleState.optimize(desiredState, new Rotation2d(m_turningEncoder.getAngle()));
-        // Calculate the drive output from the drive PID controller.
         m_driveOutput = m_driveController.calculate(m_driveEncoder.getRate(), state.speedMetersPerSecond);
-
+        // Calculate the drive output from the drive PID controller.
+        m_controllerOutput = m_turningController.calculate(m_turningEncoder.getAngle(), state.angle.getRadians());
         // Calculate the turning motor output from the turning PID controller.
-        m_controllerTurnOutput = m_turningController.calculate(m_turningEncoder.getAngle(), state.angle.getRadians());
-
         m_tFeedForwardOutput = m_turningFeedforward.calculate(getTurnSetpointVelocity(), 0);
         m_dFeedForwardOutput = m_driveFeedforward.calculate(driveSetpointMS(), 0);
-       // setOutput(m_driveOutput + m_dFeedForwardOutput, m_controllerOutput + m_tFeedForwardOutput);
-        setOutput(driveSetpointMS(), m_controllerTurnOutput + m_tFeedForwardOutput);
-
+        setOutput(m_driveOutput + m_dFeedForwardOutput, m_controllerOutput + m_tFeedForwardOutput);
     }
 
     // public void setOutput(double driveOutput, double turnOutput) {
-    public void setOutput(double driveOutputMs, double turnOutput) {
-        // m_driveMotor.set(driveOutput);
-        m_driveMotor.set(driveOutputMs);
+    public void setOutput(double driveOutput, double turnOutput) {
+        m_driveMotor.set(driveOutput);
         m_turningMotor.set(turnOutput);
     }
 
@@ -128,7 +121,7 @@ public class SwerveModule implements Sendable {
     }
 
     public double getTControllerOutput() {
-        return m_controllerTurnOutput;
+        return m_controllerOutput;
     }
 
     public double getDControllerOutput() {
