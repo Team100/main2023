@@ -1,5 +1,7 @@
 package frc.robot;
 
+import java.io.IOException;
+
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -66,6 +68,9 @@ public class RobotContainer implements Sendable {
     private final OpenManipulator openManipulator = new OpenManipulator(manipulator);
     private TimedClose timedClose = new TimedClose(manipulator, 300, 0.7);
     private CurrentFeedbackClose currentFeedbackClose = new CurrentFeedbackClose(manipulator, 14.0, 0.5);
+    
+    // CONFIG
+    private final DriverStation.Alliance m_alliance;
 
     // SUBSYSTEMS
     private final SwerveDriveSubsystem m_robotDrive;
@@ -84,18 +89,18 @@ public class RobotContainer implements Sendable {
     private final DriveManually driveManually;
     private final GripManually gripManually;
 
-    private final DriveWithHeading driveWithHeading0, driveWithHeading90, driveWithHeading180, driveWithHeading270;
+    // private final DriveWithHeading driveWithHeading0, driveWithHeading90, driveWithHeading180, driveWithHeading270;
+    private final DriveWithHeading driveWithHeading;
     private final DriveRotation driveRotation;
-    private final DriveToAprilTag driveToAprilTag1;
-    private final DriveToAprilTag driveToAprilTag5;
+    // private final DriveToAprilTag driveToAprilTag1;
+    // private final DriveToAprilTag driveToAprilTag5;
     private final DriveToAprilTag driveToID4, driveToID3, driveToID2, driveToID1;
 
     // private final MoveToAprilTag moveToAprilTag2;
 
     public final static Field2d m_field = new Field2d();
 
-    public RobotContainer() {
-
+    public RobotContainer() throws IOException {
         // THIS IS FROM BOB'S DELETED CODE
 
         manipulator.setDefaultCommand(new ConditionalCommand(
@@ -137,7 +142,6 @@ public class RobotContainer implements Sendable {
         // m_driverController.b().whileTrue(m_exampleSubsystem.exampleMethodCommand());
 
         // SUBSYSTEMS
-
         final double kDriveCurrentLimit = 20;
         m_robotDrive = new SwerveDriveSubsystem(kDriveCurrentLimit);
         // manipulator = new Manipulator();
@@ -147,14 +151,24 @@ public class RobotContainer implements Sendable {
         control = ControlSelect.getControl();
 
         // COMMANDS
-        driveToAprilTag1 = DriveToAprilTag.newDriveToAprilTag(1, m_robotDrive);
-        driveToAprilTag5 = DriveToAprilTag.newDriveToAprilTag(4, m_robotDrive);
-
-        driveToID1 = DriveToAprilTag.newDriveToAprilTag(1, m_robotDrive);
-        driveToID2 = DriveToAprilTag.newDriveToAprilTag(2, m_robotDrive);
-        driveToID3 = DriveToAprilTag.newDriveToAprilTag(3, m_robotDrive);
-        driveToID4 = DriveToAprilTag.newDriveToAprilTag(4, m_robotDrive);
-
+        // driveToAprilTag1 = DriveToAprilTag.newDriveToAprilTag(1, m_robotDrive);
+        // driveToAprilTag5 = DriveToAprilTag.newDriveToAprilTag(4, m_robotDrive);
+        m_alliance = DriverStation.getAlliance();
+        if (m_alliance == DriverStation.Alliance.Blue) {
+            System.out.println("bbbbbbbbbbbbbbbbbbbbbbbbbbbbbb");
+            driveToID1 = DriveToAprilTag.newDriveToAprilTag(8, control::goalOffset, m_robotDrive);
+            driveToID2 = DriveToAprilTag.newDriveToAprilTag(7, control::goalOffset, m_robotDrive);
+            driveToID3 = DriveToAprilTag.newDriveToAprilTag(6, control::goalOffset, m_robotDrive);
+            driveToID4 = DriveToAprilTag.newDriveToAprilTag(5, control::goalOffset, m_robotDrive);
+        }
+        else {
+            System.out.println("Aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
+            driveToID1 = DriveToAprilTag.newDriveToAprilTag(1, control::goalOffset, m_robotDrive);
+            driveToID2 = DriveToAprilTag.newDriveToAprilTag(2, control::goalOffset, m_robotDrive);
+            driveToID3 = DriveToAprilTag.newDriveToAprilTag(3, control::goalOffset, m_robotDrive);
+            driveToID4 = DriveToAprilTag.newDriveToAprilTag(4, control::goalOffset, m_robotDrive);
+        }
+        
         // moveToAprilTag2 = MoveToAprilTag.newMoveToAprilTag(m_robotDrive, 1);
 
         armHigh = new ArmHigh(arm);
@@ -164,35 +178,35 @@ public class RobotContainer implements Sendable {
         autoLevel = new autoLevel(m_robotDrive.m_gyro, m_robotDrive);
 
         ResetPose resetPose = new ResetPose(m_robotDrive, 0, 0, 0);
+        
+        // driveWithHeading0 = new DriveWithHeading(
+        //     m_robotDrive, 
+        //     control::xSpeed,
+        //     control::ySpeed,
+        //     () -> Rotation2d.fromDegrees(0),
+        //     "0 Degrees");
 
-        driveWithHeading0 = new DriveWithHeading(
-                m_robotDrive,
-                control::xSpeed,
-                control::ySpeed,
-                Rotation2d.fromDegrees(0),
-                "0 Degrees");
+        // driveWithHeading90 = new DriveWithHeading(
+        //     m_robotDrive, 
+        //     control::xSpeed,
+        //     control::ySpeed,
+        //     () -> Rotation2d.fromDegrees(90),
+        //     "90 Degrees");
 
-        driveWithHeading90 = new DriveWithHeading(
-                m_robotDrive,
-                control::xSpeed,
-                control::ySpeed,
-                Rotation2d.fromDegrees(90),
-                "90 Degrees");
-
-        driveWithHeading180 = new DriveWithHeading(
-                m_robotDrive,
-                control::xSpeed,
-                control::ySpeed,
-                Rotation2d.fromDegrees(180),
-                "180 Degrees");
-
-        driveWithHeading270 = new DriveWithHeading(
-                m_robotDrive,
-                control::xSpeed,
-                control::ySpeed,
-                Rotation2d.fromDegrees(270),
-                "270 Degrees");
-
+        // driveWithHeading180 = new DriveWithHeading(
+        //     m_robotDrive, 
+        //     control::xSpeed,
+        //     control::ySpeed,
+        //     () -> Rotation2d.fromDegrees(180),
+        //     "180 Degrees");
+        
+        driveWithHeading = new DriveWithHeading(
+            m_robotDrive, 
+            control::xSpeed,
+            control::ySpeed,
+            control::desiredRotation,
+            "");
+        
         driveRotation = new DriveRotation(m_robotDrive, control::rotSpeed);
 
         // TODO: do something with tagid.
@@ -200,8 +214,8 @@ public class RobotContainer implements Sendable {
         // moveToAprilTag = MoveToAprilTag.newMoveToAprilTag(m_robotDrive, tagID);
 
         // TRIGGERS/BUTTXONS
-        control.driveToAprilTag(driveToAprilTag1);
-        control.driveToAprilTag2(driveToAprilTag1);
+        // control.driveToAprilTag(driveToAprilTag1);
+        // control.driveToAprilTag2(driveToAprilTag1);
         control.resetRotation(resetRotation);
         control.autoLevel(autoLevel);
         // control.sanjanAuto(new SanjanAutonomous(m_robotDrive));
@@ -221,12 +235,13 @@ public class RobotContainer implements Sendable {
                 control::ySpeed,
                 control::rotSpeed,
                 m_robotDrive);
-        m_robotDrive.setDefaultCommand(driveManually);
-
-        control.driveWithHeading0(driveWithHeading0);
-        control.driveWithHeading90(driveWithHeading90);
-        control.driveWithHeading180(driveWithHeading180);
-        control.driveWithHeading270(driveWithHeading270);
+        // m_robotDrive.setDefaultCommand(driveManually);
+        m_robotDrive.setDefaultCommand(driveWithHeading);
+        
+        // control.driveWithHeading0(driveWithHeading0);
+        // control.driveWithHeading90(driveWithHeading90);
+        // control.driveWithHeading180(driveWithHeading180);
+        // control.driveWithHeading270(driveWithHeading270);
         control.driveRotation(driveRotation);
 
         // Controller 1 triggers => manipulator open/close

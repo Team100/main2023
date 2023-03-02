@@ -1,7 +1,6 @@
 package frc.robot.localization;
 
 import java.io.IOException;
-import java.nio.file.Path;
 import java.util.EnumSet;
 import java.util.Optional;
 import java.util.function.Supplier;
@@ -10,9 +9,6 @@ import org.msgpack.jackson.dataformat.MessagePackFactory;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import edu.wpi.first.apriltag.AprilTag;
-import edu.wpi.first.apriltag.AprilTagFieldLayout;
-import edu.wpi.first.apriltag.AprilTagFieldLayout.OriginPosition;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
@@ -22,11 +18,10 @@ import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.networktables.DoublePublisher;
 import edu.wpi.first.networktables.NetworkTable;
+import edu.wpi.first.networktables.NetworkTable.TableEventListener;
 import edu.wpi.first.networktables.NetworkTableEvent;
 import edu.wpi.first.networktables.NetworkTableInstance;
-import edu.wpi.first.networktables.NetworkTable.TableEventListener;
 import edu.wpi.first.util.sendable.SendableBuilder;
-import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -37,12 +32,14 @@ public class VisionDataProvider extends SubsystemBase implements TableEventListe
     Supplier<Boolean> getMoving;
     Supplier<Pose2d> getPose;
     private final DoublePublisher timestamp_publisher;
-    // private final HashTag hashTag = new HashTag();
     private final ObjectMapper object_mapper;
     SwerveDrivePoseEstimator poseEstimator;
 
-    // public AprilTagFieldLayout layout;
-    public AprilFieldLayout2 layout;
+    // TODO Make this private
+    public AprilTagFieldLayoutWithCorrectOrientation layout;
+    // private static double kCameraXOffset = 0;
+    // private static double kCameraYOffset = 0;
+    // private static double kCameraZOffset = 0;
 
     SwerveDriveSubsystem m_robotDrive;
 
@@ -52,10 +49,9 @@ public class VisionDataProvider extends SubsystemBase implements TableEventListe
     Pose2d pastRobotPose;
     boolean first = true;
 
-    public VisionDataProvider(SwerveDrivePoseEstimator pE, Supplier<Boolean> getM, Supplier<Pose2d> getP) {
+    public VisionDataProvider(SwerveDrivePoseEstimator pE, Supplier<Boolean> getM, Supplier<Pose2d> getP) throws IOException {
 
         getPose = getP;
-
         getMoving = getM;
         poseEstimator = pE;
 
@@ -63,23 +59,10 @@ public class VisionDataProvider extends SubsystemBase implements TableEventListe
         currentRobotinFieldCoords = new Pose2d();
         currentTagInRobotCoords = new Pose2d();
         currentTagInFieldCoords = new Pose2d();
-
-        // TAG MAP
-        System.out.println(Filesystem.getDeployDirectory());
-        try {
-            Path path = Filesystem.getDeployDirectory().toPath().resolve("2023-chargedup.json");
-            // layout = new AprilTagFieldLayout(path);
-            layout = new AprilFieldLayout2(path);
-
-            // layout.setOrigin(OriginPosition.kRedAllianceWallRightSide);
-            System.out.println("JSON map loaded");
-            for (AprilTag t : layout.getTags()) {
-                System.out.printf("tag %s\n", t.toString());
-            }
-        } catch (IOException e) {
-            System.out.println("Could not find JSON map");
-            e.printStackTrace();
-        }
+    
+        // TODO: get driverstation alliance
+        // layout =  AprilTagFieldLayoutWithCorrectOrientation.blueLayout();
+        layout =  AprilTagFieldLayoutWithCorrectOrientation.redLayout();
 
         NetworkTableInstance inst = NetworkTableInstance.getDefault();
         inst.startServer("example server");
@@ -116,13 +99,17 @@ public class VisionDataProvider extends SubsystemBase implements TableEventListe
         }
     }
 
+    public Pose2d getTagPose(int id) {
+        return layout.getTagPose(id).get().toPose2d();
+    }
+
     /***
      * Convert a Blip to a Pose3d
      * 
      * @param b the blip to convert
      * @return a Pose3d representing the blip
      */
-    private Pose3d blipToPose(Blip b) {
+    public static Pose3d blipToPose(Blip b) {
         Translation3d t = new Translation3d(b.pose_t[0][0], b.pose_t[1][0], b.pose_t[2][0]);
         // Matrix<N3, N3> rot = new Matrix<N3, N3>(Nat.N3(), Nat.N3());
 
@@ -167,8 +154,12 @@ public class VisionDataProvider extends SubsystemBase implements TableEventListe
                 if (tagInFieldCords.isPresent()) {
 
                     Pose3d tagInRobotCords = cameraToRobot(key, TagInCameraCords);
-                    Pose2d robotInFieldCords = toFieldCoordinates(tagInRobotCords.getTranslation(),
-                            tagInRobotCords.getRotation(),
+                    Rotation3d realTagRotationInRobotCoords = new Rotation3d(0, 0,
+                            Math.PI - getPose.get().getRotation().getRadians());
+
+                    Pose2d robotInFieldCords = toFieldCoordinates(
+                            realTagRotationInRobotCoords,
+                            tagInRobotCords.getTranslation(),
                             tagInFieldCords.get()).toPose2d();
 
                     currentTagInRobotCoords = tagInRobotCords.toPose2d();
@@ -194,21 +185,41 @@ public class VisionDataProvider extends SubsystemBase implements TableEventListe
     }
 
     /**
-     * @param tagTranslationInRobotCords tag translation in robot coords
-     * @param tagRotationInRobotCords    tag rotation in robot coords -- this is NOT
-     *                                   USED, instead we substitute the robot's
-     *                                   rotation
+     * TODO: use a transform rather than separate r and t params
+     * 
+     * @param realTagRotationInRobotCoords tag rotation in robot coords
+     * @param tagTranslationInRobotCords   tag translation in robot coords
+     * @param tagInFieldCords              tag in field coords (from the json).
+     *                                     should this be "in the page" or "out of
+     *                                     the page"?
      * @return robot pose in field coordinates.
      */
-    private Pose3d toFieldCoordinates(Translation3d tagTranslationInRobotCords, Rotation3d tagRotationInRobotCords,
+    public static Pose3d toFieldCoordinates(
+            Rotation3d realTagRotationInRobotCoords,
+            Translation3d tagTranslationInRobotCords,
             Pose3d tagInFieldCords) {
         // TODO: i think there's a bug in here about the substitution of robot rotation
-        // TODO: is the Math.PI here correct in all cases?  what does it mean?
-        Transform3d tagInRobotCords = new Transform3d(tagTranslationInRobotCords,
-                new Rotation3d(0, 0, Math.PI - getPose.get().getRotation().getRadians()));
+        // TODO: is the Math.PI here correct in all cases? what does it mean?
+        Transform3d tagInRobotCords = new Transform3d(
+                tagTranslationInRobotCords,
+                realTagRotationInRobotCoords);
         Transform3d robotInTagCords = tagInRobotCords.inverse();
+        System.out.println(tagInRobotCords.getRotation().toRotation2d());
         Pose3d robotInFieldCords = tagInFieldCords.plus(robotInTagCords);
         return robotInFieldCords;
+    }
+
+    /**
+     * @param tagRotationInFieldCoords   this comes from
+     *                                   AprilTagFieldLayoutWithCorrectOrientation
+     * @param robotRotationInFieldCoords this comes from the gyro
+     * @return the tag rotation as it appears to the robot, i.e. what the camera
+     *         should see.
+     */
+    public static Rotation3d tagRotationInRobotCoordsFromGyro(
+            Rotation3d tagRotationInFieldCoords,
+            Rotation3d robotRotationInFieldCoords) {
+        return tagRotationInFieldCoords.minus(robotRotationInFieldCoords);
     }
 
     /**
@@ -219,7 +230,7 @@ public class VisionDataProvider extends SubsystemBase implements TableEventListe
      * @param tagInCameraCords one tag pose relative to the camera
      * @return tag in robot coordinates
      */
-    private static Pose3d cameraToRobot(String key, Pose3d tagInCameraCords) {
+    public static Pose3d cameraToRobot(String key, Pose3d tagInCameraCords) {
         // TODO: fill out these offsets
         Translation3d cameraOffsetTranslation;
         Rotation3d cameraRotationOffset;

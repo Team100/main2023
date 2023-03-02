@@ -1,24 +1,18 @@
 package team100.control;
 
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.util.sendable.Sendable;
 import edu.wpi.first.util.sendable.SendableBuilder;
-import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.autonomous.DriveToAprilTag;
 import frc.robot.autonomous.DriveToWaypoint2;
-import frc.robot.autonomous.MoveToAprilTag;
-//import frc.robot.autonomous.SanjanAutonomous;
 import frc.robot.commands.ArmHigh;
-
 import frc.robot.commands.DriveRotation;
-import frc.robot.commands.DriveWithHeading;
+import frc.robot.commands.GoalOffset;
 import frc.robot.commands.ResetPose;
-// import frc.robot.commands.ResetPose;
-import frc.robot.subsystems.SwerveDriveSubsystem;
-
-// import frc.robot.commands.ResetPose;
 import frc.robot.commands.ResetRotation;
+import frc.robot.subsystems.SwerveDriveSubsystem;
 
 
 /**
@@ -27,8 +21,8 @@ import frc.robot.commands.ResetRotation;
  */
 public class DualXboxControl implements Control, Sendable {
     // TODO: express these limits in m/s.
-    private static final int ySlewRateLimit = 3;
-    private static final int xSlewRateLimit = 3;
+    // private static final int ySlewRateLimit = 3;
+    // private static final int xSlewRateLimit = 3;
     
     private final CommandXboxController controller0;
     private final CommandXboxController controller1;
@@ -111,25 +105,25 @@ public class DualXboxControl implements Control, Sendable {
         controller1.b().onTrue(command);
     }
 
-    @Override
-    public void driveWithHeading0(DriveWithHeading command){
-        controller0.povUp().whileTrue(command);
-    }
+    // @Override
+    // public void driveWithHeading0(DriveWithHeading command){
+    //     controller0.povUp().whileTrue(command);
+    // }
 
-    @Override
-    public void driveWithHeading90(DriveWithHeading command){
-        controller0.povLeft().whileTrue(command);
-    }
+    // @Override
+    // public void driveWithHeading90(DriveWithHeading command){
+    //     controller0.povLeft().whileTrue(command);
+    // }
 
-    @Override
-    public void driveWithHeading180(DriveWithHeading command){
-        controller0.povDown().whileTrue(command);
-    }
+    // @Override
+    // public void driveWithHeading180(DriveWithHeading command){
+    //     controller0.povDown().whileTrue(command);
+    // }
 
-    @Override
-    public void driveWithHeading270(DriveWithHeading command){
-        controller0.povRight().whileTrue(command);
-    }
+    // @Override
+    // public void driveWithHeading270(DriveWithHeading command){
+    //     controller0.povRight().whileTrue(command);
+    // }
 
     @Override
     public void driveRotation(DriveRotation command){
@@ -188,6 +182,38 @@ public class DualXboxControl implements Control, Sendable {
     @Override
     public void resetPose(ResetPose command) {
         controller0.leftBumper().onTrue(command);
+    }
+
+    Rotation2d previousRotation = new Rotation2d(0);
+
+
+    @Override
+    public Rotation2d desiredRotation() {
+        // return new Rotation2d(-controller0.getLeftX(), -controller0.getLeftY());
+        double foo = -controller0.getHID().getPOV();
+        if (foo > 0) {
+            return previousRotation;
+        } 
+        previousRotation = Rotation2d.fromDegrees(foo);
+        return previousRotation;
         
+        
+    }
+
+    @Override
+    public GoalOffset goalOffset() {
+        double left = controller0.getLeftTriggerAxis();
+        double right = controller0.getRightTriggerAxis();
+        double kThreshold = .5;
+        if (left > kThreshold) {
+            if (right > kThreshold) {
+                return GoalOffset.center;
+            }
+            return GoalOffset.left;
+        }
+        if (right > kThreshold) {
+            return GoalOffset.right;
+        }
+        return GoalOffset.center;
     }
 }
