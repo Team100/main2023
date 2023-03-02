@@ -49,7 +49,8 @@ public class VisionDataProvider extends SubsystemBase implements TableEventListe
     Pose2d pastRobotPose;
     boolean first = true;
 
-    public VisionDataProvider(SwerveDrivePoseEstimator pE, Supplier<Boolean> getM, Supplier<Pose2d> getP) throws IOException {
+    public VisionDataProvider(SwerveDrivePoseEstimator pE, Supplier<Boolean> getM, Supplier<Pose2d> getP)
+            throws IOException {
 
         getPose = getP;
         getMoving = getM;
@@ -59,10 +60,10 @@ public class VisionDataProvider extends SubsystemBase implements TableEventListe
         currentRobotinFieldCoords = new Pose2d();
         currentTagInRobotCoords = new Pose2d();
         currentTagInFieldCoords = new Pose2d();
-    
+
         // TODO: get driverstation alliance
-        // layout =  AprilTagFieldLayoutWithCorrectOrientation.blueLayout();
-        layout =  AprilTagFieldLayoutWithCorrectOrientation.redLayout();
+        // layout = AprilTagFieldLayoutWithCorrectOrientation.blueLayout();
+        layout = AprilTagFieldLayoutWithCorrectOrientation.redLayout();
 
         NetworkTableInstance inst = NetworkTableInstance.getDefault();
         inst.startServer("example server");
@@ -198,13 +199,24 @@ public class VisionDataProvider extends SubsystemBase implements TableEventListe
             Rotation3d realTagRotationInRobotCoords,
             Translation3d tagTranslationInRobotCords,
             Pose3d tagInFieldCords) {
-        // TODO: i think there's a bug in here about the substitution of robot rotation
-        // TODO: is the Math.PI here correct in all cases? what does it mean?
         Transform3d tagInRobotCords = new Transform3d(
                 tagTranslationInRobotCords,
                 realTagRotationInRobotCoords);
         Transform3d robotInTagCords = tagInRobotCords.inverse();
-        System.out.println(tagInRobotCords.getRotation().toRotation2d());
+        Pose3d robotInFieldCords = tagInFieldCords.plus(robotInTagCords);
+        return robotInFieldCords;
+    }
+
+    /**
+     * @param tagInRobotCords transforms robot pose to tag pose
+     * @param tagInFieldCords transforms field origin to tag pose
+     */
+    public static Pose3d toFieldCoordinates(
+            Transform3d tagInRobotCords,
+            Pose3d tagInFieldCords) {
+        // first invert the robot-to-tag transform, obtaining tag-to-robot.
+        Transform3d robotInTagCords = tagInRobotCords.inverse();
+        // then compose field-to-tag with tag-to-robot to get field-to-robot.
         Pose3d robotInFieldCords = tagInFieldCords.plus(robotInTagCords);
         return robotInFieldCords;
     }

@@ -18,6 +18,9 @@ import edu.wpi.first.math.numbers.N3;
 
 /**
  * Figure out if renormalization works.
+ * 
+ * Note since we don't trust the camera rotation output we really don't need to
+ * do this.
  */
 public class QuaternionTest {
     private static final double kDelta = 0.01;
@@ -242,4 +245,5 @@ public class QuaternionTest {
         assertEquals(0, r.getY(), kDelta);
         assertEquals(0, r.getZ(), kDelta);
     }
+
 }
