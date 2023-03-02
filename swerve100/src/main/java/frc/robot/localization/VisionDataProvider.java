@@ -9,12 +9,10 @@ import org.msgpack.jackson.dataformat.MessagePackFactory;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import edu.wpi.first.apriltag.AprilTag;
-import frc.robot.localization.AprilTagFieldLayoutWithCorrectOrientation;
-import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation3d;
@@ -37,10 +35,11 @@ public class VisionDataProvider extends SubsystemBase implements TableEventListe
     private final ObjectMapper object_mapper;
     SwerveDrivePoseEstimator poseEstimator;
 
-    private AprilTagFieldLayoutWithCorrectOrientation layout;
-    private static double kCameraXOffset = 0;
-    private static double kCameraYOffset = 0;
-    private static double kCameraZOffset = 0;
+    // TODO Make this private
+    public AprilTagFieldLayoutWithCorrectOrientation layout;
+    // private static double kCameraXOffset = 0;
+    // private static double kCameraYOffset = 0;
+    // private static double kCameraZOffset = 0;
 
     SwerveDriveSubsystem m_robotDrive;
 
@@ -98,6 +97,10 @@ public class VisionDataProvider extends SubsystemBase implements TableEventListe
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    public Pose2d getTagPose(int id) {
+        return layout.getTagPose(id).get().toPose2d();
     }
 
     /***

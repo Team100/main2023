@@ -1,15 +1,14 @@
 package frc.robot.autonomous;
 
-import frc.robot.commands.GoalOffset;
-import frc.robot.subsystems.SwerveDriveSubsystem;
-
 import java.util.function.Supplier;
 
-import frc.robot.localization.AprilTagFieldLayoutWithCorrectOrientation;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
+import frc.robot.commands.GoalOffset;
+import frc.robot.localization.AprilTagFieldLayoutWithCorrectOrientation;
+import frc.robot.subsystems.SwerveDriveSubsystem;
 
 public class DriveToAprilTag extends DriveToWaypoint2 {
 
