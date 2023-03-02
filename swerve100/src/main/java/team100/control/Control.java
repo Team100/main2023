@@ -1,23 +1,15 @@
 package team100.control;
 
-import frc.robot.commands.DriveRotation;
-import frc.robot.commands.DriveWithHeading;
-import frc.robot.commands.autoLevel;
 import edu.wpi.first.math.geometry.Rotation2d;
 import frc.robot.autonomous.DriveToAprilTag;
 import frc.robot.autonomous.DriveToWaypoint2;
 import frc.robot.commands.ArmHigh;
 import frc.robot.commands.DriveRotation;
-import frc.robot.commands.DriveWithHeading;
 import frc.robot.commands.GoalOffset;
 import frc.robot.commands.ResetPose;
 import frc.robot.commands.ResetRotation;
 import frc.robot.commands.autoLevel;
 import frc.robot.subsystems.SwerveDriveSubsystem;
-import frc.robot.autonomous.DriveToAprilTag;
-import frc.robot.autonomous.DriveToWaypoint2;
-import frc.robot.commands.ArmHigh;
-import frc.robot.commands.ResetRotation;
 
 public interface Control {
     public void resetPose(ResetPose command);

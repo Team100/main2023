@@ -1,6 +1,5 @@
 package team100.control;
 
-import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.util.sendable.Sendable;
 import edu.wpi.first.util.sendable.SendableBuilder;
@@ -10,7 +9,6 @@ import frc.robot.autonomous.DriveToAprilTag;
 import frc.robot.autonomous.DriveToWaypoint2;
 import frc.robot.commands.ArmHigh;
 import frc.robot.commands.DriveRotation;
-import frc.robot.commands.DriveWithHeading;
 import frc.robot.commands.GoalOffset;
 import frc.robot.commands.ResetPose;
 import frc.robot.commands.ResetRotation;
@@ -184,6 +182,7 @@ public class DualXboxControl implements Control, Sendable {
     @Override
     public void resetPose(ResetPose command) {
         controller0.leftBumper().onTrue(command);
+    }
 
     Rotation2d previousRotation = new Rotation2d(0);
 

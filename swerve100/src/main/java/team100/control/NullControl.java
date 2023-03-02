@@ -5,7 +5,6 @@ import frc.robot.autonomous.DriveToAprilTag;
 import frc.robot.autonomous.DriveToWaypoint2;
 import frc.robot.commands.ArmHigh;
 import frc.robot.commands.DriveRotation;
-import frc.robot.commands.DriveWithHeading;
 import frc.robot.commands.GoalOffset;
 import frc.robot.commands.ResetPose;
 import frc.robot.commands.ResetRotation;
@@ -129,6 +128,7 @@ public class NullControl implements Control {
     @Override
     public void driveToID4(DriveToWaypoint2 command) {
         // TODO Auto-generated method stub
+    }
         
     @Override
     public Rotation2d desiredRotation() {
