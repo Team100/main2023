@@ -59,5 +59,4 @@ public class AprilTagFieldLayoutWithCorrectOrientation {
         }
         return Optional.of(pose.get().transformBy(kFix));
     }
-
 }

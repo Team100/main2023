@@ -19,7 +19,7 @@ public class VasiliAutonomous extends SequentialCommandGroup {
     // addCommands(new FooCommand(), new BarCommand());
     
     addCommands(
-        DriveToAprilTag.newDriveToAprilTag(5, m_robotDrive)
+        // DriveToAprilTag.newDriveToAprilTag(5, m_robotDrive)
     );  
    }
  }
