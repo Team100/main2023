@@ -49,7 +49,8 @@ public class VisionDataProvider extends SubsystemBase implements TableEventListe
     Pose2d pastRobotPose;
     boolean first = true;
 
-    public VisionDataProvider(SwerveDrivePoseEstimator pE, Supplier<Boolean> getM, Supplier<Pose2d> getP) throws IOException {
+    public VisionDataProvider(SwerveDrivePoseEstimator pE, Supplier<Boolean> getM, Supplier<Pose2d> getP)
+            throws IOException {
 
         getPose = getP;
         getMoving = getM;
@@ -59,10 +60,10 @@ public class VisionDataProvider extends SubsystemBase implements TableEventListe
         currentRobotinFieldCoords = new Pose2d();
         currentTagInRobotCoords = new Pose2d();
         currentTagInFieldCoords = new Pose2d();
-    
+
         // TODO: get driverstation alliance
-        // layout =  AprilTagFieldLayoutWithCorrectOrientation.blueLayout();
-        layout =  AprilTagFieldLayoutWithCorrectOrientation.redLayout();
+        // layout = AprilTagFieldLayoutWithCorrectOrientation.blueLayout();
+        layout = AprilTagFieldLayoutWithCorrectOrientation.redLayout();
 
         NetworkTableInstance inst = NetworkTableInstance.getDefault();
         inst.startServer("example server");
@@ -104,7 +105,9 @@ public class VisionDataProvider extends SubsystemBase implements TableEventListe
     }
 
     /***
-     * Convert a Blip to a Pose3d
+     * Convert a Blip to a Pose3d.
+     * 
+     * This respects YAW ONLY. TODO: remove it.
      * 
      * @param b the blip to convert
      * @return a Pose3d representing the blip
@@ -128,6 +131,15 @@ public class VisionDataProvider extends SubsystemBase implements TableEventListe
         Pose3d TagInCameraCords = new Pose3d(t, tagRotation);
 
         return TagInCameraCords;
+    }
+
+    /**
+     * Extract the translation from the blip without changing the frame (i.e.
+     * returned translation is Z-forward)
+     * TODO: avoid using Translatoin3d for z-forward.
+     */
+    public static Translation3d blipToTranslation(Blip b) {
+        return new Translation3d(b.pose_t[0][0], b.pose_t[1][0], b.pose_t[2][0]);
     }
 
     /***
@@ -198,13 +210,24 @@ public class VisionDataProvider extends SubsystemBase implements TableEventListe
             Rotation3d realTagRotationInRobotCoords,
             Translation3d tagTranslationInRobotCords,
             Pose3d tagInFieldCords) {
-        // TODO: i think there's a bug in here about the substitution of robot rotation
-        // TODO: is the Math.PI here correct in all cases? what does it mean?
         Transform3d tagInRobotCords = new Transform3d(
                 tagTranslationInRobotCords,
                 realTagRotationInRobotCoords);
         Transform3d robotInTagCords = tagInRobotCords.inverse();
-        System.out.println(tagInRobotCords.getRotation().toRotation2d());
+        Pose3d robotInFieldCords = tagInFieldCords.plus(robotInTagCords);
+        return robotInFieldCords;
+    }
+
+    /**
+     * @param tagInRobotCords transforms robot pose to tag pose
+     * @param tagInFieldCords transforms field origin to tag pose
+     */
+    public static Pose3d toFieldCoordinates(
+            Transform3d tagInRobotCords,
+            Pose3d tagInFieldCords) {
+        // first invert the robot-to-tag transform, obtaining tag-to-robot.
+        Transform3d robotInTagCords = tagInRobotCords.inverse();
+        // then compose field-to-tag with tag-to-robot to get field-to-robot.
         Pose3d robotInFieldCords = tagInFieldCords.plus(robotInTagCords);
         return robotInFieldCords;
     }
@@ -261,6 +284,14 @@ public class VisionDataProvider extends SubsystemBase implements TableEventListe
         Rotation3d rotationInRobotCoords = tagInCameraCords.getRotation().minus(cameraRotationOffset);
 
         return new Pose3d(translationInRobotCoords, rotationInRobotCoords);
+    }
+
+    /**
+     * Accept a translation expressed as "z forward" camera frame and return the
+     * same translation expressed as "x forward" NWU frame.
+     */
+    public static Translation3d cameraToNWU(Translation3d t) {
+        return new Translation3d(t.getZ(), -t.getX(), -t.getY());
     }
 
     @Override
