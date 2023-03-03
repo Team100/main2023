@@ -1,10 +1,9 @@
-package frc.robot.localization;
+package team100.localization;
 
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.Optional;
 
-import edu.wpi.first.apriltag.AprilTag;
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFieldLayout.OriginPosition;
 import edu.wpi.first.math.geometry.Pose3d;
@@ -33,25 +32,30 @@ public class AprilTagFieldLayoutWithCorrectOrientation {
 
     // this is private because i don't want the red/blue enum in our code.
     private AprilTagFieldLayoutWithCorrectOrientation(OriginPosition origin) throws IOException {
-        System.out.println(Filesystem.getDeployDirectory());
         Path path = Filesystem.getDeployDirectory().toPath().resolve("2023-chargedup.json");
         layout = new AprilTagFieldLayout(path);
         layout.setOrigin(origin);
-        System.out.println("JSON map loaded");
-        for (AprilTag t : layout.getTags()) {
-            System.out.printf("tag %s\n", t.toString());
-        }
     }
 
+    /**
+     * @return Layout from the red perspective.
+     */
     public static AprilTagFieldLayoutWithCorrectOrientation redLayout() throws IOException {
         return new AprilTagFieldLayoutWithCorrectOrientation(OriginPosition.kRedAllianceWallRightSide);
     }
 
+    /**
+     * @return Layout from the blue perspective.
+     */
     public static AprilTagFieldLayoutWithCorrectOrientation blueLayout() throws IOException {
         return new AprilTagFieldLayoutWithCorrectOrientation(OriginPosition.kBlueAllianceWallRightSide);
     }
 
-    /** @return tag pose with correct yaw (inverted compared to json file) */
+    /**
+     * TODO: get rid of Optional here.
+     * 
+     * @return Tag pose with correct yaw (inverted compared to json file)
+     */
     public Optional<Pose3d> getTagPose(int id) {
         Optional<Pose3d> pose = layout.getTagPose(id);
         if (!pose.isPresent()) {
