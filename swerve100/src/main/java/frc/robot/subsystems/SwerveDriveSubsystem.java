@@ -30,7 +30,6 @@ import frc.robot.RobotContainer;
 import team100.config.Identity;
 import team100.localization.VisionDataProvider;
 
-
 public class SwerveDriveSubsystem extends SubsystemBase {
     // TODO: make this an instance var
     public static final SwerveDriveKinematics kDriveKinematics;
@@ -157,7 +156,7 @@ public class SwerveDriveSubsystem extends SubsystemBase {
         thetaController = new ProfiledPIDController(Ptheta, Itheta, Dtheta, thetaControllerConstraints);
 
         final TrapezoidProfile.Constraints headingControllConstraints = new TrapezoidProfile.Constraints(
-                Math.PI,Math.PI);
+                Math.PI, Math.PI);
 
         headingController = new ProfiledPIDController( //
                 1, // kP
@@ -524,6 +523,10 @@ public class SwerveDriveSubsystem extends SubsystemBase {
         RobotContainer.m_field.setRobotPose(m_poseEstimator.getEstimatedPosition());
     }
 
+    /**
+     * Note this doesn't include the gyro reading directly, the estimate is
+     * considerably massaged by the odometry logic.
+     */
     public Pose2d getPose() {
         return m_poseEstimator.getEstimatedPosition();
     }
@@ -565,7 +568,7 @@ public class SwerveDriveSubsystem extends SubsystemBase {
         x = robotStates.vxMetersPerSecond;
         y = robotStates.vyMetersPerSecond;
         observedVelocity = Math.hypot(x, y);
-        
+
         double observedThetaAngle = Math.atan2(y, x);
         rotation = rot;
         isFieldRelative = fieldRelative;
@@ -585,19 +588,26 @@ public class SwerveDriveSubsystem extends SubsystemBase {
         desiredChassisSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(kMaxSpeedMetersPerSecond * xSpeed,
                 kMaxSpeedMetersPerSecond * ySpeed, kMaxAngularSpeedRadiansPerSecond * rot,
                 getPose().getRotation());
-                double angleularConstant = 0.01;
-                double omegaConstant = 0.5;
-                desiredChassisSpeeds.vxMetersPerSecond = desiredChassisSpeeds.vxMetersPerSecond * (1-Math.abs(desiredChassisSpeeds.omegaRadiansPerSecond)*omegaConstant/kMaxAngularSpeedRadiansPerSecond);
-                desiredChassisSpeeds.vyMetersPerSecond = desiredChassisSpeeds.vyMetersPerSecond * (1-Math.abs(desiredChassisSpeeds.omegaRadiansPerSecond)*omegaConstant/kMaxAngularSpeedRadiansPerSecond);
-                double cx = desiredChassisSpeeds.vyMetersPerSecond * angleularConstant * desiredChassisSpeeds.omegaRadiansPerSecond;
-                double cy = -desiredChassisSpeeds.vxMetersPerSecond * angleularConstant * desiredChassisSpeeds.omegaRadiansPerSecond;
-                Translation2d centerOfRotation = new Translation2d(cx, cy);
-        //TODO fix fieldRelative making this go crazy when it is off
+        double angleularConstant = 0.01;
+        double omegaConstant = 0.5;
+        desiredChassisSpeeds.vxMetersPerSecond = desiredChassisSpeeds.vxMetersPerSecond
+                * (1 - Math.abs(desiredChassisSpeeds.omegaRadiansPerSecond) * omegaConstant
+                        / kMaxAngularSpeedRadiansPerSecond);
+        desiredChassisSpeeds.vyMetersPerSecond = desiredChassisSpeeds.vyMetersPerSecond
+                * (1 - Math.abs(desiredChassisSpeeds.omegaRadiansPerSecond) * omegaConstant
+                        / kMaxAngularSpeedRadiansPerSecond);
+        double cx = desiredChassisSpeeds.vyMetersPerSecond * angleularConstant
+                * desiredChassisSpeeds.omegaRadiansPerSecond;
+        double cy = -desiredChassisSpeeds.vxMetersPerSecond * angleularConstant
+                * desiredChassisSpeeds.omegaRadiansPerSecond;
+        Translation2d centerOfRotation = new Translation2d(cx, cy);
+        // TODO fix fieldRelative making this go crazy when it is off
         var swerveModuleStates = kDriveKinematics.toSwerveModuleStates(
-                fieldRelative 
+                fieldRelative
                         ? desiredChassisSpeeds
                         : new ChassisSpeeds(kMaxSpeedMetersPerSecond * xSpeed, kMaxSpeedMetersPerSecond * ySpeed,
-                                kMaxAngularSpeedRadiansPerSecond * rot), centerOfRotation);
+                                kMaxAngularSpeedRadiansPerSecond * rot),
+                centerOfRotation);
 
         SwerveDriveKinematics.desaturateWheelSpeeds(
                 swerveModuleStates, kMaxSpeedMetersPerSecond);
