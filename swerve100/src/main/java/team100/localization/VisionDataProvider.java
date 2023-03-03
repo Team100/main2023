@@ -1,4 +1,4 @@
-package frc.robot.localization;
+package team100.localization;
 
 import java.io.IOException;
 import java.util.EnumSet;
@@ -27,6 +27,9 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.subsystems.SwerveDriveSubsystem;
 
+/**
+ * Extracts robot pose estimates from camera input.
+ */
 public class VisionDataProvider extends SubsystemBase implements TableEventListener {
 
     Supplier<Boolean> getMoving;
@@ -100,9 +103,6 @@ public class VisionDataProvider extends SubsystemBase implements TableEventListe
         }
     }
 
-    public Pose2d getTagPose(int id) {
-        return layout.getTagPose(id).get().toPose2d();
-    }
 
     /***
      * Convert a Blip to a Pose3d.
@@ -131,15 +131,6 @@ public class VisionDataProvider extends SubsystemBase implements TableEventListe
         Pose3d TagInCameraCords = new Pose3d(t, tagRotation);
 
         return TagInCameraCords;
-    }
-
-    /**
-     * Extract the translation from the blip without changing the frame (i.e.
-     * returned translation is Z-forward)
-     * TODO: avoid using Translatoin3d for z-forward.
-     */
-    public static Translation3d blipToTranslation(Blip b) {
-        return new Translation3d(b.pose_t[0][0], b.pose_t[1][0], b.pose_t[2][0]);
     }
 
     /***
@@ -219,33 +210,6 @@ public class VisionDataProvider extends SubsystemBase implements TableEventListe
     }
 
     /**
-     * @param tagInRobotCords transforms robot pose to tag pose
-     * @param tagInFieldCords transforms field origin to tag pose
-     */
-    public static Pose3d toFieldCoordinates(
-            Transform3d tagInRobotCords,
-            Pose3d tagInFieldCords) {
-        // first invert the robot-to-tag transform, obtaining tag-to-robot.
-        Transform3d robotInTagCords = tagInRobotCords.inverse();
-        // then compose field-to-tag with tag-to-robot to get field-to-robot.
-        Pose3d robotInFieldCords = tagInFieldCords.plus(robotInTagCords);
-        return robotInFieldCords;
-    }
-
-    /**
-     * @param tagRotationInFieldCoords   this comes from
-     *                                   AprilTagFieldLayoutWithCorrectOrientation
-     * @param robotRotationInFieldCoords this comes from the gyro
-     * @return the tag rotation as it appears to the robot, i.e. what the camera
-     *         should see.
-     */
-    public static Rotation3d tagRotationInRobotCoordsFromGyro(
-            Rotation3d tagRotationInFieldCoords,
-            Rotation3d robotRotationInFieldCoords) {
-        return tagRotationInFieldCoords.minus(robotRotationInFieldCoords);
-    }
-
-    /**
      * Transforms tag poses from camera coordinates (Z-forward, X-right, Y-down) to
      * robot coordinates (X-forward, Y-left, Z-up).
      * 
@@ -287,112 +251,32 @@ public class VisionDataProvider extends SubsystemBase implements TableEventListe
     }
 
     /**
-     * Accept a translation expressed as "z forward" camera frame and return the
-     * same translation expressed as "x forward" NWU frame.
-     */
-    public static Translation3d cameraToNWU(Translation3d t) {
-        return new Translation3d(t.getZ(), -t.getX(), -t.getY());
-    }
-
-    public static Translation3d blipToNWU(Blip b) {
-        return cameraToNWU(blipToTranslation(b));
-    }
-
-    /**
-     * given the camera global pose, invert the camera offset to get the robot
-     * global pose.
-     */
-    public static Pose3d getRobotPoseInFieldCoords(
-            Pose3d cameraInFieldCoords,
-            Transform3d cameraInRobotCoords) {
-        return cameraInFieldCoords.transformBy(cameraInRobotCoords.inverse());
-    }
-
-    /**
-     * given the tag relative to the field, the tag relative to the camera, and the
-     * camera relative to the robot, return the robot relative to the field.
-     */
-    public static Pose3d getRobotPoseInFieldCoords(
-            Transform3d cameraInRobotCoords,
-            Pose3d tagInFieldCoords,
-            Transform3d tagInCameraCoords) {
-        Pose3d cameraInFieldCoords = VisionDataProvider.toFieldCoordinates(
-                tagInCameraCoords,
-                tagInFieldCoords);
-        return VisionDataProvider.getRobotPoseInFieldCoords(
-                cameraInFieldCoords,
-                cameraInRobotCoords);
-    }
-
-    /**
-     * given the tag relative to the field, the tag translation relative to the
-     * camera, the tag rotation relative to the camera (from the gyro) and the
-     * camera offset, return the robot relative to the field.
-     */
-    public static Pose3d getRobotPoseInFieldCoords2(
-            Transform3d cameraInRobotCoords,
-            Pose3d tagInFieldCoords,
-            Translation3d tagTranslationInCameraCoords,
-            Rotation3d tagRotationInCameraCoords) {
-        Transform3d tagInCameraCoords = new Transform3d(
-                tagTranslationInCameraCoords,
-                tagRotationInCameraCoords);
-        return getRobotPoseInFieldCoords(
-                cameraInRobotCoords,
-                tagInFieldCoords,
-                tagInCameraCoords);
-    }
-
-    /**
-     * given the blip, the absolute camera rotation, the tag relative to the field
-     * and the camera offset, return the robot absolute pose.
-     */
-    public static Pose3d getRobotPoseInFieldCoords(
-            Transform3d cameraInRobotCoords,
-            Pose3d tagInFieldCoords,
-            Blip blip,
-            Rotation3d cameraRotationInFieldCoords) {
-        Translation3d tagTranslationInCameraCoords = VisionDataProvider.blipToNWU(blip);
-        Rotation3d tagRotationInCameraCoords = VisionDataProvider.tagRotationInRobotCoordsFromGyro(
-                tagInFieldCoords.getRotation(),
-                cameraRotationInFieldCoords);
-        return VisionDataProvider.getRobotPoseInFieldCoords2(
-                cameraInRobotCoords,
-                tagInFieldCoords,
-                tagTranslationInCameraCoords,
-                tagRotationInCameraCoords);
-    }
-
-    /**
      * THIS IS THE FUNCTION TO USE.
      * given the blip, the heading, the camera offset, and the absolute tag pose,
      * return the absolute robot pose
      * TODO: clean up the other functions.
      */
-    public static Pose3d getRobotPoseInFieldCoords3(
+    public static Pose3d getRobotPoseInFieldCoords(
             Transform3d cameraInRobotCoords,
             Pose3d tagInFieldCoords,
             Blip blip,
             Rotation3d robotRotationInFieldCoordsFromGyro) {
-        Rotation3d cameraRotationInFieldCoords = VisionDataProvider.cameraRotationInFieldCoords(
+        Rotation3d cameraRotationInFieldCoords = PoseEstimationHelper.cameraRotationInFieldCoords(
                 cameraInRobotCoords,
                 robotRotationInFieldCoordsFromGyro);
-        return VisionDataProvider.getRobotPoseInFieldCoords(
-                cameraInRobotCoords,
-                tagInFieldCoords,
-                blip,
+        Translation3d tagTranslationInCameraCoords = PoseEstimationHelper.blipToNWU(blip);
+        Rotation3d tagRotationInCameraCoords = PoseEstimationHelper.tagRotationInRobotCoordsFromGyro(
+                tagInFieldCoords.getRotation(),
                 cameraRotationInFieldCoords);
-    }
-
-    /**
-     * given the gyro rotation and the camera offset, return the camera absolute
-     * rotation.
-     */
-    public static Rotation3d cameraRotationInFieldCoords(
-            Transform3d cameraInRobotCoords,
-            Rotation3d robotRotationInFieldCoordsFromGyro) {
-        return cameraInRobotCoords.getRotation()
-                .plus(robotRotationInFieldCoordsFromGyro);
+        Transform3d tagInCameraCoords = new Transform3d(
+                tagTranslationInCameraCoords,
+                tagRotationInCameraCoords);
+        Pose3d cameraInFieldCoords = PoseEstimationHelper.toFieldCoordinates(
+                tagInCameraCoords,
+                tagInFieldCoords);
+        return PoseEstimationHelper.applyCameraOffset(
+                cameraInFieldCoords,
+                cameraInRobotCoords);
     }
 
     @Override

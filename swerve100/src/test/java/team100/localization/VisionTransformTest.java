@@ -1,4 +1,4 @@
-package team100;
+package team100.localization;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -10,9 +10,6 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Translation3d;
-import frc.robot.localization.AprilTagFieldLayoutWithCorrectOrientation;
-import frc.robot.localization.Blip;
-import frc.robot.localization.VisionDataProvider;
 
 /**
  * Remind myself how to correct for the camera offset, pan, tilt, etc.
@@ -71,7 +68,7 @@ public class VisionTransformTest {
         // this is actually *camera* in field coords
         // in this setup the robot is facing toward negative X
         Rotation3d gyro = new Rotation3d(0, 0, Math.PI);
-        Rotation3d realTagRotationInRobotCoords = VisionDataProvider.tagRotationInRobotCoordsFromGyro(
+        Rotation3d realTagRotationInRobotCoords = PoseEstimationHelper.tagRotationInRobotCoordsFromGyro(
                 tagInFieldCoords.getRotation(), gyro);
 
         Pose3d robotInFieldCoords = VisionDataProvider.toFieldCoordinates( // <== THIS IS WHERE THE BUG IS
@@ -129,7 +126,7 @@ public class VisionTransformTest {
         // this is the corrected pose
         Pose3d tagInFieldCoords = new Pose3d(1, 1, 0, new Rotation3d(0, 0, 0));
         // calculate from the gyro
-        Rotation3d tagRotationInRobotCoordsFromGyro = VisionDataProvider.tagRotationInRobotCoordsFromGyro(
+        Rotation3d tagRotationInRobotCoordsFromGyro = PoseEstimationHelper.tagRotationInRobotCoordsFromGyro(
                 tagInFieldCoords.getRotation(),
                 robotRotationInFieldCoords);
         // the gyro calc and the camera say the same thing.
@@ -158,7 +155,7 @@ public class VisionTransformTest {
         // this is the corrected tag pose
         Rotation3d tagRotationInFieldCoords = new Rotation3d(0, 0, 0);
         // calculate from the gyro
-        Rotation3d tagRotationInRobotCoordsFromGyro = VisionDataProvider.tagRotationInRobotCoordsFromGyro(
+        Rotation3d tagRotationInRobotCoordsFromGyro = PoseEstimationHelper.tagRotationInRobotCoordsFromGyro(
                 tagRotationInFieldCoords,
                 robotRotationInFieldCoords);
         // this is what the camera says

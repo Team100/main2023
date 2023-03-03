@@ -1,4 +1,4 @@
-package team100;
+package team100.localization;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -7,7 +7,6 @@ import java.io.IOException;
 import org.junit.jupiter.api.Test;
 
 import edu.wpi.first.math.geometry.Pose3d;
-import frc.robot.localization.AprilTagFieldLayoutWithCorrectOrientation;
 
 /**
  * Remind myself what's in the JSON file.

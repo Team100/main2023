@@ -1,4 +1,4 @@
-package team100;
+package team100.localization;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -8,8 +8,6 @@ import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation3d;
-import frc.robot.localization.Blip;
-import frc.robot.localization.VisionDataProvider;
 
 /**
  * Figure out how to correct for pan and tilt
@@ -58,7 +56,7 @@ public class PanTiltOffsetTest {
         Pose3d tagInFieldCoordsFromLayout = new Pose3d(1, 1, 0, new Rotation3d(0, 0, 0));
 
         // don't trust the camera-derived rotation, calculate it instead:
-        Rotation3d tagRotationInRobotCoordsFromGyro = VisionDataProvider.tagRotationInRobotCoordsFromGyro(
+        Rotation3d tagRotationInRobotCoordsFromGyro = PoseEstimationHelper.tagRotationInRobotCoordsFromGyro(
                 tagInFieldCoordsFromLayout.getRotation(),
                 robotRotationInFieldCoordsFromGyro);
 
@@ -102,7 +100,7 @@ public class PanTiltOffsetTest {
         Pose3d tagInFieldCoords = new Pose3d(1, 1, 0, new Rotation3d(0, 0, 0));
 
         // don't trust the camera-derived rotation, calculate it instead from the gyro
-        Rotation3d tagRotationInCameraCoords = VisionDataProvider.tagRotationInRobotCoordsFromGyro(
+        Rotation3d tagRotationInCameraCoords = PoseEstimationHelper.tagRotationInRobotCoordsFromGyro(
                 tagInFieldCoords.getRotation(),
                 cameraRotationInFieldCoords);
 
@@ -115,7 +113,7 @@ public class PanTiltOffsetTest {
                 tagRotationInCameraCoords);
 
         // apply the inverted camera transform to the tag to get the camera pose
-        Pose3d cameraInFieldCoords = VisionDataProvider.toFieldCoordinates(
+        Pose3d cameraInFieldCoords = PoseEstimationHelper.toFieldCoordinates(
                 tagInCameraCoords,
                 tagInFieldCoords);
         assertEquals(0, cameraInFieldCoords.getTranslation().getX(), kDelta);
@@ -161,7 +159,7 @@ public class PanTiltOffsetTest {
         Pose3d tagInFieldCoords = new Pose3d(1, 1, 0, new Rotation3d(0, 0, 0));
 
         // don't trust the camera-derived rotation, calculate it instead from the gyro
-        Rotation3d tagRotationInCameraCoords = VisionDataProvider.tagRotationInRobotCoordsFromGyro(
+        Rotation3d tagRotationInCameraCoords = PoseEstimationHelper.tagRotationInRobotCoordsFromGyro(
                 tagInFieldCoords.getRotation(),
                 cameraRotationInFieldCoords);
 
@@ -174,7 +172,7 @@ public class PanTiltOffsetTest {
                 tagRotationInCameraCoords);
 
         // apply the inverted camera transform to the tag to get the camera pose
-        Pose3d cameraInFieldCoords = VisionDataProvider.toFieldCoordinates(
+        Pose3d cameraInFieldCoords = PoseEstimationHelper.toFieldCoordinates(
                 tagInCameraCoords,
                 tagInFieldCoords);
         assertEquals(-Math.sqrt(2) / 4, cameraInFieldCoords.getTranslation().getX(), kDelta);
@@ -219,7 +217,7 @@ public class PanTiltOffsetTest {
         Pose3d tagInFieldCoords = new Pose3d(1, 1, 0, new Rotation3d(0, 0, 0));
 
         // don't trust the camera-derived rotation, calculate it instead from the gyro
-        Rotation3d tagRotationInCameraCoords = VisionDataProvider.tagRotationInRobotCoordsFromGyro(
+        Rotation3d tagRotationInCameraCoords = PoseEstimationHelper.tagRotationInRobotCoordsFromGyro(
                 tagInFieldCoords.getRotation(),
                 cameraRotationInFieldCoords);
 
@@ -234,7 +232,7 @@ public class PanTiltOffsetTest {
 
         // apply the inverted camera transform to the tag to get the camera pose
         // should be at the origin but looking 90 degrees left
-        Pose3d cameraInFieldCoords = VisionDataProvider.toFieldCoordinates(
+        Pose3d cameraInFieldCoords = PoseEstimationHelper.toFieldCoordinates(
                 tagInCameraCoords,
                 tagInFieldCoords);
         assertEquals(0, cameraInFieldCoords.getTranslation().getX(), kDelta);
@@ -279,7 +277,7 @@ public class PanTiltOffsetTest {
         Pose3d tagInFieldCoords = new Pose3d(1, 1, 0, new Rotation3d(0, 0, 0));
 
         // don't trust the camera-derived rotation, calculate it instead from the gyro
-        Rotation3d tagRotationInCameraCoords = VisionDataProvider.tagRotationInRobotCoordsFromGyro(
+        Rotation3d tagRotationInCameraCoords = PoseEstimationHelper.tagRotationInRobotCoordsFromGyro(
                 tagInFieldCoords.getRotation(),
                 cameraRotationInFieldCoords);
 
@@ -294,7 +292,7 @@ public class PanTiltOffsetTest {
 
         // apply the inverted camera transform to the tag to get the camera pose
         // should be moved to the left
-        Pose3d cameraInFieldCoords = VisionDataProvider.toFieldCoordinates(
+        Pose3d cameraInFieldCoords = PoseEstimationHelper.toFieldCoordinates(
                 tagInCameraCoords,
                 tagInFieldCoords);
         assertEquals(-1, cameraInFieldCoords.getTranslation().getX(), kDelta);
@@ -339,7 +337,7 @@ public class PanTiltOffsetTest {
         Pose3d tagInFieldCoords = new Pose3d(1, 1, 0, new Rotation3d(0, 0, 0));
 
         // don't trust the camera-derived rotation, calculate it instead from the gyro
-        Rotation3d tagRotationInCameraCoords = VisionDataProvider.tagRotationInRobotCoordsFromGyro(
+        Rotation3d tagRotationInCameraCoords = PoseEstimationHelper.tagRotationInRobotCoordsFromGyro(
                 tagInFieldCoords.getRotation(),
                 cameraRotationInFieldCoords);
 
@@ -354,7 +352,7 @@ public class PanTiltOffsetTest {
 
         // apply the inverted camera transform to the tag to get the camera pose
         // should be moved to the left
-        Pose3d cameraInFieldCoords = VisionDataProvider.toFieldCoordinates(
+        Pose3d cameraInFieldCoords = PoseEstimationHelper.toFieldCoordinates(
                 tagInCameraCoords,
                 tagInFieldCoords);
         assertEquals(0, cameraInFieldCoords.getTranslation().getX(), kDelta);
@@ -405,7 +403,7 @@ public class PanTiltOffsetTest {
         Pose3d tagInFieldCoords = new Pose3d(1, 1, 0, new Rotation3d(0, 0, 0));
 
         // don't trust the camera-derived rotation, calculate it instead from the gyro
-        Rotation3d tagRotationInCameraCoords = VisionDataProvider.tagRotationInRobotCoordsFromGyro(
+        Rotation3d tagRotationInCameraCoords = PoseEstimationHelper.tagRotationInRobotCoordsFromGyro(
                 tagInFieldCoords.getRotation(),
                 cameraRotationInFieldCoords);
 
@@ -424,7 +422,7 @@ public class PanTiltOffsetTest {
 
         // apply the inverted camera transform to the tag to get the camera pose
         // should be at the origin, panned like the robot, and tilted 45 deg up
-        Pose3d cameraInFieldCoords = VisionDataProvider.toFieldCoordinates(
+        Pose3d cameraInFieldCoords = PoseEstimationHelper.toFieldCoordinates(
                 tagInCameraCoords,
                 tagInFieldCoords);
         assertEquals(0, cameraInFieldCoords.getTranslation().getX(), kDelta);
@@ -480,7 +478,7 @@ public class PanTiltOffsetTest {
         Pose3d tagInFieldCoords = new Pose3d(1, 1, 0, new Rotation3d(0, 0, 0));
 
         // don't trust the camera-derived rotation, calculate it instead from the gyro
-        Rotation3d tagRotationInCameraCoords = VisionDataProvider.tagRotationInRobotCoordsFromGyro(
+        Rotation3d tagRotationInCameraCoords = PoseEstimationHelper.tagRotationInRobotCoordsFromGyro(
                 tagInFieldCoords.getRotation(),
                 cameraRotationInFieldCoords);
 
@@ -496,7 +494,7 @@ public class PanTiltOffsetTest {
                 tagRotationInCameraCoords);
 
         // apply the inverted camera transform to the tag to get the camera pose
-        Pose3d cameraInFieldCoords = VisionDataProvider.toFieldCoordinates(
+        Pose3d cameraInFieldCoords = PoseEstimationHelper.toFieldCoordinates(
                 tagInCameraCoords,
                 tagInFieldCoords);
         assertEquals(-1, cameraInFieldCoords.getTranslation().getX(), kDelta);
@@ -553,7 +551,7 @@ public class PanTiltOffsetTest {
         Pose3d tagInFieldCoords = new Pose3d(1, 4, 1, new Rotation3d(0, 0, Math.PI));
 
         // don't trust the camera-derived rotation, calculate it instead from the gyro
-        Rotation3d tagRotationInCameraCoords = VisionDataProvider.tagRotationInRobotCoordsFromGyro(
+        Rotation3d tagRotationInCameraCoords = PoseEstimationHelper.tagRotationInRobotCoordsFromGyro(
                 tagInFieldCoords.getRotation(),
                 cameraRotationInFieldCoords);
 
@@ -569,7 +567,7 @@ public class PanTiltOffsetTest {
                 tagRotationInCameraCoords);
 
         // apply the inverted camera transform to the tag to get the camera pose
-        Pose3d cameraInFieldCoords = VisionDataProvider.toFieldCoordinates(
+        Pose3d cameraInFieldCoords = PoseEstimationHelper.toFieldCoordinates(
                 tagInCameraCoords,
                 tagInFieldCoords);
         assertEquals(2, cameraInFieldCoords.getTranslation().getX(), kDelta);
@@ -609,8 +607,8 @@ public class PanTiltOffsetTest {
                         { Math.sqrt(2) / 2 },
                         { Math.sqrt(2) / 2 } });
 
-        Translation3d blipTranslation = VisionDataProvider.blipToTranslation(blip);
-        Translation3d tagTranslationInCameraCoords = VisionDataProvider.cameraToNWU(blipTranslation);
+        //Translation3d blipTranslation = VisionDataProvider.blipToTranslation(blip);
+        Translation3d tagTranslationInCameraCoords = PoseEstimationHelper.blipToNWU(blip);
 
         assertEquals(Math.sqrt(2) / 2, tagTranslationInCameraCoords.getX(), kDelta);
         assertEquals(0, tagTranslationInCameraCoords.getY(), kDelta);
@@ -640,7 +638,7 @@ public class PanTiltOffsetTest {
         Pose3d tagInFieldCoords = new Pose3d(1, 4, 1, new Rotation3d(0, 0, Math.PI));
 
         // don't trust the camera-derived rotation, calculate it instead from the gyro
-        Rotation3d tagRotationInCameraCoords = VisionDataProvider.tagRotationInRobotCoordsFromGyro(
+        Rotation3d tagRotationInCameraCoords = PoseEstimationHelper.tagRotationInRobotCoordsFromGyro(
                 tagInFieldCoords.getRotation(),
                 cameraRotationInFieldCoords);
 
@@ -656,7 +654,7 @@ public class PanTiltOffsetTest {
                 tagRotationInCameraCoords);
 
         // apply the inverted camera transform to the tag to get the camera pose
-        Pose3d cameraInFieldCoords = VisionDataProvider.toFieldCoordinates(
+        Pose3d cameraInFieldCoords = PoseEstimationHelper.toFieldCoordinates(
                 tagInCameraCoords,
                 tagInFieldCoords);
         assertEquals(2, cameraInFieldCoords.getTranslation().getX(), kDelta);
@@ -734,7 +732,7 @@ public class PanTiltOffsetTest {
 
         // CALCULATIONS
 
-        Pose3d robotInFieldCoords = VisionDataProvider.getRobotPoseInFieldCoords3(
+        Pose3d robotInFieldCoords = VisionDataProvider.getRobotPoseInFieldCoords(
                 cameraInRobotCoords,
                 tagInFieldCoords,
                 blip,

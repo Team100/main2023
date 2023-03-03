@@ -1,4 +1,4 @@
-package team100;
+package team100.localization;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 

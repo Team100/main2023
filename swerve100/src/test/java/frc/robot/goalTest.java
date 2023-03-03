@@ -8,7 +8,7 @@ import org.junit.jupiter.api.Test;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import frc.robot.autonomous.DriveToAprilTag;
-import frc.robot.localization.AprilTagFieldLayoutWithCorrectOrientation;
+import team100.localization.AprilTagFieldLayoutWithCorrectOrientation;
 
 public class goalTest {
 
