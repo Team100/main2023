@@ -10,6 +10,12 @@ public class Blip {
     // pose_t is a 2d array with dimension 3x1
     public final double[][] pose_t;
 
+    public Blip(int id, double[][] pose_R, double[][] pose_t) {
+        this.id = id;
+        this.pose_R = pose_R;
+        this.pose_t = pose_t;
+    }
+
     protected Blip() {
         this.id = 0;
         this.pose_R = new double[3][3];

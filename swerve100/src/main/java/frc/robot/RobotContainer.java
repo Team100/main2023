@@ -1,5 +1,7 @@
 package frc.robot;
 
+import java.io.IOException;
+
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -8,23 +10,33 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.util.sendable.Sendable;
 import edu.wpi.first.util.sendable.SendableBuilder;
+import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.autonomous.Circle;
 import frc.robot.autonomous.DriveToAprilTag;
+import frc.robot.autonomous.DriveToWaypoint2;
 import frc.robot.autonomous.MoveToAprilTag;
 import frc.robot.autonomous.SanjanAutonomous;
 import frc.robot.autonomous.VasiliAutonomous;
 import frc.robot.commands.ArmHigh;
+import frc.robot.commands.Calibrate;
+import frc.robot.commands.CloseManipulator;
+import frc.robot.commands.CurrentFeedbackClose;
 import frc.robot.commands.DriveRotation;
 import frc.robot.commands.DriveWithHeading;
+import frc.robot.commands.OpenManipulator;
+import frc.robot.commands.ResetPose;
 import frc.robot.commands.ResetRotation;
+import frc.robot.commands.TimedClose;
 import frc.robot.commands.autoLevel;
 import frc.robot.commands.driveLowerArm;
 import frc.robot.subsystems.Arm;
@@ -38,9 +50,31 @@ import team100.control.DualXboxControl;
 
 @SuppressWarnings("unused")
 public class RobotContainer implements Sendable {
+
+    // THIS IS FROM BOB'S DELETED CODE
+
+    // private static final XboxController m_driverController = new
+    // XboxController(0);
+    // private static final Joystick LEFT_JOYSTICK = new Joystick(0);
+    private static final Joystick RIGHT_JOYSTICK = new Joystick(1);
+    // private static final JoystickButton bButton = new
+    // JoystickButton(m_driverController, 2);
+    private final Manipulator manipulator = new Manipulator();
+    private boolean manipulatorCalibrated = false;
+    // private int duration;
+    // private double force;
+    private final Calibrate calibrate = new Calibrate(manipulator);
+    private final CloseManipulator closeManipulator = new CloseManipulator(manipulator);
+    private final OpenManipulator openManipulator = new OpenManipulator(manipulator);
+    private TimedClose timedClose = new TimedClose(manipulator, 300, 0.7);
+    private CurrentFeedbackClose currentFeedbackClose = new CurrentFeedbackClose(manipulator, 14.0, 0.5);
+    
+    // CONFIG
+    private final DriverStation.Alliance m_alliance;
+
     // SUBSYSTEMS
     private final SwerveDriveSubsystem m_robotDrive;
-    private final Manipulator manipulator;
+    // private final Manipulator manipulator;
     private final Arm arm;
 
     // CONTROL
@@ -51,36 +85,99 @@ public class RobotContainer implements Sendable {
     private final ArmHigh armHigh;
     // private final ResetPose resetPose;
     private final autoLevel autoLevel;
-    private final MoveToAprilTag moveToAprilTag;
+    // private final MoveToAprilTag moveToAprilTag;
     private final DriveManually driveManually;
     private final GripManually gripManually;
 
     // private final DriveWithHeading driveWithHeading0, driveWithHeading90, driveWithHeading180, driveWithHeading270;
     private final DriveWithHeading driveWithHeading;
     private final DriveRotation driveRotation;
-    private final DriveToAprilTag driveToAprilTag4;
-    private final DriveToAprilTag driveToAprilTag5;
+    // private final DriveToAprilTag driveToAprilTag1;
+    // private final DriveToAprilTag driveToAprilTag5;
+    private final DriveToAprilTag driveToID4, driveToID3, driveToID2, driveToID1;
+
+    // private final MoveToAprilTag moveToAprilTag2;
 
     public final static Field2d m_field = new Field2d();
 
-    public RobotContainer() {
-        // SUBSYSTEMS
+    public RobotContainer() throws IOException {
+        // THIS IS FROM BOB'S DELETED CODE
 
+        manipulator.setDefaultCommand(new ConditionalCommand(
+                new ConditionalCommand(
+                        new CloseManipulator(manipulator, () -> !manipulator.getSensor()),
+                        new RunCommand(() -> manipulator.pinch(-0.7 * RIGHT_JOYSTICK.getY()), manipulator),
+                        () -> {
+                            return false;
+                        }),
+                new Calibrate(manipulator).andThen(() -> {
+                    manipulatorCalibrated = true;
+                }),
+                () -> {
+                    return true;
+                }));
+
+        new JoystickButton(RIGHT_JOYSTICK, 2).onTrue(calibrate);
+        new JoystickButton(RIGHT_JOYSTICK, 1).onTrue(closeManipulator);
+        new JoystickButton(RIGHT_JOYSTICK, 3).onTrue(openManipulator);
+        new JoystickButton(RIGHT_JOYSTICK, 4).onTrue(currentFeedbackClose);
+        // new JoystickButton(RIGHT_JOYSTICK, 4).onTrue(timedClose);
+
+        DigitalInput timeFlightSensor = new DigitalInput(3);
+        Trigger tofTrigger = new Trigger(timeFlightSensor::get);
+        tofTrigger.onFalse(currentFeedbackClose);
+
+        // new JoystickButton(m_driverController, 1).onTrue(calibrate);
+        // new JoystickButton(m_driverController, 8).onTrue(closeManipulator);
+
+        // bButton.whenPressed(new RunCommand( () ->
+        // manipulator.pinch(m_driverController.getLeftY())));
+        // Schedule `ExampleCommand` when `exampleCondition` changes to `true`
+        // new Trigger(m_exampleSubsystem::exampleCondition)
+        // .onTrue(new ExampleCommand(m_exampleSubsystem));
+
+        // Schedule `exampleMethodCommand` when the Xbox controller's B button is
+        // pressed,
+        // cancelling on release.
+        // m_driverController.b().whileTrue(m_exampleSubsystem.exampleMethodCommand());
+
+        // SUBSYSTEMS
         final double kDriveCurrentLimit = 20;
         m_robotDrive = new SwerveDriveSubsystem(kDriveCurrentLimit);
-        manipulator = new Manipulator();
+        // manipulator = new Manipulator();
         arm = new Arm();
 
         // // NEW CONTROL
         control = ControlSelect.getControl();
 
         // COMMANDS
-        driveToAprilTag5 = DriveToAprilTag.newDriveToAprilTag(5, m_robotDrive);
-        driveToAprilTag4 = DriveToAprilTag.newDriveToAprilTag(4, m_robotDrive);
+        // driveToAprilTag1 = DriveToAprilTag.newDriveToAprilTag(1, m_robotDrive);
+        // driveToAprilTag5 = DriveToAprilTag.newDriveToAprilTag(4, m_robotDrive);
+        m_alliance = DriverStation.getAlliance();
+        if (m_alliance == DriverStation.Alliance.Blue) {
+            System.out.println("bbbbbbbbbbbbbbbbbbbbbbbbbbbbbb");
+            driveToID1 = DriveToAprilTag.newDriveToAprilTag(8, control::goalOffset, m_robotDrive);
+            driveToID2 = DriveToAprilTag.newDriveToAprilTag(7, control::goalOffset, m_robotDrive);
+            driveToID3 = DriveToAprilTag.newDriveToAprilTag(6, control::goalOffset, m_robotDrive);
+            driveToID4 = DriveToAprilTag.newDriveToAprilTag(5, control::goalOffset, m_robotDrive);
+        }
+        else {
+            System.out.println("Aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
+            driveToID1 = DriveToAprilTag.newDriveToAprilTag(1, control::goalOffset, m_robotDrive);
+            driveToID2 = DriveToAprilTag.newDriveToAprilTag(2, control::goalOffset, m_robotDrive);
+            driveToID3 = DriveToAprilTag.newDriveToAprilTag(3, control::goalOffset, m_robotDrive);
+            driveToID4 = DriveToAprilTag.newDriveToAprilTag(4, control::goalOffset, m_robotDrive);
+        }
+        
+        // moveToAprilTag2 = MoveToAprilTag.newMoveToAprilTag(m_robotDrive, 1);
+
         armHigh = new ArmHigh(arm);
-        // m_reset = m_robotDrive.visionDataProvider.layout.getTagPose(5).get().toPose2d();
+        // m_reset =
+        // m_robotDrive.visionDataProvider.layout.getTagPose(5).get().toPose2d();
         ResetRotation resetRotation = new ResetRotation(m_robotDrive, new Rotation2d());
         autoLevel = new autoLevel(m_robotDrive.m_gyro, m_robotDrive);
+
+        ResetPose resetPose = new ResetPose(m_robotDrive, 0, 0, 0);
         
         // driveWithHeading0 = new DriveWithHeading(
         //     m_robotDrive, 
@@ -111,19 +208,25 @@ public class RobotContainer implements Sendable {
             "");
         
         driveRotation = new DriveRotation(m_robotDrive, control::rotSpeed);
-        
+
         // TODO: do something with tagid.
         int tagID = 5;
-        moveToAprilTag = MoveToAprilTag.newMoveToAprilTag(m_robotDrive, tagID);
+        // moveToAprilTag = MoveToAprilTag.newMoveToAprilTag(m_robotDrive, tagID);
 
-        // TRIGGERS/BUTTONS
-        control.driveToAprilTag(driveToAprilTag5);
-        control.driveToAprilTag2(driveToAprilTag4);
+        // TRIGGERS/BUTTXONS
+        // control.driveToAprilTag(driveToAprilTag1);
+        // control.driveToAprilTag2(driveToAprilTag1);
         control.resetRotation(resetRotation);
         control.autoLevel(autoLevel);
         // control.sanjanAuto(new SanjanAutonomous(m_robotDrive));
         control.armHigh(armHigh);
-
+        control.resetPose(resetPose);
+        // control.trajtoApril(moveToAprilTag2);
+        control.driveToID1(driveToID1);
+        control.driveToID2(driveToID2);
+        control.driveToID3(driveToID3);
+        control.driveToID4(driveToID4);
+        control.resetPose(resetPose);
 
         // DEFAULT COMMANDS
         // Controller 0 right => cartesian, left => rotation
@@ -140,9 +243,6 @@ public class RobotContainer implements Sendable {
         // control.driveWithHeading180(driveWithHeading180);
         // control.driveWithHeading270(driveWithHeading270);
         control.driveRotation(driveRotation);
-
-
-
 
         // Controller 1 triggers => manipulator open/close
         gripManually = new GripManually(

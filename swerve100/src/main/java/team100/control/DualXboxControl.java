@@ -1,22 +1,18 @@
 package team100.control;
 
-import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.util.sendable.Sendable;
 import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.autonomous.DriveToAprilTag;
-//import frc.robot.autonomous.SanjanAutonomous;
+import frc.robot.autonomous.DriveToWaypoint2;
 import frc.robot.commands.ArmHigh;
-
 import frc.robot.commands.DriveRotation;
-import frc.robot.commands.DriveWithHeading;
-// import frc.robot.commands.ResetPose;
-import frc.robot.subsystems.SwerveDriveSubsystem;
-
-// import frc.robot.commands.ResetPose;
+import frc.robot.commands.GoalOffset;
+import frc.robot.commands.ResetPose;
 import frc.robot.commands.ResetRotation;
+import frc.robot.subsystems.SwerveDriveSubsystem;
 
 
 /**
@@ -25,8 +21,8 @@ import frc.robot.commands.ResetRotation;
  */
 public class DualXboxControl implements Control, Sendable {
     // TODO: express these limits in m/s.
-    private static final int ySlewRateLimit = 3;
-    private static final int xSlewRateLimit = 3;
+    // private static final int ySlewRateLimit = 3;
+    // private static final int xSlewRateLimit = 3;
     
     private final CommandXboxController controller0;
     private final CommandXboxController controller1;
@@ -42,6 +38,10 @@ public class DualXboxControl implements Control, Sendable {
         SmartDashboard.putData("Robot Container", this);
     }
 
+    @Override
+    public void trajtoApril(SwerveDriveSubsystem m_robotDrive, int ID){
+        // controler0.b().whileTrue(MoveToAprilTag.newMoveToAprilTag(m_robotDrive, () -> m_robotDrive.getPose(), 1));
+    };
 
 
     // @Override
@@ -57,24 +57,42 @@ public class DualXboxControl implements Control, Sendable {
 
     @Override
     public void driveToAprilTag(DriveToAprilTag command) {
-        controller0.x().whileTrue(command);
+        // controller0.x().whileTrue(command);
     }
+
+    @Override
+    public void driveToID1(DriveToWaypoint2 command){
+        controller0.a().whileTrue(command);
+    };
+
+    public void driveToID2(DriveToWaypoint2 command){
+        controller0.b().whileTrue(command);
+    };
+
+    public void driveToID3(DriveToWaypoint2 command){
+        controller0.x().whileTrue(command);
+    };
+
+    public void driveToID4(DriveToWaypoint2 command){
+        controller0.y().whileTrue(command);
+    };
+
 
     // TODO: decide what "Y" should do.
 
     @Override 
     public void driveToAprilTag2(DriveToAprilTag command) {
-        controller0.rightBumper().whileTrue(command);
+        // controller0.y().whileTrue(command);
     }
 
     @Override
     public void resetRotation(ResetRotation command) {
-        controller0.leftBumper().onTrue(command);
+        controller0.rightBumper().onTrue(command);
     }
 
     @Override
     public void autoLevel(frc.robot.commands.autoLevel command) {
-        controller0.y().whileTrue(command);
+        // controller0.y().whileTrue(command);
     }
 
     // @Override
@@ -161,6 +179,10 @@ public class DualXboxControl implements Control, Sendable {
         builder.addDoubleProperty("left x", () -> controller0.getLeftX(), null);
     }
 
+    @Override
+    public void resetPose(ResetPose command) {
+        controller0.leftBumper().onTrue(command);
+    }
 
     Rotation2d previousRotation = new Rotation2d(0);
 
@@ -176,5 +198,22 @@ public class DualXboxControl implements Control, Sendable {
         return previousRotation;
         
         
+    }
+
+    @Override
+    public GoalOffset goalOffset() {
+        double left = controller0.getLeftTriggerAxis();
+        double right = controller0.getRightTriggerAxis();
+        double kThreshold = .5;
+        if (left > kThreshold) {
+            if (right > kThreshold) {
+                return GoalOffset.center;
+            }
+            return GoalOffset.left;
+        }
+        if (right > kThreshold) {
+            return GoalOffset.right;
+        }
+        return GoalOffset.center;
     }
 }
