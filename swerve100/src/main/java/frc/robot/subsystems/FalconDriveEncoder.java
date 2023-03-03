@@ -37,7 +37,7 @@ public class FalconDriveEncoder implements DriveEncoder {
     @Override
     public void initSendable(SendableBuilder builder) {
         builder.setSmartDashboardType("FalconDriveEncoder");
-        builder.addDoubleProperty("Speed", this::getRate, null);
+        builder.addDoubleProperty("Speed Ms", this::getRate, null);
     }
 
 }

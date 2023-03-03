@@ -23,8 +23,8 @@ public class SwerveModule implements Sendable {
 
     public double m_tFeedForwardOutput;
     public double m_dFeedForwardOutput;
-    public double m_controllerOutput;
-    public double m_driveOutput;
+    public double turningMotorControllerOutput;
+    public double driveMotorControllerOutput;
 
     public SwerveModule(
             String name,
@@ -60,13 +60,13 @@ public class SwerveModule implements Sendable {
     public void setDesiredState(SwerveModuleState desiredState) {
         // Optimize the reference state to avoid spinning further than 90 degrees
         SwerveModuleState state = SwerveModuleState.optimize(desiredState, new Rotation2d(m_turningEncoder.getAngle()));
-        m_driveOutput = m_driveController.calculate(m_driveEncoder.getRate(), state.speedMetersPerSecond);
+        driveMotorControllerOutput = m_driveController.calculate(m_driveEncoder.getRate(), state.speedMetersPerSecond);
         // Calculate the drive output from the drive PID controller.
-        m_controllerOutput = m_turningController.calculate(m_turningEncoder.getAngle(), state.angle.getRadians());
+        turningMotorControllerOutput = m_turningController.calculate(m_turningEncoder.getAngle(), state.angle.getRadians());
         // Calculate the turning motor output from the turning PID controller.
         m_tFeedForwardOutput = m_turningFeedforward.calculate(getTurnSetpointVelocity(), 0);
         m_dFeedForwardOutput = m_driveFeedforward.calculate(driveSetpointMS(), 0);
-        setOutput(m_driveOutput + m_dFeedForwardOutput, m_controllerOutput + m_tFeedForwardOutput);
+        setOutput(driveMotorControllerOutput + m_dFeedForwardOutput, turningMotorControllerOutput + m_tFeedForwardOutput);
     }
 
     // public void setOutput(double driveOutput, double turnOutput) {
@@ -121,11 +121,11 @@ public class SwerveModule implements Sendable {
     }
 
     public double getTControllerOutput() {
-        return m_controllerOutput;
+        return turningMotorControllerOutput;
     }
 
     public double getDControllerOutput() {
-        return m_driveOutput;
+        return driveMotorControllerOutput;
     }
 
     public double driveSetpointMS() {
@@ -140,7 +140,7 @@ public class SwerveModule implements Sendable {
     public void initSendable(SendableBuilder builder) {
         builder.setSmartDashboardType(String.format("SwerveModule %s", m_name));
         builder.addDoubleProperty("speed_meters_per_sec", this::getSpeedMetersPerSecond, null);
-        builder.addDoubleProperty("drive_output", this::getDriveOutput, null);
+        builder.addDoubleProperty("drive_motor_total_output", this::getDriveOutput, null);
         builder.addDoubleProperty("azimuth_degrees", this::getAzimuthDegrees, null);
         builder.addDoubleProperty("turning output Radians per second", this::getTurningOutput, null);
         builder.addDoubleProperty("Turning Setpoint velocity", this::getTurnSetpointVelocity, null);
@@ -150,8 +150,8 @@ public class SwerveModule implements Sendable {
         builder.addDoubleProperty("driveControllerOutput", this::getDControllerOutput, null);
         builder.addDoubleProperty("driveSetPoint MS", this::driveSetpointMS, null);
         builder.addDoubleProperty("driveFeedForwardOutput", this::getdFeedForward, null);
-        builder.addDoubleProperty("drive controller position error", () -> m_driveController.getPositionError(), null);
-        builder.addDoubleProperty("drive controller velocity error", () -> m_driveController.getVelocityError(), null);
+        builder.addDoubleProperty("drive controller 'position' error which is really speed", () -> m_driveController.getPositionError(), null);
+        builder.addDoubleProperty("drive controller 'velocity' error which is really accel", () -> m_driveController.getVelocityError(), null);
         builder.addDoubleProperty("turning controller position error", () -> m_turningController.getPositionError(),
                 null);
         builder.addDoubleProperty("Drive Measurement MS", () -> m_driveEncoder.getRate(), null);
