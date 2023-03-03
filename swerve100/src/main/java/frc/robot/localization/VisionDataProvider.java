@@ -294,6 +294,107 @@ public class VisionDataProvider extends SubsystemBase implements TableEventListe
         return new Translation3d(t.getZ(), -t.getX(), -t.getY());
     }
 
+    public static Translation3d blipToNWU(Blip b) {
+        return cameraToNWU(blipToTranslation(b));
+    }
+
+    /**
+     * given the camera global pose, invert the camera offset to get the robot
+     * global pose.
+     */
+    public static Pose3d getRobotPoseInFieldCoords(
+            Pose3d cameraInFieldCoords,
+            Transform3d cameraInRobotCoords) {
+        return cameraInFieldCoords.transformBy(cameraInRobotCoords.inverse());
+    }
+
+    /**
+     * given the tag relative to the field, the tag relative to the camera, and the
+     * camera relative to the robot, return the robot relative to the field.
+     */
+    public static Pose3d getRobotPoseInFieldCoords(
+            Transform3d cameraInRobotCoords,
+            Pose3d tagInFieldCoords,
+            Transform3d tagInCameraCoords) {
+        Pose3d cameraInFieldCoords = VisionDataProvider.toFieldCoordinates(
+                tagInCameraCoords,
+                tagInFieldCoords);
+        return VisionDataProvider.getRobotPoseInFieldCoords(
+                cameraInFieldCoords,
+                cameraInRobotCoords);
+    }
+
+    /**
+     * given the tag relative to the field, the tag translation relative to the
+     * camera, the tag rotation relative to the camera (from the gyro) and the
+     * camera offset, return the robot relative to the field.
+     */
+    public static Pose3d getRobotPoseInFieldCoords2(
+            Transform3d cameraInRobotCoords,
+            Pose3d tagInFieldCoords,
+            Translation3d tagTranslationInCameraCoords,
+            Rotation3d tagRotationInCameraCoords) {
+        Transform3d tagInCameraCoords = new Transform3d(
+                tagTranslationInCameraCoords,
+                tagRotationInCameraCoords);
+        return getRobotPoseInFieldCoords(
+                cameraInRobotCoords,
+                tagInFieldCoords,
+                tagInCameraCoords);
+    }
+
+    /**
+     * given the blip, the absolute camera rotation, the tag relative to the field
+     * and the camera offset, return the robot absolute pose.
+     */
+    public static Pose3d getRobotPoseInFieldCoords(
+            Transform3d cameraInRobotCoords,
+            Pose3d tagInFieldCoords,
+            Blip blip,
+            Rotation3d cameraRotationInFieldCoords) {
+        Translation3d tagTranslationInCameraCoords = VisionDataProvider.blipToNWU(blip);
+        Rotation3d tagRotationInCameraCoords = VisionDataProvider.tagRotationInRobotCoordsFromGyro(
+                tagInFieldCoords.getRotation(),
+                cameraRotationInFieldCoords);
+        return VisionDataProvider.getRobotPoseInFieldCoords2(
+                cameraInRobotCoords,
+                tagInFieldCoords,
+                tagTranslationInCameraCoords,
+                tagRotationInCameraCoords);
+    }
+
+    /**
+     * THIS IS THE FUNCTION TO USE.
+     * given the blip, the heading, the camera offset, and the absolute tag pose,
+     * return the absolute robot pose
+     * TODO: clean up the other functions.
+     */
+    public static Pose3d getRobotPoseInFieldCoords3(
+            Transform3d cameraInRobotCoords,
+            Pose3d tagInFieldCoords,
+            Blip blip,
+            Rotation3d robotRotationInFieldCoordsFromGyro) {
+        Rotation3d cameraRotationInFieldCoords = VisionDataProvider.cameraRotationInFieldCoords(
+                cameraInRobotCoords,
+                robotRotationInFieldCoordsFromGyro);
+        return VisionDataProvider.getRobotPoseInFieldCoords(
+                cameraInRobotCoords,
+                tagInFieldCoords,
+                blip,
+                cameraRotationInFieldCoords);
+    }
+
+    /**
+     * given the gyro rotation and the camera offset, return the camera absolute
+     * rotation.
+     */
+    public static Rotation3d cameraRotationInFieldCoords(
+            Transform3d cameraInRobotCoords,
+            Rotation3d robotRotationInFieldCoordsFromGyro) {
+        return cameraInRobotCoords.getRotation()
+                .plus(robotRotationInFieldCoordsFromGyro);
+    }
+
     @Override
     public void initSendable(SendableBuilder builder) {
         super.initSendable(builder);

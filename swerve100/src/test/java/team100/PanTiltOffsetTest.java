@@ -94,8 +94,6 @@ public class PanTiltOffsetTest {
         // note the order here.
         Rotation3d cameraRotationInFieldCoords = cameraInRobotCoords.getRotation()
                 .plus(robotRotationInFieldCoordsFromGyro);
-        // Rotation3d cameraRotationInFieldCoords = robotRotationInFieldCoordsFromGyro
-        // .plus(cameraInRobotCoords.getRotation());
 
         // camera input; we ignore the rotation from the camera.
         Translation3d tagTranslationInCameraCoords = new Translation3d(Math.sqrt(2), 0, 0);
@@ -153,8 +151,6 @@ public class PanTiltOffsetTest {
         // note the order here.
         Rotation3d cameraRotationInFieldCoords = cameraInRobotCoords.getRotation()
                 .plus(robotRotationInFieldCoordsFromGyro);
-        // Rotation3d cameraRotationInFieldCoords = robotRotationInFieldCoordsFromGyro
-        // .plus(cameraInRobotCoords.getRotation());
 
         // camera input; we ignore the rotation from the camera.
         // because the camera happens to be pointing at the tag, the distance is simply
@@ -214,8 +210,6 @@ public class PanTiltOffsetTest {
         // note the order here.
         Rotation3d cameraRotationInFieldCoords = cameraInRobotCoords.getRotation()
                 .plus(robotRotationInFieldCoordsFromGyro);
-        // Rotation3d cameraRotationInFieldCoords = robotRotationInFieldCoordsFromGyro
-        // .plus(cameraInRobotCoords.getRotation());
 
         // camera input; we ignore the rotation from the camera.
         // because of the pan, the translation is different.
@@ -276,8 +270,6 @@ public class PanTiltOffsetTest {
         // note the order here.
         Rotation3d cameraRotationInFieldCoords = cameraInRobotCoords.getRotation()
                 .plus(robotRotationInFieldCoordsFromGyro);
-        // Rotation3d cameraRotationInFieldCoords = robotRotationInFieldCoordsFromGyro
-        // .plus(cameraInRobotCoords.getRotation());
 
         // camera input; we ignore the rotation from the camera.
         // because of the truck, the translation is different.
@@ -338,8 +330,6 @@ public class PanTiltOffsetTest {
         // note the order here.
         Rotation3d cameraRotationInFieldCoords = cameraInRobotCoords.getRotation()
                 .plus(robotRotationInFieldCoordsFromGyro);
-        // Rotation3d cameraRotationInFieldCoords = robotRotationInFieldCoordsFromGyro
-        // .plus(cameraInRobotCoords.getRotation());
 
         // camera input; we ignore the rotation from the camera.
         // because of the truck, the translation is different.
@@ -400,8 +390,6 @@ public class PanTiltOffsetTest {
         // note the order here.
         Rotation3d cameraRotationInFieldCoords = cameraInRobotCoords.getRotation()
                 .plus(robotRotationInFieldCoordsFromGyro);
-        // Rotation3d cameraRotationInFieldCoords = robotRotationInFieldCoordsFromGyro
-        // .plus(cameraInRobotCoords.getRotation());
 
         // do we still get the correct pan and tilt values from the combined rotation?
         // the "normal" order is Tate-Bryant so yaw then pitch then roll.
@@ -476,8 +464,6 @@ public class PanTiltOffsetTest {
         // note the order here.
         Rotation3d cameraRotationInFieldCoords = cameraInRobotCoords.getRotation()
                 .plus(robotRotationInFieldCoordsFromGyro);
-        // Rotation3d cameraRotationInFieldCoords = robotRotationInFieldCoordsFromGyro
-        // .plus(cameraInRobotCoords.getRotation());
 
         // do we still get the correct pan and tilt values from the combined rotation?
         // the "normal" order is Tate-Bryant so yaw then pitch then roll.
@@ -551,8 +537,6 @@ public class PanTiltOffsetTest {
         // note the order here.
         Rotation3d cameraRotationInFieldCoords = cameraInRobotCoords.getRotation()
                 .plus(robotRotationInFieldCoordsFromGyro);
-        // Rotation3d cameraRotationInFieldCoords = robotRotationInFieldCoordsFromGyro
-        // .plus(cameraInRobotCoords.getRotation());
 
         // do we still get the correct pan and tilt values from the combined rotation?
         // the "normal" order is Tate-Bryant so yaw then pitch then roll.
@@ -628,10 +612,10 @@ public class PanTiltOffsetTest {
         Translation3d blipTranslation = VisionDataProvider.blipToTranslation(blip);
         Translation3d tagTranslationInCameraCoords = VisionDataProvider.cameraToNWU(blipTranslation);
 
-        assertEquals(Math.sqrt(2)/2, tagTranslationInCameraCoords.getX(), kDelta);
+        assertEquals(Math.sqrt(2) / 2, tagTranslationInCameraCoords.getX(), kDelta);
         assertEquals(0, tagTranslationInCameraCoords.getY(), kDelta);
-        assertEquals(-Math.sqrt(2)/2, tagTranslationInCameraCoords.getZ(), kDelta);
-        
+        assertEquals(-Math.sqrt(2) / 2, tagTranslationInCameraCoords.getZ(), kDelta);
+
         // in robot coords the camera rotation is both tilt and pan
         Transform3d cameraInRobotCoords = new Transform3d(
                 new Translation3d(0, -Math.sqrt(2), 1),
@@ -644,8 +628,6 @@ public class PanTiltOffsetTest {
         // note the order here.
         Rotation3d cameraRotationInFieldCoords = cameraInRobotCoords.getRotation()
                 .plus(robotRotationInFieldCoordsFromGyro);
-        // Rotation3d cameraRotationInFieldCoords = robotRotationInFieldCoordsFromGyro
-        // .plus(cameraInRobotCoords.getRotation());
 
         // do we still get the correct pan and tilt values from the combined rotation?
         // the "normal" order is Tate-Bryant so yaw then pitch then roll.
@@ -686,6 +668,78 @@ public class PanTiltOffsetTest {
 
         // now apply the camera offset to get the robot pose.
         Pose3d robotInFieldCoords = cameraInFieldCoords.transformBy(cameraInRobotCoords.inverse());
+        assertEquals(3, robotInFieldCoords.getTranslation().getX(), kDelta);
+        assertEquals(3, robotInFieldCoords.getTranslation().getY(), kDelta);
+        assertEquals(0, robotInFieldCoords.getTranslation().getZ(), kDelta);
+        assertEquals(0, robotInFieldCoords.getRotation().getX(), kDelta);
+        assertEquals(0, robotInFieldCoords.getRotation().getY(), kDelta);
+        assertEquals(-3.0 * Math.PI / 4, robotInFieldCoords.getRotation().getZ(), kDelta);
+    }
+
+    // from the network tables listener
+    private Blip getBlip() {
+        double rot = Math.sqrt(2) / 2;
+        Blip blip = new Blip(5,
+                new double[][] { // pure tilt note we don't actually use this
+                        { 1, 0, 0 },
+                        { 0, rot, -rot },
+                        { 0, rot, rot } },
+                new double[][] { // one meter range (Z forward)
+                        { 0 },
+                        { Math.sqrt(2) / 2 },
+                        { Math.sqrt(2) / 2 } });
+        return blip;
+    }
+
+    // from the gyro
+    private Rotation3d getYawMeasurement() {
+        return new Rotation3d(0, 0, -3.0 * Math.PI / 4.0);
+    }
+
+    // configuration: camera offset
+    private Transform3d getCameraOffset(int cameraIdentity /* ignored */) {
+        return new Transform3d(
+                new Translation3d(0, -Math.sqrt(2), 1),
+                new Rotation3d(0, -Math.PI / 4, -Math.PI / 4));
+    }
+
+    private Pose3d tagInFieldCoords(int tagid /* ignored */) {
+        return new Pose3d(1, 4, 1, new Rotation3d(0, 0, Math.PI));
+    }
+
+    /**
+     * semi-realistic example with blip input
+     * tag is at R(0,0,PI)t(1,4,1)
+     * robot is at R(0,0,-3PI/4)t(3,3,0)
+     * camera offset is R(0,-PI/4,-PI/4)t(0,-sqrt(2),1)
+     * so tag in camera view should be R(0, PI/4, 0)t(sqrt(2)/2,0-sqrt(2)/2)
+     */
+    @Test
+    public void testSemiRealisticExampleWithBlipsUsingSingleFunction() {
+        // CONFIGURATION
+
+        // in robot coords the camera rotation is both tilt and pan
+        final Transform3d cameraInRobotCoords = getCameraOffset(0); // "camera zero"
+
+        // tag pose
+        final Pose3d tagInFieldCoords = tagInFieldCoords(0); // "tag zero"
+
+        // INPUTS
+
+        // from the network tables listener
+        Blip blip = getBlip();
+
+        // from the gyro
+        Rotation3d robotRotationInFieldCoordsFromGyro = getYawMeasurement();
+
+        // CALCULATIONS
+
+        Pose3d robotInFieldCoords = VisionDataProvider.getRobotPoseInFieldCoords3(
+                cameraInRobotCoords,
+                tagInFieldCoords,
+                blip,
+                robotRotationInFieldCoordsFromGyro);
+
         assertEquals(3, robotInFieldCoords.getTranslation().getX(), kDelta);
         assertEquals(3, robotInFieldCoords.getTranslation().getY(), kDelta);
         assertEquals(0, robotInFieldCoords.getTranslation().getZ(), kDelta);
