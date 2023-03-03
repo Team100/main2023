@@ -75,6 +75,8 @@ public class PoseEstimationHelper {
     /**
      * Extract the translation from a "z-forward" blip and return the same
      * translation expressed in our usual "x-forward" NWU translation.
+     * It would be possible to also consume the blip rotation matrix, if it were
+     * renormalized, but it's not very accurate, so we don't consume it.
      * Package-private for testing.
      */
     static Translation3d blipToNWU(Blip b) {

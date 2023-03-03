@@ -113,7 +113,7 @@ public class VisionDataProviderTest {
         Supplier<Pose2d> robotPose = () -> new Pose2d(); // always at the origin
         // at the moment this is red layout.
         // TODO: make it work with either layout
-        VisionDataProvider vdp = new VisionDataProvider(null, null, robotPose);
+        VisionDataProvider vdp = new VisionDataProvider(null, robotPose);
 
         String key = "foo";
         // in red layout blip 5 is on the other side of the field
@@ -139,10 +139,12 @@ public class VisionDataProviderTest {
         blips.tags.add(blip);
         final List<Pose2d> poseEstimate = new ArrayList<Pose2d>();
         final List<Double> timeEstimate = new ArrayList<Double>();
-        vdp.estimateRobotPose((p, t) -> {
-            poseEstimate.add(p);
-            timeEstimate.add(t);
-        }, key, blips);
+        vdp.estimateRobotPose(
+                (i) -> new Transform3d(),
+                (p, t) -> {
+                    poseEstimate.add(p);
+                    timeEstimate.add(t);
+                }, key, blips);
         assertEquals(1, poseEstimate.size());
         assertEquals(1, timeEstimate.size());
         Pose2d result = poseEstimate.get(0);
@@ -156,7 +158,7 @@ public class VisionDataProviderTest {
         Supplier<Pose2d> robotPose = () -> new Pose2d(0, 0, new Rotation2d(-Math.PI / 4)); // just for rotation
         // at the moment this is red layout.
         // TODO: make it work with either layout
-        VisionDataProvider vdp = new VisionDataProvider(null, null, robotPose);
+        VisionDataProvider vdp = new VisionDataProvider(null, robotPose);
 
         String key = "foo";
         // in red layout blip 5 is on the other side of the field
@@ -182,10 +184,12 @@ public class VisionDataProviderTest {
         blips.tags.add(blip);
         final List<Pose2d> poseEstimate = new ArrayList<Pose2d>();
         final List<Double> timeEstimate = new ArrayList<Double>();
-        vdp.estimateRobotPose((p, t) -> {
-            poseEstimate.add(p);
-            timeEstimate.add(t);
-        }, key, blips);
+        vdp.estimateRobotPose(
+                (i) -> new Transform3d(),
+                (p, t) -> {
+                    poseEstimate.add(p);
+                    timeEstimate.add(t);
+                }, key, blips);
         assertEquals(1, poseEstimate.size());
         assertEquals(1, timeEstimate.size());
         Pose2d result = poseEstimate.get(0);

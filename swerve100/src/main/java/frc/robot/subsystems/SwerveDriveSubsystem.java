@@ -336,7 +336,7 @@ public class SwerveDriveSubsystem extends SubsystemBase {
                 new Pose2d(),
                 VecBuilder.fill(0.03, 0.03, 0.03),
                 VecBuilder.fill(0.01, 0.01, Integer.MAX_VALUE));
-        visionDataProvider = new VisionDataProvider(m_poseEstimator, () -> getMoving(), () -> getPose());
+        visionDataProvider = new VisionDataProvider(m_poseEstimator, () -> getPose());
 
         SmartDashboard.putData("Drive Subsystem", this);
     }

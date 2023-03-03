@@ -2,8 +2,10 @@ package team100.localization;
 
 import java.io.IOException;
 import java.util.EnumSet;
+import java.util.Map;
 import java.util.Optional;
 import java.util.function.BiConsumer;
+import java.util.function.Function;
 import java.util.function.Supplier;
 
 import org.msgpack.jackson.dataformat.MessagePackFactory;
@@ -16,6 +18,7 @@ import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.networktables.DoublePublisher;
 import edu.wpi.first.networktables.NetworkTable;
@@ -27,18 +30,12 @@ import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.subsystems.SwerveDriveSubsystem;
+import team100.config.Camera;
 
 /**
  * Extracts robot pose estimates from camera input.
  */
 public class VisionDataProvider extends SubsystemBase implements TableEventListener {
-
-    // TODO: move these constants somewhere else
-    private static final String kCameraOne = "100000004e0a1fb9";
-    private static final String kCameraTwo = "1000000013c9c96c";
-    private static final String kCameraThree = "10000000a7a892c0";
-
-    Supplier<Boolean> getMoving;
     Supplier<Pose2d> getPose;
     private final DoublePublisher timestamp_publisher;
     private final ObjectMapper object_mapper;
@@ -46,27 +43,18 @@ public class VisionDataProvider extends SubsystemBase implements TableEventListe
 
     // TODO Make this private
     public AprilTagFieldLayoutWithCorrectOrientation layout;
-    // private static double kCameraXOffset = 0;
-    // private static double kCameraYOffset = 0;
-    // private static double kCameraZOffset = 0;
 
     SwerveDriveSubsystem m_robotDrive;
 
     Pose2d currentRobotinFieldCoords;
-    Pose2d currentTagInFieldCoords;
-    Pose2d pastRobotPose;
-    boolean first = true;
 
-    public VisionDataProvider(SwerveDrivePoseEstimator pE, Supplier<Boolean> getM, Supplier<Pose2d> getP)
+    public VisionDataProvider(SwerveDrivePoseEstimator poseEstimator, Supplier<Pose2d> getPose)
             throws IOException {
 
-        getPose = getP;
-        getMoving = getM;
-        poseEstimator = pE;
+        this.getPose = getPose;
+        this.poseEstimator = poseEstimator;
 
-        pastRobotPose = new Pose2d();
         currentRobotinFieldCoords = new Pose2d();
-        currentTagInFieldCoords = new Pose2d();
 
         // TODO: get driverstation alliance
         // layout = AprilTagFieldLayoutWithCorrectOrientation.blueLayout();
@@ -78,10 +66,6 @@ public class VisionDataProvider extends SubsystemBase implements TableEventListe
         timestamp_publisher = example_table.getDoubleTopic("timestamp").publish();
         object_mapper = new ObjectMapper(new MessagePackFactory());
         NetworkTable vision_table = inst.getTable("Vision");
-        // inst.addListener(
-        // vision_table.getEntry("tags"),
-        // EnumSet.of(NetworkTableEvent.Kind.kValueAll),
-        // (event) -> accept(event));
 
         // Listen to ALL the updates in the vision table. :-)
         vision_table.addListener(EnumSet.of(NetworkTableEvent.Kind.kValueAll), this);
@@ -101,39 +85,10 @@ public class VisionDataProvider extends SubsystemBase implements TableEventListe
             System.out.printf("PAYLOAD %s\n", blips);
             System.out.printf("DELAY (s): %f\n", blips.et);
             System.out.printf("BLIP COUNT: %d\n", blips.tags.size());
-            estimateRobotPose((p, t) -> poseEstimator.addVisionMeasurement(p, t), key, blips);
+            estimateRobotPose(this::cameraOffset, poseEstimator::addVisionMeasurement, key, blips);
         } catch (IOException e) {
             e.printStackTrace();
         }
-    }
-
-    /***
-     * Convert a Blip to a Pose3d.
-     * 
-     * This respects YAW ONLY. TODO: remove it.
-     * 
-     * @param b the blip to convert
-     * @return a Pose3d representing the blip
-     */
-    public static Pose3d blipToPose(Blip b) {
-        Translation3d t = new Translation3d(b.pose_t[0][0], b.pose_t[1][0], b.pose_t[2][0]);
-        // Matrix<N3, N3> rot = new Matrix<N3, N3>(Nat.N3(), Nat.N3());
-
-        // for (int i = 0; i < 3; ++i) {
-        // for (int j = 0; j < 3; ++j) {
-        // rot.set(i, j, b.pose_R[i][j]);
-        // }
-        // }
-
-        Rotation2d rotation2d = new Rotation2d(b.pose_R[0][0], b.pose_R[2][0]);
-        // Rotation3d poseEstimatorRotation = new Rotation3d(0, 0, 0);
-        Rotation3d tagRotation = new Rotation3d(0, 0, rotation2d.getRadians());
-
-        // Rotation3d r = new Rotation3d(rot);
-
-        Pose3d TagInCameraCords = new Pose3d(t, tagRotation);
-
-        return TagInCameraCords;
     }
 
     /***
@@ -144,54 +99,59 @@ public class VisionDataProvider extends SubsystemBase implements TableEventListe
     }
 
     /**
+     * Camera views relative to the robot center at the floor.
+     */
+    private Transform3d cameraOffset(String serialNumber) {
+        Camera cam = Camera.get(serialNumber);
+        switch (cam) {
+            case ONE: // center
+                return new Transform3d(new Translation3d(0.4, 0.0, 0.2), new Rotation3d(0, 0, 0.35));
+            case TWO: // left oblique
+                return new Transform3d(new Translation3d(0, 0.3, 0.3), new Rotation3d(0, -0.35, 0.35));
+            case THREE: // right oblique
+                return new Transform3d(new Translation3d(0, -0.30, 0.3), new Rotation3d(0, -0.35, -0.35));
+            case FOUR: // rear
+                return new Transform3d(new Translation3d(0.4, 0, 0.3), new Rotation3d(0, -0.35, 3.14));
+            case UNKNOWN:
+                return new Transform3d();
+            default:
+                return new Transform3d();
+        }
+    }
+
+    /**
      * @param estimateConsumer is the pose estimator but exposing it here makes it
      *                         easier to test.
      * @param key              the camera identity, obtained from proc/cpuinfo
      * @param blips            all the targets the camera sees right now
      */
-    void estimateRobotPose(BiConsumer<Pose2d, Double> estimateConsumer, String key, Blips blips) {
+    void estimateRobotPose(
+            Function<String, Transform3d> cameraOffsets,
+            BiConsumer<Pose2d, Double> estimateConsumer,
+            String key,
+            Blips blips) {
         for (Blip b : blips.tags) {
-            Pose3d TagInCameraCords = blipToPose(b);
-            // System.out.printf("TAG ID: %d\n", b.id);
-            // System.out.printf("POSE: %s\n", TagInCameraCords);
+            Optional<Pose3d> tagInFieldCordsOptional = layout.getTagPose(b.id);
+            if (!tagInFieldCordsOptional.isPresent())
+                continue;
 
-            if (TagInCameraCords != null) {
+            Rotation2d gyroRotation = getPose.get().getRotation();
 
-                Optional<Pose3d> tagInFieldCords = layout.getTagPose(b.id);
+            Transform3d cameraInRobotCoordinates = cameraOffsets.apply(key);
 
-                if (tagInFieldCords.isPresent()) {
+            // Gyro only produces yaw so use zero roll and zero pitch
+            Rotation3d robotRotationInFieldCoordsFromGyro = new Rotation3d(
+                    0, 0, gyroRotation.getRadians());
 
-                    // TODO: real camera offset
-                    Transform3d cameraInRobotCoordinates = new Transform3d();
-                    // Gyro only produces yaw so use zero roll and zero pitch
-                    Rotation3d robotRotationInFieldCoordsFromGyro = new Rotation3d(
-                            0, 0, getPose.get().getRotation().getRadians());
+            Pose3d robotPoseInFieldCoords = PoseEstimationHelper.getRobotPoseInFieldCoords(
+                    cameraInRobotCoordinates, tagInFieldCordsOptional.get(), b, robotRotationInFieldCoordsFromGyro);
+            // Pose2d robotInFieldCords = robotPoseInFieldCoords.toPose2d();
+            Translation2d robotTranslationInFieldCoords = robotPoseInFieldCoords.getTranslation().toTranslation2d();
 
-                    Pose3d robotPoseInFieldCoords = PoseEstimationHelper.getRobotPoseInFieldCoords(
-                            cameraInRobotCoordinates, tagInFieldCords.get(), b, robotRotationInFieldCoordsFromGyro);
-                    Pose2d robotInFieldCords = robotPoseInFieldCoords.toPose2d();
+            currentRobotinFieldCoords = new Pose2d(robotTranslationInFieldCoords, gyroRotation);
 
-                    currentRobotinFieldCoords = new Pose2d(robotInFieldCords.getTranslation(),
-                            getPose.get().getRotation());
-                    currentTagInFieldCoords = tagInFieldCords.get().toPose2d();
-                    // System.out.println("ROBOOOOOOOT POSE: " + robotInFieldCords);
-
-                    // if(first){
-                    // poseEstimator.addVisionMeasurement(currentRobotinFieldCoords,
-                    // Timer.getFPGATimestamp() - .075);
-                    estimateConsumer.accept(currentRobotinFieldCoords, Timer.getFPGATimestamp() - .075);
-                    // }else if( Math.abs(currentRobotinFieldCoords.getX() - pastRobotPose.getX())
-                    // <= 0.5 && !first ){
-                    // poseEstimator.addVisionMeasurement(currentRobotinFieldCoords,
-                    // Timer.getFPGATimestamp() - .075);
-                }
-
-                // pastRobotPose = currentRobotinFieldCoords;
-                first = false;
-                // }
-            }
+            estimateConsumer.accept(currentRobotinFieldCoords, Timer.getFPGATimestamp() - .075);
         }
-
     }
 
     @Override
@@ -200,16 +160,6 @@ public class VisionDataProvider extends SubsystemBase implements TableEventListe
         builder.addDoubleProperty("Vision X", () -> currentRobotinFieldCoords.getX(), null);
         builder.addDoubleProperty("Vision Y", () -> currentRobotinFieldCoords.getY(), null);
         builder.addDoubleProperty("Vision Rotation", () -> currentRobotinFieldCoords.getRotation().getRadians(), null);
-
-        builder.addDoubleProperty("Field Tag X", () -> currentTagInFieldCoords.getX(), null);
-        builder.addDoubleProperty("Field Tag Y", () -> currentTagInFieldCoords.getY(), null);
-        builder.addDoubleProperty("Field Tag Rotation", () -> currentTagInFieldCoords.getRotation().getRadians(), null);
-
-        builder.addDoubleProperty("Tag 1 Pose X", () -> layout.getTagPose(1).get().toPose2d().getX(), null);
-        builder.addDoubleProperty("Tag 1 Pose Y", () -> layout.getTagPose(1).get().toPose2d().getY(), null);
-        builder.addDoubleProperty("Tag 1 Rotation",
-                () -> layout.getTagPose(1).get().toPose2d().getRotation().getDegrees(), null);
-
     }
 
 }
