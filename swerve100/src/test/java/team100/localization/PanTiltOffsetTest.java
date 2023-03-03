@@ -40,43 +40,6 @@ public class PanTiltOffsetTest {
     private static final double kDelta = 0.01;
 
     /**
-     * Start with camera and robot poses identical.
-     */
-    @Test
-    public void testNoOffset() {
-
-        // gyro input
-        Rotation3d robotRotationInFieldCoordsFromGyro = new Rotation3d(0, 0, Math.PI / 4);
-
-        // camera input
-        Rotation3d unreliableTagRotationInCameraCoordsFromCamera = new Rotation3d(0, 0, -Math.PI / 4);
-        Translation3d tagTranslationInCameraCoordsFromCamera = new Translation3d(Math.sqrt(2), 0, 0);
-
-        // lookup the tag pose
-        Pose3d tagInFieldCoordsFromLayout = new Pose3d(1, 1, 0, new Rotation3d(0, 0, 0));
-
-        // don't trust the camera-derived rotation, calculate it instead:
-        Rotation3d tagRotationInRobotCoordsFromGyro = PoseEstimationHelper.tagRotationInRobotCoordsFromGyro(
-                tagInFieldCoordsFromLayout.getRotation(),
-                robotRotationInFieldCoordsFromGyro);
-
-        // in this case the camera and robot rotations are the same
-        assertEquals(tagRotationInRobotCoordsFromGyro.getZ(), unreliableTagRotationInCameraCoordsFromCamera.getZ());
-
-        Pose3d robotInFieldCoords = VisionDataProvider.toFieldCoordinates(
-                tagRotationInRobotCoordsFromGyro,
-                tagTranslationInCameraCoordsFromCamera,
-                tagInFieldCoordsFromLayout);
-        assertEquals(0, robotInFieldCoords.getTranslation().getX(), kDelta);
-        assertEquals(0, robotInFieldCoords.getTranslation().getY(), kDelta);
-        assertEquals(0, robotInFieldCoords.getTranslation().getZ(), kDelta);
-        assertEquals(0, robotInFieldCoords.getRotation().getX(), kDelta);
-        assertEquals(0, robotInFieldCoords.getRotation().getY(), kDelta);
-        assertEquals(Math.PI / 4, robotInFieldCoords.getRotation().getZ(), kDelta);
-
-    }
-
-    /**
      * Correct for offset but the offset is zero.
      */
     @Test
@@ -607,7 +570,7 @@ public class PanTiltOffsetTest {
                         { Math.sqrt(2) / 2 },
                         { Math.sqrt(2) / 2 } });
 
-        //Translation3d blipTranslation = VisionDataProvider.blipToTranslation(blip);
+        // Translation3d blipTranslation = VisionDataProvider.blipToTranslation(blip);
         Translation3d tagTranslationInCameraCoords = PoseEstimationHelper.blipToNWU(blip);
 
         assertEquals(Math.sqrt(2) / 2, tagTranslationInCameraCoords.getX(), kDelta);
@@ -732,7 +695,7 @@ public class PanTiltOffsetTest {
 
         // CALCULATIONS
 
-        Pose3d robotInFieldCoords = VisionDataProvider.getRobotPoseInFieldCoords(
+        Pose3d robotInFieldCoords = PoseEstimationHelper.getRobotPoseInFieldCoords(
                 cameraInRobotCoords,
                 tagInFieldCoords,
                 blip,

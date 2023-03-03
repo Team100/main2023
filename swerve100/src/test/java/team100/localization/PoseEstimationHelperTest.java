@@ -13,6 +13,39 @@ public class PoseEstimationHelperTest {
     private static final double kDelta = 0.01;
 
     @Test
+    public void testGetRobotPoseInFieldCoords5() {
+        Transform3d cameraInRobotCoords = new Transform3d(
+                new Translation3d(1, 1, 1),
+                new Rotation3d(0, 0, 0));
+        Pose3d tagInFieldCoords = new Pose3d(2, 1, 1, new Rotation3d(0, 0, 0));
+
+        Blip blip = new Blip(5,
+                new double[][] { // pure tilt note we don't actually use this
+                        { 1, 0, 0 },
+                        { 0, 1, 0 },
+                        { 0, 0, 1 } },
+                new double[][] { // one meter range (Z forward)
+                        { 0 },
+                        { 0 },
+                        { 1 } });
+
+        Rotation3d robotRotationInFieldCoordsFromGyro = new Rotation3d();
+
+        Pose3d robotPoseInFieldCoords = PoseEstimationHelper.getRobotPoseInFieldCoords(
+                cameraInRobotCoords,
+                tagInFieldCoords,
+                blip,
+                robotRotationInFieldCoordsFromGyro);
+
+        assertEquals(0, robotPoseInFieldCoords.getX(), kDelta);
+        assertEquals(0, robotPoseInFieldCoords.getY(), kDelta);
+        assertEquals(0, robotPoseInFieldCoords.getZ(), kDelta);
+        assertEquals(0, robotPoseInFieldCoords.getRotation().getX(), kDelta);
+        assertEquals(0, robotPoseInFieldCoords.getRotation().getY(), kDelta);
+        assertEquals(0, robotPoseInFieldCoords.getRotation().getZ(), kDelta);
+    }
+
+    @Test
     public void testCameraRotationInFieldCoords() {
         Transform3d cameraInRobotCoords = new Transform3d(
                 new Translation3d(0.5, 0, 0.5), // front camera

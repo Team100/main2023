@@ -11,6 +11,57 @@ import edu.wpi.first.math.geometry.Translation3d;
 public class PoseEstimationHelper {
 
     /**
+     * THIS IS THE FUNCTION TO USE.
+     * given the blip, the heading, the camera offset, and the absolute tag pose,
+     * return the absolute robot pose
+     * TODO: clean up the other functions.
+     * 
+     * @param cameraInRobotCoords                camera offset expressed as a
+     *                                           transform from
+     *                                           robot-frame to camera-frame, e.g.
+     *                                           camera 0.5m in
+     *                                           front of the robot center and 0.5m
+     *                                           from the floor
+     *                                           would have a translation (0.5, 0,
+     *                                           0.5)
+     * @param tagInFieldCoords                   tag location expressed as a pose in
+     *                                           field-frame.
+     *                                           this should come from the json
+     * @param blip                               direct from the camera
+     * @param robotRotationInFieldCoordsFromGyro direct from the gyro. note that
+     *                                           drive.getPose() isn't exactly the
+     *                                           gyro reading; it might be better to
+     *                                           use the real gyro than the getPose
+     *                                           method.
+     */
+    public static Pose3d getRobotPoseInFieldCoords(
+            Transform3d cameraInRobotCoords,
+            Pose3d tagInFieldCoords,
+            Blip blip,
+            Rotation3d robotRotationInFieldCoordsFromGyro) {
+        Rotation3d cameraRotationInFieldCoords = cameraRotationInFieldCoords(
+                cameraInRobotCoords,
+                robotRotationInFieldCoordsFromGyro);
+        Translation3d tagTranslationInCameraCoords = blipToNWU(blip);
+        Rotation3d tagRotationInCameraCoords = tagRotationInRobotCoordsFromGyro(
+                tagInFieldCoords.getRotation(),
+                cameraRotationInFieldCoords);
+        Transform3d tagInCameraCoords = new Transform3d(
+                tagTranslationInCameraCoords,
+                tagRotationInCameraCoords);
+        Pose3d cameraInFieldCoords = toFieldCoordinates(
+                tagInCameraCoords,
+                tagInFieldCoords);
+        return applyCameraOffset(
+                cameraInFieldCoords,
+                cameraInRobotCoords);
+    }
+
+    //////////////////////////////
+    //
+    // package private below, don't use these.
+
+    /**
      * given the gyro rotation and the camera offset, return the camera absolute
      * rotation. Package-private for testing.
      */
@@ -63,5 +114,4 @@ public class PoseEstimationHelper {
 
     private PoseEstimationHelper() {
     }
-
 }
