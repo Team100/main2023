@@ -312,12 +312,12 @@ public class SwerveDriveSubsystem extends SubsystemBase {
                         kMaxAngularSpeedRadiansPerSecondSquared));
 
         headingController = new ProfiledPIDController( //
-                1.4, // kP
-                0.1, // kI
-                0.21, // kD
+                1, // kP
+                0.05, // kI
+                0.15, // kD
                 new TrapezoidProfile.Constraints(
                         2 * Math.PI, // speed rad/s
-                        4 * Math.PI)); // accel rad/s/s
+                        1.2 * Math.PI)); // accel rad/s/s
 
         headingController.setIntegratorRange(-0.1, 0.1);
         // Note very low heading tolerance.
@@ -528,6 +528,10 @@ public class SwerveDriveSubsystem extends SubsystemBase {
         return Rotation2d.fromDegrees(-m_gyro.getFusedHeading());
     }
 
+    public double diff() {
+        return -m_gyro.getFusedHeading()-getPose().getRotation().getDegrees();
+    }
+
     @Override
     public void initSendable(SendableBuilder builder) {
         super.initSendable(builder);
@@ -594,6 +598,7 @@ public class SwerveDriveSubsystem extends SubsystemBase {
 
         builder.addDoubleProperty("GYRO Fused", () -> m_gyro.getFusedHeading(), null);
         builder.addDoubleProperty("Gyro Rate", () -> m_gyro.getRate(), null);
+        builder.addDoubleProperty("getAngle", () -> m_gyro.getAngle()%360, null);
 
     }
 }
