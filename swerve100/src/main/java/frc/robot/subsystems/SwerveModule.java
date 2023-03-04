@@ -48,6 +48,8 @@ public class SwerveModule implements Sendable {
         SmartDashboard.putData(String.format("Swerve Module %s", m_name), this);
     }
 
+    
+
     public SwerveModuleState getState() {
         return new SwerveModuleState(m_driveEncoder.getRate(), new Rotation2d(m_turningEncoder.getAngle()));
     }

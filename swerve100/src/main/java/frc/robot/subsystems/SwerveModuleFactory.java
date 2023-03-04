@@ -21,7 +21,11 @@ public class SwerveModuleFactory {
 
         FalconDriveMotor driveMotor = new FalconDriveMotor(name, driveMotorCanId, currentLimit);
         FalconDriveEncoder driveEncoder = new FalconDriveEncoder(name, driveMotor, driveEncoderDistancePerTurn);
-        NeoTurningMotor turningMotor = new NeoTurningMotor(name, turningMotorCanId);
+        
+        FalconTurningMotor turningMotor = new FalconTurningMotor(name, turningMotorCanId);
+
+        // NeoTurningMotor turningMotor = new NeoTurningMotor(name, turningMotorCanId);
+        
         AnalogTurningEncoder turningEncoder = new AnalogTurningEncoder(name, turningEncoderChannel, turningOffset,
                 turningGearRatio);
 
