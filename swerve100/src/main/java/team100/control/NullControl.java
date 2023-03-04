@@ -1,9 +1,11 @@
 package team100.control;
 
+import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.autonomous.DriveToAprilTag;
 import frc.robot.autonomous.DriveToWaypoint2;
 import frc.robot.autonomous.MoveToAprilTag;
-import frc.robot.commands.ArmHigh;
 import frc.robot.commands.DriveRotation;
 import frc.robot.commands.DriveWithHeading;
 import frc.robot.commands.ResetPose;
@@ -11,6 +13,11 @@ import frc.robot.commands.ResetPose;
 // import frc.robot.commands.ResetPose;
 // import frc.robot.commands.ResetPose;
 import frc.robot.commands.ResetRotation;
+import frc.robot.commands.Arm.ArmTrajectory;
+import frc.robot.commands.Arm.DriveToSetpoint;
+import frc.robot.commands.Manipulator.Close;
+import frc.robot.commands.Manipulator.Home;
+import frc.robot.commands.Manipulator.Open;
 import frc.robot.subsystems.SwerveDriveSubsystem;
 
 
@@ -28,9 +35,6 @@ public class NullControl implements Control {
     public void autoLevel(frc.robot.commands.autoLevel command) {
     }
 
-    @Override
-    public void armHigh(ArmHigh command) {
-    }
 
     @Override
     public void resetRotation(ResetRotation command) {
@@ -130,6 +134,54 @@ public class NullControl implements Control {
 
     @Override
     public void driveToID4(DriveToWaypoint2 command) {
+        // TODO Auto-generated method stub
+        
+    }
+
+    @Override
+    public void driveToHigh(DriveToSetpoint command) {
+        // TODO Auto-generated method stub
+        
+    }
+
+    @Override
+    public void driveToSafe(SequentialCommandGroup command) {
+        // TODO Auto-generated method stub
+        
+    }
+
+    @Override
+    public XboxController getController() {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public void armHigh(ArmTrajectory command) {
+        // TODO Auto-generated method stub
+        
+    }
+
+    @Override
+    public void armSafe(ArmTrajectory command) {
+        // TODO Auto-generated method stub
+        
+    }
+
+    @Override
+    public void open(Open command) {
+        // TODO Auto-generated method stub
+        
+    }
+
+    @Override
+    public void home(Home command) {
+        // TODO Auto-generated method stub
+        
+    }
+
+    @Override
+    public void close(Close command) {
         // TODO Auto-generated method stub
         
     }

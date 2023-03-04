@@ -166,28 +166,28 @@ public class SwerveDriveSubsystem extends SubsystemBase {
                         11, // drive CAN
                         30, // turn CAN
                         0, // turn encoder
-                        0.77, // turn offset
+                        0.26, // turn offset
                         currentLimit);
                 m_frontRight = WCPModule(
                         "Front Right",
                         12, // drive CAN
                         32, // turn CAN
                         1, // turn encoder
-                        0.39, // turn offset
+                        0.87, // turn offset
                         currentLimit);
                 m_rearLeft = WCPModule(
                         "Rear Left",
                         21, // drive CAN
                         31, // turn CAN
                         2, // turn encoder
-                        0.78, // turn offset
+                        0.27, // turn offset
                         currentLimit);
                 m_rearRight = WCPModule(
                         "Rear Right",
                         22, // drive CAN
                         33, // turn CAN
                         3, // turn encoder
-                        0.96, // turn offset
+                        0.46, // turn offset
                         currentLimit);
                 break;
             case SWERVE_TWO:
@@ -359,7 +359,7 @@ public class SwerveDriveSubsystem extends SubsystemBase {
 
         // TURNING PID
         ProfiledPIDController turningController = new ProfiledPIDController(
-                0.08, // kP: low P because not much reduction gearing.
+                0.1, // kP: low P because not much reduction gearing.
                 0.0, // kI
                 0.0, // kD
                 new TrapezoidProfile.Constraints( //
@@ -370,11 +370,11 @@ public class SwerveDriveSubsystem extends SubsystemBase {
         // DRIVE FF
         SimpleMotorFeedforward driveFeedforward = new SimpleMotorFeedforward( //
                 0.04, // kS: from experiment; overcome friction for low-effort moves
-                .5);// kV
+                .1);// kV
 
         // TURNING FF
         SimpleMotorFeedforward turningFeedforward = new SimpleMotorFeedforward( //
-                0.0, // kS: friction is unimportant
+                0.03, // kS: friction is unimportant
                 0.02);// kV: from experiment; higher than AM modules, less reduction gear
 
         return new SwerveModule(name, driveMotor, turningMotor, driveEncoder, turningEncoder,

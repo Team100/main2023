@@ -163,6 +163,8 @@ public class DriveToWaypoint2 extends CommandBase {
 
         desiredXPublisher.set(desiredX);
         desiredYPublisher.set(desiredY);
+    
+    
         poseXPublisher.set(m_swerve.getPose().getX());
         poseYPublisher.set(m_swerve.getPose().getY());
 

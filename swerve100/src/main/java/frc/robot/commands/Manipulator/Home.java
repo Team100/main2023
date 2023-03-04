@@ -2,34 +2,33 @@
 // Open Source Software; you can modify and/or share it under the terms of
 // the WPILib BSD license file in the root directory of this project.
 
-package frc.robot.commands;
+package frc.robot.commands.Manipulator;
 
 import edu.wpi.first.wpilibj2.command.CommandBase;
-import frc.robot.subsystems.Arm;
+import frc.robot.subsystems.Manipulator;
 
-public class ArmHigh extends CommandBase {
-  /** Creates a new ArmHigh. */
-  Arm arm;
-  boolean done;
-  public ArmHigh(Arm a) {
+public class Home extends CommandBase {
+  /** Creates a new Home. */
+  Manipulator m_manipulator;
+  public Home(Manipulator manipulator) {
     // Use addRequirements() here to declare subsystem dependencies.
-    arm = a;
-    addRequirements(a);
+    m_manipulator = manipulator;
+    addRequirements(m_manipulator);
   }
 
   // Called when the command is initially scheduled.
   @Override
-  public void initialize() {}
+  public void initialize() {
+    m_manipulator.pinch(0.4);
+  }
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    if(arm.getUpperArm() <= 0.8){
-      arm.setUpperArm(0.2);
-    } else {
-      arm.setUpperArm(0);
-      done = true;
-    }
+    if(m_manipulator.getForwardLimitSwitch() == true){
+        m_manipulator.pinch(0);
+        m_manipulator.position.reset();
+    } 
   }
 
   // Called once the command ends or is interrupted.
@@ -39,6 +38,6 @@ public class ArmHigh extends CommandBase {
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    return done;
+    return false;
   }
 }
