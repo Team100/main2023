@@ -23,13 +23,13 @@ public interface Control {
     // public void driveToWaypoint(DriveToAprilTag command);
 
 
-    public void driveToID1(DriveToWaypoint2 command);
+    public void driveToLeftGrid(DriveToWaypoint2 command);
 
-    public void driveToID2(DriveToWaypoint2 command);
+    public void driveToCenterGrid(DriveToWaypoint2 command);
 
-    public void driveToID3(DriveToWaypoint2 command);
+    public void driveToRightGrid(DriveToWaypoint2 command);
 
-    public void driveToID4(DriveToWaypoint2 command);
+    public void driveToSubstation(DriveToWaypoint2 command);
 
 
     public void autoLevel(autoLevel command);

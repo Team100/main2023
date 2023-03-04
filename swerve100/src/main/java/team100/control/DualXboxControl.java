@@ -61,19 +61,19 @@ public class DualXboxControl implements Control, Sendable {
     }
 
     @Override
-    public void driveToID1(DriveToWaypoint2 command){
-        controller0.a().whileTrue(command);
-    };
-
-    public void driveToID2(DriveToWaypoint2 command){
-        controller0.b().whileTrue(command);
-    };
-
-    public void driveToID3(DriveToWaypoint2 command){
+    public void driveToLeftGrid(DriveToWaypoint2 command){
         controller0.x().whileTrue(command);
     };
 
-    public void driveToID4(DriveToWaypoint2 command){
+    public void driveToCenterGrid(DriveToWaypoint2 command){
+        controller0.a().whileTrue(command);
+    };
+
+    public void driveToRightGrid(DriveToWaypoint2 command){
+        controller0.b().whileTrue(command);
+    };
+
+    public void driveToSubstation(DriveToWaypoint2 command){
         controller0.y().whileTrue(command);
     };
 
