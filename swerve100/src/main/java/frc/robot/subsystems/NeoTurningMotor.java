@@ -8,7 +8,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class NeoTurningMotor implements TurningMotor {
     private final CANSparkMax m_motor;
-    public static final int kTurningCurrentLimit = 5;
+    public static final int kTurningCurrentLimit = 40;
 
     public NeoTurningMotor(String name, int canId) {
         m_motor = new CANSparkMax(canId, MotorType.kBrushless);
