@@ -113,25 +113,25 @@ public class FlightControl implements Control {
     // }
 
     @Override
-    public void driveToID1(DriveToWaypoint2 command) {
+    public void driveToLeftGrid(DriveToWaypoint2 command) {
         // TODO Auto-generated method stub
         
     }
 
     @Override
-    public void driveToID2(DriveToWaypoint2 command) {
+    public void driveToCenterGrid(DriveToWaypoint2 command) {
         // TODO Auto-generated method stub
         
     }
 
     @Override
-    public void driveToID3(DriveToWaypoint2 command) {
+    public void driveToRightGrid(DriveToWaypoint2 command) {
         // TODO Auto-generated method stub
         
     }
 
     @Override
-    public void driveToID4(DriveToWaypoint2 command) {
+    public void driveToSubstation(DriveToWaypoint2 command) {
         // TODO Auto-generated method stub
     }
         

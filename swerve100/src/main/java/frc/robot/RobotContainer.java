@@ -68,7 +68,7 @@ public class RobotContainer implements Sendable {
     private final OpenManipulator openManipulator = new OpenManipulator(manipulator);
     private TimedClose timedClose = new TimedClose(manipulator, 300, 0.7);
     private CurrentFeedbackClose currentFeedbackClose = new CurrentFeedbackClose(manipulator, 14.0, 0.5);
-    
+
     // CONFIG
     private final DriverStation.Alliance m_alliance;
 
@@ -89,12 +89,13 @@ public class RobotContainer implements Sendable {
     private final DriveManually driveManually;
     private final GripManually gripManually;
 
-    // private final DriveWithHeading driveWithHeading0, driveWithHeading90, driveWithHeading180, driveWithHeading270;
+    // private final DriveWithHeading driveWithHeading0, driveWithHeading90,
+    // driveWithHeading180, driveWithHeading270;
     private final DriveWithHeading driveWithHeading;
     private final DriveRotation driveRotation;
     // private final DriveToAprilTag driveToAprilTag1;
     // private final DriveToAprilTag driveToAprilTag5;
-    private final DriveToAprilTag driveToID4, driveToID3, driveToID2, driveToID1;
+    private final DriveToAprilTag driveToSubstation, driveToLeftGrid, driveToCenterGrid, driveToRightGrid;
 
     // private final MoveToAprilTag moveToAprilTag2;
 
@@ -155,18 +156,17 @@ public class RobotContainer implements Sendable {
         // driveToAprilTag5 = DriveToAprilTag.newDriveToAprilTag(4, m_robotDrive);
         m_alliance = DriverStation.getAlliance();
         if (m_alliance == DriverStation.Alliance.Blue) {
-            driveToID1 = DriveToAprilTag.newDriveToAprilTag(8, control::goalOffset, m_robotDrive);
-            driveToID2 = DriveToAprilTag.newDriveToAprilTag(7, control::goalOffset, m_robotDrive);
-            driveToID3 = DriveToAprilTag.newDriveToAprilTag(6, control::goalOffset, m_robotDrive);
-            driveToID4 = DriveToAprilTag.newDriveToAprilTag(5, control::goalOffset, m_robotDrive);
+            driveToLeftGrid = DriveToAprilTag.newDriveToAprilTag(6, control::goalOffset, m_robotDrive);
+            driveToCenterGrid = DriveToAprilTag.newDriveToAprilTag(7, control::goalOffset, m_robotDrive);
+            driveToRightGrid = DriveToAprilTag.newDriveToAprilTag(8, control::goalOffset, m_robotDrive);
+            driveToSubstation = DriveToAprilTag.newDriveToAprilTag(4, control::goalOffset, m_robotDrive);
+        } else {
+            driveToLeftGrid = DriveToAprilTag.newDriveToAprilTag(1, control::goalOffset, m_robotDrive);
+            driveToCenterGrid = DriveToAprilTag.newDriveToAprilTag(2, control::goalOffset, m_robotDrive);
+            driveToRightGrid = DriveToAprilTag.newDriveToAprilTag(3, control::goalOffset, m_robotDrive);
+            driveToSubstation = DriveToAprilTag.newDriveToAprilTag(5, control::goalOffset, m_robotDrive);
         }
-        else {
-            driveToID1 = DriveToAprilTag.newDriveToAprilTag(1, control::goalOffset, m_robotDrive);
-            driveToID2 = DriveToAprilTag.newDriveToAprilTag(2, control::goalOffset, m_robotDrive);
-            driveToID3 = DriveToAprilTag.newDriveToAprilTag(3, control::goalOffset, m_robotDrive);
-            driveToID4 = DriveToAprilTag.newDriveToAprilTag(4, control::goalOffset, m_robotDrive);
-        }
-        
+
         // moveToAprilTag2 = MoveToAprilTag.newMoveToAprilTag(m_robotDrive, 1);
 
         armHigh = new ArmHigh(arm);
@@ -176,35 +176,35 @@ public class RobotContainer implements Sendable {
         autoLevel = new autoLevel(m_robotDrive.m_gyro, m_robotDrive);
 
         ResetPose resetPose = new ResetPose(m_robotDrive, 0, 0, 0);
-        
+
         // driveWithHeading0 = new DriveWithHeading(
-        //     m_robotDrive, 
-        //     control::xSpeed,
-        //     control::ySpeed,
-        //     () -> Rotation2d.fromDegrees(0),
-        //     "0 Degrees");
+        // m_robotDrive,
+        // control::xSpeed,
+        // control::ySpeed,
+        // () -> Rotation2d.fromDegrees(0),
+        // "0 Degrees");
 
         // driveWithHeading90 = new DriveWithHeading(
-        //     m_robotDrive, 
-        //     control::xSpeed,
-        //     control::ySpeed,
-        //     () -> Rotation2d.fromDegrees(90),
-        //     "90 Degrees");
+        // m_robotDrive,
+        // control::xSpeed,
+        // control::ySpeed,
+        // () -> Rotation2d.fromDegrees(90),
+        // "90 Degrees");
 
         // driveWithHeading180 = new DriveWithHeading(
-        //     m_robotDrive, 
-        //     control::xSpeed,
-        //     control::ySpeed,
-        //     () -> Rotation2d.fromDegrees(180),
-        //     "180 Degrees");
-        
+        // m_robotDrive,
+        // control::xSpeed,
+        // control::ySpeed,
+        // () -> Rotation2d.fromDegrees(180),
+        // "180 Degrees");
+
         driveWithHeading = new DriveWithHeading(
-            m_robotDrive, 
-            control::xSpeed,
-            control::ySpeed,
-            control::desiredRotation,
-            "");
-        
+                m_robotDrive,
+                control::xSpeed,
+                control::ySpeed,
+                control::desiredRotation,
+                "");
+
         driveRotation = new DriveRotation(m_robotDrive, control::rotSpeed);
 
         // TODO: do something with tagid.
@@ -220,10 +220,10 @@ public class RobotContainer implements Sendable {
         control.armHigh(armHigh);
         control.resetPose(resetPose);
         // control.trajtoApril(moveToAprilTag2);
-        control.driveToID1(driveToID1);
-        control.driveToID2(driveToID2);
-        control.driveToID3(driveToID3);
-        control.driveToID4(driveToID4);
+        control.driveToLeftGrid(driveToLeftGrid);
+        control.driveToCenterGrid(driveToCenterGrid);
+        control.driveToRightGrid(driveToRightGrid);
+        control.driveToSubstation(driveToSubstation);
         control.resetPose(resetPose);
 
         // DEFAULT COMMANDS
@@ -235,7 +235,7 @@ public class RobotContainer implements Sendable {
                 m_robotDrive);
         // m_robotDrive.setDefaultCommand(driveManually);
         m_robotDrive.setDefaultCommand(driveWithHeading);
-        
+
         // control.driveWithHeading0(driveWithHeading0);
         // control.driveWithHeading90(driveWithHeading90);
         // control.driveWithHeading180(driveWithHeading180);
