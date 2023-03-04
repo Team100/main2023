@@ -313,7 +313,7 @@ public class SwerveDriveSubsystem extends SubsystemBase {
 
         headingController = new ProfiledPIDController( //
                 1, // kP
-                0.05, // kI
+                .5, // kI
                 0.15, // kD
                 new TrapezoidProfile.Constraints(
                         2 * Math.PI, // speed rad/s
@@ -525,7 +525,7 @@ public class SwerveDriveSubsystem extends SubsystemBase {
     }
 
     public Rotation2d getHeading() {
-        return Rotation2d.fromDegrees(-m_gyro.getFusedHeading());
+        return Rotation2d.fromDegrees(-m_gyro.getYaw());
     }
 
     @Override
@@ -574,6 +574,7 @@ public class SwerveDriveSubsystem extends SubsystemBase {
         builder.addDoubleProperty("Pitch", () -> m_gyro.getPitch(), null);
         builder.addDoubleProperty("Roll", () -> m_gyro.getRoll(), null);
         builder.addDoubleProperty("Heading Degrees", () -> getHeading().getDegrees(), null);
+        builder.addDoubleProperty("Heading Radians", () -> getHeading().getRadians(), null);
         builder.addDoubleProperty("Compass Heading", () -> m_gyro.getCompassHeading(), null);
         builder.addDoubleProperty("Angle", () -> m_gyro.getAngle(), null);
         builder.addDoubleProperty("xSpeed", () -> x, null);

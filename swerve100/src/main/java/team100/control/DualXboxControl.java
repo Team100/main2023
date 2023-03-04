@@ -1,5 +1,6 @@
 package team100.control;
 
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.util.sendable.Sendable;
 import edu.wpi.first.util.sendable.SendableBuilder;
@@ -193,7 +194,7 @@ public class DualXboxControl implements Control, Sendable {
 
         if (foo > 0) {
             // positive foo equals negative stick which means no input
-            previousRotation = previousRotation.minus(new Rotation2d(controller0.getLeftX()*Math.PI*0.02)) ;
+            previousRotation = previousRotation.minus(new Rotation2d(MathUtil.applyDeadband(controller0.getLeftX()*Math.PI*0.02, 0.05))) ;
             return previousRotation;
         } 
         
