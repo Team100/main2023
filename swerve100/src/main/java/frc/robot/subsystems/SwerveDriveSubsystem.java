@@ -8,7 +8,6 @@ import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
-import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -123,28 +122,28 @@ public class SwerveDriveSubsystem extends SubsystemBase {
                 kMaxAccelerationMetersPerSecondSquared = 10;
                 kMaxAngularSpeedRadiansPerSecond = 5;
                 kMaxAngularSpeedRadiansPerSecondSquared = 5;
-                m_frontLeft = WCPModule(
+                m_frontLeft = SwerveModuleFactory.WCPModule(
                         "Front Left",
                         11, // drive CAN
                         30, // turn CAN
                         0, // turn encoder
                         0.77, // turn offset
                         currentLimit);
-                m_frontRight = WCPModule(
+                m_frontRight = SwerveModuleFactory.WCPModule(
                         "Front Right",
                         12, // drive CAN
                         32, // turn CAN
                         1, // turn encoder
                         0.39, // turn offset
                         currentLimit);
-                m_rearLeft = WCPModule(
+                m_rearLeft = SwerveModuleFactory.WCPModule(
                         "Rear Left",
                         21, // drive CAN
                         31, // turn CAN
                         2, // turn encoder
                         0.78, // turn offset
                         currentLimit);
-                m_rearRight = WCPModule(
+                m_rearRight = SwerveModuleFactory.WCPModule(
                         "Rear Right",
                         22, // drive CAN
                         33, // turn CAN
@@ -157,28 +156,28 @@ public class SwerveDriveSubsystem extends SubsystemBase {
                 kMaxAccelerationMetersPerSecondSquared = 10;
                 kMaxAngularSpeedRadiansPerSecond = 5;
                 kMaxAngularSpeedRadiansPerSecondSquared = 5;
-                m_frontLeft = AMModule(
+                m_frontLeft = SwerveModuleFactory.AMModule(
                         "Front Left",
                         11, // drive CAN
                         3, // turn PWM
                         1, // turn encoder
                         0.032635, // turn offset
                         currentLimit);
-                m_frontRight = AMModule(
+                m_frontRight = SwerveModuleFactory.AMModule(
                         "Front Right",
                         12, // drive CAN
                         1, // turn PWM
                         3, // turn encoder
                         0.083566, // turn offset
                         currentLimit);
-                m_rearLeft = AMModule(
+                m_rearLeft = SwerveModuleFactory.AMModule(
                         "Rear Left",
                         21, // drive CAN
                         2, // turn PWM
                         0, // turn encoder
                         0.747865, // turn offset
                         currentLimit);
-                m_rearRight = AMModule(
+                m_rearRight = SwerveModuleFactory.AMModule(
                         "Rear Right",
                         22, // drive CAN
                         0, // turn PWM
@@ -191,28 +190,28 @@ public class SwerveDriveSubsystem extends SubsystemBase {
                 kMaxAccelerationMetersPerSecondSquared = 10;
                 kMaxAngularSpeedRadiansPerSecond = 5;
                 kMaxAngularSpeedRadiansPerSecondSquared = 5;
-                m_frontLeft = AMModule(
+                m_frontLeft = SwerveModuleFactory.AMModule(
                         "Front Left",
                         11, // drive CAN
                         0, // turn PWM0
                         3, // turn encoder
                         0.69, // turn offset
                         currentLimit);
-                m_frontRight = AMModule(
+                m_frontRight = SwerveModuleFactory.AMModule(
                         "Front Right",
                         12, // drive CAN
                         2, // turn PWM
                         0, // turn encoder
                         0.72, // turn offset
                         currentLimit);
-                m_rearLeft = AMModule(
+                m_rearLeft = SwerveModuleFactory.AMModule(
                         "Rear Left",
                         21, // drive CAN
                         1, // turn PWM
                         2, // turn encoder
                         0.37, // turn offset
                         currentLimit);
-                m_rearRight = AMModule(
+                m_rearRight = SwerveModuleFactory.AMModule(
                         "Rear Right",
                         22, // drive CAN
                         3, // turn PWM
@@ -225,28 +224,28 @@ public class SwerveDriveSubsystem extends SubsystemBase {
                 kMaxAccelerationMetersPerSecondSquared = 10;
                 kMaxAngularSpeedRadiansPerSecond = 5;
                 kMaxAngularSpeedRadiansPerSecondSquared = 5;
-                m_frontLeft = AMCANModule(
+                m_frontLeft = SwerveModuleFactory.AMCANModule(
                         "Front Left",
                         3, // drive CAN
                         8, // turn CAN
                         1, // turn encoder (confirmed)
                         0.355157, // turn offset
                         currentLimit);
-                m_frontRight = AMCANModule(
+                m_frontRight = SwerveModuleFactory.AMCANModule(
                         "Front Right",
                         2, // drive CAN
                         6, // turn CAN
                         0, // turn encoder (confirmed)
                         0.404786, // turn offset
                         currentLimit);
-                m_rearLeft = AMCANModule(
+                m_rearLeft = SwerveModuleFactory.AMCANModule(
                         "Rear Left",
                         1, // drive CAN
                         9, // turn CAN
                         3, // turn encoder (confirmed)
                         0.238757, // turn offset
                         currentLimit);
-                m_rearRight = AMCANModule(
+                m_rearRight = SwerveModuleFactory.AMCANModule(
                         "Rear Right",
                         4, // drive CAN
                         7, // turn CAN
@@ -259,28 +258,28 @@ public class SwerveDriveSubsystem extends SubsystemBase {
                 kMaxAccelerationMetersPerSecondSquared = 10;
                 kMaxAngularSpeedRadiansPerSecond = 5;
                 kMaxAngularSpeedRadiansPerSecondSquared = 5;
-                m_frontLeft = WCPModule(
+                m_frontLeft = SwerveModuleFactory.WCPModule(
                         "Front Left",
                         11, // drive CAN
                         30, // turn CAN
                         2, // turn encoder
                         0.812, // turn offset
                         currentLimit);
-                m_frontRight = WCPModule(
+                m_frontRight = SwerveModuleFactory.WCPModule(
                         "Front Right",
                         12, // drive CAN
                         32, // turn CAN
                         0, // turn encoder
                         0.382, // turn offset
                         currentLimit);
-                m_rearLeft = WCPModule(
+                m_rearLeft = SwerveModuleFactory.WCPModule(
                         "Rear Left",
                         21, // drive CAN
                         31, // turn CAN
                         3, // turn encoder
                         0.172, // turn offset
                         currentLimit);
-                m_rearRight = WCPModule(
+                m_rearRight = SwerveModuleFactory.WCPModule(
                         "Rear Right",
                         22, // drive CAN
                         33, // turn CAN
@@ -309,7 +308,7 @@ public class SwerveDriveSubsystem extends SubsystemBase {
                 0.0, // kI
                 0.0, // kD
                 new TrapezoidProfile.Constraints(
-                        kMaxAngularSpeedRadiansPerSecond, 
+                        kMaxAngularSpeedRadiansPerSecond,
                         kMaxAngularSpeedRadiansPerSecondSquared));
 
         headingController = new ProfiledPIDController( //
@@ -317,8 +316,8 @@ public class SwerveDriveSubsystem extends SubsystemBase {
                 0.1, // kI
                 0.21, // kD
                 new TrapezoidProfile.Constraints(
-                        2 * Math.PI, //speed rad/s
-                         4 * Math.PI)); // accel rad/s/s
+                        2 * Math.PI, // speed rad/s
+                        4 * Math.PI)); // accel rad/s/s
 
         headingController.setIntegratorRange(-0.1, 0.1);
         // Note very low heading tolerance.
@@ -342,156 +341,7 @@ public class SwerveDriveSubsystem extends SubsystemBase {
         SmartDashboard.putData("Drive Subsystem", this);
     }
 
-    private static SwerveModule WCPModule(
-            String name,
-            int driveMotorCanId,
-            int turningMotorCanId,
-            int turningEncoderChannel,
-            double turningOffset,
-            double currentLimit) {
-        final double kWheelDiameterMeters = 0.1015; // WCP 4 inch wheel
-        final double kDriveReduction = 5.50; // see wcproducts.com, this is the "fast" ratio.
-        final double driveEncoderDistancePerTurn = kWheelDiameterMeters * Math.PI / kDriveReduction;
-        final double turningGearRatio = 1.0;
-
-        FalconDriveMotor driveMotor = new FalconDriveMotor(name, driveMotorCanId, currentLimit);
-        FalconDriveEncoder driveEncoder = new FalconDriveEncoder(name, driveMotor, driveEncoderDistancePerTurn);
-        NeoTurningMotor turningMotor = new NeoTurningMotor(name, turningMotorCanId);
-        AnalogTurningEncoder turningEncoder = new AnalogTurningEncoder(name, turningEncoderChannel, turningOffset,
-                turningGearRatio);
-
-        // DRIVE PID
-        PIDController driveController = new PIDController( //
-                0.1, // kP
-                0.3, // kI: nonzero I eliminates small errors, e.g. to finish rotations.
-                0.0); // kD
-        driveController.setIntegratorRange(-0.01, 0.01); // Note very low windup limit.
-
-        // TURNING PID
-        ProfiledPIDController turningController = new ProfiledPIDController(
-                0.08, // kP: low P because not much reduction gearing.
-                0.0, // kI
-                0.0, // kD
-                new TrapezoidProfile.Constraints( //
-                        20 * Math.PI, // max angular speed radians/sec
-                        20 * Math.PI)); // max accel radians/sec/sec
-        turningController.enableContinuousInput(0, 2 * Math.PI);
-
-        // DRIVE FF
-        SimpleMotorFeedforward driveFeedforward = new SimpleMotorFeedforward( //
-                0.05, // kS: from experiment; overcome friction for low-effort moves
-                .5);// kV
-
-        // TURNING FF
-        SimpleMotorFeedforward turningFeedforward = new SimpleMotorFeedforward( //
-                0.0, // kS: friction is unimportant
-                0.02);// kV: from experiment; higher than AM modules, less reduction gear
-
-        return new SwerveModule(name, driveMotor, turningMotor, driveEncoder, turningEncoder,
-                driveController, turningController, driveFeedforward, turningFeedforward);
-    }
-
-    // for 8048's config
-    private static SwerveModule AMCANModule(
-            String name,
-            int driveMotorCanId,
-            int turningMotorCanId,
-            int turningEncoderChannel,
-            double turningOffset,
-            double currentLimit) {
-        final double kWheelDiameterMeters = 0.1016; // AndyMark Swerve & Steer has 4 inch wheel
-        final double kDriveReduction = 6.67; // see andymark.com/products/swerve-and-steer
-        final double driveEncoderDistancePerTurn = kWheelDiameterMeters * Math.PI / kDriveReduction;
-        final double turningGearRatio = 1.0; // andymark ma3 encoder is 1:1
-
-        FalconDriveMotor driveMotor = new FalconDriveMotor(name, driveMotorCanId, currentLimit);
-        FalconDriveEncoder driveEncoder = new FalconDriveEncoder(name, driveMotor, driveEncoderDistancePerTurn);
-        CANTurningMotor turningMotor = new CANTurningMotor(name, turningMotorCanId);
-        AnalogTurningEncoder turningEncoder = new AnalogTurningEncoder(name, turningEncoderChannel, turningOffset,
-                turningGearRatio);
-
-        // DRIVE PID
-        PIDController driveController = new PIDController( //
-                0.1, // kP
-                0, // kI: TODO: maybe more than zero?
-                0); // kD
-
-        // TURNING PID
-        ProfiledPIDController turningController = new ProfiledPIDController( //
-                0.5, // kP
-                0, // kI
-                0, // kD
-                new TrapezoidProfile.Constraints(
-                        20 * Math.PI, // speed rad/s
-                        20 * Math.PI)); // accel rad/s/s
-        turningController.enableContinuousInput(0, 2 * Math.PI);
-
-        // DRIVE FF
-        SimpleMotorFeedforward driveFeedforward = new SimpleMotorFeedforward( //
-                0.0, // kS
-                .5); // kV
-
-        // TURNING FF
-        SimpleMotorFeedforward turningFeedforward = new SimpleMotorFeedforward( //
-                0.1, // kS: very high? TODO: is this right?
-                0.005); // kV: very low? TODO: is this right?
-
-        return new SwerveModule(name, driveMotor, turningMotor, driveEncoder, turningEncoder,
-                driveController, turningController, driveFeedforward, turningFeedforward);
-
-    }
-
-    private static SwerveModule AMModule(
-            String name,
-            int driveMotorCanId,
-            int turningMotorChannel,
-            int turningEncoderChannel,
-            double turningOffset,
-            double currentLimit) {
-        final double kWheelDiameterMeters = 0.1016; // AndyMark Swerve & Steer has 4 inch wheel
-        final double kDriveReduction = 6.67; // see andymark.com/products/swerve-and-steer
-        final double driveEncoderDistancePerTurn = kWheelDiameterMeters * Math.PI / kDriveReduction;
-        final double turningGearRatio = 1.0; // andymark ma3 encoder is 1:1
-        FalconDriveMotor driveMotor = new FalconDriveMotor(name, driveMotorCanId, currentLimit);
-        FalconDriveEncoder driveEncoder = new FalconDriveEncoder(name, driveMotor, driveEncoderDistancePerTurn);
-        PWMTurningMotor turningMotor = new PWMTurningMotor(name, turningMotorChannel);
-        AnalogTurningEncoder turningEncoder = new AnalogTurningEncoder(name, turningEncoderChannel, turningOffset,
-                turningGearRatio);
-
-        // DRIVE PID
-        PIDController driveController = new PIDController(//
-                0.1, // kP
-                0, // kI
-                0);// kD
-
-        // TURNING PID
-        ProfiledPIDController turningController = new ProfiledPIDController(//
-                0.5, // kP
-                0, // kI
-                0, // kD
-                new TrapezoidProfile.Constraints(
-                        20 * Math.PI, // speed rad/s
-                        20 * Math.PI)); // accel rad/s/s
-        turningController.enableContinuousInput(0, 2 * Math.PI);
-
-        // Drive(IVE FF
-        SimpleMotorFeedforward driveFeedforward = new SimpleMotorFeedforward(//
-                0.04, // kS
-                0.2, // kV
-                0);
-
-        // TURNING FF
-        SimpleMotorFeedforward turningFeedforward = new SimpleMotorFeedforward(//
-                0.05, // kS
-                0.003,
-                0); // kV
-
-        return new SwerveModule(name, driveMotor, turningMotor, driveEncoder, turningEncoder,
-                driveController, turningController, driveFeedforward, turningFeedforward);
-    }
-
     public void updateOdometry() {
-
         m_poseEstimator.update(
                 getHeading(),
                 new SwerveModulePosition[] {
@@ -657,7 +507,6 @@ public class SwerveDriveSubsystem extends SubsystemBase {
         } else {
             moving = false;
         }
-
     }
 
     public void test(double[][] desiredOutputs) {
