@@ -155,14 +155,12 @@ public class RobotContainer implements Sendable {
         // driveToAprilTag5 = DriveToAprilTag.newDriveToAprilTag(4, m_robotDrive);
         m_alliance = DriverStation.getAlliance();
         if (m_alliance == DriverStation.Alliance.Blue) {
-            System.out.println("bbbbbbbbbbbbbbbbbbbbbbbbbbbbbb");
             driveToID1 = DriveToAprilTag.newDriveToAprilTag(8, control::goalOffset, m_robotDrive);
             driveToID2 = DriveToAprilTag.newDriveToAprilTag(7, control::goalOffset, m_robotDrive);
             driveToID3 = DriveToAprilTag.newDriveToAprilTag(6, control::goalOffset, m_robotDrive);
             driveToID4 = DriveToAprilTag.newDriveToAprilTag(5, control::goalOffset, m_robotDrive);
         }
         else {
-            System.out.println("Aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
             driveToID1 = DriveToAprilTag.newDriveToAprilTag(1, control::goalOffset, m_robotDrive);
             driveToID2 = DriveToAprilTag.newDriveToAprilTag(2, control::goalOffset, m_robotDrive);
             driveToID3 = DriveToAprilTag.newDriveToAprilTag(3, control::goalOffset, m_robotDrive);
