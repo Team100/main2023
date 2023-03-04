@@ -2,7 +2,6 @@ package team100.localization;
 
 import java.io.IOException;
 import java.util.EnumSet;
-import java.util.Map;
 import java.util.Optional;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
