@@ -312,12 +312,12 @@ public class SwerveDriveSubsystem extends SubsystemBase {
                         kMaxAngularSpeedRadiansPerSecondSquared));
 
         headingController = new ProfiledPIDController( //
-                1.4, // kP
-                0.1, // kI
-                0.21, // kD
+                1, // kP
+                0.05, // kI
+                0.15, // kD
                 new TrapezoidProfile.Constraints(
                         2 * Math.PI, // speed rad/s
-                        4 * Math.PI)); // accel rad/s/s
+                        1.2 * Math.PI)); // accel rad/s/s
 
         headingController.setIntegratorRange(-0.1, 0.1);
         // Note very low heading tolerance.
