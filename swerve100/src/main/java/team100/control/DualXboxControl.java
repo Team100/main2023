@@ -189,11 +189,14 @@ public class DualXboxControl implements Control, Sendable {
 
     @Override
     public Rotation2d desiredRotation() {
-        // return new Rotation2d(-controller0.getLeftX(), -controller0.getLeftY());
         double foo = -controller0.getHID().getPOV();
+
         if (foo > 0) {
+            // positive foo equals negative stick which means no input
+            previousRotation = previousRotation.minus(new Rotation2d(controller0.getLeftX()*Math.PI*0.02)) ;
             return previousRotation;
         } 
+        
         previousRotation = Rotation2d.fromDegrees(foo);
         return previousRotation;
         

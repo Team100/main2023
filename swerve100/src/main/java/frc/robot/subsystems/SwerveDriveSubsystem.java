@@ -314,7 +314,7 @@ public class SwerveDriveSubsystem extends SubsystemBase {
         headingController = new ProfiledPIDController( //
                 1, // kP
                 0.05, // kI
-                0.2, // kD
+                0.15, // kD
                 new TrapezoidProfile.Constraints(
                         2 * Math.PI, // speed rad/s
                         1.2 * Math.PI)); // accel rad/s/s
