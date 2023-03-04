@@ -528,6 +528,10 @@ public class SwerveDriveSubsystem extends SubsystemBase {
         return Rotation2d.fromDegrees(-m_gyro.getFusedHeading());
     }
 
+    public double diff() {
+        return -m_gyro.getFusedHeading()-getPose().getRotation().getDegrees();
+    }
+
     @Override
     public void initSendable(SendableBuilder builder) {
         super.initSendable(builder);
@@ -594,6 +598,7 @@ public class SwerveDriveSubsystem extends SubsystemBase {
 
         builder.addDoubleProperty("GYRO Fused", () -> m_gyro.getFusedHeading(), null);
         builder.addDoubleProperty("Gyro Rate", () -> m_gyro.getRate(), null);
+        builder.addDoubleProperty("getAngle", () -> m_gyro.getAngle()%360, null);
 
     }
 }

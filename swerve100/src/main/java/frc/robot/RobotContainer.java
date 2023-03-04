@@ -156,15 +156,15 @@ public class RobotContainer implements Sendable {
         // driveToAprilTag5 = DriveToAprilTag.newDriveToAprilTag(4, m_robotDrive);
         m_alliance = DriverStation.getAlliance();
         if (m_alliance == DriverStation.Alliance.Blue) {
-            driveToLeftGrid = DriveToAprilTag.newDriveToAprilTag(6, control::goalOffset, m_robotDrive);
-            driveToCenterGrid = DriveToAprilTag.newDriveToAprilTag(7, control::goalOffset, m_robotDrive);
-            driveToRightGrid = DriveToAprilTag.newDriveToAprilTag(8, control::goalOffset, m_robotDrive);
-            driveToSubstation = DriveToAprilTag.newDriveToAprilTag(4, control::goalOffset, m_robotDrive);
+            driveToLeftGrid = DriveToAprilTag.newDriveToAprilTag(6, .889, .55, control::goalOffset, m_robotDrive);
+            driveToCenterGrid = DriveToAprilTag.newDriveToAprilTag(7, .889, .55, control::goalOffset, m_robotDrive);
+            driveToRightGrid = DriveToAprilTag.newDriveToAprilTag(8, .889, .55, control::goalOffset, m_robotDrive);
+            driveToSubstation = DriveToAprilTag.newDriveToAprilTag(4, .5334, .762, control::goalOffset, m_robotDrive);
         } else {
-            driveToLeftGrid = DriveToAprilTag.newDriveToAprilTag(1, control::goalOffset, m_robotDrive);
-            driveToCenterGrid = DriveToAprilTag.newDriveToAprilTag(2, control::goalOffset, m_robotDrive);
-            driveToRightGrid = DriveToAprilTag.newDriveToAprilTag(3, control::goalOffset, m_robotDrive);
-            driveToSubstation = DriveToAprilTag.newDriveToAprilTag(5, control::goalOffset, m_robotDrive);
+            driveToLeftGrid = DriveToAprilTag.newDriveToAprilTag(1, .889, .55, control::goalOffset, m_robotDrive);
+            driveToCenterGrid = DriveToAprilTag.newDriveToAprilTag(2, .889, .55, control::goalOffset, m_robotDrive);
+            driveToRightGrid = DriveToAprilTag.newDriveToAprilTag(3, .889, .55, control::goalOffset, m_robotDrive);
+            driveToSubstation = DriveToAprilTag.newDriveToAprilTag(5, .5334, .762, control::goalOffset, m_robotDrive);
         }
 
         // moveToAprilTag2 = MoveToAprilTag.newMoveToAprilTag(m_robotDrive, 1);

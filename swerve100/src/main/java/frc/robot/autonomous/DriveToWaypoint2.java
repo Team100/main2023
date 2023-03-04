@@ -11,6 +11,7 @@ import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.math.trajectory.TrajectoryConfig;
+import edu.wpi.first.math.trajectory.TrajectoryParameterizer.TrajectoryGenerationException;
 import edu.wpi.first.math.trajectory.TrajectoryGenerator;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.networktables.NetworkTableInstance;
@@ -49,6 +50,7 @@ public class DriveToWaypoint2 extends CommandBase {
     private final SwerveDriveSubsystem m_swerve;
     private final Pose2d goal;
     private final Supplier<GoalOffset> goalOffsetSupplier;
+    private final double m_yOffset;
     private GoalOffset previousOffset;
     private Transform2d goalTransform;
 
@@ -59,14 +61,14 @@ public class DriveToWaypoint2 extends CommandBase {
     private final HolonomicDriveController2 m_controller;
 
     private Trajectory m_trajectory;
+    private boolean isFinished = false;
 
     // private State desiredStateGlobal;
 
-    public DriveToWaypoint2(Pose2d goal, Supplier<GoalOffset> offsetSupplier, SwerveDriveSubsystem m_swerve) {
+    public DriveToWaypoint2(Pose2d goal, double yOffset, Supplier<GoalOffset> offsetSupplier,
+            SwerveDriveSubsystem m_swerve) {
         this.goal = goal;
         this.m_swerve = m_swerve;
-
-
 
         System.out.println("CONSTRUCTOR****************************************************");
         // desiredY = 0;
@@ -75,6 +77,7 @@ public class DriveToWaypoint2 extends CommandBase {
 
         goalOffsetSupplier = offsetSupplier;
         previousOffset = goalOffsetSupplier.get();
+        m_yOffset = yOffset;
 
         m_rotationController = new ProfiledPIDController(1.3, 0, 0, rotationConstraints);
         m_rotationController.setTolerance(Math.PI / 180);
@@ -101,12 +104,12 @@ public class DriveToWaypoint2 extends CommandBase {
         goalTransform = new Transform2d();
         // TODO: Change based on task
         if (goalOffset == GoalOffset.left) {
-            
-            goalTransform = new Transform2d(new Translation2d(0, .55), new Rotation2d());
+
+            goalTransform = new Transform2d(new Translation2d(0, -m_yOffset), new Rotation2d());
             System.out.println("lalallalalalalalalalalalalallalalalala");
         }
         if (goalOffset == GoalOffset.right) {
-            goalTransform = new Transform2d(new Translation2d(0, -.55), new Rotation2d());
+            goalTransform = new Transform2d(new Translation2d(0, m_yOffset), new Rotation2d());
             System.out.println("fffffffffffffffffffffffffffffffffffffffffffff");
         }
         Pose2d transformedGoal = goal.plus(goalTransform);
@@ -119,11 +122,16 @@ public class DriveToWaypoint2 extends CommandBase {
         withStartVelocityConfig.setStartVelocity(startVelocity);
 
         // TODO: Change starting waypoint to align with starting velocity
-        return TrajectoryGenerator.generateTrajectory(
-                new Pose2d(currentTranslation, angleToGoal),
-                List.of(),
-                new Pose2d(goalTranslation, angleToGoal),
-                translationConfig);
+        try {
+            return TrajectoryGenerator.generateTrajectory(
+                    new Pose2d(currentTranslation, angleToGoal),
+                    List.of(),
+                    new Pose2d(goalTranslation, angleToGoal),
+                    translationConfig);
+        } catch (TrajectoryGenerationException e) {
+            isFinished = true;
+            return null;
+        }
     }
 
     @Override
@@ -131,6 +139,7 @@ public class DriveToWaypoint2 extends CommandBase {
         // this.desiredX = 14;
         // System.out.println("START TO WAYPOINT*************************" +
         // this.desiredX);
+        isFinished = false;
         m_timer.restart();
         // m_timer.start();
         m_trajectory = makeTrajectory(previousOffset, 0);
@@ -138,7 +147,7 @@ public class DriveToWaypoint2 extends CommandBase {
 
     @Override
     public boolean isFinished() {
-        return false; // keep trying until the button is released
+        return isFinished; // keep trying until the button is released
     }
 
     @Override
@@ -149,15 +158,20 @@ public class DriveToWaypoint2 extends CommandBase {
     }
 
     public void execute() {
+        if (m_trajectory == null) {
+            return;
+        }
         if (goalOffsetSupplier.get() != previousOffset) {
-            m_trajectory = makeTrajectory(goalOffsetSupplier.get(), m_trajectory.sample(m_timer.get()).velocityMetersPerSecond);
-            previousOffset =  goalOffsetSupplier.get();
+            m_trajectory = makeTrajectory(goalOffsetSupplier.get(),
+                    m_trajectory.sample(m_timer.get()).velocityMetersPerSecond);
+            previousOffset = goalOffsetSupplier.get();
             m_timer.restart();
         }
-        System.out.println(goal);
+        if (m_trajectory == null) {
+            return;
+        }
         double curTime = m_timer.get();
         var desiredState = m_trajectory.sample(curTime);
-
         // this.desiredX = desiredState.poseMeters.getX();
 
         // desiredY = desiredState.poseMeters.getY();
@@ -165,7 +179,7 @@ public class DriveToWaypoint2 extends CommandBase {
         // desiredPose = desiredState.poseMeters;
 
         // desiredPose = desiredState.poseMeters;
-        
+
         // System.out.print ln(desiredX);
 
         // System.out.println("*****************"+goal);
