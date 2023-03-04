@@ -93,10 +93,9 @@ public class Manipulator extends SubsystemBase {
 
   }
  
-  public double getEncoderPosition(){
-    return pinch.getSelectedSensorPosition();
+  public double getStatorCurrent(){
+    return pinch.motor.getStatorCurrent();
   }
-  
   public boolean getInnerLimitSwitch(){
     return pinch.motor.isFwdLimitSwitchClosed()==1;
   }

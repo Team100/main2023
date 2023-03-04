@@ -9,7 +9,6 @@ import frc.robot.autonomous.MoveToAprilTag;
 import edu.wpi.first.math.geometry.Rotation2d;
 import frc.robot.autonomous.DriveToAprilTag;
 import frc.robot.autonomous.DriveToWaypoint2;
-import frc.robot.commands.ArmHigh;
 import frc.robot.commands.DriveRotation;
 import frc.robot.commands.GoalOffset;
 import frc.robot.commands.ResetPose;
