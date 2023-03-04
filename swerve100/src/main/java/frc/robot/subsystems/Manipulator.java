@@ -7,6 +7,12 @@ package frc.robot.subsystems;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.AnalogEncoder;
+
+import com.ctre.phoenix.motorcontrol.FeedbackDevice;
+import com.ctre.phoenix.motorcontrol.NeutralMode;
+
+import edu.wpi.first.util.sendable.SendableBuilder;
+import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.FRCLib.Motors.FRCTalonSRX;
@@ -17,6 +23,8 @@ public class Manipulator extends SubsystemBase {
   FRCTalonSRX pinch;
   public AnalogEncoder position;
   public PIDController pinchController;
+  private double origin;
+  private DigitalInput sensor = new DigitalInput(0);
 
   public Manipulator() {
     pinch = new FRCTalonSRXBuilder(10)
@@ -25,6 +33,7 @@ public class Manipulator extends SubsystemBase {
     // .withKD(Constants.DrivetrainConstants.DrivetrainMotors.LeftMaster.KD)
     // .withKF(Constants.DrivetrainConstants.DrivetrainMotors.LeftMaster.KF)
     .withInverted(false)
+    .withSensorPhase(false)
     // .withSensorPhase(Constants.DrivetrainConstants.DrivetrainMotors.LeftMaster.SENSOR_PHASE)
     .withPeakOutputForward(1)
     .withPeakOutputReverse(-1)
@@ -60,6 +69,12 @@ public class Manipulator extends SubsystemBase {
     // This method will be called once per scheduler run
     // System.out.println(pinch.getAppliedOutput());
 
+    // System.out.println(pinch.getSelectedSensorPosition());
+    SmartDashboard.putData("Manipulator", this);
+    //System.out.println("in Manipulator");
+  }
+  public double getOrigin(){
+    return origin;
   }
 
   public void pinch(double d){
@@ -76,6 +91,14 @@ public class Manipulator extends SubsystemBase {
       pinch.drivePercentOutput(0);
     }
 
+  }
+ 
+  public double getEncoderPosition(){
+    return pinch.getSelectedSensorPosition();
+  }
+  
+  public boolean getInnerLimitSwitch(){
+    return pinch.motor.isFwdLimitSwitchClosed()==1;
   }
 
   public double getPosition(){

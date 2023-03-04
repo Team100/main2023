@@ -19,8 +19,8 @@ import frc.robot.autonomous.DriveToAprilTag;
 import frc.robot.autonomous.DriveToWaypoint2;
 //import frc.robot.autonomous.SanjanAutonomous;
 import frc.robot.commands.ResetRotation;
-// import frc.robot.commands.ResetPose;
 import frc.robot.commands.autoLevel;
+import frc.robot.subsystems.SwerveDriveSubsystem;
 
 public interface Control {
 
@@ -52,13 +52,13 @@ public interface Control {
 
 
 
-    public void driveToID1(DriveToWaypoint2 command);
+    public void driveToLeftGrid(DriveToWaypoint2 command);
 
-    public void driveToID2(DriveToWaypoint2 command);
+    public void driveToCenterGrid(DriveToWaypoint2 command);
 
-    public void driveToID3(DriveToWaypoint2 command);
+    public void driveToRightGrid(DriveToWaypoint2 command);
 
-    public void driveToID4(DriveToWaypoint2 command);
+    public void driveToSubstation(DriveToWaypoint2 command);
 
 
     public void autoLevel(autoLevel command);
@@ -68,13 +68,13 @@ public interface Control {
 
 
 
-    public void driveWithHeading0(DriveWithHeading command);
+    // public void driveWithHeading0(DriveWithHeading command);
 
-    public void driveWithHeading90(DriveWithHeading command);
+    // public void driveWithHeading90(DriveWithHeading command);
 
-    public void driveWithHeading180(DriveWithHeading command);
+    // public void driveWithHeading180(DriveWithHeading command);
 
-    public void driveWithHeading270(DriveWithHeading command);
+    // public void driveWithHeading270(DriveWithHeading command);
 
     public void driveRotation(DriveRotation command);
 
@@ -82,6 +82,7 @@ public interface Control {
 
 
     // DRIVETRAIN
+    public GoalOffset goalOffset();
     /** @return [-1,1] */
     public double xSpeed();
 
@@ -90,6 +91,8 @@ public interface Control {
 
     /** @return [-1,1] */
     public double rotSpeed();
+
+    public Rotation2d desiredRotation();
 
     /** @return [0, 1] */
     public double throttle();
@@ -100,6 +103,8 @@ public interface Control {
 
     /** @return [-1,1] */
     public double closeSpeed();
+
+    
 
     // ARM
     /** @return [-1,1] */

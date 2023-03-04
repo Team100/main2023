@@ -1,11 +1,13 @@
 package frc.robot.subsystems;
 
+import java.io.IOException;
+
 import com.kauailabs.navx.frc.AHRS;
 
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
-import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -25,13 +27,15 @@ import edu.wpi.first.wpilibj.SerialPort;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.RobotContainer;
-import frc.robot.localization.VisionDataProvider;
 import team100.config.Identity;
+import team100.localization.VisionDataProvider;
 
-@SuppressWarnings("unused")
 public class SwerveDriveSubsystem extends SubsystemBase {
     // TODO: make this an instance var
     public static final SwerveDriveKinematics kDriveKinematics;
+    // public ChassisSpeeds robotStates = new ChassisSpeeds();
+    // public double observedVelocity;
+    public ChassisSpeeds desiredChassisSpeeds = new ChassisSpeeds();
 
     static {
         final double kTrackWidth;
@@ -68,23 +72,10 @@ public class SwerveDriveSubsystem extends SubsystemBase {
                 new Translation2d(-kWheelBase / 2, -kTrackWidth / 2));
     }
 
-    // TODO: what were these for?
-    // public static final double ksVolts = 2;
-    // public static final double kvVoltSecondsPerMeter = 2.0;
-    // public static final double kaVoltSecondsSquaredPerMeter = 0.5;
-
-    // SLOW SETTINGS
-    public static final double kMaxSpeedMetersPerSecond = 5;
-    public static final double kMaxAccelerationMetersPerSecondSquared = 10;
-    // NOTE joel 2/8 used to be negative; inversions broken somewhere?
-    public static final double kMaxAngularSpeedRadiansPerSecond = 3;
-    public static final double kMaxAngularSpeedRadiansPerSecondSquared = 5;
-
-    // FAST SETTINGS. can the robot actually go this fast?
-    // public static final double kMaxSpeedMetersPerSecond = 8;
-    // public static final double kMaxAccelerationMetersPerSecondSquared = 3;
-    // public static final double kMaxAngularSpeedRadiansPerSecond = 10;
-    // public static final double kMaxAngularSpeedRadiansPerSecondSquared = 100;
+    public final double kMaxSpeedMetersPerSecond;
+    public final double kMaxAccelerationMetersPerSecondSquared;
+    public final double kMaxAngularSpeedRadiansPerSecond;
+    public final double kMaxAngularSpeedRadiansPerSecondSquared;
 
     private final SwerveModule m_frontLeft;
     private final SwerveModule m_frontRight;
@@ -109,20 +100,15 @@ public class SwerveDriveSubsystem extends SubsystemBase {
 
     private boolean moving = false;
 
-    // TODO: this looks unfinished?
-    // public static final TrapezoidProfile.Constraints kXControllerConstraints =
-    // new TrapezoidProfile.Constraints(kMaxSpeedMetersPerSecond,
-    // kMaxAccelerationMetersPerSecondSquared);
-
     public final PIDController xController;
     public final PIDController yController;
-    public final PIDController headingController;
+    public final ProfiledPIDController headingController;
     public ProfiledPIDController thetaController;
 
     private final DoubleArrayPublisher robotPosePub;
     private final StringPublisher fieldTypePub;
 
-    public SwerveDriveSubsystem(double currentLimit) {
+    public SwerveDriveSubsystem(double currentLimit) throws IOException {
         // Sets up Field2d pose tracking for glass.
         NetworkTableInstance inst = NetworkTableInstance.getDefault();
         NetworkTable fieldTable = inst.getTable("field");
@@ -130,59 +116,34 @@ public class SwerveDriveSubsystem extends SubsystemBase {
         fieldTypePub = fieldTable.getStringTopic(".type").publish();
         fieldTypePub.set("Field2d");
 
-        final double Px = .15;
-        final double Ix = 0;
-        final double Dx = 0;
-        final double xTolerance = 0.2;
-        xController = new PIDController(Px, Ix, Dx);
-        xController.setTolerance(xTolerance);
-
-        final double Py = 0.15;
-        final double Iy = 0;
-        final double Dy = 0;
-        final double yTolerance = 0.2;
-        yController = new PIDController(Py, Iy, Dy);
-        yController.setTolerance(yTolerance);
-
-        final double Ptheta = 3;
-        final double Itheta = 0;
-        final double Dtheta = 0;
-        final TrapezoidProfile.Constraints thetaControllerConstraints = new TrapezoidProfile.Constraints(
-                kMaxAngularSpeedRadiansPerSecond, kMaxAngularSpeedRadiansPerSecondSquared);
-        thetaController = new ProfiledPIDController(Ptheta, Itheta, Dtheta, thetaControllerConstraints);
-
-        headingController = new PIDController( //
-                3, // kP
-                0.05, // kI
-                0.2); // kD
-
-        // Note very low heading tolerance.
-        headingController.setTolerance(Units.degreesToRadians(0.5));
-
         switch (Identity.get()) {
             case COMP_BOT:
-                m_frontLeft = WCPModule(
+                kMaxSpeedMetersPerSecond = 5;
+                kMaxAccelerationMetersPerSecondSquared = 10;
+                kMaxAngularSpeedRadiansPerSecond = 5;
+                kMaxAngularSpeedRadiansPerSecondSquared = 5;
+                m_frontLeft = SwerveModuleFactory.WCPModule(
                         "Front Left",
                         11, // drive CAN
                         30, // turn CAN
                         0, // turn encoder
                         0.26, // turn offset
                         currentLimit);
-                m_frontRight = WCPModule(
+                m_frontRight = SwerveModuleFactory.WCPModule(
                         "Front Right",
                         12, // drive CAN
                         32, // turn CAN
                         1, // turn encoder
                         0.87, // turn offset
                         currentLimit);
-                m_rearLeft = WCPModule(
+                m_rearLeft = SwerveModuleFactory.WCPModule(
                         "Rear Left",
                         21, // drive CAN
                         31, // turn CAN
                         2, // turn encoder
                         0.27, // turn offset
                         currentLimit);
-                m_rearRight = WCPModule(
+                m_rearRight = SwerveModuleFactory.WCPModule(
                         "Rear Right",
                         22, // drive CAN
                         33, // turn CAN
@@ -191,58 +152,66 @@ public class SwerveDriveSubsystem extends SubsystemBase {
                         currentLimit);
                 break;
             case SWERVE_TWO:
-                m_frontLeft = AMModule(
+                kMaxSpeedMetersPerSecond = 5;
+                kMaxAccelerationMetersPerSecondSquared = 10;
+                kMaxAngularSpeedRadiansPerSecond = 5;
+                kMaxAngularSpeedRadiansPerSecondSquared = 5;
+                m_frontLeft = SwerveModuleFactory.AMModule(
                         "Front Left",
                         11, // drive CAN
                         3, // turn PWM
                         1, // turn encoder
                         0.032635, // turn offset
                         currentLimit);
-                m_frontRight = AMModule(
+                m_frontRight = SwerveModuleFactory.AMModule(
                         "Front Right",
                         12, // drive CAN
                         1, // turn PWM
                         3, // turn encoder
                         0.083566, // turn offset
                         currentLimit);
-                m_rearLeft = AMModule(
+                m_rearLeft = SwerveModuleFactory.AMModule(
                         "Rear Left",
                         21, // drive CAN
                         2, // turn PWM
                         0, // turn encoder
                         0.747865, // turn offset
                         currentLimit);
-                m_rearRight = AMModule(
+                m_rearRight = SwerveModuleFactory.AMModule(
                         "Rear Right",
                         22, // drive CAN
                         0, // turn PWM
                         2, // turn encoder
-                        0.727833, // turn offset
+                        0.894767, // turn offset
                         currentLimit);
                 break;
             case SWERVE_ONE:
-                m_frontLeft = AMModule(
+                kMaxSpeedMetersPerSecond = 5;
+                kMaxAccelerationMetersPerSecondSquared = 10;
+                kMaxAngularSpeedRadiansPerSecond = 5;
+                kMaxAngularSpeedRadiansPerSecondSquared = 5;
+                m_frontLeft = SwerveModuleFactory.AMModule(
                         "Front Left",
                         11, // drive CAN
-                        0, // turn PWM
+                        0, // turn PWM0
                         3, // turn encoder
                         0.69, // turn offset
                         currentLimit);
-                m_frontRight = AMModule(
+                m_frontRight = SwerveModuleFactory.AMModule(
                         "Front Right",
                         12, // drive CAN
                         2, // turn PWM
                         0, // turn encoder
                         0.72, // turn offset
                         currentLimit);
-                m_rearLeft = AMModule(
+                m_rearLeft = SwerveModuleFactory.AMModule(
                         "Rear Left",
                         21, // drive CAN
                         1, // turn PWM
                         2, // turn encoder
                         0.37, // turn offset
                         currentLimit);
-                m_rearRight = AMModule(
+                m_rearRight = SwerveModuleFactory.AMModule(
                         "Rear Right",
                         22, // drive CAN
                         3, // turn PWM
@@ -251,28 +220,32 @@ public class SwerveDriveSubsystem extends SubsystemBase {
                         currentLimit);
                 break;
             case FROM_8048:
-                m_frontLeft = AMCANModule(
+                kMaxSpeedMetersPerSecond = 5;
+                kMaxAccelerationMetersPerSecondSquared = 10;
+                kMaxAngularSpeedRadiansPerSecond = 5;
+                kMaxAngularSpeedRadiansPerSecondSquared = 5;
+                m_frontLeft = SwerveModuleFactory.AMCANModule(
                         "Front Left",
                         3, // drive CAN
                         8, // turn CAN
                         1, // turn encoder (confirmed)
                         0.355157, // turn offset
                         currentLimit);
-                m_frontRight = AMCANModule(
+                m_frontRight = SwerveModuleFactory.AMCANModule(
                         "Front Right",
                         2, // drive CAN
                         6, // turn CAN
                         0, // turn encoder (confirmed)
                         0.404786, // turn offset
                         currentLimit);
-                m_rearLeft = AMCANModule(
+                m_rearLeft = SwerveModuleFactory.AMCANModule(
                         "Rear Left",
                         1, // drive CAN
                         9, // turn CAN
                         3, // turn encoder (confirmed)
                         0.238757, // turn offset
                         currentLimit);
-                m_rearRight = AMCANModule(
+                m_rearRight = SwerveModuleFactory.AMCANModule(
                         "Rear Right",
                         4, // drive CAN
                         7, // turn CAN
@@ -281,28 +254,32 @@ public class SwerveDriveSubsystem extends SubsystemBase {
                         currentLimit);
                 break;
             case BLANK: // for simulation; just like squarebot for now
-                m_frontLeft = WCPModule(
+                kMaxSpeedMetersPerSecond = 5;
+                kMaxAccelerationMetersPerSecondSquared = 10;
+                kMaxAngularSpeedRadiansPerSecond = 5;
+                kMaxAngularSpeedRadiansPerSecondSquared = 5;
+                m_frontLeft = SwerveModuleFactory.WCPModule(
                         "Front Left",
                         11, // drive CAN
                         30, // turn CAN
                         2, // turn encoder
                         0.812, // turn offset
                         currentLimit);
-                m_frontRight = WCPModule(
+                m_frontRight = SwerveModuleFactory.WCPModule(
                         "Front Right",
                         12, // drive CAN
                         32, // turn CAN
                         0, // turn encoder
                         0.382, // turn offset
                         currentLimit);
-                m_rearLeft = WCPModule(
+                m_rearLeft = SwerveModuleFactory.WCPModule(
                         "Rear Left",
                         21, // drive CAN
                         31, // turn CAN
                         3, // turn encoder
                         0.172, // turn offset
                         currentLimit);
-                m_rearRight = WCPModule(
+                m_rearRight = SwerveModuleFactory.WCPModule(
                         "Rear Right",
                         22, // drive CAN
                         33, // turn CAN
@@ -313,6 +290,38 @@ public class SwerveDriveSubsystem extends SubsystemBase {
             default:
                 throw new IllegalStateException("Identity is not swerve: " + Identity.get().name());
         }
+
+        xController = new PIDController(
+                0.15, // kP
+                0.0, // kI
+                0.0); // kD
+        xController.setTolerance(0.2);
+
+        yController = new PIDController(
+                0.15, // kP
+                0.0, // kI
+                0.0); // kD
+        yController.setTolerance(0.2);
+
+        thetaController = new ProfiledPIDController(
+                3.0, // kP
+                0.0, // kI
+                0.0, // kD
+                new TrapezoidProfile.Constraints(
+                        kMaxAngularSpeedRadiansPerSecond,
+                        kMaxAngularSpeedRadiansPerSecondSquared));
+
+        headingController = new ProfiledPIDController( //
+                1.4, // kP
+                0.1, // kI
+                0.21, // kD
+                new TrapezoidProfile.Constraints(
+                        2 * Math.PI, // speed rad/s
+                        4 * Math.PI)); // accel rad/s/s
+
+        headingController.setIntegratorRange(-0.1, 0.1);
+        // Note very low heading tolerance.
+        headingController.setTolerance(Units.degreesToRadians(0.1));
 
         m_gyro = new AHRS(SerialPort.Port.kUSB);
         m_poseEstimator = new SwerveDrivePoseEstimator(
@@ -327,161 +336,12 @@ public class SwerveDriveSubsystem extends SubsystemBase {
                 new Pose2d(),
                 VecBuilder.fill(0.03, 0.03, 0.03),
                 VecBuilder.fill(0.01, 0.01, Integer.MAX_VALUE));
-        visionDataProvider = new VisionDataProvider(m_poseEstimator, () -> getMoving(), () -> getPose());
+        visionDataProvider = new VisionDataProvider(m_poseEstimator, () -> getPose());
 
         SmartDashboard.putData("Drive Subsystem", this);
     }
 
-    private static SwerveModule WCPModule(
-            String name,
-            int driveMotorCanId,
-            int turningMotorCanId,
-            int turningEncoderChannel,
-            double turningOffset,
-            double currentLimit) {
-        final double kWheelDiameterMeters = 0.1015; // WCP 4 inch wheel
-        final double kDriveReduction = 5.50; // see wcproducts.com, this is the "fast" ratio.
-        final double driveEncoderDistancePerTurn = kWheelDiameterMeters * Math.PI / kDriveReduction;
-        final double turningGearRatio = 1.0;
-
-        FalconDriveMotor driveMotor = new FalconDriveMotor(name, driveMotorCanId, currentLimit);
-        FalconDriveEncoder driveEncoder = new FalconDriveEncoder(name, driveMotor, driveEncoderDistancePerTurn);
-        NeoTurningMotor turningMotor = new NeoTurningMotor(name, turningMotorCanId);
-        AnalogTurningEncoder turningEncoder = new AnalogTurningEncoder(name, turningEncoderChannel, turningOffset,
-                turningGearRatio);
-
-        // DRIVE PID
-        PIDController driveController = new PIDController( //
-                0.1, // kP
-                0.3, // kI: nonzero I eliminates small errors, e.g. to finish rotations.
-                0.0); // kD
-        driveController.setIntegratorRange(-0.01, 0.01); // Note very low windup limit.
-
-        // TURNING PID
-        ProfiledPIDController turningController = new ProfiledPIDController(
-                0.1, // kP: low P because not much reduction gearing.
-                0.0, // kI
-                0.0, // kD
-                new TrapezoidProfile.Constraints( //
-                        20 * Math.PI, // max angular speed radians/sec
-                        20 * Math.PI)); // max accel radians/sec/sec
-        turningController.enableContinuousInput(0, 2 * Math.PI);
-
-        // DRIVE FF
-        SimpleMotorFeedforward driveFeedforward = new SimpleMotorFeedforward( //
-                0.04, // kS: from experiment; overcome friction for low-effort moves
-                .1);// kV
-
-        // TURNING FF
-        SimpleMotorFeedforward turningFeedforward = new SimpleMotorFeedforward( //
-                0.03, // kS: friction is unimportant
-                0.02);// kV: from experiment; higher than AM modules, less reduction gear
-
-        return new SwerveModule(name, driveMotor, turningMotor, driveEncoder, turningEncoder,
-                driveController, turningController, driveFeedforward, turningFeedforward);
-    }
-
-    // for 8048's config
-    private static SwerveModule AMCANModule(
-            String name,
-            int driveMotorCanId,
-            int turningMotorCanId,
-            int turningEncoderChannel,
-            double turningOffset,
-            double currentLimit) {
-        final double kWheelDiameterMeters = 0.1016; // AndyMark Swerve & Steer has 4 inch wheel
-        final double kDriveReduction = 6.67; // see andymark.com/products/swerve-and-steer
-        final double driveEncoderDistancePerTurn = kWheelDiameterMeters * Math.PI / kDriveReduction;
-        final double turningGearRatio = 1.0; // andymark ma3 encoder is 1:1
-
-        FalconDriveMotor driveMotor = new FalconDriveMotor(name, driveMotorCanId, currentLimit);
-        FalconDriveEncoder driveEncoder = new FalconDriveEncoder(name, driveMotor, driveEncoderDistancePerTurn);
-        CANTurningMotor turningMotor = new CANTurningMotor(name, turningMotorCanId);
-        AnalogTurningEncoder turningEncoder = new AnalogTurningEncoder(name, turningEncoderChannel, turningOffset,
-                turningGearRatio);
-
-        // DRIVE PID
-        PIDController driveController = new PIDController( //
-                0.1, // kP
-                0, // kI: TODO: maybe more than zero?
-                0); // kD
-
-        // TURNING PID
-        ProfiledPIDController turningController = new ProfiledPIDController( //
-                0.5, // kP
-                0, // kI
-                0, // kD
-                new TrapezoidProfile.Constraints(
-                        20 * Math.PI, // speed rad/s
-                        20 * Math.PI)); // accel rad/s/s
-        turningController.enableContinuousInput(0, 2 * Math.PI);
-
-        // DRIVE FF
-        // TODO: real kS and kV
-        SimpleMotorFeedforward driveFeedforward = new SimpleMotorFeedforward( //
-                0.0, // kS
-                .5); // kV
-
-        // TURNING FF
-        // TODO: high kS and low kV means kinda binary?
-        SimpleMotorFeedforward turningFeedforward = new SimpleMotorFeedforward( //
-                0.1, // kS: very high? TODO: is this right?
-                0.005); // kV: very low? TODO: is this right?
-
-        return new SwerveModule(name, driveMotor, turningMotor, driveEncoder, turningEncoder,
-                driveController, turningController, driveFeedforward, turningFeedforward);
-
-    }
-
-    private static SwerveModule AMModule(
-            String name,
-            int driveMotorCanId,
-            int turningMotorChannel,
-            int turningEncoderChannel,
-            double turningOffset,
-            double currentLimit) {
-        final double kWheelDiameterMeters = 0.1016; // AndyMark Swerve & Steer has 4 inch wheel
-        final double kDriveReduction = 6.67; // see andymark.com/products/swerve-and-steer
-        final double driveEncoderDistancePerTurn = kWheelDiameterMeters * Math.PI / kDriveReduction;
-        final double turningGearRatio = 1.0; // andymark ma3 encoder is 1:1
-        FalconDriveMotor driveMotor = new FalconDriveMotor(name, driveMotorCanId, currentLimit);
-        FalconDriveEncoder driveEncoder = new FalconDriveEncoder(name, driveMotor, driveEncoderDistancePerTurn);
-        PWMTurningMotor turningMotor = new PWMTurningMotor(name, turningMotorChannel);
-        AnalogTurningEncoder turningEncoder = new AnalogTurningEncoder(name, turningEncoderChannel, turningOffset,
-                turningGearRatio);
-
-        // DRIVE PID
-        PIDController driveController = new PIDController(//
-                0.1, // kP
-                0, // kI
-                0);// kD
-
-        // TURNING PID
-        ProfiledPIDController turningController = new ProfiledPIDController(//
-                0.5, // kP
-                0, // kI
-                0, // kD
-                new TrapezoidProfile.Constraints(
-                        20 * Math.PI, // speed rad/s
-                        20 * Math.PI)); // accel rad/s/s
-        turningController.enableContinuousInput(0, 2 * Math.PI);
-
-        // DRIVE FF
-        SimpleMotorFeedforward driveFeedforward = new SimpleMotorFeedforward(//
-                0.0, // kS TODO: too low?
-                .1); // kV
-
-        // TURNING FF
-        SimpleMotorFeedforward turningFeedforward = new SimpleMotorFeedforward(//
-                0.1, // kS TODO too high?
-                0.005); // kV TODO: too low?
-
-        return new SwerveModule(name, driveMotor, turningMotor, driveEncoder, turningEncoder,
-                driveController, turningController, driveFeedforward, turningFeedforward);
-    }
-
     public void updateOdometry() {
-
         m_poseEstimator.update(
                 getHeading(),
                 new SwerveModulePosition[] {
@@ -512,6 +372,10 @@ public class SwerveDriveSubsystem extends SubsystemBase {
         RobotContainer.m_field.setRobotPose(m_poseEstimator.getEstimatedPosition());
     }
 
+    /**
+     * Note this doesn't include the gyro reading directly, the estimate is
+     * considerably massaged by the odometry logic.
+     */
     public Pose2d getPose() {
         return m_poseEstimator.getEstimatedPosition();
     }
@@ -547,26 +411,55 @@ public class SwerveDriveSubsystem extends SubsystemBase {
      */
     @SuppressWarnings("ParameterName")
     public void drive(double xSpeed, double ySpeed, double rot, boolean fieldRelative) {
-        // TODO Fix this number
+        xSpeed = MathUtil.clamp(xSpeed, -1, 1);
+        ySpeed = MathUtil.clamp(ySpeed, -1, 1);
+        rot = MathUtil.clamp(rot, -1, 1);
 
-        x = xSpeed;
-        y = ySpeed;
-        rotation = rot;
-        isFieldRelative = fieldRelative;
+        // robotStates = getRobotStates();
+        // x = robotStates.vxMetersPerSecond;
+        // y = robotStates.vyMetersPerSecond;
+        // observedVelocity = Math.hypot(x, y);
 
-        if (Math.abs(xSpeed) < .01)
-            xSpeed = 100 * xSpeed * xSpeed * Math.signum(xSpeed);
-        if (Math.abs(ySpeed) < .01)
-            ySpeed = 100 * ySpeed * ySpeed * Math.signum(ySpeed);
+        // double observedThetaAngle = Math.atan2(y, x);
+        // rotation = rot;
+        // isFieldRelative = fieldRelative;
+
+        // double velocity = Math.hypot(xSpeed, ySpeed);
+        // double thetaAngle = Math.atan2(ySpeed, xSpeed);
+        // double kRotMix = 0.5;
+        // thetaAngle = thetaAngle - kRotMix * rot * observedVelocity;
+
+        // if (Math.abs(xSpeed) < .01)
+        // xSpeed = 100 * xSpeed * xSpeed * Math.signum(xSpeed);
+        // if (Math.abs(ySpeed) < .01)
+        // ySpeed = 100 * ySpeed * ySpeed * Math.signum(ySpeed);
 
         if (Math.abs(rot) < .01)
             rot = 0;
-
+        double gyroRate = m_gyro.getRate() * 0.25;
+        Rotation2d rotation2 = getPose().getRotation().minus(new Rotation2d(gyroRate));
+        desiredChassisSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(kMaxSpeedMetersPerSecond * xSpeed,
+                kMaxSpeedMetersPerSecond * ySpeed, kMaxAngularSpeedRadiansPerSecond * rot,
+                rotation2);
+        // double angleularConstant = 0.01;
+        // double omegaConstant = 0.5;
+        // desiredChassisSpeeds.vxMetersPerSecond =
+        // desiredChassisSpeeds.vxMetersPerSecond
+        // * (1 - Math.abs(desiredChassisSpeeds.omegaRadiansPerSecond) * omegaConstant
+        // / kMaxAngularSpeedRadiansPerSecond);
+        // desiredChassisSpeeds.vyMetersPerSecond =
+        // desiredChassisSpeeds.vyMetersPerSecond
+        // * (1 - Math.abs(desiredChassisSpeeds.omegaRadiansPerSecond) * omegaConstant
+        // / kMaxAngularSpeedRadiansPerSecond);
+        // double cx = desiredChassisSpeeds.vyMetersPerSecond * angleularConstant
+        // * desiredChassisSpeeds.omegaRadiansPerSecond;
+        // double cy = -desiredChassisSpeeds.vxMetersPerSecond * angleularConstant
+        // * desiredChassisSpeeds.omegaRadiansPerSecond;
+        // Translation2d centerOfRotation = new Translation2d(cx, cy);
+        // TODO fix fieldRelative making this go crazy when it is off
         var swerveModuleStates = kDriveKinematics.toSwerveModuleStates(
                 fieldRelative
-                        ? ChassisSpeeds.fromFieldRelativeSpeeds(kMaxSpeedMetersPerSecond * xSpeed,
-                                kMaxSpeedMetersPerSecond * ySpeed, kMaxAngularSpeedRadiansPerSecond * rot,
-                                getPose().getRotation())
+                        ? desiredChassisSpeeds
                         : new ChassisSpeeds(kMaxSpeedMetersPerSecond * xSpeed, kMaxSpeedMetersPerSecond * ySpeed,
                                 kMaxAngularSpeedRadiansPerSecond * rot));
 
@@ -593,6 +486,15 @@ public class SwerveDriveSubsystem extends SubsystemBase {
 
     }
 
+    public ChassisSpeeds getRobotStates() {
+        ChassisSpeeds chassisSpeeds = kDriveKinematics.toChassisSpeeds(
+                m_frontLeft.getState(),
+                m_frontRight.getState(),
+                m_rearLeft.getState(),
+                m_rearRight.getState());
+        return chassisSpeeds;
+    }
+
     public void getRobotVelocity(SwerveModuleState[] desiredStates) {
         ChassisSpeeds chassisSpeeds = kDriveKinematics.toChassisSpeeds(desiredStates[0], desiredStates[1],
                 desiredStates[2], desiredStates[3]);
@@ -605,7 +507,6 @@ public class SwerveDriveSubsystem extends SubsystemBase {
         } else {
             moving = false;
         }
-
     }
 
     public void test(double[][] desiredOutputs) {
@@ -673,6 +574,8 @@ public class SwerveDriveSubsystem extends SubsystemBase {
         builder.addDoubleProperty("Pitch", () -> m_gyro.getPitch(), null);
         builder.addDoubleProperty("Roll", () -> m_gyro.getRoll(), null);
         builder.addDoubleProperty("Heading Degrees", () -> getHeading().getDegrees(), null);
+        builder.addDoubleProperty("Compass Heading", () -> m_gyro.getCompassHeading(), null);
+        builder.addDoubleProperty("Angle", () -> m_gyro.getAngle(), null);
         builder.addDoubleProperty("xSpeed", () -> x, null);
         builder.addDoubleProperty("ySpeed", () -> y, null);
         builder.addDoubleProperty("Rotation", () -> rotation, null);
@@ -684,9 +587,13 @@ public class SwerveDriveSubsystem extends SubsystemBase {
         builder.addDoubleProperty("Rear Left Output", () -> m_rearLeft.getDriveOutput(), null);
         builder.addDoubleProperty("Rear Right Output", () -> m_rearLeft.getDriveOutput(), null);
 
+        // builder.addDoubleProperty("Speed Ms Odometry", () -> observedVelocity, null);
+        builder.addDoubleProperty("ChassisSpeedDesired Odometry X", () -> desiredChassisSpeeds.vxMetersPerSecond, null);
+        builder.addDoubleProperty("ChassisSpeedDesired Odometry Y", () -> desiredChassisSpeeds.vyMetersPerSecond, null);
         builder.addDoubleProperty("GYRO ROLL", () -> m_gyro.getRoll(), null);
 
         builder.addDoubleProperty("GYRO Fused", () -> m_gyro.getFusedHeading(), null);
+        builder.addDoubleProperty("Gyro Rate", () -> m_gyro.getRate(), null);
 
     }
 }

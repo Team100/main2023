@@ -23,6 +23,7 @@ public enum Identity {
     TEST_BOARD_6B("030d286b"),
     RIO_2022("foo"),
     FROM_8048("031823bc"), // maybe don't check this in.
+    TEAM100_2019("0317f0cd"),
     BLANK(""), // e.g. test default or simulation
     UNKNOWN(null);
 

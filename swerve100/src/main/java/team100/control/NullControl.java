@@ -6,12 +6,13 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.autonomous.DriveToAprilTag;
 import frc.robot.autonomous.DriveToWaypoint2;
 import frc.robot.autonomous.MoveToAprilTag;
+import edu.wpi.first.math.geometry.Rotation2d;
+import frc.robot.autonomous.DriveToAprilTag;
+import frc.robot.autonomous.DriveToWaypoint2;
+import frc.robot.commands.ArmHigh;
 import frc.robot.commands.DriveRotation;
-import frc.robot.commands.DriveWithHeading;
+import frc.robot.commands.GoalOffset;
 import frc.robot.commands.ResetPose;
-// import frc.robot.commands.ResetPose;
-// import frc.robot.commands.ResetPose;
-// import frc.robot.commands.ResetPose;
 import frc.robot.commands.ResetRotation;
 import frc.robot.commands.Arm.ArmTrajectory;
 import frc.robot.commands.Arm.DriveToSetpoint;
@@ -40,17 +41,17 @@ public class NullControl implements Control {
     public void resetRotation(ResetRotation command) {
     }
 
-    @Override
-    public void driveWithHeading0(DriveWithHeading command){}
+    // @Override
+    // public void driveWithHeading0(DriveWithHeading command){}
 
-    @Override
-    public void driveWithHeading90(DriveWithHeading command){}
+    // @Override
+    // public void driveWithHeading90(DriveWithHeading command){}
 
-    @Override
-    public void driveWithHeading180(DriveWithHeading command){}
+    // @Override
+    // public void driveWithHeading180(DriveWithHeading command){}
 
-    @Override
-    public void driveWithHeading270(DriveWithHeading command){}
+    // @Override
+    // public void driveWithHeading270(DriveWithHeading command){}
 
     @Override
     public void driveRotation(DriveRotation command){}
@@ -115,27 +116,38 @@ public class NullControl implements Control {
     // }
 
     @Override
-    public void driveToID1(DriveToWaypoint2 command) {
+    public void driveToLeftGrid(DriveToWaypoint2 command) {
         // TODO Auto-generated method stub
         
     }
 
     @Override
-    public void driveToID2(DriveToWaypoint2 command) {
+    public void driveToCenterGrid(DriveToWaypoint2 command) {
         // TODO Auto-generated method stub
         
     }
 
     @Override
-    public void driveToID3(DriveToWaypoint2 command) {
+    public void driveToRightGrid(DriveToWaypoint2 command) {
         // TODO Auto-generated method stub
         
     }
 
     @Override
-    public void driveToID4(DriveToWaypoint2 command) {
+    public void driveToSubstation(DriveToWaypoint2 command) {
         // TODO Auto-generated method stub
+    }
         
+    @Override
+    public Rotation2d desiredRotation() {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public GoalOffset goalOffset() {
+        // TODO Auto-generated method stub
+        return null;
     }
 
     @Override
