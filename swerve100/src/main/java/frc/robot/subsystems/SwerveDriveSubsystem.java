@@ -157,12 +157,12 @@ public class SwerveDriveSubsystem extends SubsystemBase {
         thetaController = new ProfiledPIDController(Ptheta, Itheta, Dtheta, thetaControllerConstraints);
 
         final TrapezoidProfile.Constraints headingControllConstraints = new TrapezoidProfile.Constraints(
-                Math.PI, 2*Math.PI);
+                2*Math.PI, 4*Math.PI);
 
         headingController = new ProfiledPIDController( //
-                1, // kP
+                1.4, // kP
                 0.1, // kI
-                0.1, // kD
+                0.21, // kD
                 headingControllConstraints); // kD
 
         headingController.setIntegratorRange(-0.1, 0.1);
@@ -589,9 +589,9 @@ public class SwerveDriveSubsystem extends SubsystemBase {
 
         if (Math.abs(rot) < .01)
             rot = 0;
-        double gyroRate = m_gyro.getRate() * 0.1;
+        double gyroRate = m_gyro.getRate() * 0.25;
         Rotation2d rotation2 = getPose().getRotation().minus(new Rotation2d(gyroRate));
-        desiredChassisSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(kMaxSpeedMetersPerSecond * xSpeed,
+            desiredChassisSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(kMaxSpeedMetersPerSecond * xSpeed,
                 kMaxSpeedMetersPerSecond * ySpeed, kMaxAngularSpeedRadiansPerSecond * rot,
                 rotation2);
         // double angleularConstant = 0.01;
