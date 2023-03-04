@@ -150,7 +150,7 @@ public class DriveToWaypoint2 extends CommandBase {
 
     public void execute() {
         if (goalOffsetSupplier.get() != previousOffset) {
-            makeTrajectory(goalOffsetSupplier.get(), m_trajectory.sample(m_timer.get()).velocityMetersPerSecond);
+            m_trajectory = makeTrajectory(goalOffsetSupplier.get(), m_trajectory.sample(m_timer.get()).velocityMetersPerSecond);
             previousOffset =  goalOffsetSupplier.get();
             m_timer.restart();
         }
