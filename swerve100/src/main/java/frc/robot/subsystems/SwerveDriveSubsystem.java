@@ -4,6 +4,7 @@ import java.io.IOException;
 
 import com.kauailabs.navx.frc.AHRS;
 
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
@@ -33,8 +34,8 @@ import team100.localization.VisionDataProvider;
 public class SwerveDriveSubsystem extends SubsystemBase {
     // TODO: make this an instance var
     public static final SwerveDriveKinematics kDriveKinematics;
-    public ChassisSpeeds robotStates = new ChassisSpeeds();
-    public double observedVelocity;
+    // public ChassisSpeeds robotStates = new ChassisSpeeds();
+    // public double observedVelocity;
     public ChassisSpeeds desiredChassisSpeeds = new ChassisSpeeds();
 
     static {
@@ -81,8 +82,8 @@ public class SwerveDriveSubsystem extends SubsystemBase {
     public static final double kMaxSpeedMetersPerSecond = 5;
     public static final double kMaxAccelerationMetersPerSecondSquared = 10;
     // NOTE joel 2/8 used to be negative; inversions broken somewhere?
-    public static final double kMaxAngularSpeedRadiansPerSecond = 3;
-    public static final double kMaxAngularSpeedRadiansPerSecondSquared = 3;
+    public static final double kMaxAngularSpeedRadiansPerSecond = 5;
+    public static final double kMaxAngularSpeedRadiansPerSecondSquared = 5;
 
     // FAST SETTINGS. can the robot actually go this fast?
     // public static final double kMaxSpeedMetersPerSecond = 8;
@@ -156,12 +157,12 @@ public class SwerveDriveSubsystem extends SubsystemBase {
         thetaController = new ProfiledPIDController(Ptheta, Itheta, Dtheta, thetaControllerConstraints);
 
         final TrapezoidProfile.Constraints headingControllConstraints = new TrapezoidProfile.Constraints(
-                Math.PI, Math.PI);
+                2*Math.PI, 4*Math.PI);
 
         headingController = new ProfiledPIDController( //
-                1, // kP
+                1.4, // kP
                 0.1, // kI
-                0.05, // kD
+                0.21, // kD
                 headingControllConstraints); // kD
 
         headingController.setIntegratorRange(-0.1, 0.1);
@@ -562,52 +563,56 @@ public class SwerveDriveSubsystem extends SubsystemBase {
      */
     @SuppressWarnings("ParameterName")
     public void drive(double xSpeed, double ySpeed, double rot, boolean fieldRelative) {
+        xSpeed = MathUtil.clamp(xSpeed, -1, 1);
+        ySpeed = MathUtil.clamp(ySpeed, -1, 1);
+        rot = MathUtil.clamp(rot, -1, 1);
         // TODO Fix this number
 
-        robotStates = getRobotStates();
-        x = robotStates.vxMetersPerSecond;
-        y = robotStates.vyMetersPerSecond;
-        observedVelocity = Math.hypot(x, y);
+        // robotStates = getRobotStates();
+        // x = robotStates.vxMetersPerSecond;
+        // y = robotStates.vyMetersPerSecond;
+        // observedVelocity = Math.hypot(x, y);
 
-        double observedThetaAngle = Math.atan2(y, x);
-        rotation = rot;
-        isFieldRelative = fieldRelative;
+        // double observedThetaAngle = Math.atan2(y, x);
+        // rotation = rot;
+        // isFieldRelative = fieldRelative;
 
-        double velocity = Math.hypot(xSpeed, ySpeed);
-        double thetaAngle = Math.atan2(ySpeed, xSpeed);
-        double kRotMix = 0.5;
-        thetaAngle = thetaAngle - kRotMix * rot * observedVelocity;
+        // double velocity = Math.hypot(xSpeed, ySpeed);
+        // double thetaAngle = Math.atan2(ySpeed, xSpeed);
+        // double kRotMix = 0.5;
+        // thetaAngle = thetaAngle - kRotMix * rot * observedVelocity;
 
-        if (Math.abs(xSpeed) < .01)
-            xSpeed = 100 * xSpeed * xSpeed * Math.signum(xSpeed);
-        if (Math.abs(ySpeed) < .01)
-            ySpeed = 100 * ySpeed * ySpeed * Math.signum(ySpeed);
+        // if (Math.abs(xSpeed) < .01)
+        //     xSpeed = 100 * xSpeed * xSpeed * Math.signum(xSpeed);
+        // if (Math.abs(ySpeed) < .01)
+        //     ySpeed = 100 * ySpeed * ySpeed * Math.signum(ySpeed);
 
         if (Math.abs(rot) < .01)
             rot = 0;
-        desiredChassisSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(kMaxSpeedMetersPerSecond * xSpeed,
+        double gyroRate = m_gyro.getRate() * 0.25;
+        Rotation2d rotation2 = getPose().getRotation().minus(new Rotation2d(gyroRate));
+            desiredChassisSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(kMaxSpeedMetersPerSecond * xSpeed,
                 kMaxSpeedMetersPerSecond * ySpeed, kMaxAngularSpeedRadiansPerSecond * rot,
-                getPose().getRotation());
-        double angleularConstant = 0.01;
-        double omegaConstant = 0.5;
-        desiredChassisSpeeds.vxMetersPerSecond = desiredChassisSpeeds.vxMetersPerSecond
-                * (1 - Math.abs(desiredChassisSpeeds.omegaRadiansPerSecond) * omegaConstant
-                        / kMaxAngularSpeedRadiansPerSecond);
-        desiredChassisSpeeds.vyMetersPerSecond = desiredChassisSpeeds.vyMetersPerSecond
-                * (1 - Math.abs(desiredChassisSpeeds.omegaRadiansPerSecond) * omegaConstant
-                        / kMaxAngularSpeedRadiansPerSecond);
-        double cx = desiredChassisSpeeds.vyMetersPerSecond * angleularConstant
-                * desiredChassisSpeeds.omegaRadiansPerSecond;
-        double cy = -desiredChassisSpeeds.vxMetersPerSecond * angleularConstant
-                * desiredChassisSpeeds.omegaRadiansPerSecond;
-        Translation2d centerOfRotation = new Translation2d(cx, cy);
+                rotation2);
+        // double angleularConstant = 0.01;
+        // double omegaConstant = 0.5;
+        // desiredChassisSpeeds.vxMetersPerSecond = desiredChassisSpeeds.vxMetersPerSecond
+        //         * (1 - Math.abs(desiredChassisSpeeds.omegaRadiansPerSecond) * omegaConstant
+        //                 / kMaxAngularSpeedRadiansPerSecond);
+        // desiredChassisSpeeds.vyMetersPerSecond = desiredChassisSpeeds.vyMetersPerSecond
+        //         * (1 - Math.abs(desiredChassisSpeeds.omegaRadiansPerSecond) * omegaConstant
+        //                 / kMaxAngularSpeedRadiansPerSecond);
+        // double cx = desiredChassisSpeeds.vyMetersPerSecond * angleularConstant
+        //         * desiredChassisSpeeds.omegaRadiansPerSecond;
+        // double cy = -desiredChassisSpeeds.vxMetersPerSecond * angleularConstant
+        //         * desiredChassisSpeeds.omegaRadiansPerSecond;
+        // Translation2d centerOfRotation = new Translation2d(cx, cy);
         // TODO fix fieldRelative making this go crazy when it is off
         var swerveModuleStates = kDriveKinematics.toSwerveModuleStates(
                 fieldRelative
                         ? desiredChassisSpeeds
                         : new ChassisSpeeds(kMaxSpeedMetersPerSecond * xSpeed, kMaxSpeedMetersPerSecond * ySpeed,
-                                kMaxAngularSpeedRadiansPerSecond * rot),
-                centerOfRotation);
+                                kMaxAngularSpeedRadiansPerSecond * rot));
 
         SwerveDriveKinematics.desaturateWheelSpeeds(
                 swerveModuleStates, kMaxSpeedMetersPerSecond);
@@ -734,12 +739,13 @@ public class SwerveDriveSubsystem extends SubsystemBase {
         builder.addDoubleProperty("Rear Left Output", () -> m_rearLeft.getDriveOutput(), null);
         builder.addDoubleProperty("Rear Right Output", () -> m_rearLeft.getDriveOutput(), null);
 
-        builder.addDoubleProperty("Speed Ms Odometry", () -> observedVelocity, null);
+        // builder.addDoubleProperty("Speed Ms Odometry", () -> observedVelocity, null);
         builder.addDoubleProperty("ChassisSpeedDesired Odometry X", () -> desiredChassisSpeeds.vxMetersPerSecond, null);
         builder.addDoubleProperty("ChassisSpeedDesired Odometry Y", () -> desiredChassisSpeeds.vyMetersPerSecond, null);
         builder.addDoubleProperty("GYRO ROLL", () -> m_gyro.getRoll(), null);
 
         builder.addDoubleProperty("GYRO Fused", () -> m_gyro.getFusedHeading(), null);
+        builder.addDoubleProperty("Gyro Rate", () -> m_gyro.getRate(), null);
 
     }
 }
