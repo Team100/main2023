@@ -127,28 +127,28 @@ public class SwerveDriveSubsystem extends SubsystemBase {
                         11, // drive CAN
                         30, // turn CAN
                         0, // turn encoder
-                        0.77, // turn offset
+                        0.26, // turn offset
                         currentLimit);
                 m_frontRight = SwerveModuleFactory.WCPModule(
                         "Front Right",
                         12, // drive CAN
                         32, // turn CAN
                         1, // turn encoder
-                        0.39, // turn offset
+                        0.87, // turn offset
                         currentLimit);
                 m_rearLeft = SwerveModuleFactory.WCPModule(
                         "Rear Left",
                         21, // drive CAN
                         31, // turn CAN
                         2, // turn encoder
-                        0.78, // turn offset
+                        0.27, // turn offset
                         currentLimit);
                 m_rearRight = SwerveModuleFactory.WCPModule(
                         "Rear Right",
                         22, // drive CAN
                         33, // turn CAN
                         3, // turn encoder
-                        0.96, // turn offset
+                        0.46, // turn offset
                         currentLimit);
                 break;
             case SWERVE_TWO:
@@ -528,6 +528,10 @@ public class SwerveDriveSubsystem extends SubsystemBase {
         return Rotation2d.fromDegrees(-m_gyro.getYaw());
     }
 
+    public double diff() {
+        return -m_gyro.getFusedHeading()-getPose().getRotation().getDegrees();
+    }
+
     @Override
     public void initSendable(SendableBuilder builder) {
         super.initSendable(builder);
@@ -595,6 +599,7 @@ public class SwerveDriveSubsystem extends SubsystemBase {
 
         builder.addDoubleProperty("GYRO Fused", () -> m_gyro.getFusedHeading(), null);
         builder.addDoubleProperty("Gyro Rate", () -> m_gyro.getRate(), null);
+        builder.addDoubleProperty("getAngle", () -> m_gyro.getAngle()%360, null);
 
     }
 }

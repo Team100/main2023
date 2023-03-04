@@ -4,32 +4,34 @@ import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.util.sendable.Sendable;
 import edu.wpi.first.util.sendable.SendableBuilder;
+import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.autonomous.DriveToAprilTag;
 import frc.robot.autonomous.DriveToWaypoint2;
-import frc.robot.commands.ArmHigh;
+import frc.robot.autonomous.MoveToAprilTag;
+//import frc.robot.autonomous.SanjanAutonomous;
+
 import frc.robot.commands.DriveRotation;
 import frc.robot.commands.GoalOffset;
 import frc.robot.commands.ResetPose;
 import frc.robot.commands.ResetRotation;
+import frc.robot.commands.Arm.ArmTrajectory;
+import frc.robot.commands.Arm.DriveToSetpoint;
+import frc.robot.commands.Manipulator.Close;
+import frc.robot.commands.Manipulator.Home;
+import frc.robot.commands.Manipulator.Open;
 import frc.robot.subsystems.SwerveDriveSubsystem;
-
 
 /**
  * see
  * https://docs.google.com/document/d/1M89x_IiguQdY0VhQlOjqADMa6SYVp202TTuXZ1Ps280/edit#
  */
-public class DualXboxControl implements Control, Sendable {
-    // TODO: express these limits in m/s.
-    // private static final int ySlewRateLimit = 3;
-    // private static final int xSlewRateLimit = 3;
-    
+public class DualXboxControl implements Sendable {
     private final CommandXboxController controller0;
     private final CommandXboxController controller1;
-
-    // private final SlewRateLimiter m_xspeedLimiter = new SlewRateLimiter(xSlewRateLimit);
-    // private final SlewRateLimiter m_yspeedLimiter = new SlewRateLimiter(ySlewRateLimit);
+    Rotation2d previousRotation = new Rotation2d(0);
 
     public DualXboxControl() {
         controller0 = new CommandXboxController(0);
@@ -39,156 +41,101 @@ public class DualXboxControl implements Control, Sendable {
         SmartDashboard.putData("Robot Container", this);
     }
 
-    @Override
-    public void trajtoApril(SwerveDriveSubsystem m_robotDrive, int ID){
-        // controler0.b().whileTrue(MoveToAprilTag.newMoveToAprilTag(m_robotDrive, () -> m_robotDrive.getPose(), 1));
+    public void trajtoApril(SwerveDriveSubsystem m_robotDrive, int ID) {
+        // controler0.b().whileTrue(MoveToAprilTag.newMoveToAprilTag(m_robotDrive, () ->
+        // m_robotDrive.getPose(), 1));
     };
 
-
-    // @Override
     // public void resetRotation(ResetRotation command) {
-    //     // TODO: choose one
-    //     controller0.leftBumper().onTrue(command);
-    //     // controller0.a().onTrue(command);
+    // // TODO: choose one
+    // controller0.leftBumper().onTrue(command);
+    // // controller0.a().onTrue(command);
     // }
 
-    public void driveSlow(SwerveDriveSubsystem m_robotDrive){
+    public void driveSlow(SwerveDriveSubsystem m_robotDrive) {
         // controller0.rightBumper().onTrue(m_robotDrive.driveSl)
     }
 
-    @Override
     public void driveToAprilTag(DriveToAprilTag command) {
         // controller0.x().whileTrue(command);
     }
 
-    @Override
-    public void driveToLeftGrid(DriveToWaypoint2 command){
+    public void driveToLeftGrid(DriveToWaypoint2 command) {
         controller0.x().whileTrue(command);
     };
 
-    public void driveToCenterGrid(DriveToWaypoint2 command){
+    public void driveToCenterGrid(DriveToWaypoint2 command) {
         controller0.a().whileTrue(command);
     };
 
-    public void driveToRightGrid(DriveToWaypoint2 command){
+    public void driveToRightGrid(DriveToWaypoint2 command) {
         controller0.b().whileTrue(command);
     };
 
-    public void driveToSubstation(DriveToWaypoint2 command){
+    public void driveToSubstation(DriveToWaypoint2 command) {
         controller0.y().whileTrue(command);
     };
 
-
-    // TODO: decide what "Y" should do.
-
-    @Override 
     public void driveToAprilTag2(DriveToAprilTag command) {
         // controller0.y().whileTrue(command);
     }
 
-    @Override
     public void resetRotation(ResetRotation command) {
         controller0.rightBumper().onTrue(command);
     }
 
-    @Override
     public void autoLevel(frc.robot.commands.autoLevel command) {
         // controller0.y().whileTrue(command);
     }
 
-    // @Override
-    // public void sanjanAuto(SanjanAutonomous command) {
-    // controller0.y().onTrue(command);
-    // }
-
-    @Override
-    public void armHigh(ArmHigh command) {
-        controller1.b().onTrue(command);
-    }
-
-    // @Override
-    // public void driveWithHeading0(DriveWithHeading command){
-    //     controller0.povUp().whileTrue(command);
-    // }
-
-    // @Override
-    // public void driveWithHeading90(DriveWithHeading command){
-    //     controller0.povLeft().whileTrue(command);
-    // }
-
-    // @Override
-    // public void driveWithHeading180(DriveWithHeading command){
-    //     controller0.povDown().whileTrue(command);
-    // }
-
-    // @Override
-    // public void driveWithHeading270(DriveWithHeading command){
-    //     controller0.povRight().whileTrue(command);
-    // }
-
-    @Override
-    public void driveRotation(DriveRotation command){
+    public void driveRotation(DriveRotation command) {
         controller0.rightBumper().whileTrue(command);
     }
 
-
-    @Override
+    /** @return [-1,1] */
     public double xSpeed() {
         return -1.0 * controller0.getRightY();
     }
 
-    @Override
+    /** @return [-1,1] */
     public double ySpeed() {
         return -1.0 * controller0.getRightX();
     }
 
-    @Override
+    /** @return [-1,1] */
     public double rotSpeed() {
         return -1.0 * controller0.getLeftX();
     }
 
-    @Override
+    /** @return [0, 1] */
     public double throttle() {
         return 1.0;
     }
 
-    @Override
+    /** @return [-1,1] */
     public double openSpeed() {
         return controller1.getRightTriggerAxis();
     }
 
-    @Override
+    /** @return [-1,1] */
     public double closeSpeed() {
         return controller1.getLeftTriggerAxis();
     }
 
-    @Override
+    /** @return [-1,1] */
     public double lowerSpeed() {
         return controller1.getRightX();
     }
 
-    @Override
+    /** @return [-1,1] */
     public double upperSpeed() {
         return controller1.getLeftY();
     }
 
-    @Override
-    public void initSendable(SendableBuilder builder) {
-        builder.setSmartDashboardType("xbox control");
-        builder.addDoubleProperty("right y", () -> controller0.getRightY(), null);
-        builder.addDoubleProperty("right x", () -> controller0.getRightX(), null);
-        builder.addDoubleProperty("left x", () -> controller0.getLeftX(), null);
-    }
-
-    @Override
     public void resetPose(ResetPose command) {
         controller0.leftBumper().onTrue(command);
     }
 
-    Rotation2d previousRotation = new Rotation2d(0);
-
-
-    @Override
     public Rotation2d desiredRotation() {
         double foo = -controller0.getHID().getPOV();
 
@@ -196,15 +143,44 @@ public class DualXboxControl implements Control, Sendable {
             // positive foo equals negative stick which means no input
             previousRotation = previousRotation.minus(new Rotation2d(MathUtil.applyDeadband(controller0.getLeftX()*Math.PI*0.02, 0.05))) ;
             return previousRotation;
-        } 
-        
+        }
+
         previousRotation = Rotation2d.fromDegrees(foo);
         return previousRotation;
-        
-        
     }
 
-    @Override
+    public void driveToHigh(DriveToSetpoint command) {
+        controller1.y().whileTrue(command);
+    }
+
+    public void driveToSafe(SequentialCommandGroup command) {
+        controller1.rightBumper().whileTrue(command);
+    }
+
+    public XboxController getController() {
+        return controller1.getHID();
+    }
+
+    public void armHigh(ArmTrajectory command) {
+        controller1.povUp().whileTrue(command);
+    }
+
+    public void armSafe(ArmTrajectory command) {
+        controller1.povDown().whileTrue(command);
+    }
+
+    public void open(Open command) {
+        controller1.a().whileTrue(command);
+    }
+
+    public void home(Home command) {
+        controller1.b().whileTrue(command);
+    }
+
+    public void close(Close command) {
+        controller1.x().whileTrue(command);
+    }
+
     public GoalOffset goalOffset() {
         double left = controller0.getLeftTriggerAxis();
         double right = controller0.getRightTriggerAxis();
@@ -219,5 +195,13 @@ public class DualXboxControl implements Control, Sendable {
             return GoalOffset.right;
         }
         return GoalOffset.center;
+    }
+
+    @Override
+    public void initSendable(SendableBuilder builder) {
+        builder.setSmartDashboardType("xbox control");
+        builder.addDoubleProperty("right y", () -> controller0.getRightY(), null);
+        builder.addDoubleProperty("right x", () -> controller0.getRightX(), null);
+        builder.addDoubleProperty("left x", () -> controller0.getLeftX(), null);
     }
 }
