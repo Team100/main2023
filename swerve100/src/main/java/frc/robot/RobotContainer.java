@@ -45,8 +45,6 @@ import frc.robot.subsystems.Arm.ArmController;
 import frc.robot.subsystems.Arm.ArmPosition;
 import team100.commands.DriveManually;
 import team100.commands.GripManually;
-import team100.control.Control;
-import team100.control.ControlSelect;
 import team100.control.DualXboxControl;
 
 @SuppressWarnings("unused")
@@ -62,7 +60,7 @@ public class RobotContainer implements Sendable {
     private final ArmController armController;
 
     // CONTROL
-    private final Control control;
+    private final DualXboxControl control;
 
     // COMMANDS
     private final autoLevel autoLevel;
@@ -91,7 +89,7 @@ public class RobotContainer implements Sendable {
         armController = new ArmController();
 
         // // NEW CONTROL
-        control = ControlSelect.getControl();
+        control = new DualXboxControl();
 ;
         m_alliance = DriverStation.getAlliance();
         if (m_alliance == DriverStation.Alliance.Blue) {
