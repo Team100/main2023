@@ -78,12 +78,12 @@ public class VisionDataProvider extends SubsystemBase implements TableEventListe
      */
     public void accept(NetworkTable table, String key, NetworkTableEvent event) {
         try {
-            System.out.printf("TABLE PATH %s\n", table.getPath());
-            System.out.printf("KEY %s\n", key);
+            // System.out.printf("TABLE PATH %s\n", table.getPath());
+            // System.out.printf("KEY %s\n", key);
             Blips blips = object_mapper.readValue(event.valueData.value.getRaw(), Blips.class);
-            System.out.printf("PAYLOAD %s\n", blips);
-            System.out.printf("DELAY (s): %f\n", blips.et);
-            System.out.printf("BLIP COUNT: %d\n", blips.tags.size());
+            // System.out.printf("PAYLOAD %s\n", blips);
+            // System.out.printf("DELAY (s): %f\n", blips.et);
+            // System.out.printf("BLIP COUNT: %d\n", blips.tags.size());
             estimateRobotPose(this::cameraOffset, poseEstimator::addVisionMeasurement, key, blips);
         } catch (IOException e) {
             e.printStackTrace();
