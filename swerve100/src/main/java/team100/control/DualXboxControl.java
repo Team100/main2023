@@ -4,15 +4,22 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.util.sendable.Sendable;
 import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.autonomous.DriveToAprilTag;
 import frc.robot.autonomous.DriveToWaypoint2;
-import frc.robot.commands.ArmHigh;
+import frc.robot.autonomous.MoveToAprilTag;
+//import frc.robot.autonomous.SanjanAutonomous;
+
 import frc.robot.commands.DriveRotation;
 import frc.robot.commands.GoalOffset;
 import frc.robot.commands.ResetPose;
 import frc.robot.commands.ResetRotation;
-import frc.robot.subsystems.SwerveDriveSubsystem;
+import frc.robot.commands.Arm.ArmTrajectory;
+import frc.robot.commands.Arm.DriveToSetpoint;
+import frc.robot.commands.Manipulator.Close;
+import frc.robot.commands.Manipulator.Home;
+import frc.robot.commands.Manipulator.Open;
 
 
 /**
@@ -100,10 +107,6 @@ public class DualXboxControl implements Control, Sendable {
     // controller0.y().onTrue(command);
     // }
 
-    @Override
-    public void armHigh(ArmHigh command) {
-        controller1.b().onTrue(command);
-    }
 
     // @Override
     // public void driveWithHeading0(DriveWithHeading command){
@@ -204,6 +207,56 @@ public class DualXboxControl implements Control, Sendable {
     }
 
     @Override
+    public void driveToHigh(DriveToSetpoint command) {
+        controller1.y().whileTrue(command);
+        
+    }
+
+    @Override
+    public void driveToSafe(SequentialCommandGroup command) {
+        controller1.rightBumper().whileTrue(command);
+        
+    }
+
+    public XboxController getController(){
+        return controller1.getHID();
+    }
+
+    @Override
+    public void armHigh(ArmTrajectory command) {
+        // TODO Auto-generated method stub
+        controller1.povUp().whileTrue(command);
+        
+    }
+
+    @Override
+    public void armSafe(ArmTrajectory command) {
+        // TODO Auto-generated method stub
+        controller1.povDown().whileTrue(command);
+        
+    }
+
+    @Override
+    public void open(Open command) {
+        // TODO Auto-generated method stub
+        controller1.a().whileTrue(command);
+        
+    }
+
+    @Override
+    public void home(Home command) {
+        // TODO Auto-generated method stub
+        controller1.b().whileTrue(command);
+        
+    }
+
+    @Override
+    public void close(Close command) {
+        // TODO Auto-generated method stub
+        controller1.x().whileTrue(command);
+        
+    };
+
     public GoalOffset goalOffset() {
         double left = controller0.getLeftTriggerAxis();
         double right = controller0.getRightTriggerAxis();

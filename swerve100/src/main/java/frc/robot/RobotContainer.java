@@ -19,6 +19,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.autonomous.Circle;
@@ -27,10 +28,6 @@ import frc.robot.autonomous.DriveToWaypoint2;
 import frc.robot.autonomous.MoveToAprilTag;
 import frc.robot.autonomous.SanjanAutonomous;
 import frc.robot.autonomous.VasiliAutonomous;
-import frc.robot.commands.ArmHigh;
-import frc.robot.commands.Calibrate;
-import frc.robot.commands.CloseManipulator;
-import frc.robot.commands.CurrentFeedbackClose;
 import frc.robot.commands.DriveRotation;
 import frc.robot.commands.DriveWithHeading;
 import frc.robot.commands.OpenManipulator;
@@ -38,10 +35,16 @@ import frc.robot.commands.ResetPose;
 import frc.robot.commands.ResetRotation;
 import frc.robot.commands.TimedClose;
 import frc.robot.commands.autoLevel;
-import frc.robot.commands.driveLowerArm;
-import frc.robot.subsystems.Arm;
+import frc.robot.commands.Arm.ArmTrajectory;
+import frc.robot.commands.Arm.DriveToSetpoint;
+import frc.robot.commands.Arm.ManualArm;
+import frc.robot.commands.Manipulator.Close;
+import frc.robot.commands.Manipulator.Home;
+import frc.robot.commands.Manipulator.Open;
 import frc.robot.subsystems.Manipulator;
 import frc.robot.subsystems.SwerveDriveSubsystem;
+import frc.robot.subsystems.Arm.ArmController;
+import frc.robot.subsystems.Arm.ArmPosition;
 import team100.commands.DriveManually;
 import team100.commands.GripManually;
 import team100.control.Control;
@@ -59,30 +62,28 @@ public class RobotContainer implements Sendable {
     private static final Joystick RIGHT_JOYSTICK = new Joystick(1);
     // private static final JoystickButton bButton = new
     // JoystickButton(m_driverController, 2);
-    private final Manipulator manipulator = new Manipulator();
+    // private final Manipulator manipulator = new Manipulator();
     private boolean manipulatorCalibrated = false;
     // private int duration;
     // private double force;
-    private final Calibrate calibrate = new Calibrate(manipulator);
-    private final CloseManipulator closeManipulator = new CloseManipulator(manipulator);
-    private final OpenManipulator openManipulator = new OpenManipulator(manipulator);
-    private TimedClose timedClose = new TimedClose(manipulator, 300, 0.7);
-    private CurrentFeedbackClose currentFeedbackClose = new CurrentFeedbackClose(manipulator, 14.0, 0.5);
+    // private final Calibrate calibrate = new Calibrate(manipulator);
+    // private final CloseManipulator closeManipulator = new CloseManipulator(manipulator);
+    // private final OpenManipulator openManipulator = new OpenManipulator(manipulator);
+    // private TimedClose timedClose = new TimedClose(manipulator, 300, 0.7);
+    // private CurrentFeedbackClose currentFeedbackClose = new CurrentFeedbackClose(manipulator, 14.0, 0.5);
 
     // CONFIG
     private final DriverStation.Alliance m_alliance;
 
     // SUBSYSTEMS
     private final SwerveDriveSubsystem m_robotDrive;
-    // private final Manipulator manipulator;
-    private final Arm arm;
+    private final Manipulator manipulator;
+    private final ArmController armController;
 
     // CONTROL
     private final Control control;
 
     // COMMANDS
-    private final driveLowerArm driveLowerArm;
-    private final ArmHigh armHigh;
     // private final ResetPose resetPose;
     private final autoLevel autoLevel;
     // private final MoveToAprilTag moveToAprilTag;
@@ -97,6 +98,16 @@ public class RobotContainer implements Sendable {
     // private final DriveToAprilTag driveToAprilTag5;
     private final DriveToAprilTag driveToSubstation, driveToLeftGrid, driveToCenterGrid, driveToRightGrid;
 
+    private final DriveToSetpoint highSetpoint;
+    private final DriveToSetpoint highSafe;
+
+    private final ArmTrajectory armHigh;
+    private final ArmTrajectory armSafe;
+
+    private final Open openManipulatorPID;
+    private final Home homeCommand;
+    private final Close closeCommand;
+
     // private final MoveToAprilTag moveToAprilTag2;
 
     public final static Field2d m_field = new Field2d();
@@ -104,6 +115,10 @@ public class RobotContainer implements Sendable {
     public RobotContainer() throws IOException {
         // THIS IS FROM BOB'S DELETED CODE
 
+        final double kDriveCurrentLimit = 40;
+        m_robotDrive = new SwerveDriveSubsystem(kDriveCurrentLimit);
+        manipulator = new Manipulator();
+        armController = new ArmController();
         manipulator.setDefaultCommand(new ConditionalCommand(
                 new ConditionalCommand(
                         new CloseManipulator(manipulator, () -> !manipulator.getSensor()),
@@ -167,6 +182,18 @@ public class RobotContainer implements Sendable {
             driveToSubstation = DriveToAprilTag.newDriveToAprilTag(5, control::goalOffset, m_robotDrive);
         }
 
+
+        highSetpoint = new DriveToSetpoint(armController, 0.91, 1.24, 0, 0);
+        highSafe = new DriveToSetpoint(armController, 0.91, 0.59, -0.1, 0);
+        
+        armHigh = new ArmTrajectory( 1.24, 1.25, ArmPosition.high, armController);
+        // armSafe = new ArmTrajectory(0.602, 0.404, armController);
+
+        armSafe = new ArmTrajectory( 0.2, 0.125, ArmPosition.inward, armController);
+
+        // moveToAprilTag2 = MoveToAprilTag.newMoveToAprilTag(m_robotDrive, 1);
+
+        // m_reset = m_robotDrive.visionDataProvider.layout.getTagPose(5).get().toPose2d();
         // moveToAprilTag2 = MoveToAprilTag.newMoveToAprilTag(m_robotDrive, 1);
 
         armHigh = new ArmHigh(arm);
@@ -217,7 +244,6 @@ public class RobotContainer implements Sendable {
         control.resetRotation(resetRotation);
         control.autoLevel(autoLevel);
         // control.sanjanAuto(new SanjanAutonomous(m_robotDrive));
-        control.armHigh(armHigh);
         control.resetPose(resetPose);
         // control.trajtoApril(moveToAprilTag2);
         control.driveToLeftGrid(driveToLeftGrid);
@@ -225,6 +251,18 @@ public class RobotContainer implements Sendable {
         control.driveToRightGrid(driveToRightGrid);
         control.driveToSubstation(driveToSubstation);
         control.resetPose(resetPose);
+
+        control.driveToHigh(highSetpoint);
+        control.driveToSafe(new SequentialCommandGroup(highSafe, new DriveToSetpoint(armController, 0.2, 0.125, 0, 0)));
+        control.armHigh(armHigh);
+        control.armSafe(armSafe);
+        control.open(openManipulator);
+        control.home(homeCommand);
+        control.close(closeCommand);
+
+
+
+
 
         // DEFAULT COMMANDS
         // Controller 0 right => cartesian, left => rotation
@@ -249,12 +287,7 @@ public class RobotContainer implements Sendable {
                 manipulator);
         manipulator.setDefaultCommand(gripManually);
 
-        // Controller 1 => arm motion
-        driveLowerArm = new driveLowerArm(
-                control::lowerSpeed,
-                control::upperSpeed,
-                arm);
-        arm.setDefaultCommand(driveLowerArm);
+        armController.setDefaultCommand(manualArm);
 
         SmartDashboard.putData("Robot Container", this);
     }
