@@ -23,6 +23,11 @@ class TagFinder:
         self.width = width
         self.height = height
 
+        # for the driver view
+        scale = 0.5
+        self.view_width = width * scale
+        self.view_height = height * scale
+
         self.initialize_nt()
 
         # tag size was wrong before.  full size is 0.2m but
@@ -127,7 +132,10 @@ class TagFinder:
         self.draw_text(img, f"total ET(ms) {1000*total_et:.0f}", (5, 65))
         self.draw_text(img, f"fps {fps:.1f}", (5, 105))
 
-        self.output_stream.putFrame(img)
+        # shrink the driver view to avoid overloading the radio
+        driver_img = cv2.resize(img, (self.view_width, self.view_height))
+        self.output_stream.putFrame(driver_img)
+        # self.output_stream.putFrame(img)
 
     def draw_result(self, image, result):
         for result_item in result:
@@ -178,8 +186,9 @@ class TagFinder:
 
                 # this matrix is not necessarily exactly special orthogonal
                 # this is sort of a hack to fix it.
-                wpi_RV, _ = cv2.Rodrigues(wpi_R)
-                wpi_R, _ = cv2.Rodrigues(wpi_RV)
+                # removed this for now because it's not fast
+                # wpi_RV, _ = cv2.Rodrigues(wpi_R)
+                # wpi_R, _ = cv2.Rodrigues(wpi_RV)
                 
                 # self.draw_text(
                 #     image, f"X {result_item.pose_t.item(0):.2f}m", (c_x, c_y + 80)
@@ -190,26 +199,30 @@ class TagFinder:
                 # self.draw_text(
                 #     image, f"Z {result_item.pose_t.item(2):.2f}m", (c_x, c_y + 160)
                 # )
+
+                # translation vector
                 self.draw_text(
                     image,
                     f"t: {np.array2string(wpi_t.flatten(), formatter=float_formatter)}",
                     (c_x, c_y + 40),
                 )
-                self.draw_text(
-                    image,
-                    f"R: [{np.array2string(wpi_R[0], formatter=float_formatter)},",
-                    (c_x, c_y + 80),
-                )
-                self.draw_text(
-                    image,
-                    f"    {np.array2string(wpi_R[1], formatter=float_formatter)},",
-                    (c_x, c_y + 120),
-                )
-                self.draw_text(
-                    image,
-                    f"    {np.array2string(wpi_R[2], formatter=float_formatter)}]",
-                    (c_x, c_y + 160),
-                )
+
+                # rotation matrix (we don't use this so omit it)
+                # self.draw_text(
+                #     image,
+                #     f"R: [{np.array2string(wpi_R[0], formatter=float_formatter)},",
+                #     (c_x, c_y + 80),
+                # )
+                # self.draw_text(
+                #     image,
+                #     f"    {np.array2string(wpi_R[1], formatter=float_formatter)},",
+                #     (c_x, c_y + 120),
+                # )
+                # self.draw_text(
+                #     image,
+                #     f"    {np.array2string(wpi_R[2], formatter=float_formatter)}]",
+                #     (c_x, c_y + 160),
+                # )
 
     # these are white with black outline
     def draw_text(self, image, msg, loc):
@@ -290,15 +303,19 @@ def main():
             "format": "YUV420",
             "size": (fullwidth, fullheight),
         },
-        lores={"format": "YUV420", "size": (width, height)},
+        lores={
+            "format": "YUV420",
+            "size": (width, height)
+        },
         controls={
+            # these manual controls are useful sometimes but turn them off for now
             # fast shutter means more gain
             # "AnalogueGain": 8.0,
             # the flashing LED makes the Auto-Exposure freak out, so turn it off:
             # "ExposureTime": 5000,
+
             # go as fast as possible but no slower than 30fps
-            # "FrameDurationLimits": (100, 33333),
-            "FrameDurationLimits": (24000, 33333),  # 41 fps
+            "FrameDurationLimits": (5000, 33333),  # 41 fps
             # noise reduction takes time
             "NoiseReductionMode": libcamera.controls.draft.NoiseReductionModeEnum.Off,
         },
