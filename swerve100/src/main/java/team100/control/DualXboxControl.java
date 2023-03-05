@@ -1,5 +1,6 @@
 package team100.control;
 
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.util.sendable.Sendable;
 import edu.wpi.first.util.sendable.SendableBuilder;
@@ -7,11 +8,7 @@ import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
-import frc.robot.autonomous.DriveToAprilTag;
 import frc.robot.autonomous.DriveToWaypoint2;
-import frc.robot.autonomous.MoveToAprilTag;
-//import frc.robot.autonomous.SanjanAutonomous;
-
 import frc.robot.commands.DriveRotation;
 import frc.robot.commands.GoalOffset;
 import frc.robot.commands.ResetPose;
@@ -21,13 +18,16 @@ import frc.robot.commands.Arm.DriveToSetpoint;
 import frc.robot.commands.Manipulator.Close;
 import frc.robot.commands.Manipulator.Home;
 import frc.robot.commands.Manipulator.Open;
-import frc.robot.subsystems.SwerveDriveSubsystem;
 
 /**
  * see
  * https://docs.google.com/document/d/1M89x_IiguQdY0VhQlOjqADMa6SYVp202TTuXZ1Ps280/edit#
  */
 public class DualXboxControl implements Sendable {
+    private static final double kDtSeconds = 0.02;
+    private static final double kMaxRotationRateRadiansPerSecond = Math.PI;
+    private static final double kTriggerThreshold = .5;
+
     private final CommandXboxController controller0;
     private final CommandXboxController controller1;
     Rotation2d previousRotation = new Rotation2d(0);
@@ -40,24 +40,9 @@ public class DualXboxControl implements Sendable {
         SmartDashboard.putData("Robot Container", this);
     }
 
-    public void trajtoApril(SwerveDriveSubsystem m_robotDrive, int ID) {
-        // controler0.b().whileTrue(MoveToAprilTag.newMoveToAprilTag(m_robotDrive, () ->
-        // m_robotDrive.getPose(), 1));
-    };
-
-    // public void resetRotation(ResetRotation command) {
-    // // TODO: choose one
-    // controller0.leftBumper().onTrue(command);
-    // // controller0.a().onTrue(command);
-    // }
-
-    public void driveSlow(SwerveDriveSubsystem m_robotDrive) {
-        // controller0.rightBumper().onTrue(m_robotDrive.driveSl)
-    }
-
-    public void driveToAprilTag(DriveToAprilTag command) {
-        // controller0.x().whileTrue(command);
-    }
+    ///////////////////////////////
+    //
+    // DRIVER: manual driving and auto navigation controls
 
     public void driveToLeftGrid(DriveToWaypoint2 command) {
         controller0.x().whileTrue(command);
@@ -74,10 +59,6 @@ public class DualXboxControl implements Sendable {
     public void driveToSubstation(DriveToWaypoint2 command) {
         controller0.y().whileTrue(command);
     };
-
-    public void driveToAprilTag2(DriveToAprilTag command) {
-        // controller0.y().whileTrue(command);
-    }
 
     public void resetRotation(ResetRotation command) {
         controller0.rightBumper().onTrue(command);
@@ -106,10 +87,41 @@ public class DualXboxControl implements Sendable {
         return -1.0 * controller0.getLeftX();
     }
 
-    /** @return [0, 1] */
-    public double throttle() {
-        return 1.0;
+    public void resetPose(ResetPose command) {
+        controller0.leftBumper().onTrue(command);
     }
+
+    public Rotation2d desiredRotation() {
+        double desiredAngleDegrees = controller0.getHID().getPOV();
+        if (desiredAngleDegrees < 0) { // no POV input
+            double stickInput = MathUtil.applyDeadband(controller0.getLeftX(), 0.05);
+            double desiredRateRadiansPerSecond = stickInput * kMaxRotationRateRadiansPerSecond;
+            Rotation2d dRotation = new Rotation2d(desiredRateRadiansPerSecond * kDtSeconds);
+            previousRotation = previousRotation.minus(dRotation);
+            return previousRotation;
+        }
+        previousRotation = Rotation2d.fromDegrees(-1.0 * desiredAngleDegrees);
+        return previousRotation;
+    }
+
+    public GoalOffset goalOffset() {
+        double left = controller0.getLeftTriggerAxis();
+        double right = controller0.getRightTriggerAxis();
+        if (left > kTriggerThreshold) {
+            if (right > kTriggerThreshold) {
+                return GoalOffset.center;
+            }
+            return GoalOffset.left;
+        }
+        if (right > kTriggerThreshold) {
+            return GoalOffset.right;
+        }
+        return GoalOffset.center;
+    }
+
+    ///////////////////////////////
+    //
+    // OPERATOR: arm and manipulator controls
 
     /** @return [-1,1] */
     public double openSpeed() {
@@ -131,23 +143,6 @@ public class DualXboxControl implements Sendable {
         return controller1.getLeftY();
     }
 
-    public void resetPose(ResetPose command) {
-        controller0.leftBumper().onTrue(command);
-    }
-
-    public Rotation2d desiredRotation() {
-        double foo = -controller0.getHID().getPOV();
-
-        if (foo > 0) {
-            // positive foo equals negative stick which means no input
-            previousRotation = previousRotation.minus(new Rotation2d(controller0.getLeftX() * Math.PI * 0.02));
-            return previousRotation;
-        }
-
-        previousRotation = Rotation2d.fromDegrees(foo);
-        return previousRotation;
-    }
-
     public void driveToHigh(DriveToSetpoint command) {
         controller1.y().whileTrue(command);
     }
@@ -156,6 +151,7 @@ public class DualXboxControl implements Sendable {
         controller1.rightBumper().whileTrue(command);
     }
 
+    // TODO: remove this
     public XboxController getController() {
         return controller1.getHID();
     }
@@ -178,22 +174,6 @@ public class DualXboxControl implements Sendable {
 
     public void close(Close command) {
         controller1.x().whileTrue(command);
-    }
-
-    public GoalOffset goalOffset() {
-        double left = controller0.getLeftTriggerAxis();
-        double right = controller0.getRightTriggerAxis();
-        double kThreshold = .5;
-        if (left > kThreshold) {
-            if (right > kThreshold) {
-                return GoalOffset.center;
-            }
-            return GoalOffset.left;
-        }
-        if (right > kThreshold) {
-            return GoalOffset.right;
-        }
-        return GoalOffset.center;
     }
 
     @Override

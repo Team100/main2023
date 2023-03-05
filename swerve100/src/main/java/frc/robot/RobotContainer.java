@@ -84,15 +84,14 @@ public class RobotContainer implements Sendable {
         // THIS IS FROM BOB'S DELETED CODE
 
         final double kDriveCurrentLimit = 40;
-        m_robotDrive = new SwerveDriveSubsystem(kDriveCurrentLimit);
         manipulator = new Manipulator();
         armController = new ArmController();
 
         // // NEW CONTROL
         control = new DualXboxControl();
-;
-        m_alliance = DriverStation.getAlliance();
 
+        m_alliance = DriverStation.getAlliance();
+        m_robotDrive = new SwerveDriveSubsystem(m_alliance, kDriveCurrentLimit);
         if (m_alliance == DriverStation.Alliance.Blue) {
             driveToLeftGrid = DriveToAprilTag.newDriveToAprilTag(6, 1.889, .55, control::goalOffset, m_robotDrive);
             driveToCenterGrid = DriveToAprilTag.newDriveToAprilTag(7, 1.889, .55, control::goalOffset, m_robotDrive);
@@ -158,7 +157,7 @@ public class RobotContainer implements Sendable {
                 control::rotSpeed,
                 m_robotDrive);
 
-        m_robotDrive.setDefaultCommand(driveManually);
+        m_robotDrive.setDefaultCommand(driveWithHeading);
 
         control.driveRotation(driveRotation);
 

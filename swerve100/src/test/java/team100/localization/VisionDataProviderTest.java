@@ -15,6 +15,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation3d;
+import edu.wpi.first.wpilibj.DriverStation;
 
 public class VisionDataProviderTest {
     private static final double kDelta = 0.01;
@@ -113,7 +114,7 @@ public class VisionDataProviderTest {
         Supplier<Pose2d> robotPose = () -> new Pose2d(); // always at the origin
         // at the moment this is red layout.
         // TODO: make it work with either layout
-        VisionDataProvider vdp = new VisionDataProvider(null, robotPose);
+        VisionDataProvider vdp = new VisionDataProvider(DriverStation.Alliance.Red, null, robotPose);
 
         String key = "foo";
         // in red layout blip 5 is on the other side of the field
@@ -158,7 +159,7 @@ public class VisionDataProviderTest {
         Supplier<Pose2d> robotPose = () -> new Pose2d(0, 0, new Rotation2d(-Math.PI / 4)); // just for rotation
         // at the moment this is red layout.
         // TODO: make it work with either layout
-        VisionDataProvider vdp = new VisionDataProvider(null, robotPose);
+        VisionDataProvider vdp = new VisionDataProvider(DriverStation.Alliance.Red, null, robotPose);
 
         String key = "foo";
         // in red layout blip 5 is on the other side of the field

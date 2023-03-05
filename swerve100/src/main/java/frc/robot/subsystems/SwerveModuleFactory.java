@@ -54,7 +54,8 @@ public class SwerveModuleFactory {
         // TURNING FF
         SimpleMotorFeedforward turningFeedforward = new SimpleMotorFeedforward( //
                 0.05, // kS: friction is unimportant
-                0.003);// kV: from experiment; higher than AM modules, less reduction gear
+                0.003,// kV: from experiment; higher than AM modules, less reduction gear
+                0.1); // kA: I have no idea what this value should be
 
         return new SwerveModule(name, driveMotor, turningMotor, driveEncoder, turningEncoder,
                 driveController, turningController, driveFeedforward, turningFeedforward);
@@ -147,13 +148,13 @@ public class SwerveModuleFactory {
         SimpleMotorFeedforward driveFeedforward = new SimpleMotorFeedforward(//
                 0.04, // kS
                 0.2, // kV
-                0);
+                0); // kA
 
         // TURNING FF
         SimpleMotorFeedforward turningFeedforward = new SimpleMotorFeedforward(//
                 0.05, // kS
-                0.003,
-                0); // kV
+                0.003, // kV
+                0); // kA
 
         return new SwerveModule(name, driveMotor, turningMotor, driveEncoder, turningEncoder,
                 driveController, turningController, driveFeedforward, turningFeedforward);

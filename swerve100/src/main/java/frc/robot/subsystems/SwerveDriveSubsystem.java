@@ -23,6 +23,7 @@ import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StringPublisher;
 import edu.wpi.first.util.sendable.SendableBuilder;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.SerialPort;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -108,7 +109,7 @@ public class SwerveDriveSubsystem extends SubsystemBase {
     private final DoubleArrayPublisher robotPosePub;
     private final StringPublisher fieldTypePub;
 
-    public SwerveDriveSubsystem(double currentLimit) throws IOException {
+    public SwerveDriveSubsystem(DriverStation.Alliance alliance, double currentLimit) throws IOException {
         // Sets up Field2d pose tracking for glass.
         NetworkTableInstance inst = NetworkTableInstance.getDefault();
         NetworkTable fieldTable = inst.getTable("field");
@@ -313,7 +314,7 @@ public class SwerveDriveSubsystem extends SubsystemBase {
 
         headingController = new ProfiledPIDController( //
                 1, // kP
-                0.05, // kI
+                .5, // kI
                 0.15, // kD
                 new TrapezoidProfile.Constraints(
                         2 * Math.PI, // speed rad/s
@@ -336,7 +337,7 @@ public class SwerveDriveSubsystem extends SubsystemBase {
                 new Pose2d(),
                 VecBuilder.fill(0.03, 0.03, 0.03),
                 VecBuilder.fill(0.01, 0.01, Integer.MAX_VALUE));
-        visionDataProvider = new VisionDataProvider(m_poseEstimator, () -> getPose());
+        visionDataProvider = new VisionDataProvider(alliance, m_poseEstimator, () -> getPose());
 
         SmartDashboard.putData("Drive Subsystem", this);
     }
@@ -529,7 +530,7 @@ public class SwerveDriveSubsystem extends SubsystemBase {
     }
 
     public Rotation2d getHeading() {
-        return Rotation2d.fromDegrees(-m_gyro.getFusedHeading());
+        return Rotation2d.fromDegrees(-m_gyro.getYaw());
     }
 
     public double diff() {
@@ -586,6 +587,7 @@ public class SwerveDriveSubsystem extends SubsystemBase {
         builder.addDoubleProperty("Pitch", () -> m_gyro.getPitch(), null);
         builder.addDoubleProperty("Roll", () -> m_gyro.getRoll(), null);
         builder.addDoubleProperty("Heading Degrees", () -> getHeading().getDegrees(), null);
+        builder.addDoubleProperty("Heading Radians", () -> getHeading().getRadians(), null);
         builder.addDoubleProperty("Compass Heading", () -> m_gyro.getCompassHeading(), null);
         builder.addDoubleProperty("Angle", () -> m_gyro.getAngle(), null);
         builder.addDoubleProperty("xSpeed", () -> x, null);

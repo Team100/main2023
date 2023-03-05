@@ -10,7 +10,7 @@ public enum Camera {
     ONE("100000004e0a1fb9"),
     TWO("1000000013c9c96c"),
     THREE("10000000a7a892c0"),
-    FOUR("blarg"),
+    FOUR("10000000a7c673d9"),
     UNKNOWN(null);
 
     private static Map<String, Camera> cameras = new HashMap<String, Camera>();
