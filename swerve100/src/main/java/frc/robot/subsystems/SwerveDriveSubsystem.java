@@ -317,7 +317,7 @@ public class SwerveDriveSubsystem extends SubsystemBase {
                 0.15, // kD
                 new TrapezoidProfile.Constraints(
                         2 * Math.PI, // speed rad/s
-                        1.2 * Math.PI)); // accel rad/s/s
+                        2 * Math.PI)); // accel rad/s/s
 
         headingController.setIntegratorRange(-0.1, 0.1);
         // Note very low heading tolerance.
