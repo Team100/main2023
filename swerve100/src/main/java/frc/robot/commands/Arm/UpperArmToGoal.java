@@ -1,7 +1,3 @@
-// Copyright (c) FIRST and other WPILib contributors.
-// Open Source Software; you can modify and/or share it under the terms of
-// the WPILib BSD license file in the root directory of this project.
-
 package frc.robot.commands.Arm;
 
 import java.util.function.BiConsumer;
@@ -15,9 +11,7 @@ import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.trajectory.TrapezoidProfile.State;
 import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj.util.WPILibVersion;
 import edu.wpi.first.wpilibj2.command.ProfiledPIDCommand;
-import frc.robot.subsystems.Arm.Arm;
 import frc.robot.subsystems.Arm.ArmController;
 
 // NOTE:  Consider using this command inline, rather than writing a subclass.  For more

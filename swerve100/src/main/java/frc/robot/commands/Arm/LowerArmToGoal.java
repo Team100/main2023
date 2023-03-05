@@ -15,7 +15,6 @@ import edu.wpi.first.math.trajectory.TrapezoidProfile.State;
 import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.ProfiledPIDCommand;
-import frc.robot.subsystems.Arm.Arm;
 import frc.robot.subsystems.Arm.ArmController;
 
 // NOTE:  Consider using this command inline, rather than writing a subclass.  For more
