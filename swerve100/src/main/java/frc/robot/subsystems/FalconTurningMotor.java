@@ -3,7 +3,7 @@ package frc.robot.subsystems;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
-
+import com.ctre.phoenix.motorcontrol.InvertType;
 import com.ctre.phoenix.motorcontrol.StatorCurrentLimitConfiguration;
 import com.ctre.phoenix.motorcontrol.SupplyCurrentLimitConfiguration;
 import com.ctre.phoenix.motorcontrol.TalonFXSensorCollection;
@@ -22,6 +22,8 @@ public class FalconTurningMotor implements TurningMotor {
 
     public FalconTurningMotor(String name, int canId) {
         m_motor = new WPI_TalonFX(canId);
+
+        m_motor.setInverted(InvertType.InvertMotorOutput);
         m_motor.configFactoryDefault();
         m_motor.configStatorCurrentLimit(
                 new StatorCurrentLimitConfiguration(true, kTurningCurrentLimit, kTurningCurrentLimit, 0));
