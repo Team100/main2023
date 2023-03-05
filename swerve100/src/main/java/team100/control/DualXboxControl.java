@@ -141,7 +141,7 @@ public class DualXboxControl implements Sendable {
 
         if (foo > 0) {
             // positive foo equals negative stick which means no input
-            previousRotation = previousRotation.minus(new Rotation2d(MathUtil.applyDeadband(controller0.getLeftX()*Math.PI*0.02, 0.05))) ;
+            previousRotation = previousRotation.minus(new Rotation2d(MathUtil.applyDeadband(controller0.getLeftX()*Math.PI*0.04 , 0.05))) ;
             return previousRotation;
         }
 

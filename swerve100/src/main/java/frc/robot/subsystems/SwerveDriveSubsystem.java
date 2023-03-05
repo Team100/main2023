@@ -223,7 +223,7 @@ public class SwerveDriveSubsystem extends SubsystemBase {
                 kMaxSpeedMetersPerSecond = 5;
                 kMaxAccelerationMetersPerSecondSquared = 10;
                 kMaxAngularSpeedRadiansPerSecond = 5;
-                kMaxAngularSpeedRadiansPerSecondSquared = 5;
+                kMaxAngularSpeedRadiansPerSecondSquared = 10;
                 m_frontLeft = SwerveModuleFactory.AMCANModule(
                         "Front Left",
                         3, // drive CAN
