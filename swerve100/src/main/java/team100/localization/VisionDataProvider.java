@@ -25,6 +25,7 @@ import edu.wpi.first.networktables.NetworkTable.TableEventListener;
 import edu.wpi.first.networktables.NetworkTableEvent;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.util.sendable.SendableBuilder;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -47,7 +48,10 @@ public class VisionDataProvider extends SubsystemBase implements TableEventListe
 
     Pose2d currentRobotinFieldCoords;
 
-    public VisionDataProvider(SwerveDrivePoseEstimator poseEstimator, Supplier<Pose2d> getPose)
+    public VisionDataProvider(
+            DriverStation.Alliance alliance,
+            SwerveDrivePoseEstimator poseEstimator,
+            Supplier<Pose2d> getPose)
             throws IOException {
 
         this.getPose = getPose;
@@ -55,9 +59,11 @@ public class VisionDataProvider extends SubsystemBase implements TableEventListe
 
         currentRobotinFieldCoords = new Pose2d();
 
-        // TODO: get driverstation alliance
-        // layout = AprilTagFieldLayoutWithCorrectOrientation.blueLayout();
-        layout = AprilTagFieldLayoutWithCorrectOrientation.redLayout();
+        if (alliance == DriverStation.Alliance.Blue) {
+            layout = AprilTagFieldLayoutWithCorrectOrientation.blueLayout();
+        } else { // red
+            layout = AprilTagFieldLayoutWithCorrectOrientation.redLayout();
+        }
 
         NetworkTableInstance inst = NetworkTableInstance.getDefault();
         inst.startServer("example server");
