@@ -138,6 +138,10 @@ public class SwerveModule implements Sendable {
         return m_dFeedForwardOutput;
     }
 
+    public double getGoal(){
+        return m_turningController.getGoal().position;
+    }
+
     @Override
     public void initSendable(SendableBuilder builder) {
         builder.setSmartDashboardType(String.format("SwerveModule %s", m_name));
@@ -149,6 +153,9 @@ public class SwerveModule implements Sendable {
         builder.addDoubleProperty("feed_forward_output", this::gettFeedForward, null);
         builder.addDoubleProperty("controller_Output_turning", this::getTControllerOutput, null);
         builder.addDoubleProperty("turningSetPoint", this::getSetpointPosition, null);
+
+        builder.addDoubleProperty("Turning Goal", this::getGoal, null);
+
         builder.addDoubleProperty("driveControllerOutput", this::getDControllerOutput, null);
         builder.addDoubleProperty("driveSetPoint MS", this::driveSetpointMS, null);
         builder.addDoubleProperty("driveFeedForwardOutput", this::getdFeedForward, null);

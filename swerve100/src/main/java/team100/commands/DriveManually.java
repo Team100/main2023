@@ -62,10 +62,16 @@ public class DriveManually extends CommandBase {
         double xDBRemoved = (xSwitch-.1*Math.signum(xSwitch))/.9;
         double yDBRemoved = (ySwitch-.1*Math.signum(ySwitch))/.9;
         double rotDBRemoved = (rotSwitch-.1*Math.signum(rotSwitch))/.9;
+        // m_robotDrive.drive(
+        //         xDBRemoved * xDBRemoved * xDBRemoved * kSpeedModifier,
+        //         yDBRemoved * yDBRemoved * yDBRemoved * kSpeedModifier,
+        //         rotDBRemoved * rotDBRemoved * rotDBRemoved * kSpeedModifier,
+        //         fieldRelative);
         m_robotDrive.drive(
-                xDBRemoved * xDBRemoved * xDBRemoved * kSpeedModifier,
-                yDBRemoved * yDBRemoved * yDBRemoved * kSpeedModifier,
-                rotDBRemoved * rotDBRemoved * rotDBRemoved * kSpeedModifier,
-                fieldRelative);
+            xSwitch,
+            ySwitch,
+            rotSwitch,
+            fieldRelative
+        );
     }
 }

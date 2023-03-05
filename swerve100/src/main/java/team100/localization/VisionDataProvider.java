@@ -101,6 +101,7 @@ public class VisionDataProvider extends SubsystemBase implements TableEventListe
      * Camera views relative to the robot center at the floor.
      */
     private Transform3d cameraOffset(String serialNumber) {
+
         Camera cam = Camera.get(serialNumber);
         switch (cam) {
             case ONE: // center
@@ -112,7 +113,7 @@ public class VisionDataProvider extends SubsystemBase implements TableEventListe
             case FOUR: // rear
                 return new Transform3d(new Translation3d(0.4, 0, 0.3), new Rotation3d(0, -0.35, 3.14));
             case UNKNOWN:
-                return new Transform3d();
+                return new Transform3d(new Translation3d(0.254, 0.127, 0.3), new Rotation3d(0, 0, 0));
             default:
                 return new Transform3d();
         }
