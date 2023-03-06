@@ -25,8 +25,8 @@ class TagFinder:
 
         # for the driver view
         scale = 0.5
-        self.view_width = width * scale
-        self.view_height = height * scale
+        self.view_width = int(width * scale)
+        self.view_height = int(height * scale)
 
         self.initialize_nt()
 
