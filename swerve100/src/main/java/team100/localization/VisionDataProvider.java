@@ -109,14 +109,14 @@ public class VisionDataProvider extends SubsystemBase implements TableEventListe
     private Transform3d cameraOffset(String serialNumber) {
         Camera cam = Camera.get(serialNumber);
         switch (cam) {
-            case ONE: // center
-                return new Transform3d(new Translation3d(0.4, 0.0, 0.2), new Rotation3d(0, 0, 0.35));
-            case TWO: // left oblique
-                return new Transform3d(new Translation3d(0, 0.3, 0.3), new Rotation3d(0, -0.35, 0.35));
-            case THREE: // right oblique
-                return new Transform3d(new Translation3d(0, -0.30, 0.3), new Rotation3d(0, -0.35, -0.35));
-            case FOUR: // rear
+            case REAR:
                 return new Transform3d(new Translation3d(0.4, 0, 0.3), new Rotation3d(0, -0.35, 3.14));
+            case FRONT:
+                return new Transform3d(new Translation3d(0, 0.3, 0.3), new Rotation3d(0, -0.35, 0.35));
+            case RIGHT:
+                return new Transform3d(new Translation3d(0, -0.30, 0.3), new Rotation3d(0, -0.35, -0.35));
+            case LEFT:
+                return new Transform3d(new Translation3d(0.4, 0.0, 0.2), new Rotation3d(0, 0, 0.35));
             case UNKNOWN:
                 return new Transform3d();
             default:
