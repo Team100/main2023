@@ -541,7 +541,8 @@ public class SwerveDriveSubsystem extends SubsystemBase {
         if (Math.abs(rot) < .01)
             rot = 0;
         double gyroRate = m_gyro.getRate() * 0.25;
-        Rotation2d rotation2 = getPose().getRotation().minus(new Rotation2d(gyroRate));
+        // Rotation2d rotation2 = getPose().getRotation().minus(new Rotation2d(gyroRate));
+        Rotation2d rotation2 = getPose().getRotation();
         desiredChassisSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(kMaxSpeedMetersPerSecond * xSpeed,
                 kMaxSpeedMetersPerSecond * ySpeed, kMaxAngularSpeedRadiansPerSecond * rot,
                 rotation2);
@@ -558,6 +559,7 @@ public class SwerveDriveSubsystem extends SubsystemBase {
         getRobotVelocity(swerveModuleStates);
 
         m_frontLeft.setDesiredState(swerveModuleStates[0]);
+        System.out.println(desiredChassisSpeeds);
         m_frontRight.setDesiredState(swerveModuleStates[1]);
         m_rearLeft.setDesiredState(swerveModuleStates[2]);
         m_rearRight.setDesiredState(swerveModuleStates[3]);
@@ -637,9 +639,13 @@ public class SwerveDriveSubsystem extends SubsystemBase {
         builder.addDoubleProperty("Front Right Turning Controller Output", () -> m_frontRight.getTControllerOutput(),
                 null);
         builder.addDoubleProperty("Rear Left Turning Controller Output", () -> m_rearLeft.getTControllerOutput(), null);
+        
         builder.addDoubleProperty("Rear Right Turning Controller Output", () -> m_rearRight.getTControllerOutput(),
                 null);
-        builder.addDoubleProperty("Front Left Driving Controller Output", () -> m_frontLeft.getDControllerOutput(),
+        
+        
+        
+                builder.addDoubleProperty("Front Left Driving Controller Output", () -> m_frontLeft.getDControllerOutput(),
                 null);
         builder.addDoubleProperty("Front Right Driving Controller Output", () -> m_frontRight.getDControllerOutput(),
                 null);

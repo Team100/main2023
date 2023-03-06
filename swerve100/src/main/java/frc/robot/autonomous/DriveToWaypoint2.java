@@ -14,7 +14,9 @@ import edu.wpi.first.math.trajectory.TrajectoryConfig;
 import edu.wpi.first.math.trajectory.TrajectoryParameterizer.TrajectoryGenerationException;
 import edu.wpi.first.math.trajectory.TrajectoryGenerator;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
+import edu.wpi.first.networktables.DoublePublisher;
 import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.commands.GoalOffset;
@@ -30,20 +32,16 @@ import frc.robot.subsystems.SwerveDriveSubsystem;
 public class DriveToWaypoint2 extends CommandBase {
     private static final TrapezoidProfile.Constraints rotationConstraints = new TrapezoidProfile.Constraints(6, 12);
 
-    // private double desiredX = 0;
-    // private double desiredY = 0;
+    private double desiredX = 0;
+    private double desiredY = 0;
     // private Pose2d desiredPose;
 
     NetworkTableInstance inst = NetworkTableInstance.getDefault();
 
-    // DoublePublisher desiredXPublisher = inst.getTable("Drive To
-    // Waypoint").getDoubleTopic("Desired X PUB").publish();
-    // DoublePublisher desiredYPublisher = inst.getTable("Drive To
-    // Waypoint").getDoubleTopic("Desired Y PUB").publish();
-    // DoublePublisher poseXPublisher = inst.getTable("Drive To
-    // Waypoint").getDoubleTopic("Pose X PUB").publish();
-    // DoublePublisher poseYPublisher = inst.getTable("Drive To
-    // Waypoint").getDoubleTopic("Pose Y PUB").publish();
+    DoublePublisher desiredXPublisher = inst.getTable("Drive To Waypoint").getDoubleTopic("Desired X PUB").publish();
+    DoublePublisher desiredYPublisher = inst.getTable("Drive To Waypoint").getDoubleTopic("Desired Y PUB").publish();
+    DoublePublisher poseXPublisher = inst.getTable("Drive To Waypoint").getDoubleTopic("Pose X PUB").publish();
+    DoublePublisher poseYPublisher = inst.getTable("Drive To Waypoint").getDoubleTopic("Pose Y PUB").publish();
 
     private final Timer m_timer = new Timer();
 
@@ -71,10 +69,7 @@ public class DriveToWaypoint2 extends CommandBase {
         this.m_swerve = m_swerve;
 
         System.out.println("CONSTRUCTOR****************************************************");
-        // desiredY = 0;
-        // desiredPose = new Pose2d();
-        // desiredStateGlobal = new State();
-
+       
         goalOffsetSupplier = offsetSupplier;
         previousOffset = goalOffsetSupplier.get();
         m_yOffset = yOffset;
@@ -82,11 +77,11 @@ public class DriveToWaypoint2 extends CommandBase {
         m_rotationController = new ProfiledPIDController(1.3, 0, 0, rotationConstraints);
         m_rotationController.setTolerance(Math.PI / 180);
 
-        xController = new PIDController(1.5, 1.5, 0);
+        xController = new PIDController(1, 1, 0);
         xController.setIntegratorRange(-0.5, 0.5);
         xController.setTolerance(0.01);
 
-        yController = new PIDController(1.5, 1.5, 0);
+        yController = new PIDController(1, 1, 0);
         yController.setIntegratorRange(-0.5, 0.5);
         yController.setTolerance(0.01);
         m_controller = new HolonomicDriveController2(xController, yController, m_rotationController);
@@ -172,25 +167,20 @@ public class DriveToWaypoint2 extends CommandBase {
         }
         double curTime = m_timer.get();
         var desiredState = m_trajectory.sample(curTime);
-        // this.desiredX = desiredState.poseMeters.getX();
 
-        // desiredY = desiredState.poseMeters.getY();
+        this.desiredX = desiredState.poseMeters.getX();
 
-        // desiredPose = desiredState.poseMeters;
-
-        // desiredPose = desiredState.poseMeters;
-
-        // System.out.print ln(desiredX);
+        this.desiredY = desiredState.poseMeters.getY();
 
         // System.out.println("*****************"+goal);
         var targetChassisSpeeds = m_controller.calculate(m_swerve.getPose(), desiredState, goal.getRotation());
         var targetModuleStates = SwerveDriveSubsystem.kDriveKinematics.toSwerveModuleStates(targetChassisSpeeds);
 
 
-        // desiredXPublisher.set(desiredX);
-        // desiredYPublisher.set(desiredY);
-        // poseXPublisher.set(m_swerve.getPose().getX());
-        // poseYPublisher.set(m_swerve.getPose().getY());
+        desiredXPublisher.set(desiredX);
+        desiredYPublisher.set(desiredY);
+        poseXPublisher.set(m_swerve.getPose().getX());
+        poseYPublisher.set(m_swerve.getPose().getY());
 
         m_swerve.setModuleStates(targetModuleStates);
     }
@@ -203,19 +193,9 @@ public class DriveToWaypoint2 extends CommandBase {
 
     // @Override
     // public void initSendable(SendableBuilder builder) {
-    // super.initSendable(builder);
-    // // builder.addDoubleProperty("Holonomic X Error", () ->
-    // m_controller.getXController().getPositionError(), null);
-    // // builder.addDoubleProperty("Desired X", () -> getDesiredX(), null);
-    // builder.addDoubleProperty("X Measurment", () -> m_swerve.getPose().getX(),
-    // null);
+    //     super.initSendable(builder);
 
-    // // builder.addDoubleProperty("Holonomic Y Error", () ->
-    // m_controller.getYController().getPositionError(), null);
-    // builder.addDoubleProperty("Desired Y", () -> desiredY, null);
-    // builder.addDoubleProperty( "Holonomic Y Measurment", () ->
-    // m_swerve.getPose().getY(), null);
-
+    //     builder.addDoubleProperty("X Measurment", () -> m_swerve.getPose().getX(), null);
     // }
 
 }
