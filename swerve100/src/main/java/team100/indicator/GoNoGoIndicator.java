@@ -62,6 +62,10 @@ public class GoNoGoIndicator {
         notifier = new Notifier(this::flip);
         notifier.startPeriodic(0.5 / freq);
     }
+    
+    public void close() {
+        led.close();
+    }
 
     public void go() {
         active = State.GO;

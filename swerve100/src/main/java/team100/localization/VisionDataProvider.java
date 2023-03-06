@@ -82,6 +82,10 @@ public class VisionDataProvider extends SubsystemBase implements TableEventListe
         SmartDashboard.putData("Vision Data Provider", this);
     }
 
+    public void close() {
+        indicator.close();
+    }
+
     /***
      * Accept a NetworkTableEvent and convert it to a Blips object
      * 
