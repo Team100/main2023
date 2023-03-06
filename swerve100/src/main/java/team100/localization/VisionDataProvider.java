@@ -110,7 +110,7 @@ public class VisionDataProvider extends SubsystemBase implements TableEventListe
         Camera cam = Camera.get(serialNumber);
         switch (cam) {
             case ONE: // center
-                return new Transform3d(new Translation3d(0.4, 0.0, 0.2), new Rotation3d(0, 0, 0.35));
+                return new Transform3d(new Translation3d(0.4, 0.0, 0.2), new Rotation3d(0, -0.35, 0));
             case TWO: // left oblique
                 return new Transform3d(new Translation3d(0, 0.3, 0.3), new Rotation3d(0, -0.35, 0.35));
             case THREE: // right oblique
