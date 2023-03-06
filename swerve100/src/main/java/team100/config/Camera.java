@@ -7,10 +7,12 @@ import java.util.Map;
  * Represents all the Raspberry Pi 4 cameras we have.
  */
 public enum Camera {
-    ONE("100000004e0a1fb9"),
-    TWO("1000000013c9c96c"),
-    THREE("10000000a7a892c0"),
-    FOUR("10000000a7c673d9"),
+    // these are in serial-number order
+    // keep these synchronized with python tag_finder.py.
+    FRONT("1000000013c9c96c"),
+    REAR("100000004e0a1fb9"),
+    LEFT("10000000a7c673d9"),
+    RIGHT("10000000a7a892c0"),
     UNKNOWN(null);
 
     private static Map<String, Camera> cameras = new HashMap<String, Camera>();
