@@ -4,6 +4,8 @@
 
 package frc.robot.autonomous;
 
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 // import edu.wpi.first.wpilibj2.command.WaitCommand;
 // import frc.robot.commands.autoLevel;
@@ -19,7 +21,8 @@ public class VasiliAutonomous extends SequentialCommandGroup {
     // addCommands(new FooCommand(), new BarCommand());
     
     addCommands(
-        // DriveToAprilTag.newDriveToAprilTag(5, m_robotDrive)
+        //TODO add place cone/cube command here
+        moveFromStartingPoseToGamePiece.newMoveFromStartingPoseToGamePiece(m_robotDrive, () -> m_robotDrive.getPose(), new Pose2d(5.7,0.92, m_robotDrive.getHeading().plus(new Rotation2d(Math.PI))))
     );  
    }
  }
