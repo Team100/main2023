@@ -21,7 +21,7 @@ public class FalconTurningMotor implements TurningMotor {
                 new StatorCurrentLimitConfiguration(true, kTurningCurrentLimit, kTurningCurrentLimit, 0));
         m_motor.configSupplyCurrentLimit(
                 new SupplyCurrentLimitConfiguration(true, kTurningCurrentLimit, kTurningCurrentLimit, 0));
-        SmartDashboard.putData(String.format("Falcon Drive Motor %s", name), this);
+        SmartDashboard.putData(String.format("Falcon Turning Motor %s", name), this);
     }
 
     @Override
