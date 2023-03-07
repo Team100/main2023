@@ -152,6 +152,7 @@ public class VisionDataProviderTest {
         assertEquals(15.18, result.getX(), kDelta); // target is one meter in front
         assertEquals(1.26, result.getY(), kDelta); // same y as target
         assertEquals(0, result.getRotation().getRadians(), kDelta); // facing along x
+        vdp.close();
     }
 
     @Test
@@ -197,6 +198,6 @@ public class VisionDataProviderTest {
         assertEquals(15.18, result.getX(), kDelta); // target is one meter in front
         assertEquals(2.26, result.getY(), kDelta); // one meter to the left
         assertEquals(-Math.PI / 4, result.getRotation().getRadians(), kDelta); // facing diagonal
+        vdp.close();
     }
-
 }

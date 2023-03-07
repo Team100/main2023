@@ -3,6 +3,7 @@
 # pylint: disable=missing-class-docstring
 # pylint: disable=import-error
 import time
+from enum import Enum
 
 import cv2
 import libcamera
@@ -15,18 +16,32 @@ from picamera2 import Picamera2
 from pupil_apriltags import Detector
 
 
+class Camera(Enum):
+    """Keep this synchronized with java team100.config.Camera."""
+
+    FRONT = "1000000013c9c96c"
+    REAR = "100000004e0a1fb9"
+    LEFT = "10000000a7c673d9"
+    RIGHT = "10000000a7a892c0"
+    UNKNOWN = None
+
+    @classmethod
+    def _missing_(cls, value):
+        return Camera.UNKNOWN
+
+
 class TagFinder:
-    def __init__(self, width, height):
+    def __init__(self, topic_name, width, height):
         self.frame_time = time.time()
         # each camera has its own topic
-        self.topic_name = getserial()  # was: topic_name = "tags"
+        self.topic_name = topic_name
         self.width = width
         self.height = height
 
         # for the driver view
         scale = 0.5
-        self.view_width = width * scale
-        self.view_height = height * scale
+        self.view_width = int(width * scale)
+        self.view_height = int(height * scale)
 
         self.initialize_nt()
 
@@ -54,16 +69,16 @@ class TagFinder:
 
     def analyze(self, request):
         buffer = request.make_buffer("lores")
-        #        buffer = request.make_buffer("main")
-        metadata = request.get_metadata()
+        # buffer = request.make_buffer("main")
+        # metadata = request.get_metadata()
         # print(metadata)
         # sensor timestamp is the boottime when the first byte was received from the sensor
-        sensor_timestamp = metadata[
-            "SensorTimestamp"
-        ]  # pylint: disable=unused-variable
-        system_time_ns = time.clock_gettime_ns(
-            time.CLOCK_BOOTTIME
-        )  # pylint: disable=no-member, unused-variable
+        # sensor_timestamp = metadata[
+        #     "SensorTimestamp"
+        # ]
+        # system_time_ns = time.clock_gettime_ns(
+        #     time.CLOCK_BOOTTIME
+        # )
         # time_delta_ns = system_time_ns - sensor_timestamp
         # print(sensor_timestamp, system_time_ns, time_delta_ns//1000000) # ms
 
@@ -163,33 +178,31 @@ class TagFinder:
 
             # put the pose translation in the image
             # the use of 'item' here is to force a scalar to format
-            float_formatter={'float_kind':lambda x: f'{x:4.1f}'}
+            float_formatter = {"float_kind": lambda x: f"{x:4.1f}"}
             if result_item.pose_t is not None:
-                wpi_axes = np.array([[0,0,1],[-1,0,0],[0,-1,0]])
-                #wpi_t = np.matmul(wpi_axes, result_item.pose_t)
+                # wpi_axes = np.array([[0, 0, 1], [-1, 0, 0], [0, -1, 0]])
+                # wpi_t = np.matmul(wpi_axes, result_item.pose_t)
                 t = result_item.pose_t
-                wpi_t = np.array([
-                    [t[2][0]],
-                    [-t[0][0]],
-                    [-t[1][0]]
-                ])
-                R = result_item.pose_R
+                wpi_t = np.array([[t[2][0]], [-t[0][0]], [-t[1][0]]])
+                # R = result_item.pose_R
                 # wpi_R = np.matmul(wpi_axes, result_item.pose_R)
-                wpi_R = np.array([
-                    # [R[0][0], R[0][1], R[0][2]],
-                    # [R[1][0], R[1][1], R[1][2]],
-                    # [R[2][0], R[2][1], R[2][2]]
-                    [R[2][2], -R[2][0], -R[2][1]],
-                    [-R[0][2], R[0][0], R[0][1]],
-                    [-R[1][2], R[1][0], R[1][1]]
-                ])
+                # wpi_R = np.array(
+                #     [
+                #         # [R[0][0], R[0][1], R[0][2]],
+                #         # [R[1][0], R[1][1], R[1][2]],
+                #         # [R[2][0], R[2][1], R[2][2]]
+                #         [R[2][2], -R[2][0], -R[2][1]],
+                #         [-R[0][2], R[0][0], R[0][1]],
+                #         [-R[1][2], R[1][0], R[1][1]],
+                #     ]
+                # )
 
                 # this matrix is not necessarily exactly special orthogonal
                 # this is sort of a hack to fix it.
                 # removed this for now because it's not fast
                 # wpi_RV, _ = cv2.Rodrigues(wpi_R)
                 # wpi_R, _ = cv2.Rodrigues(wpi_RV)
-                
+
                 # self.draw_text(
                 #     image, f"X {result_item.pose_t.item(0):.2f}m", (c_x, c_y + 80)
                 # )
@@ -204,7 +217,7 @@ class TagFinder:
                 self.draw_text(
                     image,
                     f"t: {np.array2string(wpi_t.flatten(), formatter=float_formatter)}",
-                    (c_x, c_y + 40),
+                    (c_x - 50, c_y + 40),
                 )
 
                 # rotation matrix (we don't use this so omit it)
@@ -243,6 +256,10 @@ class TagFinder:
         )
 
     def reconnect_nt(self):
+        """NT doesn't recover from network disruptions by itself, nor does it
+        recognize them, so this blindly stops and starts the client.  This is
+        disruptive, causing flashing in Glass for example ... but better than
+        zombie mode?"""
         inst = NetworkTableInstance.getDefault()
         inst.stopClient()  # without this, reconnecting doesn't work
         inst.startClient4("tag-finder")
@@ -303,23 +320,25 @@ def main():
             "format": "YUV420",
             "size": (fullwidth, fullheight),
         },
-        lores={
-            "format": "YUV420",
-            "size": (width, height)
-        },
+        lores={"format": "YUV420", "size": (width, height)},
         controls={
             # these manual controls are useful sometimes but turn them off for now
             # fast shutter means more gain
             # "AnalogueGain": 8.0,
             # the flashing LED makes the Auto-Exposure freak out, so turn it off:
             # "ExposureTime": 5000,
-
             # go as fast as possible but no slower than 30fps
             "FrameDurationLimits": (5000, 33333),  # 41 fps
             # noise reduction takes time
             "NoiseReductionMode": libcamera.controls.draft.NoiseReductionModeEnum.Off,
         },
     )
+
+    topic_name = getserial()  # was: topic_name = "tags"
+    identity = Camera(topic_name)
+    if identity == Camera.REAR:
+        camera_config["transform"] = libcamera.Transform(hflip=1, vflip=1)
+
     print("REQUESTED")
     print(camera_config)
     camera.align_configuration(camera_config)
@@ -331,7 +350,7 @@ def main():
     # Roborio IP: 10.1.0.2
     # Pi IP: 10.1.0.21
 
-    output = TagFinder(width, height)
+    output = TagFinder(topic_name, width, height)
     # the callback blocks the camera thread, so don't do that.
     # camera.pre_callback = output.pre_callback
     camera.start()
@@ -342,7 +361,7 @@ def main():
             # without these attempts, network disruption results in
             # permanent disconnection
             frame_counter += 1
-            if frame_counter > 20:
+            if frame_counter > 60:  # at 20fps, a few seconds?
                 print("RECONNECTING")
                 frame_counter = 0
                 output.reconnect_nt()
