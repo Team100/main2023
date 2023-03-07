@@ -20,6 +20,8 @@ public class ArmController extends SubsystemBase {
     private double xSetpoint = 1;
     private double ySetpoint = 1;
 
+    public boolean cubeMode = true;
+
     private double upperAngleSetpoint = 0;
     private double lowerAngleSetpoint = 0;
 
@@ -227,6 +229,7 @@ public class ArmController extends SubsystemBase {
         builder.addDoubleProperty("Lower Arm Absolute Rasians", () -> getLowerArm(), null);
         builder.addDoubleProperty("Upper Arm Absolute Degrees", () -> getUpperArmDegrees(), null);
         builder.addDoubleProperty("Lower Arm Absolute Degrees", () -> getLowerArmDegrees(), null);
+        builder.addBooleanProperty("Cube Mode", () -> cubeMode, null);
         // builder.addDoubleProperty("X Setpoint", () -> xSetpoint, null);
         // builder.addDoubleProperty("Y Setpoint", () -> ySetpoint, null);
         // builder.addDoubleProperty("Upper Angle Setpoint", () -> upperAngleSetpoint, null);

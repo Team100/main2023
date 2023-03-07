@@ -18,6 +18,7 @@ import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.ConditionalCommand;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
@@ -29,6 +30,7 @@ import frc.robot.autonomous.MoveToAprilTag;
 import frc.robot.autonomous.SanjanAutonomous;
 import frc.robot.autonomous.VasiliAutonomous;
 import frc.robot.commands.DriveRotation;
+import frc.robot.commands.DriveSlow;
 import frc.robot.commands.DriveWithHeading;
 import frc.robot.commands.ResetPose;
 import frc.robot.commands.ResetRotation;
@@ -36,6 +38,8 @@ import frc.robot.commands.autoLevel;
 import frc.robot.commands.Arm.ArmTrajectory;
 import frc.robot.commands.Arm.DriveToSetpoint;
 import frc.robot.commands.Arm.ManualArm;
+import frc.robot.commands.Arm.SetConeMode;
+import frc.robot.commands.Arm.SetCubeMode;
 import frc.robot.commands.Manipulator.Close;
 import frc.robot.commands.Manipulator.Home;
 import frc.robot.commands.Manipulator.Open;
@@ -77,6 +81,16 @@ public class RobotContainer implements Sendable {
 
     private final ArmTrajectory armHigh;
     private final ArmTrajectory armSafe;
+    // private final ArmTrajectory armSubstation;
+    private final SetCubeMode setCubeMode; 
+    private final SetConeMode setConeMode; 
+
+
+    private final Home homeCommand;
+    private final Close closeCommand;
+    private final Open openCommand;
+
+    private final DriveSlow driveSlow;
 
     public final static Field2d m_field = new Field2d();
 
@@ -90,7 +104,10 @@ public class RobotContainer implements Sendable {
         // // NEW CONTROL
         control = new DualXboxControl();
 
-        m_alliance = DriverStation.getAlliance();
+        // m_alliance = DriverStation.getAlliance();
+
+        m_alliance = DriverStation.Alliance.Red;
+
         m_robotDrive = new SwerveDriveSubsystem(m_alliance, kDriveCurrentLimit);
         if (m_alliance == DriverStation.Alliance.Blue) {
             driveToLeftGrid = DriveToAprilTag.newDriveToAprilTag(6, 1.889, .55, control::goalOffset, m_robotDrive);
@@ -98,7 +115,7 @@ public class RobotContainer implements Sendable {
             driveToRightGrid = DriveToAprilTag.newDriveToAprilTag(8, 1.889, .55, control::goalOffset, m_robotDrive);
             driveToSubstation = DriveToAprilTag.newDriveToAprilTag(4, .5334, .762, control::goalOffset, m_robotDrive);
         } else {
-            driveToLeftGrid = DriveToAprilTag.newDriveToAprilTag(1, 1.889, .55, control::goalOffset, m_robotDrive);
+            driveToLeftGrid = DriveToAprilTag.newDriveToAprilTag(1, 0.95, .53, control::goalOffset, m_robotDrive);
             driveToCenterGrid = DriveToAprilTag.newDriveToAprilTag(2, 1.889, .55, control::goalOffset, m_robotDrive);
             driveToRightGrid = DriveToAprilTag.newDriveToAprilTag(3, 1.889, .55, control::goalOffset, m_robotDrive);
             driveToSubstation = DriveToAprilTag.newDriveToAprilTag(5, .5334, .762, control::goalOffset, m_robotDrive);
@@ -107,20 +124,36 @@ public class RobotContainer implements Sendable {
 
         
         
-        armHigh = new ArmTrajectory( 1.24, 1.25, ArmPosition.high, armController);
+        armHigh = new ArmTrajectory(ArmPosition.HIGH, armController);
 
-        armSafe = new ArmTrajectory( 0.2, 0.125, ArmPosition.inward, armController);
+        armSafe = new ArmTrajectory(ArmPosition.SAFE, armController);
+
+        // armSubstation = new ArmTrajectory(ArmPosition.SUB, armController);
 
         ResetRotation resetRotation = new ResetRotation(m_robotDrive, new Rotation2d());
         autoLevel = new autoLevel(m_robotDrive.m_gyro, m_robotDrive);
 
         ResetPose resetPose = new ResetPose(m_robotDrive, 0, 0, 0);
 
+        homeCommand = new Home(manipulator);
+
+        openCommand = new Open(manipulator);
+
+        closeCommand = new Close(manipulator);
+
+        setCubeMode = new SetCubeMode(armController);
+        
+        setConeMode = new SetConeMode(armController);
+
+        driveSlow = new DriveSlow(m_robotDrive, control);
+
+
         driveWithHeading = new DriveWithHeading(
                 m_robotDrive,
                 control::xSpeed,
                 control::ySpeed,
                 control::desiredRotation,
+                control::rotSpeed,
                 "");
 
         driveRotation = new DriveRotation(m_robotDrive, control::rotSpeed);
@@ -142,8 +175,16 @@ public class RobotContainer implements Sendable {
         
         control.armHigh(armHigh);
         control.armSafe(armSafe);
-        // control.home(homeCommand);
-        // control.close(closeCommand);
+        // control.armSubstation(armSubstation);
+
+        control.open(openCommand);
+        control.close(closeCommand);
+        control.home(homeCommand);
+
+        control.coneMode(setConeMode);
+        control.cubeMode(setCubeMode);
+
+        control.driveSlow(driveSlow);
 
 
 
@@ -169,10 +210,14 @@ public class RobotContainer implements Sendable {
 
         // manipulator.setDefaultCommand(gripManually);
 
+        manipulator.setDefaultCommand(new RunCommand(() -> { manipulator.pinch(0); }, manipulator));
+
         armController.setDefaultCommand(manualArm);
 
         SmartDashboard.putData("Robot Container", this);
     }
+
+    
 
     public Command getAutonomousCommand2() {
         // return new SequentialCommandGroup(

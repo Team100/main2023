@@ -79,14 +79,14 @@ public class DriveToWaypoint2 extends CommandBase {
 
         xController = new PIDController(1, 1, 0);
         xController.setIntegratorRange(-0.5, 0.5);
-        xController.setTolerance(0.01);
+        xController.setTolerance(0.05);
 
         yController = new PIDController(1, 1, 0);
         yController.setIntegratorRange(-0.5, 0.5);
-        yController.setTolerance(0.01);
+        yController.setTolerance(0.05);
         m_controller = new HolonomicDriveController2(xController, yController, m_rotationController);
         // TODO: Adjust this speed
-        translationConfig = new TrajectoryConfig(6, 3).setKinematics(SwerveDriveSubsystem.kDriveKinematics);
+        translationConfig = new TrajectoryConfig(2, 0.5).setKinematics(SwerveDriveSubsystem.kDriveKinematics);
         addRequirements(m_swerve);
 
         // SmartDashboard.putData("Drive To Waypoint", this);
@@ -112,7 +112,7 @@ public class DriveToWaypoint2 extends CommandBase {
         Translation2d goalTranslation = transformedGoal.getTranslation();
         Translation2d translationToGoal = goalTranslation.minus(currentTranslation);
         Rotation2d angleToGoal = translationToGoal.getAngle();
-        TrajectoryConfig withStartVelocityConfig = new TrajectoryConfig(6, 3)
+        TrajectoryConfig withStartVelocityConfig = new TrajectoryConfig(5, 2)
                 .setKinematics(SwerveDriveSubsystem.kDriveKinematics);
         withStartVelocityConfig.setStartVelocity(startVelocity);
 

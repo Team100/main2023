@@ -17,6 +17,7 @@ import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.Arm.ArmController;
 import frc.robot.subsystems.Arm.ArmPosition;
+import frc.robot.subsystems.Arm.ArmTrajecs;
 import frc.robot.subsystems.Arm.InverseKinematicsAngle;
 
 public class ArmTrajectory extends CommandBase {
@@ -37,8 +38,7 @@ public class ArmTrajectory extends CommandBase {
   private final PIDController upperController;
   private final PIDController lowerController;
 
-  private double xPos;
-  private double yPos;
+  
   private Trajectory m_trajectory;
 
   private final TrajectoryConfig trajecConfig;
@@ -53,11 +53,8 @@ public class ArmTrajectory extends CommandBase {
   // Pose2d m_goal;
   ArmController m_arm;
   private ArmPosition m_position;
-  public ArmTrajectory(double x, double y, ArmPosition position, ArmController arm) {
+  public ArmTrajectory(ArmPosition position, ArmController arm) {
     // Use addRequirements() here to declare subsystem dependencies.
-
-    xPos = x;
-    yPos = y;
     // m_goal = goal;
     m_arm = arm;
 
@@ -75,7 +72,7 @@ public class ArmTrajectory extends CommandBase {
     lowerController = new PIDController(3, 0, 0);
 
 
-    if(m_position != ArmPosition.inward){
+    if(m_position != ArmPosition.SAFE){
         trajecConfig = new TrajectoryConfig(12, 2);
     }else{
         trajecConfig = new TrajectoryConfig(12, 1);
@@ -90,47 +87,117 @@ public class ArmTrajectory extends CommandBase {
 
   private Trajectory makeTrajectory() {
 
-    InverseKinematicsAngle goal = m_arm.calculate(xPos, yPos);
-
-    // InverseKinematicsAngle highGoal = m_arm.calculate(1.24, 1.25);
-
-    InverseKinematicsAngle highGoal = new InverseKinematicsAngle(0.95, 0.59 );
-
-    InverseKinematicsAngle midGoal = m_arm.calculate(1.24, 1.25);
-    InverseKinematicsAngle lowGoal = m_arm.calculate(1.24, 1.25);
-
-    InverseKinematicsAngle inWaypoint = m_arm.calculate(0.7, 0.44);
+    //Cone
+    InverseKinematicsAngle highGoalCone = new InverseKinematicsAngle(1.05, 0.58);
+    InverseKinematicsAngle midGoalCone = new InverseKinematicsAngle(1.05, 0.58);
+    InverseKinematicsAngle lowGoalCone = new InverseKinematicsAngle(1.05, 0.58);
+    InverseKinematicsAngle subCone = new InverseKinematicsAngle(1.05, 0.58);
 
 
-    if(m_position == ArmPosition.high){
-        return TrajectoryGenerator.generateTrajectory(
-            new Pose2d(m_arm.getUpperArm(), m_arm.getLowerArm(), new Rotation2d(Math.PI/2)),
-            List.of(),
-            new Pose2d(highGoal.upperTheta, highGoal.lowerTheta, new Rotation2d(Math.PI/2)),
-            trajecConfig);
-    } else if(m_position == ArmPosition.mid){
-        return TrajectoryGenerator.generateTrajectory(
-            new Pose2d(m_arm.getUpperArm(), m_arm.getLowerArm(), new Rotation2d(Math.PI/2)),
-            List.of(),
-            new Pose2d(midGoal.upperTheta, midGoal.lowerTheta, new Rotation2d(Math.PI/2)),
-            trajecConfig);
-    } else if(m_position == ArmPosition.low){
-        return TrajectoryGenerator.generateTrajectory(
-            new Pose2d(m_arm.getUpperArm(), m_arm.getLowerArm(), new Rotation2d(Math.PI/2)),
-            List.of(),
-            new Pose2d(lowGoal.upperTheta, lowGoal.lowerTheta, new Rotation2d(Math.PI/2)),
-            trajecConfig);
-    }else if(m_position == ArmPosition.inward){
+    //Cube
+    InverseKinematicsAngle highGoalCube = new InverseKinematicsAngle(2.02, 0);
+    InverseKinematicsAngle midGoalCube = new InverseKinematicsAngle(2.02, 0);
+    InverseKinematicsAngle lowGoalCube = new InverseKinematicsAngle(2.02, 0);
+    InverseKinematicsAngle subCube = new InverseKinematicsAngle(2.02, 0);
+
+
+    InverseKinematicsAngle safeGoal = m_arm.calculate(0.2, 0.125);
+
+    InverseKinematicsAngle safeWaypoint = m_arm.calculate(0.7, 0.44);
+
+    boolean notSafe = true;
+
+
+    if(m_position == ArmPosition.SAFE){
         return TrajectoryGenerator.generateTrajectory(
             new Pose2d(m_arm.getUpperArm(), m_arm.getLowerArm(), Rotation2d.fromDegrees(-180)),
-            List.of(new Translation2d(inWaypoint.upperTheta, inWaypoint.lowerTheta)),
-            new Pose2d(goal.upperTheta, goal.lowerTheta, Rotation2d.fromDegrees(-180)),
+            List.of( new Translation2d(safeWaypoint.upperTheta, safeWaypoint.lowerTheta)),
+            new Pose2d(safeGoal.upperTheta, safeGoal.lowerTheta, Rotation2d.fromDegrees(-180)),
             trajecConfig);
     }
 
+
+
+    if(!m_arm.cubeMode){
+        if(m_position == ArmPosition.HIGH){
+            return TrajectoryGenerator.generateTrajectory(
+                new Pose2d(m_arm.getUpperArm(), m_arm.getLowerArm(), new Rotation2d(Math.PI/2)),
+                List.of(),
+                new Pose2d(highGoalCone.upperTheta, highGoalCone.lowerTheta, new Rotation2d(Math.PI/2)),
+                trajecConfig);
+        } else if(m_position == ArmPosition.MID){
+            return TrajectoryGenerator.generateTrajectory(
+                new Pose2d(m_arm.getUpperArm(), m_arm.getLowerArm(), new Rotation2d(Math.PI/2)),
+                List.of(),
+                new Pose2d(midGoalCone.upperTheta, midGoalCone.lowerTheta, new Rotation2d(Math.PI/2)),
+                trajecConfig);
+        } else if(m_position == ArmPosition.LOW){
+            return TrajectoryGenerator.generateTrajectory(
+                new Pose2d(m_arm.getUpperArm(), m_arm.getLowerArm(), new Rotation2d(Math.PI/2)),
+                List.of(),
+                new Pose2d(lowGoalCone.upperTheta, lowGoalCone.lowerTheta, new Rotation2d(Math.PI/2)),
+                trajecConfig);
+        } else if(m_position == ArmPosition.SUB){
+            return TrajectoryGenerator.generateTrajectory(
+                new Pose2d(m_arm.getUpperArm(), m_arm.getLowerArm(), new Rotation2d(Math.PI/2)),
+                List.of(),
+                new Pose2d(subCone.upperTheta, subCone.lowerTheta, new Rotation2d(Math.PI/2)),
+                trajecConfig);
+        }
+    } else {
+        if(m_position == ArmPosition.HIGH){
+            return TrajectoryGenerator.generateTrajectory(
+                new Pose2d(m_arm.getUpperArm(), m_arm.getLowerArm(), new Rotation2d(Math.PI/2)),
+                List.of(),
+                new Pose2d(highGoalCube.upperTheta, highGoalCube.lowerTheta, new Rotation2d(Math.PI/2)),
+                trajecConfig);
+        } else if(m_position == ArmPosition.MID){
+            return TrajectoryGenerator.generateTrajectory(
+                new Pose2d(m_arm.getUpperArm(), m_arm.getLowerArm(), new Rotation2d(Math.PI/2)),
+                List.of(),
+                new Pose2d(midGoalCube.upperTheta, midGoalCube.lowerTheta, new Rotation2d(Math.PI/2)),
+                trajecConfig);
+        } else if(m_position == ArmPosition.LOW){
+            return TrajectoryGenerator.generateTrajectory(
+                new Pose2d(m_arm.getUpperArm(), m_arm.getLowerArm(), new Rotation2d(Math.PI/2)),
+                List.of(),
+                new Pose2d(lowGoalCube.upperTheta, lowGoalCube.lowerTheta, new Rotation2d(Math.PI/2)),
+                trajecConfig);
+        } else if(m_position == ArmPosition.SUB){
+            return TrajectoryGenerator.generateTrajectory(
+                new Pose2d(m_arm.getUpperArm(), m_arm.getLowerArm(), new Rotation2d(Math.PI/2)),
+                List.of(),
+                new Pose2d(subCube.upperTheta, subCube.lowerTheta, new Rotation2d(Math.PI/2)),
+                trajecConfig);
+        }
+    } 
+
     return null;
+
+    // if(m_position == ArmPosition.SAFE){
+    //     return TrajectoryGenerator.generateTrajectory(
+    //         new Pose2d(m_arm.getUpperArm(), m_arm.getLowerArm(), Rotation2d.fromDegrees(-180)),
+    //         List.of(),
+    //         new Pose2d(safeGoal.upperTheta, safeGoal.lowerTheta, Rotation2d.fromDegrees(-180)),
+    //         trajecConfig);
+    // } else  {
+    //     return TrajectoryGenerator.generateTrajectory(
+    //         new Pose2d(m_arm.getUpperArm(), m_arm.getLowerArm(), new Rotation2d(Math.PI/2)),
+    //         List.of(),
+    //         new Pose2d(highGoalCone.upperTheta, highGoalCone.lowerTheta, new Rotation2d(Math.PI/2)),
+    //         trajecConfig);
+    // }
+
+    // return ArmTrajecs.getTrajectory(() -> m_arm.getUpperArm(), () ->m_arm.getLowerArm(), m_position, m_arm, trajecConfig);
+   
+
+    }
+
     
-}
+
+    
+
+
   @Override
   public void initialize() {
     m_timer.restart();
