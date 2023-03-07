@@ -337,7 +337,7 @@ def main():
 
     topic_name = getserial()  # was: topic_name = "tags"
     identity = Camera(topic_name)
-    if identity == Camera.REAR:
+    if identity == Camera.REAR or identity == Camera.FRONT:
         camera_config["transform"] = libcamera.Transform(hflip=1, vflip=1)
 
     print("REQUESTED")
