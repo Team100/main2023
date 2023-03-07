@@ -541,8 +541,7 @@ public class SwerveDriveSubsystem extends SubsystemBase {
         if (Math.abs(rot) < .01)
             rot = 0;
         double gyroRate = m_gyro.getRate() * 0.25;
-        // Rotation2d rotation2 = getPose().getRotation().minus(new Rotation2d(gyroRate));
-        Rotation2d rotation2 = getPose().getRotation();
+        Rotation2d rotation2 = getPose().getRotation().minus(new Rotation2d(gyroRate));
         desiredChassisSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(kMaxSpeedMetersPerSecond * xSpeed,
                 kMaxSpeedMetersPerSecond * ySpeed, kMaxAngularSpeedRadiansPerSecond * rot,
                 rotation2);
