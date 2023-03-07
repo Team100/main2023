@@ -255,6 +255,7 @@ public class SwerveControllerCommand extends CommandBase {
 
   @Override
   public boolean isFinished() {
+    System.out.println("WERFrWEuCOMBSUGTIONTIO NioNWIONWIONW IOWN IOWIO WIWOIOW IO WIOWIOIOW");
     return m_timer.hasElapsed(m_trajectory.getTotalTimeSeconds());
   }
 }

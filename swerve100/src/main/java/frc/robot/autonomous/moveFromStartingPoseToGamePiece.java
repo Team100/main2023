@@ -24,8 +24,8 @@ public class moveFromStartingPoseToGamePiece extends TrajectoryCommand {
   public static moveFromStartingPoseToGamePiece newMoveFromStartingPoseToGamePiece(SwerveDriveSubsystem m_robotDrive,
    Supplier<Pose2d> getPose, Pose2d targetPose){
     TrajectoryConfig trajectoryConfig = new TrajectoryConfig(
-        2   ,
-        2)
+        5,
+        10)
         // Add kinematics to ensure max speed is actually obeyed
         .setKinematics(SwerveDriveSubsystem.kDriveKinematics);
         Pose2d robot = getPose.get();

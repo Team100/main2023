@@ -5,7 +5,7 @@ import java.util.function.Supplier;
 
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.trajectory.Trajectory;
-import edu.wpi.first.wpilibj2.command.SwerveControllerCommand;
+import frc.robot.commands.SwerveControllerCommand;
 import frc.robot.subsystems.SwerveDriveSubsystem;
 
 public abstract class TrajectoryCommand extends SwerveControllerCommand {
@@ -22,6 +22,8 @@ public abstract class TrajectoryCommand extends SwerveControllerCommand {
                 m_robotDrive.thetaController,
                 () -> new Rotation2d(),
                 m_robotDrive::setModuleStates,
+                m_robotDrive,
+                m_robotDrive.m_gyro,
                 m_robotDrive);
         this.m_robotDrive = m_robotDrive;
         addRequirements(this.m_robotDrive);
@@ -37,6 +39,8 @@ public abstract class TrajectoryCommand extends SwerveControllerCommand {
                 m_robotDrive.thetaController,
                 desiredRotation,
                 m_robotDrive::setModuleStates,
+                m_robotDrive,
+                m_robotDrive.m_gyro,
                 m_robotDrive);
         this.m_robotDrive = m_robotDrive;
         addRequirements(this.m_robotDrive);
