@@ -122,7 +122,7 @@ public class VisionDataProvider extends SubsystemBase implements TableEventListe
             case REAR:
                 return new Transform3d(new Translation3d(0.4, 0, 0.3), new Rotation3d(0, -0.35, 3.14));
             case FRONT:
-                return new Transform3d(new Translation3d(0, 0.3, 0.3), new Rotation3d(0, -0.35, 0.35));
+                return new Transform3d(new Translation3d(.406, .1025, 0.3), new Rotation3d(0, -0.192, 0));
             case RIGHT:
                 return new Transform3d(new Translation3d(0, -0.30, 0.3), new Rotation3d(0, -0.35, -0.35));
             case LEFT:

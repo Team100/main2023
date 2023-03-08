@@ -20,7 +20,7 @@ public class ArmController extends SubsystemBase {
     private double xSetpoint = 1;
     private double ySetpoint = 1;
 
-    public boolean cubeMode = true;
+    public boolean cubeMode = false;
 
     private double upperAngleSetpoint = 0;
     private double lowerAngleSetpoint = 0;

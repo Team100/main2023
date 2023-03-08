@@ -732,5 +732,10 @@ public class SwerveDriveSubsystem extends SubsystemBase {
         builder.addDoubleProperty("Gyro Rate", () -> m_gyro.getRate(), null);
         builder.addDoubleProperty("getAngle", () -> m_gyro.getAngle() % 360, null);
 
+        builder.addDoubleProperty("Heading Controller Setpoint", () -> headingController.getSetpoint().position, null);
+        builder.addDoubleProperty("Heading Controller Measurment", () -> getPose().getRotation().getRadians(), null);
+        builder.addDoubleProperty("Heading Controller Goal", () -> headingController.getGoal().position, null);
+
+
     }
 }
