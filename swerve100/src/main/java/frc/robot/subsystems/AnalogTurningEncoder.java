@@ -27,9 +27,6 @@ public class AnalogTurningEncoder implements TurningEncoder {
         SmartDashboard.putData(String.format("Analog Turning Encoder %s", name), this);
     }
 
-    /**
-     * Counterclockwise-positive
-     */
     @Override
     public double getAngle() {
         return m_encoder.getDistance();
