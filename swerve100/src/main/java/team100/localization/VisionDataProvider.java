@@ -52,7 +52,6 @@ public class VisionDataProvider extends SubsystemBase implements TableEventListe
     Pose2d currentRobotinFieldCoords;
 
     private final GoNoGoIndicator indicator;
-    private double mostRecentVisionUpdate;
     private Pose2d lastRobotInFieldCoords;
 
     public VisionDataProvider(
@@ -175,14 +174,9 @@ public class VisionDataProvider extends SubsystemBase implements TableEventListe
                 if (xComponent * xComponent +
                         yComponent * yComponent <= kVisionChangeToleranceMeters
                                 * kVisionChangeToleranceMeters) {
-                    double now = Timer.getFPGATimestamp();
-                    if (now - mostRecentVisionUpdate < 0.1) {
-                        indicator.go();
-                    } else {
-                        indicator.nogo();
-                    }
-                    mostRecentVisionUpdate = now;
-                    estimateConsumer.accept(currentRobotinFieldCoords, now - .075);
+                    // tell the vision indicator we have a fix.
+                    indicator.go();
+                    estimateConsumer.accept(currentRobotinFieldCoords, Timer.getFPGATimestamp() - .075);
                 }
             }
             lastRobotInFieldCoords = currentRobotinFieldCoords;
