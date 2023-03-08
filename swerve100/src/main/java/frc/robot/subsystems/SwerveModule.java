@@ -115,6 +115,7 @@ public class SwerveModule implements Sendable {
     public void initSendable(SendableBuilder builder) {
         builder.setSmartDashboardType(String.format("SwerveModule %s", m_name));
         // Measurements
+        builder.addDoubleProperty("Drive position (m)", () -> getPosition().distanceMeters, null);
         builder.addDoubleProperty("Drive Speed (m/s)", () -> getDriveSpeedMS(), null);
         builder.addDoubleProperty("Turning Angle (rad)", () -> getTurningAngleRad(), null);
         builder.addDoubleProperty("Turning Angle (deg)", () -> Units.radiansToDegrees(getTurningAngleRad()), null);
