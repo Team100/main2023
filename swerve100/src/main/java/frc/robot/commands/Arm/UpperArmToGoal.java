@@ -30,7 +30,6 @@ public class UpperArmToGoal extends ProfiledPIDCommand {
     DoubleSupplier positionRad = () -> arm.getUpperArm();
     // double outputPID;
     // measurement = positionRad;
-    // TODO: something about mass here
     // final ArmFeedforward armFeedforward = new ArmFeedforward(
     //     0.0, // kS
     //     0.1, // kG

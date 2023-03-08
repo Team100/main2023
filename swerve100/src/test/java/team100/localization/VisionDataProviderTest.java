@@ -112,8 +112,6 @@ public class VisionDataProviderTest {
     @Test
     public void testEstimateRobotPose() throws IOException {
         Supplier<Pose2d> robotPose = () -> new Pose2d(); // always at the origin
-        // at the moment this is red layout.
-        // TODO: make it work with either layout
         VisionDataProvider vdp = new VisionDataProvider(DriverStation.Alliance.Red, null, robotPose);
 
         String key = "foo";
@@ -165,8 +163,6 @@ public class VisionDataProviderTest {
     @Test
     public void testEstimateRobotPose2() throws IOException {
         Supplier<Pose2d> robotPose = () -> new Pose2d(0, 0, new Rotation2d(-Math.PI / 4)); // just for rotation
-        // at the moment this is red layout.
-        // TODO: make it work with either layout
         VisionDataProvider vdp = new VisionDataProvider(DriverStation.Alliance.Red, null, robotPose);
 
         String key = "foo";

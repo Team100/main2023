@@ -72,7 +72,7 @@ public class DriveToWaypoint2 extends CommandBase {
         this.m_swerve = m_swerve;
 
         System.out.println("CONSTRUCTOR****************************************************");
-       
+
         goalOffsetSupplier = offsetSupplier;
         previousOffset = goalOffsetSupplier.get();
         m_yOffset = yOffset;
@@ -88,11 +88,13 @@ public class DriveToWaypoint2 extends CommandBase {
         yController.setIntegratorRange(-0.5, 0.5);
         yController.setTolerance(0.05);
         m_controller = new HolonomicDriveController2(xController, yController, m_rotationController);
-        // TODO: Adjust this speed
-        translationConfig = new TrajectoryConfig(5, 1.5).setKinematics(SwerveDriveSubsystem.kDriveKinematics);
-        
+        translationConfig = new TrajectoryConfig(
+                5, // velocity m/s
+                1.5 // accel m/s/s
+        ).setKinematics(SwerveDriveSubsystem.kDriveKinematics);
+
         // globalGoalTranslation = new Translation2d();
-        
+
         addRequirements(m_swerve);
 
         // SmartDashboard.putData("Drive To Waypoint", this);
@@ -183,22 +185,21 @@ public class DriveToWaypoint2 extends CommandBase {
         var targetChassisSpeeds = m_controller.calculate(m_swerve.getPose(), desiredState, goal.getRotation());
         var targetModuleStates = SwerveDriveSubsystem.kDriveKinematics.toSwerveModuleStates(targetChassisSpeeds);
 
-
         desiredXPublisher.set(desiredX);
         desiredYPublisher.set(desiredY);
         poseXPublisher.set(m_swerve.getPose().getX());
         poseYPublisher.set(m_swerve.getPose().getY());
 
-        
-
         m_swerve.setModuleStates(targetModuleStates);
 
-        // if( Math.abs(globalGoalTranslation.getX() - m_swerve.getPose().getX()) < 0.15 && Math.abs(globalGoalTranslation.getY() - m_swerve.getPose().getY()) < 0.15  ){
-        //     count++;
+        // if( Math.abs(globalGoalTranslation.getX() - m_swerve.getPose().getX()) < 0.15
+        // && Math.abs(globalGoalTranslation.getY() - m_swerve.getPose().getY()) < 0.15
+        // ){
+        // count++;
         // }
 
         // if(count >= 20){
-        //     isFinished = true;
+        // isFinished = true;
         // }
     }
 
