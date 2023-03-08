@@ -115,9 +115,9 @@ public class RobotContainer implements Sendable {
             driveToRightGrid = DriveToAprilTag.newDriveToAprilTag(8, 1.889, .55, control::goalOffset, m_robotDrive);
             driveToSubstation = DriveToAprilTag.newDriveToAprilTag(4, .5334, .762, control::goalOffset, m_robotDrive);
         } else {
-            driveToLeftGrid = DriveToAprilTag.newDriveToAprilTag(1, 0.93, .57, control::goalOffset, m_robotDrive);
-            driveToCenterGrid = DriveToAprilTag.newDriveToAprilTag(2, 1.889, .55, control::goalOffset, m_robotDrive);
-            driveToRightGrid = DriveToAprilTag.newDriveToAprilTag(3, 1.889, .55, control::goalOffset, m_robotDrive);
+            driveToLeftGrid = DriveToAprilTag.newDriveToAprilTag(1, 0.95, .55, control::goalOffset, m_robotDrive);
+            driveToCenterGrid = DriveToAprilTag.newDriveToAprilTag(2, 0.95, .55, control::goalOffset, m_robotDrive);
+            driveToRightGrid = DriveToAprilTag.newDriveToAprilTag(3, 0.95, .55, control::goalOffset, m_robotDrive);
             driveToSubstation = DriveToAprilTag.newDriveToAprilTag(5, .5334, .762, control::goalOffset, m_robotDrive);
         }
 
@@ -198,7 +198,7 @@ public class RobotContainer implements Sendable {
                 control::rotSpeed,
                 m_robotDrive);
 
-        m_robotDrive.setDefaultCommand(driveWithHeading);
+        m_robotDrive.setDefaultCommand(driveManually);
 
         control.driveRotation(driveRotation);
 

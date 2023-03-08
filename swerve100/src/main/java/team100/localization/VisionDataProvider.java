@@ -123,13 +123,13 @@ public class VisionDataProvider extends SubsystemBase implements TableEventListe
         Camera cam = Camera.get(serialNumber);
         switch (cam) {
             case REAR:
-                return new Transform3d(new Translation3d(0.4, 0, 0.3), new Rotation3d(0, -0.35, 3.14));
+                return new Transform3d(new Translation3d(-0.326, 0.003, 0.332), new Rotation3d(0, -0.419, 3.142));
             case FRONT:
-                return new Transform3d(new Translation3d(.406, .1025, 0.3), new Rotation3d(0, -0.192, 0));
+                return new Transform3d(new Translation3d(0.398, 0.075, 0.201), new Rotation3d(0, -0.35, 0));
             case RIGHT:
-                return new Transform3d(new Translation3d(0, 0.215, 0.228), new Rotation3d(0, -0.35, -0.35));
+                return new Transform3d(new Translation3d(0.012, -0.264, 0.229), new Rotation3d(0, -0.350, -0.350));
             case LEFT:
-                return new Transform3d(new Translation3d(0, 0.205, 0.24), new Rotation3d(0, -0.35, 0.35));
+                return new Transform3d(new Translation3d(0.012, 0.159, 0.240), new Rotation3d(0, -0.35, 0.35));
             case UNKNOWN:
                 return new Transform3d(new Translation3d(0.254, 0.127, 0.3), new Rotation3d(0, 0, 0));
             default:
@@ -173,7 +173,7 @@ public class VisionDataProvider extends SubsystemBase implements TableEventListe
                 double xComponent = translationSinceLast.getX();
                 double yComponent = translationSinceLast.getY();
                 if (xComponent * xComponent +
-                        yComponent * yComponent > kVisionChangeToleranceMeters
+                        yComponent * yComponent < kVisionChangeToleranceMeters
                                 * kVisionChangeToleranceMeters) {
                     double now = Timer.getFPGATimestamp();
                     if (now - mostRecentVisionUpdate < 0.1) {
@@ -183,8 +183,10 @@ public class VisionDataProvider extends SubsystemBase implements TableEventListe
                     }
                     mostRecentVisionUpdate = now;
                     estimateConsumer.accept(currentRobotinFieldCoords, now - .075);
+
                 }
             }
+
             lastRobotInFieldCoords = currentRobotinFieldCoords;
         }
     }
