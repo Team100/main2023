@@ -22,7 +22,7 @@ public class VasiliAutonomous extends SequentialCommandGroup {
     
     addCommands(
         //TODO add place cone/cube command here
-        moveFromStartingPoseToGamePiece.newMoveFromStartingPoseToGamePiece(m_robotDrive, () -> m_robotDrive.getPose(), new Pose2d(5.7,0.92, m_robotDrive.getHeading().plus(new Rotation2d(Math.PI))))
+        moveFromStartingPoseToGamePiece.newMoveFromStartingPoseToGamePiece(m_robotDrive, () -> m_robotDrive.getPose(), new Pose2d(5.7,0.92, new Rotation2d()))
     );  
    }
  }

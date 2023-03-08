@@ -137,13 +137,13 @@ public class SwerveDriveSubsystem extends SubsystemBase {
                         0.15, // kP
                         0.0, // kI
                         0.0); // kD
-                xController.setTolerance(0.2);
+                xController.setTolerance(0.01);
 
                 yController = new PIDController(
                         0.15, // kP
                         0.0, // kI
                         0.0); // kD
-                yController.setTolerance(0.2);
+                yController.setTolerance(0.01);
 
                 thetaController = new ProfiledPIDController(
                         3.0, // kP
@@ -541,8 +541,7 @@ public class SwerveDriveSubsystem extends SubsystemBase {
         if (Math.abs(rot) < .01)
             rot = 0;
         double gyroRate = m_gyro.getRate() * 0.25;
-        // Rotation2d rotation2 = getPose().getRotation().minus(new Rotation2d(gyroRate));
-        Rotation2d rotation2 = getPose().getRotation();
+        Rotation2d rotation2 = getPose().getRotation().minus(new Rotation2d(gyroRate));
         desiredChassisSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(kMaxSpeedMetersPerSecond * xSpeed,
                 kMaxSpeedMetersPerSecond * ySpeed, kMaxAngularSpeedRadiansPerSecond * rot,
                 rotation2);
