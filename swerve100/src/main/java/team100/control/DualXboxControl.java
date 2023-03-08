@@ -1,6 +1,5 @@
 package team100.control;
 
-import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.util.sendable.Sendable;
 import edu.wpi.first.util.sendable.SendableBuilder;
@@ -27,8 +26,8 @@ import frc.robot.commands.Manipulator.Open;
  * https://docs.google.com/document/d/1M89x_IiguQdY0VhQlOjqADMa6SYVp202TTuXZ1Ps280/edit#
  */
 public class DualXboxControl implements Sendable {
-    private static final double kDtSeconds = 0.02;
-    private static final double kMaxRotationRateRadiansPerSecond = Math.PI;
+    // private static final double kDtSeconds = 0.02;
+    // private static final double kMaxRotationRateRadiansPerSecond = Math.PI;
     private static final double kTriggerThreshold = .5;
 
     private final CommandXboxController controller0;
@@ -83,11 +82,11 @@ public class DualXboxControl implements Sendable {
     /** @return [-1,1] */
     public double xLimited() {
         // if(Math.abs(xSpeed()) >= 0.1){
-        //     if(xSpeed() < 0){
-        //         return -0.1;
-        //     } else {
-        //         return 0.1;
-        //     }
+        // if(xSpeed() < 0){
+        // return -0.1;
+        // } else {
+        // return 0.1;
+        // }
         // }
 
         return xSpeed() / 10;
@@ -99,8 +98,8 @@ public class DualXboxControl implements Sendable {
     }
 
     public double yLimited() {
-        if(Math.abs(ySpeed()) >= 0.1){
-            if(ySpeed() < 0){
+        if (Math.abs(ySpeed()) >= 0.1) {
+            if (ySpeed() < 0) {
                 return -0.1;
             } else {
                 return 0.1;
@@ -116,8 +115,8 @@ public class DualXboxControl implements Sendable {
     }
 
     public double rotLimited() {
-        if(Math.abs(rotSpeed()) >= 0.1){
-            if(rotSpeed() < 0){
+        if (Math.abs(rotSpeed()) >= 0.1) {
+            if (rotSpeed() < 0) {
                 return -0.1;
             } else {
                 return 0.1;
@@ -127,7 +126,7 @@ public class DualXboxControl implements Sendable {
         return 0;
     }
 
-    public void driveSlow(DriveSlow command){
+    public void driveSlow(DriveSlow command) {
         controller0.rightBumper().whileTrue(command);
     }
 
@@ -136,19 +135,15 @@ public class DualXboxControl implements Sendable {
         return controller0.getHID();
     }
 
-    
-
     public Rotation2d desiredRotation() {
         double desiredAngleDegrees = controller0.getHID().getPOV();
 
-        if(desiredAngleDegrees < 0){
+        if (desiredAngleDegrees < 0) {
             return null;
         }
         previousRotation = Rotation2d.fromDegrees(-1.0 * desiredAngleDegrees);
         return previousRotation;
     }
-
-    
 
     public GoalOffset goalOffset() {
         double left = controller0.getLeftTriggerAxis();
@@ -226,18 +221,17 @@ public class DualXboxControl implements Sendable {
         controller1.x().whileTrue(command);
     }
 
-    public void cubeMode(SetCubeMode command){
+    public void cubeMode(SetCubeMode command) {
         controller1.y().onTrue(command);
     }
 
-    public void coneMode(SetConeMode command){
+    public void coneMode(SetConeMode command) {
         controller1.a().onTrue(command);
     }
 
     public void resetPose(ResetPose command) {
         controller1.leftBumper().onTrue(command);
     }
-
 
     @Override
     public void initSendable(SendableBuilder builder) {
@@ -250,6 +244,4 @@ public class DualXboxControl implements Sendable {
         builder.addDoubleProperty("y limtied", () -> yLimited(), null);
         builder.addDoubleProperty("rot Limited", () -> rotLimited(), null);
     }
-
-    
 }
