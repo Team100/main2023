@@ -15,7 +15,7 @@ import frc.robot.FRCLib.Motors.FRCTalonSRX.FRCTalonSRXBuilder;
 
 public class Manipulator extends SubsystemBase {
   /** Creates a new Manipulator. */
-  FRCTalonSRX pinch;
+  public FRCTalonSRX pinch;
   public AnalogEncoder position;
   public PIDController pinchController;
   private double origin;
@@ -37,13 +37,14 @@ public class Manipulator extends SubsystemBase {
     //.withCurrentLimit(7)
     .build();
 
-    pinch.motor.configPeakCurrentLimit(25, 1000);
-    pinch.motor.configContinuousCurrentLimit(2);
+    pinch.motor.configPeakCurrentLimit(25);
+    // pinch.motor.configContinuousCurrentLimit(1);
 
     // pinch.motor.configPeakCurrentDuration(0)
     // pinch.motor.configPeakCurrentDuration(1000);
 
     pinch.motor.enableCurrentLimit(true);
+    // pinch.motor.enableCont
     // pinch.motor.configCurrent
 
     
