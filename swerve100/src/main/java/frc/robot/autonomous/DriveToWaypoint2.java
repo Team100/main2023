@@ -11,12 +11,11 @@ import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.math.trajectory.TrajectoryConfig;
-import edu.wpi.first.math.trajectory.TrajectoryParameterizer.TrajectoryGenerationException;
 import edu.wpi.first.math.trajectory.TrajectoryGenerator;
+import edu.wpi.first.math.trajectory.TrajectoryParameterizer.TrajectoryGenerationException;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.networktables.DoublePublisher;
 import edu.wpi.first.networktables.NetworkTableInstance;
-import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.commands.GoalOffset;
@@ -58,7 +57,7 @@ public class DriveToWaypoint2 extends CommandBase {
     private final PIDController yController;
     private final HolonomicDriveController2 m_controller;
 
-    private Translation2d globalGoalTranslation;
+    // private Translation2d globalGoalTranslation;
 
     private Trajectory m_trajectory;
     private boolean isFinished = false;
@@ -73,7 +72,7 @@ public class DriveToWaypoint2 extends CommandBase {
         this.m_swerve = m_swerve;
 
         System.out.println("CONSTRUCTOR****************************************************");
-       
+
         goalOffsetSupplier = offsetSupplier;
         previousOffset = goalOffsetSupplier.get();
         m_yOffset = yOffset;
@@ -89,11 +88,14 @@ public class DriveToWaypoint2 extends CommandBase {
         yController.setIntegratorRange(-0.6, 0.5);
         // yController.setTolerance(0.05);
         m_controller = new HolonomicDriveController2(xController, yController, m_rotationController);
-        // TODO: Adjust this speed
-        translationConfig = new TrajectoryConfig(5, 1.25).setKinematics(SwerveDriveSubsystem.kDriveKinematics);
         
-        globalGoalTranslation = new Translation2d();
-        
+        translationConfig = new TrajectoryConfig(
+                5, // velocity m/s
+                1.25 // accel m/s/s
+        ).setKinematics(SwerveDriveSubsystem.kDriveKinematics);
+
+        // globalGoalTranslation = new Translation2d();
+
         addRequirements(m_swerve);
 
         // SmartDashboard.putData("Drive To Waypoint", this);
@@ -123,7 +125,7 @@ public class DriveToWaypoint2 extends CommandBase {
                 .setKinematics(SwerveDriveSubsystem.kDriveKinematics);
         withStartVelocityConfig.setStartVelocity(startVelocity);
 
-        globalGoalTranslation = goalTranslation;
+        // globalGoalTranslation = goalTranslation;
         // TODO: Change starting waypoint to align with starting velocity
         try {
             return TrajectoryGenerator.generateTrajectory(
@@ -185,22 +187,21 @@ public class DriveToWaypoint2 extends CommandBase {
         var targetChassisSpeeds = m_controller.calculate(m_swerve.getPose(), desiredState, goal.getRotation());
         var targetModuleStates = SwerveDriveSubsystem.kDriveKinematics.toSwerveModuleStates(targetChassisSpeeds);
 
-
         desiredXPublisher.set(desiredX);
         desiredYPublisher.set(desiredY);
         poseXPublisher.set(m_swerve.getPose().getX());
         poseYPublisher.set(m_swerve.getPose().getY());
 
-        
-
         m_swerve.setModuleStates(targetModuleStates);
 
-        // if( Math.abs(globalGoalTranslation.getX() - m_swerve.getPose().getX()) < 0.05 && Math.abs(globalGoalTranslation.getY() - m_swerve.getPose().getY()) < 0.05  ){
-        //     count++;
+        // if( Math.abs(globalGoalTranslation.getX() - m_swerve.getPose().getX()) < 0.15
+        // && Math.abs(globalGoalTranslation.getY() - m_swerve.getPose().getY()) < 0.15
+        // ){
+        // count++;
         // }
 
-        // if( Math.abs(globalGoalTranslation.getX() - m_swerve.getPose().getX()) > 0.05 || Math.abs(globalGoalTranslation.getY() - m_swerve.getPose().getY()) > 0.05  ){
-        //     count = 0;
+        // if(count >= 20){
+        // isFinished = true;
         // }
 
         if(count >= 60){
@@ -213,12 +214,4 @@ public class DriveToWaypoint2 extends CommandBase {
     // return this.desiredX;
 
     // }
-
-    // @Override
-    // public void initSendable(SendableBuilder builder) {
-    //     super.initSendable(builder);
-
-    //     builder.addDoubleProperty("X Measurment", () -> m_swerve.getPose().getX(), null);
-    // }
-
 }

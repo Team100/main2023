@@ -7,7 +7,7 @@ package frc.robot.subsystems;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.AnalogEncoder;
-import edu.wpi.first.wpilibj.DigitalInput;
+// import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.FRCLib.Motors.FRCTalonSRX;
@@ -19,7 +19,7 @@ public class Manipulator extends SubsystemBase {
   public AnalogEncoder position;
   public PIDController pinchController;
   private double origin;
-  private DigitalInput sensor = new DigitalInput(0);
+//   private DigitalInput sensor = new DigitalInput(0);
 
   public Manipulator() {
     pinch = new FRCTalonSRXBuilder(10)

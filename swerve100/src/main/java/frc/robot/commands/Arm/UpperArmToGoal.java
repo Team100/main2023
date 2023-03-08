@@ -4,7 +4,7 @@ import java.util.function.BiConsumer;
 import java.util.function.DoubleSupplier;
 import java.util.function.Supplier;
 
-import edu.wpi.first.math.controller.ArmFeedforward;
+// import edu.wpi.first.math.controller.ArmFeedforward;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
@@ -30,13 +30,12 @@ public class UpperArmToGoal extends ProfiledPIDCommand {
     DoubleSupplier positionRad = () -> arm.getUpperArm();
     // double outputPID;
     // measurement = positionRad;
-    // TODO: something about mass here
-    final ArmFeedforward armFeedforward = new ArmFeedforward(
-        0.0, // kS
-        0.1, // kG
-        0.0, // kV
-        0.0 // kA
-    );
+    // final ArmFeedforward armFeedforward = new ArmFeedforward(
+    //     0.0, // kS
+    //     0.1, // kG
+    //     0.0, // kV
+    //     0.0 // kA
+    // );
 
     
     BiConsumer<Double, State> useOutput = (output, setpoint) -> {

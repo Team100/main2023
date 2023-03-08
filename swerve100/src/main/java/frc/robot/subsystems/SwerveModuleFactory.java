@@ -84,7 +84,7 @@ public class SwerveModuleFactory {
         // DRIVE PID
         PIDController driveController = new PIDController( //
                 0.1, // kP
-                0, // kI: TODO: maybe more than zero?
+                0, // kI
                 0); // kD
 
         // TURNING PID
@@ -104,8 +104,8 @@ public class SwerveModuleFactory {
 
         // TURNING FF
         SimpleMotorFeedforward turningFeedforward = new SimpleMotorFeedforward( //
-                0.1, // kS: very high? TODO: is this right?
-                0.005); // kV: very low? TODO: is this right?
+                0.1, // kS
+                0.005); // kV
 
         return new SwerveModule(name, driveMotor, turningMotor, driveEncoder, turningEncoder,
                 driveController, turningController, driveFeedforward, turningFeedforward);

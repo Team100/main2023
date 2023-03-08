@@ -160,9 +160,6 @@ public class RobotContainer implements Sendable {
 
         manualArm = new ManualArm(armController, control.getController());
 
-        // TODO: do something with tagid.
-        int tagID = 5;
-
         control.resetRotation(resetRotation);
         control.autoLevel(autoLevel);
         control.resetPose(resetPose);

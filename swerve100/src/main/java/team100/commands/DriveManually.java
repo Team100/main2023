@@ -13,11 +13,8 @@ import frc.robot.subsystems.SwerveDriveSubsystem;
  */
 public class DriveManually extends CommandBase {
     // CONFIG
-    private static final double kSpeedModifier = 1.0;
-    // TODO: make speed adjustable on the fly
-    // private static final double kSpeedModifier = 0.5
-    private static final boolean fieldRelative = true;
-    //private static final boolean fieldRelative = false;
+    private static final double kDeadband = .1;
+    private static final boolean kFieldRelative = true;
 
     // INPUTS
     private final DoubleSupplier xSpeed;
@@ -26,6 +23,7 @@ public class DriveManually extends CommandBase {
 
     // OUTPUT
     private final SwerveDriveSubsystem m_robotDrive;
+
 
     /**
      * @param xSpeed   forward-positive [-1, 1]
@@ -44,34 +42,13 @@ public class DriveManually extends CommandBase {
         addRequirements(drivetrain);
     }
 
-    // @Override
-    // public void execute() {
-    //     m_robotDrive.drive(
-    //             xSpeed.getAsDouble() * kSpeedModifier,
-    //             ySpeed.getAsDouble() * kSpeedModifier,
-    //             rotSpeed.getAsDouble() * kSpeedModifier,
-    //             fieldRelative);
-    // }
-
-    // this is Ishan's work from feb 9.
     @Override
     public void execute() {
-        double xSwitch = MathUtil.applyDeadband(xSpeed.getAsDouble(), .1);
-        double ySwitch = MathUtil.applyDeadband(ySpeed.getAsDouble(), .1);
-        double rotSwitch = MathUtil.applyDeadband(rotSpeed.getAsDouble(), .1);
-        double xDBRemoved = (xSwitch-.1*Math.signum(xSwitch))/.9;
-        double yDBRemoved = (ySwitch-.1*Math.signum(ySwitch))/.9;
-        double rotDBRemoved = (rotSwitch-.1*Math.signum(rotSwitch))/.9;
-        // m_robotDrive.drive(
-        //         xDBRemoved * xDBRemoved * xDBRemoved * kSpeedModifier,
-        //         yDBRemoved * yDBRemoved * yDBRemoved * kSpeedModifier,
-        //         rotDBRemoved * rotDBRemoved * rotDBRemoved * kSpeedModifier,
-        //         fieldRelative);
         m_robotDrive.drive(
-            xSwitch,
-            ySwitch,
-            rotSwitch,
-            fieldRelative
+            MathUtil.applyDeadband(xSpeed.getAsDouble(), kDeadband),
+            MathUtil.applyDeadband(ySpeed.getAsDouble(), kDeadband),
+            MathUtil.applyDeadband(rotSpeed.getAsDouble(), kDeadband),
+            kFieldRelative
         );
     }
 }

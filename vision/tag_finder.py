@@ -19,10 +19,10 @@ from pupil_apriltags import Detector
 class Camera(Enum):
     """Keep this synchronized with java team100.config.Camera."""
 
-    FRONT = "1000000013c9c96c"
-    REAR = "100000004e0a1fb9"
-    LEFT = "10000000a7c673d9"
-    RIGHT = "10000000a7a892c0"
+    FRONT = "1000000013c9c96c" # "2"
+    REAR = "100000004e0a1fb9" # "1"
+    LEFT = "10000000a7c673d9" # "4"
+    RIGHT = "10000000a7a892c0" # "3"
     UNKNOWN = None
 
     @classmethod
@@ -39,7 +39,7 @@ class TagFinder:
         self.height = height
 
         # for the driver view
-        scale = 0.5
+        scale = 0.25
         self.view_width = int(width * scale)
         self.view_height = int(height * scale)
 
@@ -131,7 +131,7 @@ class TagFinder:
             )
 
         current_time = time.time()
-        analysis_et = current_time - start_time
+        # analysis_et = current_time - start_time
         total_et = current_time - self.frame_time
 
         tags["et"] = total_et
@@ -143,9 +143,10 @@ class TagFinder:
 
         fps = 1 / total_et
         self.frame_time = current_time
-        self.draw_text(img, f"analysis ET(ms) {1000*analysis_et:.0f}", (5, 25))
-        self.draw_text(img, f"total ET(ms) {1000*total_et:.0f}", (5, 65))
-        self.draw_text(img, f"fps {fps:.1f}", (5, 105))
+        #self.draw_text(img, f"analysis ET(ms) {1000*analysis_et:.0f}", (5, 25))
+        #self.draw_text(img, f"total ET(ms) {1000*total_et:.0f}", (5, 65))
+        #self.draw_text(img, f"fps {fps:.1f}", (5, 105))
+        self.draw_text(img, f"fps {fps:.1f}", (5, 65))
 
         # shrink the driver view to avoid overloading the radio
         driver_img = cv2.resize(img, (self.view_width, self.view_height))
@@ -239,8 +240,8 @@ class TagFinder:
 
     # these are white with black outline
     def draw_text(self, image, msg, loc):
-        cv2.putText(image, msg, loc, cv2.FONT_HERSHEY_SIMPLEX, 1.0, (0, 0, 0), 6)
-        cv2.putText(image, msg, loc, cv2.FONT_HERSHEY_SIMPLEX, 1.0, (255, 255, 255), 2)
+        cv2.putText(image, msg, loc, cv2.FONT_HERSHEY_SIMPLEX, 1.5, (0, 0, 0), 6)
+        cv2.putText(image, msg, loc, cv2.FONT_HERSHEY_SIMPLEX, 1.5, (255, 255, 255), 2)
 
     def initialize_nt(self):
         """Start NetworkTables with Rio as server, set up publisher."""
@@ -336,7 +337,7 @@ def main():
 
     topic_name = getserial()  # was: topic_name = "tags"
     identity = Camera(topic_name)
-    if identity == Camera.REAR:
+    if identity == Camera.REAR or identity == Camera.FRONT:
         camera_config["transform"] = libcamera.Transform(hflip=1, vflip=1)
 
     print("REQUESTED")
@@ -361,7 +362,8 @@ def main():
             # without these attempts, network disruption results in
             # permanent disconnection
             frame_counter += 1
-            if frame_counter > 60:  # at 20fps, a few seconds?
+            # turn the reconnect period down to try to combat NT flashing
+            if frame_counter > 200:
                 print("RECONNECTING")
                 frame_counter = 0
                 output.reconnect_nt()
