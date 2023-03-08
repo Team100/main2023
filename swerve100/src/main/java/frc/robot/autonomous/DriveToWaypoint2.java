@@ -80,17 +80,18 @@ public class DriveToWaypoint2 extends CommandBase {
         m_rotationController = new ProfiledPIDController(1.3, 0, 0, rotationConstraints);
         m_rotationController.setTolerance(Math.PI / 180);
 
-        xController = new PIDController(1, 1, 0);
-        xController.setIntegratorRange(-0.5, 0.5);
-        xController.setTolerance(0.05);
+        xController = new PIDController(1.1, 1, 0);
+        xController.setIntegratorRange(-0.6, 0.5);
+        // xController.setTolerance(0.05);
 
-        yController = new PIDController(1, 1, 0);
-        yController.setIntegratorRange(-0.5, 0.5);
-        yController.setTolerance(0.05);
+        yController = new PIDController(1.1, 1, 0);
+        yController.setIntegratorRange(-0.6, 0.5);
+        // yController.setTolerance(0.05);
         m_controller = new HolonomicDriveController2(xController, yController, m_rotationController);
+        
         translationConfig = new TrajectoryConfig(
                 5, // velocity m/s
-                1.5 // accel m/s/s
+                1.25 // accel m/s/s
         ).setKinematics(SwerveDriveSubsystem.kDriveKinematics);
 
         // globalGoalTranslation = new Translation2d();
@@ -146,6 +147,7 @@ public class DriveToWaypoint2 extends CommandBase {
         isFinished = false;
         m_timer.restart();
         // m_timer.start();
+        count = 0;
         m_trajectory = makeTrajectory(previousOffset, 0);
     }
 
@@ -201,6 +203,10 @@ public class DriveToWaypoint2 extends CommandBase {
         // if(count >= 20){
         // isFinished = true;
         // }
+
+        if(count >= 60){
+            isFinished = true;
+        }
     }
 
     // public double getDesiredX() {
