@@ -16,6 +16,7 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
+import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
@@ -41,7 +42,8 @@ public class VisionDataProvider extends SubsystemBase implements TableEventListe
     private final DoublePublisher timestamp_publisher;
     private final ObjectMapper object_mapper;
     private final SwerveDrivePoseEstimator poseEstimator;
- 
+    private final double kVisionChangeToleranceMeters = .1;
+
     // TODO Make this private
     public AprilTagFieldLayoutWithCorrectOrientation layout;
 
@@ -51,6 +53,7 @@ public class VisionDataProvider extends SubsystemBase implements TableEventListe
 
     private final GoNoGoIndicator indicator;
     private double mostRecentVisionUpdate;
+    private Pose2d lastRobotInFieldCoords;
 
     public VisionDataProvider(
             DriverStation.Alliance alliance,
@@ -165,14 +168,24 @@ public class VisionDataProvider extends SubsystemBase implements TableEventListe
 
             currentRobotinFieldCoords = new Pose2d(robotTranslationInFieldCoords, gyroRotation);
 
-            double now = Timer.getFPGATimestamp();
-            if (now - mostRecentVisionUpdate < 0.1) {
-                indicator.go();
-            } else {
-                indicator.nogo();
+            if (lastRobotInFieldCoords != null) {
+                Transform2d translationSinceLast = currentRobotinFieldCoords.minus(lastRobotInFieldCoords);
+                double xComponent = translationSinceLast.getX();
+                double yComponent = translationSinceLast.getY();
+                if (xComponent * xComponent +
+                        yComponent * yComponent > kVisionChangeToleranceMeters
+                                * kVisionChangeToleranceMeters) {
+                    double now = Timer.getFPGATimestamp();
+                    if (now - mostRecentVisionUpdate < 0.1) {
+                        indicator.go();
+                    } else {
+                        indicator.nogo();
+                    }
+                    mostRecentVisionUpdate = now;
+                    estimateConsumer.accept(currentRobotinFieldCoords, now - .075);
+                }
             }
-            mostRecentVisionUpdate = now;
-            estimateConsumer.accept(currentRobotinFieldCoords, now - .075);
+            lastRobotInFieldCoords = currentRobotinFieldCoords;
         }
     }
 
