@@ -159,7 +159,7 @@ public class SwerveDriveSubsystem extends SubsystemBase {
                                 kMaxAngularSpeedRadiansPerSecond,
                                 kMaxAngularSpeedRadiansPerSecondSquared));
                 m_frontLeft = SwerveModuleFactory.WCPModule(
-                        "Front Left",   
+                        "Front Left",
                         11, // drive CAN
                         30, // turn CAN
                         0, // turn encoder
@@ -203,7 +203,7 @@ public class SwerveDriveSubsystem extends SubsystemBase {
                 kMaxAccelerationMetersPerSecondSquared = 10;
                 kMaxAngularSpeedRadiansPerSecond = 5;
                 kMaxAngularSpeedRadiansPerSecondSquared = 5;
-                
+
                 xController = new PIDController(
                         0.15, // kP
                         0.0, // kI
@@ -578,7 +578,8 @@ public class SwerveDriveSubsystem extends SubsystemBase {
         if (Math.abs(rot) < .01)
             rot = 0;
         double gyroRate = m_gyro.getRate() * 0.25;
-        // Rotation2d rotation2 = getPose().getRotation().minus(new Rotation2d(gyroRate));
+        // Rotation2d rotation2 = getPose().getRotation().minus(new
+        // Rotation2d(gyroRate));
         Rotation2d rotation2 = getPose().getRotation();
         desiredChassisSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(kMaxSpeedMetersPerSecond * xSpeed,
                 kMaxSpeedMetersPerSecond * ySpeed, kSlowAngularSpeedRadiansPerSecond * rot,
@@ -673,25 +674,6 @@ public class SwerveDriveSubsystem extends SubsystemBase {
         builder.addDoubleProperty("Theta Controller Measurment", () -> getPose().getRotation().getRadians(), null);
         builder.addDoubleProperty("Theta Controller Setpoint", () -> thetaController.getSetpoint().position, null);
 
-        builder.addDoubleProperty("Front Left Turning Controller Output", () -> m_frontLeft.getTControllerOutput(),
-                null);
-        builder.addDoubleProperty("Front Right Turning Controller Output", () -> m_frontRight.getTControllerOutput(),
-                null);
-        builder.addDoubleProperty("Rear Left Turning Controller Output", () -> m_rearLeft.getTControllerOutput(), null);
-        
-        builder.addDoubleProperty("Rear Right Turning Controller Output", () -> m_rearRight.getTControllerOutput(),
-                null);
-        
-        
-        
-                builder.addDoubleProperty("Front Left Driving Controller Output", () -> m_frontLeft.getDControllerOutput(),
-                null);
-        builder.addDoubleProperty("Front Right Driving Controller Output", () -> m_frontRight.getDControllerOutput(),
-                null);
-        builder.addDoubleProperty("Rear Left Driving Controller Output", () -> m_rearLeft.getDControllerOutput(), null);
-        builder.addDoubleProperty("Rear Right Driving Controller Output", () -> m_rearRight.getDControllerOutput(),
-                null);
-
         builder.addDoubleProperty("X controller Error", () -> xController.getPositionError(), null);
         builder.addDoubleProperty("X controller Setpoint", () -> xController.getSetpoint(), null);
         builder.addDoubleProperty("X controller Measurment", () -> getPose().getX(), null);
@@ -717,11 +699,6 @@ public class SwerveDriveSubsystem extends SubsystemBase {
         builder.addBooleanProperty("Field Relative", () -> isFieldRelative, null);
         // builder.addDoubleProperty("Identity", () -> Identity.get(), null);
 
-        builder.addDoubleProperty("Front Left Output", () -> m_frontLeft.getDriveOutput(), null);
-        builder.addDoubleProperty("Front Right Output", () -> m_frontRight.getDriveOutput(), null);
-        builder.addDoubleProperty("Rear Left Output", () -> m_rearLeft.getDriveOutput(), null);
-        builder.addDoubleProperty("Rear Right Output", () -> m_rearLeft.getDriveOutput(), null);
-
         // builder.addDoubleProperty("Speed Ms Odometry", () -> observedVelocity, null);
         builder.addDoubleProperty("ChassisSpeedDesired Odometry X", () -> desiredChassisSpeeds.vxMetersPerSecond, null);
         builder.addDoubleProperty("ChassisSpeedDesired Odometry Y", () -> desiredChassisSpeeds.vyMetersPerSecond, null);
@@ -734,7 +711,6 @@ public class SwerveDriveSubsystem extends SubsystemBase {
         builder.addDoubleProperty("Heading Controller Setpoint", () -> headingController.getSetpoint().position, null);
         builder.addDoubleProperty("Heading Controller Measurment", () -> getPose().getRotation().getRadians(), null);
         builder.addDoubleProperty("Heading Controller Goal", () -> headingController.getGoal().position, null);
-
 
     }
 }
