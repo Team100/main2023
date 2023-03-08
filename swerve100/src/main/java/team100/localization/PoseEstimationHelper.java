@@ -11,10 +11,10 @@ import edu.wpi.first.math.geometry.Translation3d;
 public class PoseEstimationHelper {
 
     /**
-     * THIS IS THE FUNCTION TO USE.
-     * given the blip, the heading, the camera offset, and the absolute tag pose,
-     * return the absolute robot pose
-     * TODO: clean up the other functions.
+     * Calculate robot pose.
+     * 
+     * Given the blip, the heading, the camera offset, and the absolute tag pose,
+     * return the absolute robot pose in field coordinates.
      * 
      * @param cameraInRobotCoords                camera offset expressed as a
      *                                           transform from
