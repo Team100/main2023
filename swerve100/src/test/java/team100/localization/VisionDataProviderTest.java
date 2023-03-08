@@ -146,6 +146,13 @@ public class VisionDataProviderTest {
                     poseEstimate.add(p);
                     timeEstimate.add(t);
                 }, key, blips);
+        // do it twice to convince vdp it's a good estimate
+        vdp.estimateRobotPose(
+                (i) -> new Transform3d(),
+                (p, t) -> {
+                    poseEstimate.add(p);
+                    timeEstimate.add(t);
+                }, key, blips);
         assertEquals(1, poseEstimate.size());
         assertEquals(1, timeEstimate.size());
         Pose2d result = poseEstimate.get(0);
@@ -186,6 +193,13 @@ public class VisionDataProviderTest {
         blips.tags.add(blip);
         final List<Pose2d> poseEstimate = new ArrayList<Pose2d>();
         final List<Double> timeEstimate = new ArrayList<Double>();
+        vdp.estimateRobotPose(
+                (i) -> new Transform3d(),
+                (p, t) -> {
+                    poseEstimate.add(p);
+                    timeEstimate.add(t);
+                }, key, blips);
+        // two good estimates are required
         vdp.estimateRobotPose(
                 (i) -> new Transform3d(),
                 (p, t) -> {

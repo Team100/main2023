@@ -173,7 +173,7 @@ public class VisionDataProvider extends SubsystemBase implements TableEventListe
                 double xComponent = translationSinceLast.getX();
                 double yComponent = translationSinceLast.getY();
                 if (xComponent * xComponent +
-                        yComponent * yComponent > kVisionChangeToleranceMeters
+                        yComponent * yComponent <= kVisionChangeToleranceMeters
                                 * kVisionChangeToleranceMeters) {
                     double now = Timer.getFPGATimestamp();
                     if (now - mostRecentVisionUpdate < 0.1) {
