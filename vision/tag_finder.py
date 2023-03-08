@@ -362,7 +362,8 @@ def main():
             # without these attempts, network disruption results in
             # permanent disconnection
             frame_counter += 1
-            if frame_counter > 60:  # at 20fps, a few seconds?
+            # turn the reconnect period down to try to combat NT flashing
+            if frame_counter > 200:
                 print("RECONNECTING")
                 frame_counter = 0
                 output.reconnect_nt()
