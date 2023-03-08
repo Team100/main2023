@@ -16,106 +16,115 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.SwerveDriveSubsystem;
 
-public class DriveWithHeading extends CommandBase{
-  /** Creates a new DrivePID. */
-  SwerveDriveSubsystem m_robotDrive;
-  ProfiledPIDController m_headingController;
-  Supplier<Rotation2d> m_desiredRotation;
-  //ChassisSpeeds targetChasisSpeeds = new ChassisSpeeds();
+public class DriveWithHeading extends CommandBase {
+    /** Creates a new DrivePID. */
+    SwerveDriveSubsystem m_robotDrive;
+    ProfiledPIDController m_headingController;
+    Supplier<Rotation2d> m_desiredRotation;
+    // ChassisSpeeds targetChasisSpeeds = new ChassisSpeeds();
 
-  private final DoubleSupplier xSpeed;
-  private final DoubleSupplier ySpeed;
-  private static final double kSpeedModifier = 1.0;
-  Pose2d currentPose;
-//   Supplier<Double> rotSpeed;
-  double radiansPerSecond = 0;
-  double yOutput;
+    private final DoubleSupplier xSpeed;
+    private final DoubleSupplier ySpeed;
+    private final DoubleSupplier rotSpeed;
 
-  public DriveWithHeading(SwerveDriveSubsystem robotDrive, DoubleSupplier xSpeed, DoubleSupplier ySpeed, Supplier<Rotation2d> desiredRotation, String name) {
-    // Use addRequirements() here to declare subsystem dependencies.
-    m_robotDrive = robotDrive;
-    m_headingController = m_robotDrive.headingController;
-    m_desiredRotation = desiredRotation;
-    
+    private Rotation2d lastRotationSetpoint;
 
-    yOutput = 0;
-    this.xSpeed = xSpeed;
-    this.ySpeed = ySpeed;
-    // this.rotSpeed = rotSpeed;
+    private boolean snapMode = false;
 
-    // m_headingController.setTolerance(0.1);
-    m_headingController.enableContinuousInput(-Math.PI, Math.PI);
-    currentPose = m_robotDrive.getPose();
+    private static final double kSpeedModifier = 1.0;
+    Pose2d currentPose;
+    // Supplier<Double> rotSpeed;
+    double thetaOuput = 0;
+    double yOutput;
 
-    SmartDashboard.putData("Drive with Heading:", this);
+    public DriveWithHeading(SwerveDriveSubsystem robotDrive, DoubleSupplier xSpeed, DoubleSupplier ySpeed,
+            Supplier<Rotation2d> desiredRotation, DoubleSupplier rotSpeed, String name) {
+        // Use addRequirements() here to declare subsystem dependencies.
+        m_robotDrive = robotDrive;
+        m_headingController = m_robotDrive.headingController;
+        m_desiredRotation = desiredRotation;
 
-    addRequirements(m_robotDrive); 
-  }
+        lastRotationSetpoint = new Rotation2d(0);
 
-  // Called when the command is initially scheduled.
-  @Override
-  public void initialize() {
+        yOutput = 0;
+        this.xSpeed = xSpeed;
+        this.ySpeed = ySpeed;
+        this.rotSpeed = rotSpeed;
 
-  }
+        // m_headingController.setTolerance(0.1);
+        m_headingController.enableContinuousInput(-Math.PI, Math.PI);
+        currentPose = m_robotDrive.getPose();
 
-  // Called every time the scheduler runs while the command is scheduled.
-  @Override
-  public void execute() {
-    // System.out.println("aaaaaaaaaaaaaaaaaaaaaaaaaaaa");
+        SmartDashboard.putData("Drive with Heading:", this);
 
-    // if(Math.abs(rot) < 0.1){
-    //     rot = 0;
-    // }
+        addRequirements(m_robotDrive);
+    }
 
-    currentPose = m_robotDrive.getPose();
-    double currentRads = MathUtil.angleModulus(currentPose.getRotation().getRadians());
-    double desiredRads = MathUtil.angleModulus(m_desiredRotation.get().getRadians());
-    radiansPerSecond = m_headingController.calculate(currentRads, desiredRads);
+    // Called when the command is initially scheduled.
+    @Override
+    public void initialize() {
 
+    }
 
-    double xSwitch = MathUtil.applyDeadband(xSpeed.getAsDouble(), .1);
-    double ySwitch = MathUtil.applyDeadband(ySpeed.getAsDouble(), .1);
+    // Called every time the scheduler runs while the command is scheduled.
+    @Override
+    public void execute() {
+        double xSwitch = MathUtil.applyDeadband(xSpeed.getAsDouble(), .1);
+        double ySwitch = MathUtil.applyDeadband(ySpeed.getAsDouble(), .1);
+        double rotSwitch = MathUtil.applyDeadband(rotSpeed.getAsDouble(), .1);
+        // double xDBRemoved = (xSwitch - .1 * Math.signum(xSwitch)) / .9;
+        // double yDBRemoved = (ySwitch - .1 * Math.signum(ySwitch)) / .9;
+        // double rotDBRemoved = (rotSwitch - .1 * Math.signum(rotSwitch)) / .9;
 
+        double xDBRemoved = xSwitch;
+        double yDBRemoved = ySwitch;
+        double rotDBRemoved = rotSwitch;
 
-    // if(ySwitch == 0){
-    //     yOutput = m_robotDrive.yController.calculate()
-    // }
+        // Set desired rotation to POV (if pressed) or else last setpoint
+        double desiredRotation = lastRotationSetpoint.getRadians();
+        Rotation2d pov = m_desiredRotation.get();
+        if (pov != null) {
+            snapMode = true;
+            desiredRotation = pov.getRadians();
+        }
 
-    double xDBRemoved = (xSwitch-.1*Math.signum(xSwitch))/.9;
-    double yDBRemoved = (ySwitch-.1*Math.signum(ySwitch))/.9;
-    
-    // targetChasisSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(xDBRemoved * xDBRemoved * xDBRemoved * kSpeedModifier,
-    // yDBRemoved * yDBRemoved * yDBRemoved * kSpeedModifier, radiantsPerSecond, currentPose.getRotation());
+        currentPose = m_robotDrive.getPose();
+        double currentRads = MathUtil.angleModulus(currentPose.getRotation().getRadians());
 
-    
+        if (snapMode && Math.abs(rotSwitch) < 0.1) {
+            thetaOuput = m_headingController.calculate(currentRads, desiredRotation);
+        } else {
+            snapMode = false;
+            thetaOuput = rotDBRemoved;
+            desiredRotation = currentRads;
+        }
 
-    // SwerveModuleState[] targetModuleStates = SwerveDriveSubsystem.kDriveKinematics.toSwerveModuleStates(targetChasisSpeeds);
+        m_robotDrive.drive(xDBRemoved * kSpeedModifier, yDBRemoved * kSpeedModifier, thetaOuput, true);
 
-    // m_robotDrive.setModuleStates(targetModuleStates);
-    m_robotDrive.drive(xDBRemoved * xDBRemoved * xDBRemoved * kSpeedModifier,
-    yDBRemoved * yDBRemoved * yDBRemoved * kSpeedModifier, radiansPerSecond, true);
-  }
+        lastRotationSetpoint = new Rotation2d(desiredRotation);
+    }
 
-  // Called once the command ends or is interrupted.
-  @Override
-  public void end(boolean interrupted) {
-  }
+    // Called once the command ends or is interrupted.
+    @Override
+    public void end(boolean interrupted) {
+    }
 
-  // Returns true when the command should end.
-  @Override
-  public boolean isFinished() {
-    return false;
-  }
+    // Returns true when the command should end.
+    @Override
+    public boolean isFinished() {
+        return false;
+    }
 
-  @Override
+    @Override
     public void initSendable(SendableBuilder builder) {
         super.initSendable(builder);
         builder.addDoubleProperty("Error", () -> m_headingController.getPositionError(), null);
         builder.addDoubleProperty("Measurment", () -> currentPose.getRotation().getRadians(), null);
-        builder.addDoubleProperty("Setpoint", () ->  m_headingController.getSetpoint().position, null);
-        builder.addDoubleProperty("Goal", () ->  m_headingController.getGoal().position, null);
-        builder.addDoubleProperty("ControllerOutput", () -> radiansPerSecond, null);
-       // builder.addDoubleProperty("Chassis Speeds", () -> targetChasisSpeeds.omegaRadiansPerSecond, null);
+        builder.addDoubleProperty("Setpoint", () -> m_headingController.getSetpoint().position, null);
+        builder.addDoubleProperty("Goal", () -> m_headingController.getGoal().position, null);
+        // builder.addDoubleProperty("ControllerOutput", () -> radiansPerSecond, null);
+        // builder.addDoubleProperty("Chassis Speeds", () ->
+        // targetChasisSpeeds.omegaRadiansPerSecond, null);
 
     }
 }

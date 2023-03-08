@@ -26,7 +26,7 @@ public class DriveToAprilTag extends DriveToWaypoint2 {
     }
 
     public static Pose2d goal(int tagID, double xOffset, AprilTagFieldLayoutWithCorrectOrientation layout) {
-        m_offset= new Transform2d(new Translation2d(-xOffset, 0), new Rotation2d(0));
+        m_offset= new Transform2d(new Translation2d(-xOffset, 0.2), new Rotation2d(0));
         Pose2d m_tagPose = layout.getTagPose(tagID).get().toPose2d();
         System.out.println(m_tagPose);
         Pose2d m_goal = m_tagPose.plus(m_offset);

@@ -58,8 +58,12 @@ public class DriveToWaypoint2 extends CommandBase {
     private final PIDController yController;
     private final HolonomicDriveController2 m_controller;
 
+    private Translation2d globalGoalTranslation;
+
     private Trajectory m_trajectory;
     private boolean isFinished = false;
+
+    int count = 0;
 
     // private State desiredStateGlobal;
 
@@ -79,14 +83,17 @@ public class DriveToWaypoint2 extends CommandBase {
 
         xController = new PIDController(1, 1, 0);
         xController.setIntegratorRange(-0.5, 0.5);
-        xController.setTolerance(0.01);
+        xController.setTolerance(0.05);
 
         yController = new PIDController(1, 1, 0);
         yController.setIntegratorRange(-0.5, 0.5);
-        yController.setTolerance(0.01);
+        yController.setTolerance(0.05);
         m_controller = new HolonomicDriveController2(xController, yController, m_rotationController);
         // TODO: Adjust this speed
-        translationConfig = new TrajectoryConfig(6, 3).setKinematics(SwerveDriveSubsystem.kDriveKinematics);
+        translationConfig = new TrajectoryConfig(5, 1.5).setKinematics(SwerveDriveSubsystem.kDriveKinematics);
+        
+        globalGoalTranslation = new Translation2d();
+        
         addRequirements(m_swerve);
 
         // SmartDashboard.putData("Drive To Waypoint", this);
@@ -112,10 +119,11 @@ public class DriveToWaypoint2 extends CommandBase {
         Translation2d goalTranslation = transformedGoal.getTranslation();
         Translation2d translationToGoal = goalTranslation.minus(currentTranslation);
         Rotation2d angleToGoal = translationToGoal.getAngle();
-        TrajectoryConfig withStartVelocityConfig = new TrajectoryConfig(6, 3)
+        TrajectoryConfig withStartVelocityConfig = new TrajectoryConfig(5, 2)
                 .setKinematics(SwerveDriveSubsystem.kDriveKinematics);
         withStartVelocityConfig.setStartVelocity(startVelocity);
 
+        globalGoalTranslation = goalTranslation;
         // TODO: Change starting waypoint to align with starting velocity
         try {
             return TrajectoryGenerator.generateTrajectory(
@@ -182,7 +190,17 @@ public class DriveToWaypoint2 extends CommandBase {
         poseXPublisher.set(m_swerve.getPose().getX());
         poseYPublisher.set(m_swerve.getPose().getY());
 
+        
+
         m_swerve.setModuleStates(targetModuleStates);
+
+        // if( Math.abs(globalGoalTranslation.getX() - m_swerve.getPose().getX()) < 0.15 && Math.abs(globalGoalTranslation.getY() - m_swerve.getPose().getY()) < 0.15  ){
+        //     count++;
+        // }
+
+        // if(count >= 20){
+        //     isFinished = true;
+        // }
     }
 
     // public double getDesiredX() {

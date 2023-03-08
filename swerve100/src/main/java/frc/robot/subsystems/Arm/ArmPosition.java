@@ -6,5 +6,6 @@ package frc.robot.subsystems.Arm;
 
 /** Add your docs here. */
 public enum ArmPosition {
-    low, mid, high, inward, substation
+    CONELOW, CONEMID, CONEHIGH, CUBELOW, CUBEMID, CUBEHIGH, SAFE, CONESUB, CUBESUB, HIGH, LOW, MID, SUB
+
 }
