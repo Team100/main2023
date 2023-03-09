@@ -10,11 +10,13 @@ import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.SwerveDriveSubsystem;
 
-public class autoLevel extends CommandBase {
+public class AutoLevel extends CommandBase {
   private final SwerveDriveSubsystem drivetrain;
   private AHRS m_gyro;
+  private int count = 0;
     /** Creates a new autoLevel. */
-  public autoLevel(AHRS gyro, SwerveDriveSubsystem we) {
+  double startX = 0;
+  public AutoLevel(AHRS gyro, SwerveDriveSubsystem we) {
     drivetrain = we;
     m_gyro = gyro;
     // Use addRequirements() here to declare subsystem dependencies.
@@ -24,18 +26,33 @@ public class autoLevel extends CommandBase {
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
+
+    startX = drivetrain.getPose().getX();
+    count = 0;
   }
 
   // Called every time the scheduler runs while the command is scheduled.
   public void execute() {
-    double Roll = m_gyro.getRoll();
-    double Pitch = m_gyro.getPitch();
-        System.out.println(Roll);
-        double driveRollAmount = MathUtil.clamp(0.005 * Roll, -0.06, 0.06);
-        double drivePitchAmount = MathUtil.clamp(0.005   * Pitch, -0.06, 0.06);
-       if(Math.abs(Roll) > 2.5 || Math.abs(Pitch) > 2.5){   
-        drivetrain.drive(driveRollAmount, drivePitchAmount, 0, false);     
-       }
+
+    if(drivetrain.getPose().getX() <= 4.155){
+        double Roll = m_gyro.getRoll();
+        double Pitch = m_gyro.getPitch();
+            // System.out.println(Roll);
+            double driveRollAmount = MathUtil.clamp(0.005 * Roll, -0.08, 0.08);
+            double drivePitchAmount = MathUtil.clamp(0.005   * Pitch, -0.08, 0.08);
+            System.out.println(drivePitchAmount);
+    
+           if(Math.abs(Roll) > 2.5 || Math.abs(Pitch) > 2.5){   
+            count = 0;
+            drivetrain.drive(drivePitchAmount, -driveRollAmount, 0, false);     
+           } else{
+            count++;
+           }
+    } else {
+        drivetrain.drive(-0.3, 0, 0, true);
+    }
+
+    
     }
   // Called once the command ends or is interrupted.
   @Override
@@ -44,6 +61,6 @@ public class autoLevel extends CommandBase {
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    return false;
+    return count >= 20;
   }
 }

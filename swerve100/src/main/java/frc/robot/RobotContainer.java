@@ -34,7 +34,7 @@ import frc.robot.commands.DriveSlow;
 import frc.robot.commands.DriveWithHeading;
 import frc.robot.commands.ResetPose;
 import frc.robot.commands.ResetRotation;
-import frc.robot.commands.autoLevel;
+import frc.robot.commands.AutoLevel;
 import frc.robot.commands.Arm.ArmTrajectory;
 import frc.robot.commands.Arm.DriveToSetpoint;
 import frc.robot.commands.Arm.ManualArm;
@@ -68,7 +68,7 @@ public class RobotContainer implements Sendable {
     private final DualXboxControl control;
 
     // COMMANDS
-    private final autoLevel autoLevel;
+    private final AutoLevel autoLevel;
     private final DriveManually driveManually;
     private final GripManually gripManually;
 
@@ -83,7 +83,7 @@ public class RobotContainer implements Sendable {
 
     private final ArmTrajectory armHigh;
     private final ArmTrajectory armSafe;
-    // private final ArmTrajectory armSubstation;
+    private final ArmTrajectory armSubstation;
     private final SetCubeMode setCubeMode; 
     private final SetConeMode setConeMode; 
 
@@ -115,12 +115,12 @@ public class RobotContainer implements Sendable {
             driveToLeftGrid = DriveToAprilTag.newDriveToAprilTag(6, 1.889, .55, control::goalOffset, m_robotDrive);
             driveToCenterGrid = DriveToAprilTag.newDriveToAprilTag(7, 1.889, .55, control::goalOffset, m_robotDrive);
             driveToRightGrid = DriveToAprilTag.newDriveToAprilTag(8, 1.889, .55, control::goalOffset, m_robotDrive);
-            driveToSubstation = DriveToAprilTag.newDriveToAprilTag(4, .5334, .762, control::goalOffset, m_robotDrive);
+            driveToSubstation = DriveToAprilTag.newDriveToAprilTag(4, 0.01, -0.762, control::goalOffset, m_robotDrive);
         } else {
             driveToLeftGrid = DriveToAprilTag.newDriveToAprilTag(1, 0.95, .55, control::goalOffset, m_robotDrive);
             driveToCenterGrid = DriveToAprilTag.newDriveToAprilTag(2, 0.95, .55, control::goalOffset, m_robotDrive);
             driveToRightGrid = DriveToAprilTag.newDriveToAprilTag(3, 0.95, .55, control::goalOffset, m_robotDrive);
-            driveToSubstation = DriveToAprilTag.newDriveToAprilTag(5, .5334, .762, control::goalOffset, m_robotDrive);
+            driveToSubstation = DriveToAprilTag.newDriveToAprilTag(5, 0.05, -.53, control::goalOffset, m_robotDrive);
         }
 
 
@@ -130,10 +130,10 @@ public class RobotContainer implements Sendable {
 
         armSafe = new ArmTrajectory(ArmPosition.SAFE, armController);
 
-        // armSubstation = new ArmTrajectory(ArmPosition.SUB, armController);
+        armSubstation = new ArmTrajectory(ArmPosition.SUB, armController);
 
         ResetRotation resetRotation = new ResetRotation(m_robotDrive, new Rotation2d());
-        autoLevel = new autoLevel(m_robotDrive.m_gyro, m_robotDrive);
+        autoLevel = new AutoLevel(m_robotDrive.m_gyro, m_robotDrive);
 
         ResetPose resetPose = new ResetPose(m_robotDrive, 0, 0, 0);
 
@@ -187,6 +187,8 @@ public class RobotContainer implements Sendable {
         control.cubeMode(setCubeMode);
 
         control.driveSlow(driveSlow);
+
+        control.armSubstation(armSubstation);
 
 
 

@@ -13,6 +13,7 @@ import frc.robot.commands.DriveSlow;
 import frc.robot.commands.GoalOffset;
 import frc.robot.commands.ResetPose;
 import frc.robot.commands.ResetRotation;
+import frc.robot.commands.AutoLevel;
 import frc.robot.commands.Arm.ArmTrajectory;
 import frc.robot.commands.Arm.DriveToSetpoint;
 import frc.robot.commands.Arm.SetConeMode;
@@ -67,9 +68,9 @@ public class DualXboxControl implements Sendable {
         // controller0.rightBumper().onTrue(command);
     }
 
-    public void autoLevel(frc.robot.commands.autoLevel command) {
-        // controller0.y().whileTrue(command);
-    }
+    // public void autoLevel(frc.robot.commands.autoLevel command) {
+    //     // controller0.y().whileTrue(command);
+    // }
 
     public void driveRotation(DriveRotation command) {
         // controller0.rightBumper().whileTrue(command);
@@ -185,7 +186,11 @@ public class DualXboxControl implements Sendable {
         return controller1.getLeftY();
     }
 
-    public void driveToHigh(DriveToSetpoint command) {
+    // public void driveToHigh(DriveToSetpoint command) {
+    //     controller1.y().whileTrue(command);
+    // }
+
+    public void autoLevel(AutoLevel command) {
         controller1.y().whileTrue(command);
     }
 

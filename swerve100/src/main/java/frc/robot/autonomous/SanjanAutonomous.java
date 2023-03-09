@@ -5,7 +5,7 @@
 package frc.robot.autonomous;
 
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
-import frc.robot.commands.autoLevel;
+import frc.robot.commands.AutoLevel;
 import frc.robot.subsystems.SwerveDriveSubsystem;
 
 // NOTE:  Consider using this command inline, rather than writing a subclass.  For more
@@ -22,7 +22,7 @@ public class SanjanAutonomous extends SequentialCommandGroup {
     //   new MoveToAprilTag(m_robotDrive, 3)
     //   new Forward(m_robotDrive, 4)
     // new Forward(m_robotDrive, 1),
-     new autoLevel(m_robotDrive.m_gyro, m_robotDrive)
+     new AutoLevel(m_robotDrive.m_gyro, m_robotDrive)
     );
     
 
