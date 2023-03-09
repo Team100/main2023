@@ -230,7 +230,7 @@ public class DualXboxControl implements Sendable {
     }
 
     public void resetPose(ResetPose command) {
-        controller1.leftBumper().onTrue(command);
+        controller0.leftBumper().onTrue(command);
     }
 
     @Override

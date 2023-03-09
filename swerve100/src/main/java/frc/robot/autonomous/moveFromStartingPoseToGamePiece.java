@@ -22,9 +22,11 @@ public class moveFromStartingPoseToGamePiece extends TrajectoryCommand {
   }
   public static moveFromStartingPoseToGamePiece newMoveFromStartingPoseToGamePiece(SwerveDriveSubsystem m_robotDrive,
    Pose2d startingPose, Pose2d targetPose){
+    System.out.println(startingPose);
+    System.out.println(targetPose);
     TrajectoryConfig trajectoryConfig = new TrajectoryConfig(
         5,
-    5)
+    4)
         // Add kinematics to ensure max speed is actually obeyed
         .setKinematics(SwerveDriveSubsystem.kDriveKinematics);
         Trajectory exampleTrajectory = TrajectoryGenerator.generateTrajectory(
@@ -32,14 +34,14 @@ public class moveFromStartingPoseToGamePiece extends TrajectoryCommand {
             List.of(),
             targetPose,
             trajectoryConfig);
-        System.out.println(exampleTrajectory);
+        // System.out.println(exampleTrajectory);
     return new moveFromStartingPoseToGamePiece(m_robotDrive, exampleTrajectory, () -> new Rotation2d());
   }
 
   @Override
   public void execute() {
     super.execute();
-    System.out.println("WREGERGERUERzZGRHERIUGRE");
+    // System.out.println("WREGERGERUERzZGRHERIUGRE");
     IsRunning = 5;
   }
 
@@ -54,27 +56,4 @@ public class moveFromStartingPoseToGamePiece extends TrajectoryCommand {
     super.initSendable(builder);
     builder.addDoubleProperty("IsRunning", () -> IsRunning, null);
   }
-    public moveFromStartingPoseToGamePiece(SwerveDriveSubsystem m_robotDrive, Trajectory trajectory,
-            Supplier<Rotation2d> desiredRotation) {
-        super(m_robotDrive, trajectory, desiredRotation);
-    }
-
-    public static moveFromStartingPoseToGamePiece newMoveFromStartingPoseToGamePiece(SwerveDriveSubsystem m_robotDrive,
-            Supplier<Pose2d> getPose, Pose2d targetPose) {
-        TrajectoryConfig trajectoryConfig = new TrajectoryConfig(
-                5,
-                10)
-                // Add kinematics to ensure max speed is actually obeyed
-                .setKinematics(SwerveDriveSubsystem.kDriveKinematics);
-        Pose2d robot = getPose.get();
-        robot = new Pose2d(robot.getX(), robot.getY(), new Rotation2d());
-        Trajectory exampleTrajectory = TrajectoryGenerator.generateTrajectory(
-                // Start at the origin facing the +X direction
-                robot,
-                List.of(),
-                targetPose,
-                trajectoryConfig);
-        System.out.println(exampleTrajectory);
-        return new moveFromStartingPoseToGamePiece(m_robotDrive, exampleTrajectory, () -> new Rotation2d());
-    }
 }

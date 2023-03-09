@@ -184,7 +184,7 @@ public class SwerveDriveSubsystem extends SubsystemBase {
                 break;
             case SWERVE_TWO:
                 headingController = new ProfiledPIDController( //
-                        1, // kP
+                        0.5, // kP
                         .5, // kI
                         0.15, // kD
                         new TrapezoidProfile.Constraints(
@@ -491,7 +491,7 @@ public class SwerveDriveSubsystem extends SubsystemBase {
 
     @Override
     public void periodic() {
-        System.out.println("MRRITRURUEUEUIWUIWEUIRHBIUEWFkj");
+        // System.out.println("MRRITRURUEUEUIWUIWEUIRHBIUEWFkj");
         updateOdometry();
         RobotContainer.m_field.setRobotPose(m_poseEstimator.getEstimatedPosition());
     }
