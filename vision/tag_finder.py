@@ -256,14 +256,14 @@ class TagFinder:
             "msgpack"
         )
 
-    def reconnect_nt(self):
-        """NT doesn't recover from network disruptions by itself, nor does it
-        recognize them, so this blindly stops and starts the client.  This is
-        disruptive, causing flashing in Glass for example ... but better than
-        zombie mode?"""
-        inst = NetworkTableInstance.getDefault()
-        inst.stopClient()  # without this, reconnecting doesn't work
-        inst.startClient4("tag-finder")
+    # def reconnect_nt(self):
+    #     """NT doesn't recover from network disruptions by itself, nor does it
+    #     recognize them, so this blindly stops and starts the client.  This is
+    #     disruptive, causing flashing in Glass for example ... but better than
+    #     zombie mode?"""
+    #     inst = NetworkTableInstance.getDefault()
+    #     inst.stopClient()  # without this, reconnecting doesn't work
+    #     inst.startClient4("tag-finder")
 
 
 def getserial():
@@ -355,18 +355,18 @@ def main():
     # the callback blocks the camera thread, so don't do that.
     # camera.pre_callback = output.pre_callback
     camera.start()
-    frame_counter = 0
+    # frame_counter = 0
     try:
         while True:
             # periodically reconnect to NT.
             # without these attempts, network disruption results in
             # permanent disconnection
-            frame_counter += 1
-            # turn the reconnect period down to try to combat NT flashing
-            if frame_counter > 200:
-                print("RECONNECTING")
-                frame_counter = 0
-                output.reconnect_nt()
+            # frame_counter += 1
+            # disable reconnecting entirely to see if network works
+            # if frame_counter > 200:
+            #     print("RECONNECTING")
+            #     frame_counter = 0
+            #     output.reconnect_nt()
             # the most recent frame, maybe from the past
             request = camera.capture_request()
             try:

@@ -285,28 +285,21 @@ public class SwerveControllerCommand extends CommandBase {
         addRequirements(requirements);
     }
 
+  @Override
+  public void execute() {
+    double curTime = m_timer.get();
+    var desiredState = m_trajectory.sample(curTime);
+    double gyroRate = m_gyro.getRate() * 0.25;
+    Rotation2d  rotation2 = m_desiredRotation.get().minus(new Rotation2d(gyroRate));
+    var targetChassisSpeeds =
+        m_controller.calculate(m_pose.get(), desiredState, rotation2);
+    var targetModuleStates = m_kinematics.toSwerveModuleStates(targetChassisSpeeds);
+    m_outputModuleStates.accept(targetModuleStates);
+  }
     @Override
     public void initialize() {
         m_timer.restart();
     }
-
-    @Override
-    public void execute() {
-        double curTime = m_timer.get();
-        var desiredState = m_trajectory.sample(curTime);
-        double gyroRate = m_gyro.getRate() * 0.25;
-        ///////////////////////////////
-        ///////////////////////////////
-        // this looks like a bug to Joel. you want desiredRotation in here somewhere.
-        ///////////////////////////////
-        ///////////////////////////////
-        Rotation2d rotation2 = m_robotDrive.getPose().getRotation().minus(new Rotation2d(gyroRate));
-        var targetChassisSpeeds = m_controller.calculate(m_pose.get(), desiredState, rotation2);
-        var targetModuleStates = m_kinematics.toSwerveModuleStates(targetChassisSpeeds);
-
-        m_outputModuleStates.accept(targetModuleStates);
-    }
-
     @Override
     public void end(boolean interrupted) {
         m_timer.stop();
@@ -314,7 +307,7 @@ public class SwerveControllerCommand extends CommandBase {
 
     @Override
     public boolean isFinished() {
-        System.out.println("WERFrWEuCOMBSUGTIONTIO NioNWIONWIONW IOWN IOWIO WIWOIOW IO WIOWIOIOW");
+        // System.out.println("WERFrWEuCOMBSUGTIONTIO NioNWIONWIONW IOWN IOWIO WIWOIOW IO WIOWIOIOW");
         return m_timer.hasElapsed(m_trajectory.getTotalTimeSeconds());
     }
 }
