@@ -20,6 +20,7 @@ import frc.robot.commands.Arm.SetCubeMode;
 import frc.robot.commands.Manipulator.Close;
 import frc.robot.commands.Manipulator.Home;
 import frc.robot.commands.Manipulator.Open;
+import team100.commands.Defense;
 
 /**
  * see
@@ -190,6 +191,10 @@ public class DualXboxControl implements Sendable {
 
     public void driveToSafe(SequentialCommandGroup command) {
         controller1.rightBumper().whileTrue(command);
+    }
+
+    public void defense(Defense defense) {
+        controller1.leftBumper().whileTrue(defense);
     }
 
     // TODO: remove this
