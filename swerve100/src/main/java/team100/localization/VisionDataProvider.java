@@ -16,6 +16,7 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
+import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
@@ -41,7 +42,8 @@ public class VisionDataProvider extends SubsystemBase implements TableEventListe
     private final DoublePublisher timestamp_publisher;
     private final ObjectMapper object_mapper;
     private final SwerveDrivePoseEstimator poseEstimator;
- 
+    private final double kVisionChangeToleranceMeters = .1;
+
     // TODO Make this private
     public AprilTagFieldLayoutWithCorrectOrientation layout;
 
@@ -50,7 +52,7 @@ public class VisionDataProvider extends SubsystemBase implements TableEventListe
     Pose2d currentRobotinFieldCoords;
 
     private final GoNoGoIndicator indicator;
-    private double mostRecentVisionUpdate;
+    private Pose2d lastRobotInFieldCoords;
 
     public VisionDataProvider(
             DriverStation.Alliance alliance,
@@ -120,13 +122,13 @@ public class VisionDataProvider extends SubsystemBase implements TableEventListe
         Camera cam = Camera.get(serialNumber);
         switch (cam) {
             case REAR:
-                return new Transform3d(new Translation3d(0.4, 0, 0.3), new Rotation3d(0, -0.35, 3.14));
+                return new Transform3d(new Translation3d(-0.326, 0.003, 0.332), new Rotation3d(0, -0.419, 3.142));
             case FRONT:
-                return new Transform3d(new Translation3d(0, 0.3, 0.3), new Rotation3d(0, -0.35, 0.35));
+                return new Transform3d(new Translation3d(0.398, 0.075, 0.201), new Rotation3d(0, -0.35, 0));
             case RIGHT:
-                return new Transform3d(new Translation3d(0, -0.30, 0.3), new Rotation3d(0, -0.35, -0.35));
+                return new Transform3d(new Translation3d(0.012, -0.264, 0.229), new Rotation3d(0, -0.350, -0.350));
             case LEFT:
-                return new Transform3d(new Translation3d(0.4, 0.0, 0.2), new Rotation3d(0, 0, 0.35));
+                return new Transform3d(new Translation3d(0.012, 0.159, 0.240), new Rotation3d(0, -0.35, 0.35));
             case UNKNOWN:
                 return new Transform3d(new Translation3d(0.254, 0.127, 0.3), new Rotation3d(0, 0, 0));
             default:
@@ -165,14 +167,20 @@ public class VisionDataProvider extends SubsystemBase implements TableEventListe
 
             currentRobotinFieldCoords = new Pose2d(robotTranslationInFieldCoords, gyroRotation);
 
-            double now = Timer.getFPGATimestamp();
-            if (now - mostRecentVisionUpdate < 0.1) {
-                indicator.go();
-            } else {
-                indicator.nogo();
+            if (lastRobotInFieldCoords != null) {
+                Transform2d translationSinceLast = currentRobotinFieldCoords.minus(lastRobotInFieldCoords);
+                double xComponent = translationSinceLast.getX();
+                double yComponent = translationSinceLast.getY();
+                if (xComponent * xComponent +
+                        yComponent * yComponent <= kVisionChangeToleranceMeters
+                                * kVisionChangeToleranceMeters) {
+                    // tell the vision indicator we have a fix.
+                    indicator.go();
+                    estimateConsumer.accept(currentRobotinFieldCoords, Timer.getFPGATimestamp() - .075);
+                }
             }
-            mostRecentVisionUpdate = now;
-            estimateConsumer.accept(currentRobotinFieldCoords, now - .075);
+
+            lastRobotInFieldCoords = currentRobotinFieldCoords;
         }
     }
 

@@ -3,6 +3,9 @@ package frc.robot.subsystems;
 import edu.wpi.first.util.sendable.Sendable;
 
 public interface TurningMotor extends Sendable {
-	double get();
+    /** @return motor output in range [-1, 1] */
+    double get();
+
+    /** @param output motor output in range [-1, 1] */
     void set(double output);
 }

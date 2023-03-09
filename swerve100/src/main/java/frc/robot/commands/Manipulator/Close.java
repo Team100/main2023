@@ -4,33 +4,45 @@
 
 package frc.robot.commands.Manipulator;
 
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.Manipulator;
 
 public class Close extends CommandBase {
   /** Creates a new Close. */
   Manipulator m_manipulator;
+
+  Timer m_timer;
   public Close(Manipulator manipulator) {
     // Use addRequirements() here to declare subsystem dependencies.
     m_manipulator = manipulator;
+    m_timer = new Timer();
     addRequirements(m_manipulator);
   }
 
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-    
+    m_manipulator.pinch.motor.configPeakCurrentLimit(25);
+
+    m_timer.restart();
   }
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    m_manipulator.pinch(-0.2);
+    if(m_timer.get() > 1){
+        m_manipulator.pinch.motor.configPeakCurrentLimit(8);
+
+    }
+    m_manipulator.pinch(-0.5);
   }
 
   // Called once the command ends or is interrupted.
   @Override
-  public void end(boolean interrupted) {}
+  public void end(boolean interrupted) {
+    m_manipulator.pinch.motor.configPeakCurrentLimit(25);
+  }
 
   // Returns true when the command should end.
   @Override
