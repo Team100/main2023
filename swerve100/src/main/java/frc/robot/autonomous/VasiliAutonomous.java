@@ -12,58 +12,48 @@ public class VasiliAutonomous extends SequentialCommandGroup {
     public VasiliAutonomous(SwerveDriveSubsystem m_robotDrive) {
         // Add your commands in the addCommands() call, e.g.
         // addCommands(new FooCommand(), new BarCommand());
-        Rotation2d desiredRots = new Rotation2d(Math.PI);
-        SwerveModuleState[] desiredStates = new SwerveModuleState[]{
-            new SwerveModuleState(0, desiredRots),
-            new SwerveModuleState(0, desiredRots), 
-            new SwerveModuleState(0, desiredRots), 
-            new SwerveModuleState(0, desiredRots)
-        };
-        CommandBase command = new CommandBase() {
-            @Override
-            public void initialize() {
-                m_robotDrive.setModuleStates(desiredStates);
-            };
-            @Override
-            public boolean isFinished() {
-                return false;
-            }
-        };
-        command.addRequirements(m_robotDrive);
+        // Rotation2d desiredRots = new Rotation2d(Math.PI);
+        // SwerveModuleState[] desiredStates = new SwerveModuleState[] {
+        //         new SwerveModuleState(0, desiredRots),
+        //         new SwerveModuleState(0, desiredRots),
+        //         new SwerveModuleState(0, desiredRots),
+        //         new SwerveModuleState(0, desiredRots)
+        // };
+        // CommandBase command = new CommandBase() {
+        //     @Override
+        //     public void initialize() {
+        //         m_robotDrive.setModuleStates(desiredStates);
+        //     };
+
+        //     @Override
+        //     public boolean isFinished() {
+        //         return false;
+        //     }
+        // };
+        // command.addRequirements(m_robotDrive);
         addCommands(
                 // TODO add place cone/cube command here
-                // moveFromStartingPoseToGamePiece
-                // .newMoveFromStartingPoseToGamePiece(
-                //         m_robotDrive,
-                //         new Pose2d(
-                //                 m_robotDrive.getPose().getX(),
-                //                 m_robotDrive.getPose().getY(),
-                //                 new Rotation2d(Math.PI / 2)),
-                //         new Pose2d(0, 0., new Rotation2d(Math.PI / 2))),
+                //TODO Create a new holonmoic drive controller with the rotation fix
                 moveFromStartingPoseToGamePiece
                         .newMoveFromStartingPoseToGamePiece(
                                 m_robotDrive,
                                 new Pose2d(
-                                m_robotDrive.getPose().getX(),
-                                m_robotDrive.getPose().getY(),
-                                new Rotation2d(Math.PI / 2)),
-                                new Pose2d(0, 0.92, new Rotation2d(Math.PI / 2))),
-                // moveFromStartingPoseToGamePiece
-                //         .newMoveFromStartingPoseToGamePiece(
-                //                 m_robotDrive,
-                //                 new Pose2d(
-                //                 m_robotDrive.getPose().getX(),
-                //                 m_robotDrive.getPose().getY(),
-                //                 new Rotation2d()),
-                //                 new Pose2d(0.01, 0, new Rotation2d())),
+                                        m_robotDrive.getPose().getX(),
+                                        m_robotDrive.getPose().getY(),
+                                        new Rotation2d(Math.PI / 2)),
+                                new Pose2d(0, 0.92, new Rotation2d(Math.PI / 2)),
+                                () -> new Rotation2d(Math.PI)),
                 moveFromStartingPoseToGamePiece
                         .newMoveFromStartingPoseToGamePiece(
                                 m_robotDrive,
                                 new Pose2d(
-                                m_robotDrive.getPose().getX(),
-                                m_robotDrive.getPose().getY(),
-                                new Rotation2d()),
-                                new Pose2d(5.7, 0, new Rotation2d())));
+                                        m_robotDrive.getPose().getX(),
+                                        m_robotDrive.getPose().getY(),
+                                        new Rotation2d()),
+                                new Pose2d(5.7, 0, new Rotation2d()),
+                                () -> new Rotation2d()));
+
+        // TODO Make a pickup cone/cube from floor command here
 
     }
 }
