@@ -47,6 +47,7 @@ import frc.robot.subsystems.Manipulator;
 import frc.robot.subsystems.SwerveDriveSubsystem;
 import frc.robot.subsystems.Arm.ArmController;
 import frc.robot.subsystems.Arm.ArmPosition;
+import team100.commands.Defense;
 import team100.commands.DriveManually;
 import team100.commands.GripManually;
 import team100.control.DualXboxControl;
@@ -76,6 +77,7 @@ public class RobotContainer implements Sendable {
 
     private final DriveWithHeading driveWithHeading;
     private final DriveRotation driveRotation;
+    private final Defense defense;
 
     private final DriveToAprilTag driveToSubstation, driveToLeftGrid, driveToCenterGrid, driveToRightGrid;
 
@@ -158,6 +160,8 @@ public class RobotContainer implements Sendable {
 
         driveRotation = new DriveRotation(m_robotDrive, control::rotSpeed);
 
+        defense = new Defense(m_robotDrive);
+
         manualArm = new ManualArm(armController, control.getController());
 
         // TODO: do something with tagid.
@@ -170,6 +174,7 @@ public class RobotContainer implements Sendable {
         control.driveToCenterGrid(driveToCenterGrid);
         control.driveToRightGrid(driveToRightGrid);
         control.driveToSubstation(driveToSubstation);
+        control.defense(defense);
         control.resetPose(resetPose);
 
         
