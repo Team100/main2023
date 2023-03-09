@@ -506,6 +506,8 @@ public class SwerveDriveSubsystem extends SubsystemBase {
     }
 
     public void resetPose(Pose2d robotPose) {
+
+        m_gyro.calibrate();
         m_poseEstimator.resetPosition(getHeading(), new SwerveModulePosition[] {
                 m_frontLeft.getPosition(),
                 m_frontRight.getPosition(),
