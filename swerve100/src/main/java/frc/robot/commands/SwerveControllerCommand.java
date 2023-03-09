@@ -240,7 +240,7 @@ public class SwerveControllerCommand extends CommandBase {
     double curTime = m_timer.get();
     var desiredState = m_trajectory.sample(curTime);
     double gyroRate = m_gyro.getRate() * 0.25;
-    Rotation2d rotation2 = m_robotDrive.getPose().getRotation().minus(new Rotation2d(gyroRate));
+    Rotation2d  rotation2 = m_desiredRotation.get().minus(new Rotation2d(gyroRate));
     var targetChassisSpeeds =
         m_controller.calculate(m_pose.get(), desiredState, rotation2);
     var targetModuleStates = m_kinematics.toSwerveModuleStates(targetChassisSpeeds);

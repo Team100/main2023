@@ -200,15 +200,17 @@ public class SwerveDriveSubsystem extends SubsystemBase {
                 
                 xController = new PIDController(
                         0.15, // kP
-                        0.0, // kI
+                        0, // kI
                         0.0); // kD
-                xController.setTolerance(0.2);
+                xController.setTolerance(0.01);
+                xController.setIntegratorRange(-0.5, 0.5);
 
                 yController = new PIDController(
                         0.15, // kP
-                        0.0, // kI
+                        0, // kI
                         0.0); // kD
-                yController.setTolerance(0.2);
+                yController.setTolerance(0.01);
+                yController.setIntegratorRange(-0.5, 0.5);
 
                 thetaController = new ProfiledPIDController(
                         3.0, // kP
@@ -488,6 +490,7 @@ public class SwerveDriveSubsystem extends SubsystemBase {
 
     @Override
     public void periodic() {
+        System.out.println("MRRITRURUEUEUIWUIWEUIRHBIUEWFkj");
         updateOdometry();
         RobotContainer.m_field.setRobotPose(m_poseEstimator.getEstimatedPosition());
     }
