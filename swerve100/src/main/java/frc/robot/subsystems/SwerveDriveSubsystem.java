@@ -458,7 +458,8 @@ public class SwerveDriveSubsystem extends SubsystemBase {
                 },
                 new Pose2d(),
                 VecBuilder.fill(0.03, 0.03, 0.03),
-                VecBuilder.fill(0.01, 0.01, Integer.MAX_VALUE));
+                VecBuilder.fill(0.01, 0.01, 0.04)); // note tight rotation variance here, used to be MAX_VALUE
+//                VecBuilder.fill(0.01, 0.01, Integer.MAX_VALUE));
         visionDataProvider = new VisionDataProvider(alliance, m_poseEstimator, () -> getPose());
 
         SmartDashboard.putData("Drive Subsystem", this);

@@ -87,7 +87,7 @@ public class VisionDataProviderTest {
                         { 0 },
                         { 0 },
                         { 1 } });
-        Translation3d tagTranslationInCameraCoords = PoseEstimationHelper.blipToNWU(blip);
+        Translation3d tagTranslationInCameraCoords = PoseEstimationHelper.blipToTranslation(blip);
         Rotation3d tagRotationInCameraCoords = PoseEstimationHelper.tagRotationInRobotCoordsFromGyro(
                 tagInFieldCoords.getRotation(),
                 cameraRotationInFieldCoords);
@@ -162,16 +162,19 @@ public class VisionDataProviderTest {
 
     @Test
     public void testEstimateRobotPose2() throws IOException {
+        // robot is panned right 45
         Supplier<Pose2d> robotPose = () -> new Pose2d(0, 0, new Rotation2d(-Math.PI / 4)); // just for rotation
         VisionDataProvider vdp = new VisionDataProvider(DriverStation.Alliance.Red, null, robotPose);
 
         String key = "foo";
         // in red layout blip 5 is on the other side of the field
+        double rot = Math.sqrt(2) / 2;
+        // because the tag is nearby we use the tag rotation so make it correct.
         Blip blip = new Blip(5,
-                new double[][] { // we don't actually use this
-                        { 1, 0, 0 },
+                new double[][] { // pan left in camera frame = -y rot
+                        { rot, 0, -rot },
                         { 0, 1, 0 },
-                        { 0, 0, 1 } },
+                        { rot, 0, rot } },
                 new double[][] {
                         { 0 },
                         { 0 },

@@ -2,8 +2,11 @@ package team100.localization;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import java.io.IOException;
+
 import org.junit.jupiter.api.Test;
 
+import edu.wpi.first.cscore.CameraServerCvJNI;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
@@ -38,6 +41,11 @@ import edu.wpi.first.math.geometry.Translation3d;
  */
 public class PanTiltOffsetTest {
     private static final double kDelta = 0.01;
+
+    public PanTiltOffsetTest() throws IOException {
+        // load the JNI
+        CameraServerCvJNI.forceLoad();
+    }
 
     /**
      * Correct for offset but the offset is zero.
@@ -561,7 +569,7 @@ public class PanTiltOffsetTest {
     public void testSemiRealisticExampleWithBlips() {
         double rot = Math.sqrt(2) / 2;
         Blip blip = new Blip(5,
-                new double[][] { // pure tilt note we don't actually use this
+                new double[][] { // pure tilt
                         { 1, 0, 0 },
                         { 0, rot, -rot },
                         { 0, rot, rot } },
@@ -571,7 +579,7 @@ public class PanTiltOffsetTest {
                         { Math.sqrt(2) / 2 } });
 
         // Translation3d blipTranslation = VisionDataProvider.blipToTranslation(blip);
-        Translation3d tagTranslationInCameraCoords = PoseEstimationHelper.blipToNWU(blip);
+        Translation3d tagTranslationInCameraCoords = PoseEstimationHelper.blipToTranslation(blip);
 
         assertEquals(Math.sqrt(2) / 2, tagTranslationInCameraCoords.getX(), kDelta);
         assertEquals(0, tagTranslationInCameraCoords.getY(), kDelta);
@@ -637,11 +645,14 @@ public class PanTiltOffsetTest {
         assertEquals(-3.0 * Math.PI / 4, robotInFieldCoords.getRotation().getZ(), kDelta);
     }
 
-    // from the network tables listener
+    /**
+     * Blip from the network tables listener.
+     * This represents a tag with 45 deg tilted rotation and diagonal translation.
+     */
     private Blip getBlip() {
         double rot = Math.sqrt(2) / 2;
         Blip blip = new Blip(5,
-                new double[][] { // pure tilt note we don't actually use this
+                new double[][] { // pure tilt
                         { 1, 0, 0 },
                         { 0, rot, -rot },
                         { 0, rot, rot } },
@@ -664,6 +675,7 @@ public class PanTiltOffsetTest {
                 new Rotation3d(0, -Math.PI / 4, -Math.PI / 4));
     }
 
+    /** Returns a tag at (1,4,1) and rotated 180, i.e. in our own scoring area. */
     private Pose3d tagInFieldCoords(int tagid /* ignored */) {
         return new Pose3d(1, 4, 1, new Rotation3d(0, 0, Math.PI));
     }
@@ -707,5 +719,78 @@ public class PanTiltOffsetTest {
         assertEquals(0, robotInFieldCoords.getRotation().getX(), kDelta);
         assertEquals(0, robotInFieldCoords.getRotation().getY(), kDelta);
         assertEquals(-3.0 * Math.PI / 4, robotInFieldCoords.getRotation().getZ(), kDelta);
+    }
+
+    @Test
+    public void testSemiRealisticExampleWithBlipsUsingSingleFunctionUsingCameraRotation() {
+        {
+            // see diagram at the top of the file.
+            // tag pose is R(0)|t(1,1)
+            // robot pose is R(pi/4)|t(0,0)
+            // start with no offset
+            final Transform3d cameraInRobotCoords = new Transform3d(
+                    new Translation3d(0, 0, 0),
+                    new Rotation3d());
+
+            // tag facing 0, at 1,1,0
+            final Pose3d tagInFieldCoords = new Pose3d(1, 1, 0, new Rotation3d(0, 0, 0));
+
+            double rot = Math.sqrt(2) / 2;
+            Blip blip = new Blip(5,
+                    new double[][] { // pan right in camera frame = +y rot
+                            { rot, 0, rot },
+                            { 0, 1, 0 },
+                            { -rot, 0, rot } },
+                    new double[][] { // unit-square-diagonal range
+                            { 0 },
+                            { 0 },
+                            { Math.sqrt(2) } });
+
+            Pose3d robotInFieldCoords = PoseEstimationHelper.getRobotPoseInFieldCoords(
+                    cameraInRobotCoords,
+                    tagInFieldCoords,
+                    blip);
+
+            assertEquals(0, robotInFieldCoords.getTranslation().getX(), kDelta);
+            assertEquals(0, robotInFieldCoords.getTranslation().getY(), kDelta);
+            assertEquals(0, robotInFieldCoords.getTranslation().getZ(), kDelta);
+            assertEquals(0, robotInFieldCoords.getRotation().getX(), kDelta);
+            assertEquals(0, robotInFieldCoords.getRotation().getY(), kDelta);
+            assertEquals(Math.PI / 4, robotInFieldCoords.getRotation().getZ(), kDelta);
+        }
+        {
+            // camera tilt
+            final Transform3d cameraInRobotCoords = new Transform3d(
+                    new Translation3d(0, 0, 0),
+                    new Rotation3d(0, -Math.PI/4, 0)); // tilt 45 up
+
+            // tag facing 0, at 1,0,1
+            final Pose3d tagInFieldCoords = new Pose3d(1, 0, 1, new Rotation3d(0, 0, 0));
+
+            double rot = Math.sqrt(2) / 2;
+            Blip blip = new Blip(5,
+                    new double[][] {     // tag tilts away, we're looking up at it in camera frame = -x rot
+                        { 1, 0, 0 },
+                        { 0, rot, rot },
+                        { 0, -rot, rot } },
+                    new double[][] { // unit-square-diagonal range
+                            { 0 },
+                            { 0 },
+                            { Math.sqrt(2) } });
+
+            Pose3d robotInFieldCoords = PoseEstimationHelper.getRobotPoseInFieldCoords(
+                    cameraInRobotCoords,
+                    tagInFieldCoords,
+                    blip);
+
+            assertEquals(0, robotInFieldCoords.getTranslation().getX(), kDelta);
+            assertEquals(0, robotInFieldCoords.getTranslation().getY(), kDelta);
+            assertEquals(0, robotInFieldCoords.getTranslation().getZ(), kDelta);
+            assertEquals(0, robotInFieldCoords.getRotation().getX(), kDelta);
+            assertEquals(0, robotInFieldCoords.getRotation().getY(), kDelta);
+            assertEquals(0, robotInFieldCoords.getRotation().getZ(), kDelta);
+        }
+
+        // TODO: write a test that composes pan and tilt.
     }
 }
