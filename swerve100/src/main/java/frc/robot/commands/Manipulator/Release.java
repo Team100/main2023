@@ -7,35 +7,33 @@ package frc.robot.commands.Manipulator;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.Manipulator;
 
-public class Open extends CommandBase {
-  /** Creates a new Open. */
+public class Release extends CommandBase {
+  /** Creates a new Release. */
 
   Manipulator m_manipulator;
-  double openPosition;
 
-  public Open(Manipulator manipulator) {
+  public Release(Manipulator manipulator) {
     // Use addRequirements() here to declare subsystem dependencies.
+
     m_manipulator = manipulator;
-    openPosition = -1.47;
     addRequirements(m_manipulator);
   }
 
   // Called when the command is initially scheduled.
   @Override
-  public void initialize() {}
+  public void initialize() {
+    m_manipulator.pinch(0);
+  }
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
-  public void execute() {
-    // double openSpeed = m_manipulator.pinchController.calculate(m_manipulator.getPosition(), openPosition);
-    // m_manipulator.pinch(openSpeed);
-
-    m_manipulator.pinch(0.2);
-}
+  public void execute() {}
 
   // Called once the command ends or is interrupted.
   @Override
-  public void end(boolean interrupted) {}
+  public void end(boolean interrupted) {
+    m_manipulator.pinch(0);
+  }
 
   // Returns true when the command should end.
   @Override

@@ -81,10 +81,10 @@ public class SwerveDriveSubsystem extends SubsystemBase {
     public final double kSlowSpeedMetersPerSecond;
     public final double kSlowAngularSpeedRadiansPerSecond;
 
-    private final SwerveModule m_frontLeft;
-    private final SwerveModule m_frontRight;
-    private final SwerveModule m_rearLeft;
-    private final SwerveModule m_rearRight;
+    public final SwerveModule m_frontLeft;
+    public final SwerveModule m_frontRight;
+    public final SwerveModule m_rearLeft;
+    public final SwerveModule m_rearRight;
 
     // The gyro sensor. We have a Nav-X.
     public final AHRS m_gyro;
@@ -115,8 +115,8 @@ public class SwerveDriveSubsystem extends SubsystemBase {
         fieldTypePub = fieldTable.getStringTopic(".type").publish();
         fieldTypePub.set("Field2d");
 
-        kSlowSpeedMetersPerSecond = 1;
-        kSlowAngularSpeedRadiansPerSecond = 0.5;
+        kSlowSpeedMetersPerSecond = 0.5;
+        kSlowAngularSpeedRadiansPerSecond = 0.25;
 
         switch (Identity.get()) {
             case COMP_BOT:
@@ -571,21 +571,13 @@ public class SwerveDriveSubsystem extends SubsystemBase {
     }
 
     public void driveSlow(double xSpeed, double ySpeed, double rot, boolean fieldRelative) {
-        xSpeed = MathUtil.clamp(xSpeed, -1, 1);
-        ySpeed = MathUtil.clamp(ySpeed, -1, 1);
-        rot = MathUtil.clamp(rot, -1, 1);
-
         if (Math.abs(rot) < .01)
             rot = 0;
-        // double gyroRate = m_gyro.getRate() * 0.25;
-        // Rotation2d rotation2 = getPose().getRotation().minus(new
-        // Rotation2d(gyroRate));
+
         Rotation2d rotation2 = getPose().getRotation();
         desiredChassisSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(kMaxSpeedMetersPerSecond * xSpeed,
                 kMaxSpeedMetersPerSecond * ySpeed, kSlowAngularSpeedRadiansPerSecond * rot,
                 rotation2);
-
-        // System.out.printf("%5.3f %5.3f\n", xSpeed, ySpeed);
 
         var swerveModuleStates = kDriveKinematics.toSwerveModuleStates(
                 fieldRelative
@@ -599,7 +591,6 @@ public class SwerveDriveSubsystem extends SubsystemBase {
         getRobotVelocity(swerveModuleStates);
 
         m_frontLeft.setDesiredState(swerveModuleStates[0]);
-        System.out.println(desiredChassisSpeeds);
         m_frontRight.setDesiredState(swerveModuleStates[1]);
         m_rearLeft.setDesiredState(swerveModuleStates[2]);
         m_rearRight.setDesiredState(swerveModuleStates[3]);

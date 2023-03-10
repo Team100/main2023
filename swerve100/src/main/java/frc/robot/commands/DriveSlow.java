@@ -16,10 +16,10 @@ public class DriveSlow extends CommandBase {
 
     @Override
     public void execute() {
-        m_robotDrive.drive(
-                m_control.xLimited(),
-                m_control.yLimited(),
-                m_control.rotLimited(),
+        m_robotDrive.driveSlow(
+                m_control.xSpeed(),
+                m_control.ySpeed(),
+                m_control.rotSpeed(),
                 true);
     }
 }

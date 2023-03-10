@@ -50,7 +50,7 @@ public class OnboardIndicator {
         }
     }
 
-    private static final int kPort = 9;
+    private static final int kPort = 0;
     private final AddressableLED led;
     private final Notifier notifier;
     private State active;
