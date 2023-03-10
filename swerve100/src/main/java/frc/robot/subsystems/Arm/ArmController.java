@@ -7,6 +7,7 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.AnalogEncoder;
 import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.FRCLib.Motors.FRCNEO;
@@ -19,7 +20,7 @@ public class ArmController extends SubsystemBase {
     private double xSetpoint = 1;
     private double ySetpoint = 1;
 
-    public boolean cubeMode = false;
+    public boolean cubeMode = true;
 
     private double upperAngleSetpoint = 0;
     private double lowerAngleSetpoint = 0;
@@ -212,6 +213,8 @@ public class ArmController extends SubsystemBase {
     public void setUpperArm(double x) {
         upperArmMotor.motor.set(x);
     }
+
+
 
     @Override
     public void initSendable(SendableBuilder builder) {

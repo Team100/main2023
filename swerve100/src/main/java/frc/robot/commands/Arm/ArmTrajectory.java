@@ -208,4 +208,11 @@ public class ArmTrajectory extends CommandBase {
         setpointY.set(desiredLower);
 
     }
+
+    @Override
+    public void end(boolean interrupted) {
+        m_arm.setUpperArm(0);
+        m_arm.setLowerArm(0);
+    }
+  
 }
