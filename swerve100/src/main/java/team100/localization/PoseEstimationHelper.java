@@ -20,20 +20,65 @@ public class PoseEstimationHelper {
     /**
      * Calculate robot pose.
      * 
+     * First calculates the distance to the tag. If it's closer than the threshold,
+     * use the camera-derived tag rotation. If it's far, use the gyro.
+     */
+    public static Pose3d getRobotPoseInFieldCoords(
+            Transform3d cameraInRobotCoords,
+            Pose3d tagInFieldCoords,
+            Blip blip,
+            Rotation3d robotRotationInFieldCoordsFromGyro,
+            double thresholdMeters) {
+        Translation3d tagTranslationInCameraCoords = blipToTranslation(blip);
+        if (tagTranslationInCameraCoords.getNorm() < thresholdMeters) {
+            return getRobotPoseInFieldCoords(
+                    cameraInRobotCoords,
+                    tagInFieldCoords,
+                    blip);
+        }
+        return getRobotPoseInFieldCoords(
+                cameraInRobotCoords,
+                tagInFieldCoords,
+                blip,
+                robotRotationInFieldCoordsFromGyro);
+
+    }
+
+    /**
+     * Calculate robot pose.
+     * 
+     * Given the blip and its corresponding field location, and the camera offset,
+     * return the robot pose in field coordinates.
+     * 
+     * This method trusts the tag rotation calculated by the camera.
+     */
+    public static Pose3d getRobotPoseInFieldCoords(
+            Transform3d cameraInRobotCoords,
+            Pose3d tagInFieldCoords,
+            Blip blip) {
+        Transform3d tagInCameraCoords = blipToTransform(blip);
+        Pose3d cameraInFieldCoords = toFieldCoordinates(tagInCameraCoords, tagInFieldCoords);
+        return applyCameraOffset(cameraInFieldCoords, cameraInRobotCoords);
+    }
+
+    /**
+     * Calculate robot pose.
+     * 
      * Given the blip, the heading, the camera offset, and the absolute tag pose,
      * return the absolute robot pose in field coordinates.
      * 
+     * This method does not trust the tag rotation from the camera, it uses the gyro
+     * signal instead.
+     * 
      * @param cameraInRobotCoords                camera offset expressed as a
-     *                                           transform from
-     *                                           robot-frame to camera-frame, e.g.
-     *                                           camera 0.5m in
+     *                                           transform from robot-frame to
+     *                                           camera-frame, e.g.camera 0.5m in
      *                                           front of the robot center and 0.5m
-     *                                           from the floor
-     *                                           would have a translation (0.5, 0,
-     *                                           0.5)
+     *                                           from the floor would have a
+     *                                           translation (0.5, 0, 0.5)
      * @param tagInFieldCoords                   tag location expressed as a pose in
-     *                                           field-frame.
-     *                                           this should come from the json
+     *                                           field-frame. this should come from
+     *                                           the json
      * @param blip                               direct from the camera
      * @param robotRotationInFieldCoordsFromGyro direct from the gyro. note that
      *                                           drive.getPose() isn't exactly the
@@ -49,7 +94,7 @@ public class PoseEstimationHelper {
         Rotation3d cameraRotationInFieldCoords = cameraRotationInFieldCoords(
                 cameraInRobotCoords,
                 robotRotationInFieldCoordsFromGyro);
-        Translation3d tagTranslationInCameraCoords = blipToNWU(blip);
+        Translation3d tagTranslationInCameraCoords = blipToTranslation(blip);
         Rotation3d tagRotationInCameraCoords = tagRotationInRobotCoordsFromGyro(
                 tagInFieldCoords.getRotation(),
                 cameraRotationInFieldCoords);
@@ -80,19 +125,29 @@ public class PoseEstimationHelper {
     }
 
     /**
+     * Extract translation and rotation from z-forward blip and return the same
+     * translation and rotation as an NWU x-forward transform. Package-private for
+     * testing.
+     */
+    static Transform3d blipToTransform(Blip b) {
+        return new Transform3d(blipToTranslation(b), blipToRotation(b));
+    }
+
+    /**
      * Extract the translation from a "z-forward" blip and return the same
      * translation expressed in our usual "x-forward" NWU translation.
      * It would be possible to also consume the blip rotation matrix, if it were
      * renormalized, but it's not very accurate, so we don't consume it.
      * Package-private for testing.
      */
-    static Translation3d blipToNWU(Blip b) {
+    static Translation3d blipToTranslation(Blip b) {
         return new Translation3d(b.pose_t[2][0], -1.0 * b.pose_t[0][0], -1.0 * b.pose_t[1][0]);
     }
 
     /**
      * Extract the rotation from the "z forward" blip and return the same rotation
-     * expressed in our usual "x forward" NWU coordinates.
+     * expressed in our usual "x forward" NWU coordinates. Package-private for
+     * testing.
      */
     static Rotation3d blipToRotation(Blip b) {
         Mat rmat = new Mat(3, 3, CvType.CV_64F);

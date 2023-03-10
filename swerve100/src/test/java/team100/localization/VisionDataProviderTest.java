@@ -87,7 +87,7 @@ public class VisionDataProviderTest {
                         { 0 },
                         { 0 },
                         { 1 } });
-        Translation3d tagTranslationInCameraCoords = PoseEstimationHelper.blipToNWU(blip);
+        Translation3d tagTranslationInCameraCoords = PoseEstimationHelper.blipToTranslation(blip);
         Rotation3d tagRotationInCameraCoords = PoseEstimationHelper.tagRotationInRobotCoordsFromGyro(
                 tagInFieldCoords.getRotation(),
                 cameraRotationInFieldCoords);
