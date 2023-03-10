@@ -569,7 +569,7 @@ public class PanTiltOffsetTest {
     public void testSemiRealisticExampleWithBlips() {
         double rot = Math.sqrt(2) / 2;
         Blip blip = new Blip(5,
-                new double[][] { // pure tilt note we don't actually use this
+                new double[][] { // pure tilt
                         { 1, 0, 0 },
                         { 0, rot, -rot },
                         { 0, rot, rot } },

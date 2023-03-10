@@ -11,6 +11,7 @@ import org.msgpack.jackson.dataformat.MessagePackFactory;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import edu.wpi.first.cscore.CameraServerCvJNI;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
@@ -73,6 +74,9 @@ public class VisionDataProvider extends SubsystemBase implements TableEventListe
             SwerveDrivePoseEstimator poseEstimator,
             Supplier<Pose2d> getPose)
             throws IOException {
+
+        // load the JNI (used by PoseEstimationHelper)
+        CameraServerCvJNI.forceLoad();
 
         this.getPose = getPose;
         this.poseEstimator = poseEstimator;

@@ -14,6 +14,8 @@ import edu.wpi.first.math.numbers.N3;
 
 /**
  * Static methods used to interpret camera input.
+ * 
+ * TODO: make these not static
  */
 public class PoseEstimationHelper {
 
