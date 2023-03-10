@@ -81,10 +81,10 @@ public class SwerveDriveSubsystem extends SubsystemBase {
     public final double kSlowSpeedMetersPerSecond;
     public final double kSlowAngularSpeedRadiansPerSecond;
 
-    private final SwerveModule m_frontLeft;
-    private final SwerveModule m_frontRight;
-    private final SwerveModule m_rearLeft;
-    private final SwerveModule m_rearRight;
+    public final SwerveModule m_frontLeft;
+    public final SwerveModule m_frontRight;
+    public final SwerveModule m_rearLeft;
+    public final SwerveModule m_rearRight;
 
     // The gyro sensor. We have a Nav-X.
     public final AHRS m_gyro;
