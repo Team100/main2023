@@ -229,9 +229,9 @@ public class RobotContainer implements Sendable {
         // new IshanAutonomous(m_robotDrive)
         // );
 
-        return new VasiliAutonomous(m_robotDrive);
+        // return new VasiliAutonomous(m_robotDrive);
 
-        // return new SanjanAutonomous(m_robotDrive);
+        return new SanjanAutonomous(m_robotDrive, armController);
     }
 
     public void runTest() {

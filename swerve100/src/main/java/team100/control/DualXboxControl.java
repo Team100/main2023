@@ -199,7 +199,7 @@ public class DualXboxControl implements Sendable {
     }
 
     public void defense(Defense defense) {
-        controller1.leftBumper().whileTrue(defense);
+        // controller1.leftBumper().whileTrue(defense);
     }
 
     // TODO: remove this

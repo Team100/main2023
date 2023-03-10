@@ -4,25 +4,34 @@
 
 package frc.robot.autonomous;
 
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.wpilibj2.command.ParallelDeadlineGroup;
+import edu.wpi.first.wpilibj2.command.ParallelRaceGroup;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.commands.AutoLevel;
+import frc.robot.commands.GoalOffset;
+import frc.robot.commands.Arm.ArmTrajectory;
 import frc.robot.subsystems.SwerveDriveSubsystem;
+import frc.robot.subsystems.Arm.ArmController;
+import frc.robot.subsystems.Arm.ArmPosition;
 
 // NOTE:  Consider using this command inline, rather than writing a subclass.  For more
 // information, see:
 // https://docs.wpilib.org/en/stable/docs/software/commandbased/convenience-features.html
 public class SanjanAutonomous extends SequentialCommandGroup {
   /** Creates a new autonomous. */
-  public SanjanAutonomous(SwerveDriveSubsystem m_robotDrive) {
+  public SanjanAutonomous(SwerveDriveSubsystem m_robotDrive, ArmController arm) {
     // Add your commands in the addCommands() call, e.g.
     // addCommands(new FooCommand(), new BarCommand());
+
+    //TODO make an isFinished for arm trajectory
     addCommands(
-    //   new Forward(m_robotDrive, 0.5),
-    //   new WaitCommand(5),
-    //   new MoveToAprilTag(m_robotDrive, 3)
-    //   new Forward(m_robotDrive, 4)
-    // new Forward(m_robotDrive, 1),
-     new AutoLevel(m_robotDrive.m_gyro, m_robotDrive)
+        new ParallelDeadlineGroup(new WaitCommand(2), new ArmTrajectory(ArmPosition.HIGH, arm)),
+        new WaitCommand(2),
+        new ParallelRaceGroup(new ArmTrajectory(ArmPosition.SAFE, arm), new WaitCommand(1.5)),
+        new DriveToWaypoint2( new Pose2d(5.2, 6.9, new Rotation2d()), 0.0, () -> GoalOffset.center, m_robotDrive)
     );
     
 
