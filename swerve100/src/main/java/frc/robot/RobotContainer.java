@@ -43,6 +43,7 @@ import frc.robot.commands.Arm.SetCubeMode;
 import frc.robot.commands.Manipulator.Close;
 import frc.robot.commands.Manipulator.Home;
 import frc.robot.commands.Manipulator.Open;
+import frc.robot.subsystems.AutonSelect;
 import frc.robot.subsystems.Manipulator;
 import frc.robot.subsystems.SwerveDriveSubsystem;
 import frc.robot.subsystems.Arm.ArmController;
@@ -78,6 +79,10 @@ public class RobotContainer implements Sendable {
     private final DriveWithHeading driveWithHeading;
     private final DriveRotation driveRotation;
     private final Defense defense;
+    private final ResetRotation resetRotation0;
+    private final ResetRotation resetRotation180;
+
+
 
     private final DriveToAprilTag driveToSubstation, driveToLeftGrid, driveToCenterGrid, driveToRightGrid;
 
@@ -133,7 +138,7 @@ public class RobotContainer implements Sendable {
         armSubstation = new ArmTrajectory(ArmPosition.SUB, armController);
 
         ResetRotation resetRotation = new ResetRotation(m_robotDrive, new Rotation2d());
-        autoLevel = new AutoLevel(m_robotDrive.m_gyro, m_robotDrive);
+        autoLevel = new AutoLevel(true, m_robotDrive.m_gyro, m_robotDrive);
 
         ResetPose resetPose = new ResetPose(m_robotDrive, 0, 0, 0);
 
@@ -148,6 +153,10 @@ public class RobotContainer implements Sendable {
         setConeMode = new SetConeMode(armController);
 
         driveSlow = new DriveSlow(m_robotDrive, control);
+
+        resetRotation0 = new ResetRotation(m_robotDrive, new Rotation2d(0));
+
+        resetRotation180 = new ResetRotation(m_robotDrive, Rotation2d.fromDegrees(180));
 
 
         driveWithHeading = new DriveWithHeading(
@@ -164,15 +173,15 @@ public class RobotContainer implements Sendable {
 
         manualArm = new ManualArm(armController, control.getController());
 
-        control.resetRotation(resetRotation);
-        control.autoLevel(autoLevel);
-        control.resetPose(resetPose);
+        
         control.driveToLeftGrid(driveToLeftGrid);
         control.driveToCenterGrid(driveToCenterGrid);
         control.driveToRightGrid(driveToRightGrid);
         control.driveToSubstation(driveToSubstation);
         control.defense(defense);
-        control.resetPose(resetPose);
+        
+        control.resetRotation0(resetRotation0);
+        control.resetRotation180(resetRotation180);
 
         
         control.armHigh(armHigh);
@@ -204,8 +213,6 @@ public class RobotContainer implements Sendable {
 
         m_robotDrive.setDefaultCommand(driveWithHeading);
 
-        control.driveRotation(driveRotation);
-
         // Controller 1 triggers => manipulator open/close
         gripManually = new GripManually(
                 control::openSpeed,
@@ -229,9 +236,9 @@ public class RobotContainer implements Sendable {
         // new IshanAutonomous(m_robotDrive)
         // );
 
-        return new VasiliAutonomous(m_robotDrive);
+        // return new VasiliAutonomous(m_robotDrive);
 
-        // return new SanjanAutonomous(m_robotDrive);
+        return new SanjanAutonomous(AutonSelect.RED1, m_robotDrive, armController, manipulator);
     }
 
     public void runTest() {

@@ -21,9 +21,9 @@ public class moveFromStartingPoseToGamePiece extends TrajectoryCommand {
     SmartDashboard.putData("Move From Starting Pose To Game Piece", this);
   }
   public static moveFromStartingPoseToGamePiece newMoveFromStartingPoseToGamePiece(SwerveDriveSubsystem m_robotDrive,
-   Pose2d startingPose, Pose2d targetPose){
-    System.out.println(startingPose);
-    System.out.println(targetPose);
+   Pose2d startingPose, Pose2d targetPose, Supplier<Rotation2d> desiredRotation){
+    // System.out.println(startingPose);
+    // System.out.println(targetPose);
     TrajectoryConfig trajectoryConfig = new TrajectoryConfig(
         5,
     4)
@@ -35,7 +35,7 @@ public class moveFromStartingPoseToGamePiece extends TrajectoryCommand {
             targetPose,
             trajectoryConfig);
         // System.out.println(exampleTrajectory);
-    return new moveFromStartingPoseToGamePiece(m_robotDrive, exampleTrajectory, () -> new Rotation2d());
+    return new moveFromStartingPoseToGamePiece(m_robotDrive, exampleTrajectory, () -> desiredRotation.get());
   }
 
   @Override
