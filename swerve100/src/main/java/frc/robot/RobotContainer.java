@@ -79,6 +79,10 @@ public class RobotContainer implements Sendable {
     private final DriveWithHeading driveWithHeading;
     private final DriveRotation driveRotation;
     private final Defense defense;
+    private final ResetRotation resetRotation0;
+    private final ResetRotation resetRotation180;
+
+
 
     private final DriveToAprilTag driveToSubstation, driveToLeftGrid, driveToCenterGrid, driveToRightGrid;
 
@@ -150,6 +154,10 @@ public class RobotContainer implements Sendable {
 
         driveSlow = new DriveSlow(m_robotDrive, control);
 
+        resetRotation0 = new ResetRotation(m_robotDrive, new Rotation2d(0));
+
+        resetRotation180 = new ResetRotation(m_robotDrive, Rotation2d.fromDegrees(180));
+
 
         driveWithHeading = new DriveWithHeading(
                 m_robotDrive,
@@ -165,15 +173,15 @@ public class RobotContainer implements Sendable {
 
         manualArm = new ManualArm(armController, control.getController());
 
-        control.resetRotation(resetRotation);
-        control.autoLevel(autoLevel);
-        control.resetPose(resetPose);
+        
         control.driveToLeftGrid(driveToLeftGrid);
         control.driveToCenterGrid(driveToCenterGrid);
         control.driveToRightGrid(driveToRightGrid);
         control.driveToSubstation(driveToSubstation);
         control.defense(defense);
-        control.resetPose(resetPose);
+        
+        control.resetRotation0(resetRotation0);
+        control.resetRotation180(resetRotation180);
 
         
         control.armHigh(armHigh);
@@ -204,8 +212,6 @@ public class RobotContainer implements Sendable {
                 m_robotDrive);
 
         m_robotDrive.setDefaultCommand(driveWithHeading);
-
-        control.driveRotation(driveRotation);
 
         // Controller 1 triggers => manipulator open/close
         gripManually = new GripManually(

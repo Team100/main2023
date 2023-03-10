@@ -189,9 +189,9 @@ public class DriveToWaypoint3 extends CommandBase {
         // isFinished = true;
         // }
 
-        if(count >= 60){
-            isFinished = true;
-        }
+        // if(count >= 60){
+        //     isFinished = true;
+        // }
     }
 
     // public double getDesiredX() {

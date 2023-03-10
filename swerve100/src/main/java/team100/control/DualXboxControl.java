@@ -64,16 +64,12 @@ public class DualXboxControl implements Sendable {
         controller0.y().whileTrue(command);
     };
 
-    public void resetRotation(ResetRotation command) {
-        // controller0.rightBumper().onTrue(command);
+    public void resetRotation0(ResetRotation command) {
+        controller0.start().onTrue(command); //TODO change these vals to middle buttons 
     }
 
-    // public void autoLevel(frc.robot.commands.autoLevel command) {
-    //     // controller0.y().whileTrue(command);
-    // }
-
-    public void driveRotation(DriveRotation command) {
-        // controller0.rightBumper().whileTrue(command);
+    public void resetRotation180(ResetRotation command) {
+       // controller0.().onTrue(command); //TODO change these vals to middle buttons
     }
 
     /** @return [-1,1] */
@@ -82,50 +78,14 @@ public class DualXboxControl implements Sendable {
     }
 
     /** @return [-1,1] */
-    public double xLimited() {
-        // if(Math.abs(xSpeed()) >= 0.1){
-        // if(xSpeed() < 0){
-        // return -0.1;
-        // } else {
-        // return 0.1;
-        // }
-        // }
-
-        return xSpeed() / 10;
-    }
-
-    /** @return [-1,1] */
     public double ySpeed() {
         return -1.0 * controller0.getRightX();
     }
 
-    public double yLimited() {
-        if (Math.abs(ySpeed()) >= 0.1) {
-            if (ySpeed() < 0) {
-                return -0.1;
-            } else {
-                return 0.1;
-            }
-        }
-
-        return 0;
-    }
 
     /** @return [-1,1] */
     public double rotSpeed() {
         return -1.0 * controller0.getLeftX();
-    }
-
-    public double rotLimited() {
-        if (Math.abs(rotSpeed()) >= 0.1) {
-            if (rotSpeed() < 0) {
-                return -0.1;
-            } else {
-                return 0.1;
-            }
-        }
-
-        return 0;
     }
 
     public void driveSlow(DriveSlow command) {
@@ -162,6 +122,10 @@ public class DualXboxControl implements Sendable {
         return GoalOffset.center;
     }
 
+    public void defense(Defense defense) {
+        controller0.leftBumper().whileTrue(defense);
+    }
+
     ///////////////////////////////
     //
     // OPERATOR: arm and manipulator controls
@@ -184,22 +148,6 @@ public class DualXboxControl implements Sendable {
     /** @return [-1,1] */
     public double upperSpeed() {
         return controller1.getLeftY();
-    }
-
-    // public void driveToHigh(DriveToSetpoint command) {
-    //     controller1.y().whileTrue(command);
-    // }
-
-    public void autoLevel(AutoLevel command) {
-        controller1.y().whileTrue(command);
-    }
-
-    public void driveToSafe(SequentialCommandGroup command) {
-        controller1.rightBumper().whileTrue(command);
-    }
-
-    public void defense(Defense defense) {
-        // controller1.leftBumper().whileTrue(defense);
     }
 
     // TODO: remove this
@@ -239,9 +187,7 @@ public class DualXboxControl implements Sendable {
         controller1.a().onTrue(command);
     }
 
-    public void resetPose(ResetPose command) {
-        controller0.leftBumper().onTrue(command);
-    }
+    
 
     @Override
     public void initSendable(SendableBuilder builder) {
@@ -250,8 +196,8 @@ public class DualXboxControl implements Sendable {
         builder.addDoubleProperty("right x", () -> controller0.getRightX(), null);
         builder.addDoubleProperty("left x", () -> controller0.getLeftX(), null);
 
-        builder.addDoubleProperty("x limited", () -> xLimited(), null);
-        builder.addDoubleProperty("y limtied", () -> yLimited(), null);
-        builder.addDoubleProperty("rot Limited", () -> rotLimited(), null);
+        // builder.addDoubleProperty("x limited", () -> xLimited(), null);
+        // builder.addDoubleProperty("y limtied", () -> yLimited(), null);
+        // builder.addDoubleProperty("rot Limited", () -> rotLimited(), null);
     }
 }
