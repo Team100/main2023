@@ -11,6 +11,7 @@ import org.msgpack.jackson.dataformat.MessagePackFactory;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import edu.wpi.first.cscore.CameraServerCvJNI;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
@@ -38,6 +39,20 @@ import team100.indicator.GoNoGoIndicator;
  * Extracts robot pose estimates from camera input.
  */
 public class VisionDataProvider extends SubsystemBase implements TableEventListener {
+    /**
+     * If the tag is closer than this threshold, then the camera's estimate of tag
+     * rotation might be more accurate than the gyro, so we use the camera's
+     * estimate of tag rotation to update the robot pose. If the tag is further away
+     * than this, then the camera-derived rotation is probably less accurate than
+     * the gyro, so we use the gyro instead.
+     * 
+     * Set this to zero to disable tag-derived rotation and always use the gyro.
+     * 
+     * Set this to some large number (e.g. 100) to disable gyro-derived rotation and
+     * always use the camera.
+     */
+    private static final double kTagRotationBeliefThresholdMeters = 2.0;
+
     private final Supplier<Pose2d> getPose;
     private final DoublePublisher timestamp_publisher;
     private final ObjectMapper object_mapper;
@@ -59,6 +74,9 @@ public class VisionDataProvider extends SubsystemBase implements TableEventListe
             SwerveDrivePoseEstimator poseEstimator,
             Supplier<Pose2d> getPose)
             throws IOException {
+
+        // load the JNI (used by PoseEstimationHelper)
+        CameraServerCvJNI.forceLoad();
 
         this.getPose = getPose;
         this.poseEstimator = poseEstimator;
@@ -161,7 +179,11 @@ public class VisionDataProvider extends SubsystemBase implements TableEventListe
                     0, 0, gyroRotation.getRadians());
 
             Pose3d robotPoseInFieldCoords = PoseEstimationHelper.getRobotPoseInFieldCoords(
-                    cameraInRobotCoordinates, tagInFieldCordsOptional.get(), b, robotRotationInFieldCoordsFromGyro);
+                    cameraInRobotCoordinates,
+                    tagInFieldCordsOptional.get(),
+                    b,
+                    robotRotationInFieldCoordsFromGyro,
+                    kTagRotationBeliefThresholdMeters);
             // Pose2d robotInFieldCords = robotPoseInFieldCoords.toPose2d();
             Translation2d robotTranslationInFieldCoords = robotPoseInFieldCoords.getTranslation().toTranslation2d();
 
