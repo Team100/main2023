@@ -2,8 +2,11 @@ package team100.localization;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import java.io.IOException;
+
 import org.junit.jupiter.api.Test;
 
+import edu.wpi.first.cscore.CameraServerCvJNI;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
@@ -11,6 +14,11 @@ import edu.wpi.first.math.geometry.Translation3d;
 
 public class PoseEstimationHelperTest {
     private static final double kDelta = 0.01;
+
+    public PoseEstimationHelperTest() throws IOException {
+        // load the JNI
+        CameraServerCvJNI.forceLoad();
+    }
 
     @Test
     public void testGetRobotPoseInFieldCoords5() {
@@ -80,6 +88,59 @@ public class PoseEstimationHelperTest {
         assertEquals(3, nwuTranslation.getX(), kDelta);
         assertEquals(2, nwuTranslation.getY(), kDelta);
         assertEquals(1, nwuTranslation.getZ(), kDelta);
+    }
+
+    @Test
+    public void testBlipToRotation() {
+        { // identity rotation
+            Blip blip = new Blip(5,
+                    new double[][] {
+                            { 1, 0, 0 },
+                            { 0, 1, 0 },
+                            { 0, 0, 1 } },
+                    new double[][] {
+                            { -2 },
+                            { -1 },
+                            { 3 } });
+            Rotation3d nwuRotation = PoseEstimationHelper.blipToRotation(blip);
+            assertEquals(0, nwuRotation.getX(), kDelta);
+            assertEquals(0, nwuRotation.getY(), kDelta);
+            assertEquals(0, nwuRotation.getZ(), kDelta);
+        }
+        {
+            double rot = Math.sqrt(2) / 2;
+            Blip blip = new Blip(5,
+                    new double[][] { // tilt up in camera frame = +x rot
+                            { 1, 0, 0 },
+                            { 0, rot, -rot },
+                            { 0, rot, rot } },
+                    new double[][] { // one meter range (Z forward)
+                            { 0 },
+                            { Math.sqrt(2) / 2 },
+                            { Math.sqrt(2) / 2 } });
+            Rotation3d nwuRotation = PoseEstimationHelper.blipToRotation(blip);
+            // tilt up in NWU is -y
+            assertEquals(0, nwuRotation.getX(), kDelta);
+            assertEquals(-Math.PI / 4, nwuRotation.getY(), kDelta);
+            assertEquals(0, nwuRotation.getZ(), kDelta);
+        }
+        {
+            double rot = Math.sqrt(2) / 2;
+            Blip blip = new Blip(5,
+                    new double[][] { // pan right in camera frame = +y rot
+                            { rot, 0, rot },
+                            { 0, 1, 0 },
+                            { -rot, 0, rot } },
+                    new double[][] { // one meter range (Z forward)
+                            { 0 },
+                            { Math.sqrt(2) / 2 },
+                            { Math.sqrt(2) / 2 } });
+            Rotation3d nwuRotation = PoseEstimationHelper.blipToRotation(blip);
+            // pan right in NWU is -z
+            assertEquals(0, nwuRotation.getX(), kDelta);
+            assertEquals(0, nwuRotation.getY(), kDelta);
+            assertEquals(-Math.PI / 4, nwuRotation.getZ(), kDelta);
+        }
     }
 
     /**
