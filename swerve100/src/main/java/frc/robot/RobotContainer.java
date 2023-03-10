@@ -43,6 +43,7 @@ import frc.robot.commands.Arm.SetCubeMode;
 import frc.robot.commands.Manipulator.Close;
 import frc.robot.commands.Manipulator.Home;
 import frc.robot.commands.Manipulator.Open;
+import frc.robot.subsystems.AutonSelect;
 import frc.robot.subsystems.Manipulator;
 import frc.robot.subsystems.SwerveDriveSubsystem;
 import frc.robot.subsystems.Arm.ArmController;
@@ -133,7 +134,7 @@ public class RobotContainer implements Sendable {
         armSubstation = new ArmTrajectory(ArmPosition.SUB, armController);
 
         ResetRotation resetRotation = new ResetRotation(m_robotDrive, new Rotation2d());
-        autoLevel = new AutoLevel(m_robotDrive.m_gyro, m_robotDrive);
+        autoLevel = new AutoLevel(true, m_robotDrive.m_gyro, m_robotDrive);
 
         ResetPose resetPose = new ResetPose(m_robotDrive, 0, 0, 0);
 
@@ -231,7 +232,7 @@ public class RobotContainer implements Sendable {
 
         // return new VasiliAutonomous(m_robotDrive);
 
-        return new SanjanAutonomous(m_robotDrive, armController);
+        return new SanjanAutonomous(AutonSelect.RED1, m_robotDrive, armController, manipulator);
     }
 
     public void runTest() {
