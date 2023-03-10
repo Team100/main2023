@@ -2,6 +2,8 @@ package frc.robot;
 
 import java.io.IOException;
 
+import edu.wpi.first.cameraserver.CameraServer;
+import edu.wpi.first.cscore.UsbCamera;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.util.WPILibVersion;
@@ -12,6 +14,8 @@ import team100.config.Identity;
 public class Robot extends TimedRobot {
     private Command m_autonomousCommand;
 
+    UsbCamera manipulatorCamera;
+
     private RobotContainer m_robotContainer;
 
     @Override
@@ -20,6 +24,9 @@ public class Robot extends TimedRobot {
         System.out.printf("RoboRIO serial number: %s\n", RobotController.getSerialNumber());
         System.out.printf("Identity: %s\n", Identity.get().name());
 
+        manipulatorCamera = CameraServer.startAutomaticCapture(0);
+        manipulatorCamera.setResolution(240, 160);
+        manipulatorCamera.setFPS(15);
         try {
             m_robotContainer = new RobotContainer();
         } catch (IOException e) {
