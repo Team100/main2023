@@ -41,6 +41,9 @@ public class Robot extends TimedRobot {
 
     @Override
     public void disabledInit() {
+        // m_robotContainer.ledStop();
+        m_robotContainer.ledStart();
+
     }
 
     @Override
@@ -63,6 +66,7 @@ public class Robot extends TimedRobot {
     @Override
     public void teleopInit() {
         System.out.println("teleopInit");
+        // m_robotContainer.ledStart();
         if (m_autonomousCommand != null) {
             m_autonomousCommand.cancel();
         }

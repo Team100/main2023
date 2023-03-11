@@ -55,12 +55,12 @@ public class AutoLevel extends CommandBase {
             drivetrain.drive(-0.3, 0, 0, true);
         }
     } else {
-        if(drivetrain.getPose().getX() >= 1.4){ //TODO real number needed TOTAL GUESS
+        if(drivetrain.getPose().getX() >= 3.277){ //TODO real number needed TOTAL GUESS
             double Roll = m_gyro.getRoll();
             double Pitch = m_gyro.getPitch();
                 // System.out.println(Roll);
-                double driveRollAmount = MathUtil.clamp(0.005 * Roll, -0.08, 0.08);
-                double drivePitchAmount = MathUtil.clamp(0.005   * Pitch, -0.08, 0.08);
+                double driveRollAmount = MathUtil.clamp(0.004 * Roll, -0.08, 0.08);
+                double drivePitchAmount = MathUtil.clamp(0.004   * Pitch, -0.08, 0.08);
                 System.out.println(drivePitchAmount);
         
                if(Math.abs(Roll) > 2.5 || Math.abs(Pitch) > 2.5){   
@@ -73,6 +73,21 @@ public class AutoLevel extends CommandBase {
             drivetrain.drive(0.3, 0, 0, true);
         }
     }
+
+
+    // double Roll = m_gyro.getRoll();
+    //         double Pitch = m_gyro.getPitch();
+    //             // System.out.println(Roll);
+    //             double driveRollAmount = MathUtil.clamp(0.004 * Roll, -0.08, 0.08);
+    //             double drivePitchAmount = MathUtil.clamp(0.004   * Pitch, -0.08, 0.08);
+    //             System.out.println(drivePitchAmount);
+        
+    //            if(Math.abs(Roll) > 2.5 || Math.abs(Pitch) > 2.5){   
+    //             count = 0;
+    //             drivetrain.drive(drivePitchAmount, -0, 0, false);     
+    //            } else{
+    //             count++;
+    //            }
 
    
 

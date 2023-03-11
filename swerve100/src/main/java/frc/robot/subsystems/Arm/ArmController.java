@@ -178,7 +178,7 @@ public class ArmController extends SubsystemBase {
      * @return lower arm angle
      */
     public double getLowerArm() {
-        double x = (lowerArmEncoder.getAbsolutePosition() - 0.617) * 360;
+        double x = (lowerArmEncoder.getAbsolutePosition() - 0.480530) * 360;
         double formatted = x;
         // * Math.PI / 180;
         return (-1 * formatted) * Math.PI / 180;

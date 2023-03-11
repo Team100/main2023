@@ -2,35 +2,38 @@
 // Open Source Software; you can modify and/or share it under the terms of
 // the WPILib BSD license file in the root directory of this project.
 
-package frc.robot.commands.Arm;
+package frc.robot.commands;
 
 import edu.wpi.first.wpilibj2.command.CommandBase;
-import frc.robot.subsystems.SwerveDriveSubsystem;
+import frc.robot.subsystems.AutonGamePiece;
+import frc.robot.subsystems.AutonSelect;
 import frc.robot.subsystems.Arm.ArmController;
 
-public class SetConeMode extends CommandBase {
-  /** Creates a new SetConeMode. */
-  ArmController m_arm;
-  SwerveDriveSubsystem m_robotDrive;
+public class SelectGamePiece extends CommandBase {
+  /** Creates a new SelectGamePiece. */
 
-  boolean done;
-  
-  public SetConeMode(ArmController arm, SwerveDriveSubsystem robotDrive) {
+  AutonGamePiece gamePiece;
+  ArmController arm;
+  public boolean done = false;
+  public SelectGamePiece(AutonGamePiece gP, ArmController a) {
     // Use addRequirements() here to declare subsystem dependencies.
-
-    m_arm = arm;
-    m_robotDrive = robotDrive;
-
-    addRequirements(m_arm);
+    gamePiece = gP;
+    arm = a;
+    // addRequirements(arm);
   }
 
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-    m_arm.cubeMode = false;
-    m_robotDrive.visionDataProvider.indicator.cone();
+
+    if(gamePiece == AutonGamePiece.CONE){
+        arm.cubeMode = false;
+    } else {
+        arm.cubeMode = true;
+    }
 
     done = true;
+    
   }
 
   // Called every time the scheduler runs while the command is scheduled.

@@ -34,6 +34,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.subsystems.SwerveDriveSubsystem;
 import team100.config.Camera;
 import team100.indicator.GoNoGoIndicator;
+import team100.indicator.OnboardIndicator;
 
 /**
  * Extracts robot pose estimates from camera input.
@@ -66,7 +67,7 @@ public class VisionDataProvider extends SubsystemBase implements TableEventListe
 
     Pose2d currentRobotinFieldCoords;
 
-    private final GoNoGoIndicator indicator;
+    public final GoNoGoIndicator indicator;
     private Pose2d lastRobotInFieldCoords;
 
     public VisionDataProvider(
@@ -80,7 +81,8 @@ public class VisionDataProvider extends SubsystemBase implements TableEventListe
 
         this.getPose = getPose;
         this.poseEstimator = poseEstimator;
-        indicator = new GoNoGoIndicator(8); // 8 hz = flash fast
+        // indicator = new GoNoGoIndicator(1); // 8 hz = flash fast
+        indicator = new GoNoGoIndicator(1);
 
         currentRobotinFieldCoords = new Pose2d();
 

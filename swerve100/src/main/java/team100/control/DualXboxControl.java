@@ -7,6 +7,7 @@ import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import frc.robot.autonomous.DriveToWaypoint2;
 import frc.robot.commands.DriveRotation;
 import frc.robot.commands.DriveSlow;
@@ -52,6 +53,10 @@ public class DualXboxControl implements Sendable {
         controller0.x().whileTrue(command);
     };
 
+    public void autoLevel(AutoLevel command){
+        // controller0.x().whileTrue(command);
+    }
+
     public void driveToCenterGrid(DriveToWaypoint2 command) {
         controller0.a().whileTrue(command);
     };
@@ -65,11 +70,13 @@ public class DualXboxControl implements Sendable {
     };
 
     public void resetRotation0(ResetRotation command) {
-        controller0.start().onTrue(command); //TODO change these vals to middle buttons 
+        JoystickButton startButton = new JoystickButton(controller0.getHID(), 7);
+        startButton.onTrue(command); //TODO change these vals to middle buttons 
     }
 
     public void resetRotation180(ResetRotation command) {
-       // controller0.().onTrue(command); //TODO change these vals to middle buttons
+        JoystickButton startButton = new JoystickButton(controller0.getHID(), 8);
+        startButton.onTrue(command); //TODO change these vals to middle buttons 
     }
 
     /** @return [-1,1] */
@@ -89,7 +96,7 @@ public class DualXboxControl implements Sendable {
     }
 
     public void driveSlow(DriveSlow command) {
-        controller0.rightBumper().whileTrue(command);
+        controller0.leftBumper().whileTrue(command);
     }
 
     // TODO: remove this
@@ -123,7 +130,7 @@ public class DualXboxControl implements Sendable {
     }
 
     public void defense(Defense defense) {
-        controller0.leftBumper().whileTrue(defense);
+        controller0.rightBumper().whileTrue(defense);
     }
 
     ///////////////////////////////
