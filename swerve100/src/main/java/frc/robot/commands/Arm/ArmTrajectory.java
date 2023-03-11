@@ -74,14 +74,14 @@ public class ArmTrajectory extends CommandBase {
 
         // Cone
         InverseKinematicsAngle highGoalCone = new InverseKinematicsAngle(1.05, 0.58); // tuned for our mock up
-        InverseKinematicsAngle midGoalCone = new InverseKinematicsAngle(1.05, 0.58); //not real
-        InverseKinematicsAngle lowGoalCone = new InverseKinematicsAngle(1.05, 0.58); // not real
-        InverseKinematicsAngle subCone = new InverseKinematicsAngle(1.42, -0.50); // tuned for our mock up
+        InverseKinematicsAngle midGoalCone = new InverseKinematicsAngle(1.53, 0.18); //not real
+        InverseKinematicsAngle lowGoalCone = new InverseKinematicsAngle(2.21, 0); // not real
+        InverseKinematicsAngle subCone = new InverseKinematicsAngle(1.56, -0.02); // tuned for our mock up
 
         // Cube
-        InverseKinematicsAngle highGoalCube = new InverseKinematicsAngle(2.02, 0); //not real
-        InverseKinematicsAngle midGoalCube = new InverseKinematicsAngle(2.02, 0); //not real
-        InverseKinematicsAngle lowGoalCube = new InverseKinematicsAngle(2.02, 0); //not real
+        InverseKinematicsAngle highGoalCube = new InverseKinematicsAngle(1.41,0.56); //not real
+        InverseKinematicsAngle midGoalCube = new InverseKinematicsAngle(1.91, 0.19); //not real
+        InverseKinematicsAngle lowGoalCube = new InverseKinematicsAngle(2.51, 0.33); //not real
         InverseKinematicsAngle subCube = new InverseKinematicsAngle(2.02, 0);//not real
 
         InverseKinematicsAngle safeGoal = m_arm.calculate(0.2, 0.125);

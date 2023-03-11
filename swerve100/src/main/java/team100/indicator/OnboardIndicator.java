@@ -201,4 +201,11 @@ public class OnboardIndicator {
             active = State.NO_FIX;
         }
     }
+
+    public void close() {
+        led.close();
+    }
+
+    // public void start() {
+    // }
 }

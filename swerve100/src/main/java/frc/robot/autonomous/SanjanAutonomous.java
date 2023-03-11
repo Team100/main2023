@@ -39,7 +39,7 @@ public class SanjanAutonomous extends SequentialCommandGroup {
 
     if(autonProcedure == AutonSelect.RED1){ //origin is at right 
         addCommands(
-            new SetConeMode(arm),
+            new SetConeMode(arm, m_robotDrive),
             new ResetRotation(m_robotDrive, Rotation2d.fromDegrees(180)),
             new WaitCommand(0.5),
             new ParallelDeadlineGroup(new WaitCommand(2), new ArmTrajectory(ArmPosition.HIGH, arm)),
@@ -61,7 +61,7 @@ public class SanjanAutonomous extends SequentialCommandGroup {
         );
     } else if (autonProcedure == AutonSelect.RED3){
         addCommands(
-            new SetConeMode(arm),
+            new SetConeMode(arm, m_robotDrive),
             new ResetRotation(m_robotDrive, Rotation2d.fromDegrees(180)),
             new WaitCommand(0.5),
             new ParallelDeadlineGroup(new WaitCommand(2), new ArmTrajectory(ArmPosition.HIGH, arm)),
@@ -83,7 +83,7 @@ public class SanjanAutonomous extends SequentialCommandGroup {
         );    
     } else if (autonProcedure == AutonSelect.RED2){
         addCommands(
-            new SetCubeMode(arm),
+            new SetCubeMode(arm, m_robotDrive),
             new ResetRotation(m_robotDrive, Rotation2d.fromDegrees(180)),
             new WaitCommand(0.5),
             new ParallelDeadlineGroup(new WaitCommand(2), new ArmTrajectory(ArmPosition.HIGH, arm)),
@@ -97,29 +97,32 @@ public class SanjanAutonomous extends SequentialCommandGroup {
         );    
     } else if (autonProcedure == AutonSelect.BLUE1){ //origin is at the right
         addCommands(
-            new SetConeMode(arm),
+            new SetCubeMode(arm, m_robotDrive),
             new ResetRotation(m_robotDrive, Rotation2d.fromDegrees(180)),
-            new WaitCommand(0.5),
+            // new WaitCommand(0.5),
             new ParallelDeadlineGroup(new WaitCommand(2), new ArmTrajectory(ArmPosition.HIGH, arm)),
             new WaitCommand(1),
             new ParallelDeadlineGroup(new WaitCommand(0.5), new Release(m_manipulator)),
             new ParallelDeadlineGroup(new WaitCommand(1), new Open(m_manipulator)),
             new WaitCommand(2),
-            new ParallelRaceGroup(new ArmTrajectory(ArmPosition.SAFE, arm), new WaitCommand(1.5)),
+            new ParallelRaceGroup(new ArmTrajectory(ArmPosition.SAFE, arm), new WaitCommand(3)),
             new WaitCommand(1),
-            new DriveToWaypoint3(new Pose2d(1.4, 4.9, Rotation2d.fromDegrees(-180)), 0, m_robotDrive), // place holder to get out of community
-            new WaitCommand(2),
-            new DriveToWaypoint3( new Pose2d(5.2, 4.9, Rotation2d.fromDegrees(-180)), 0.0, m_robotDrive), // place holder for corner point for community
-            new WaitCommand(2),
-            new Rotate(m_robotDrive, 0),
-            new WaitCommand(2),
-            new DriveToWaypoint3( new Pose2d(5.2, 4.9, Rotation2d.fromDegrees(-180)), 0.0, m_robotDrive), // place holder for final point in front of charge station
-            new WaitCommand(2),
-            new AutoLevel(true, m_robotDrive.m_gyro, m_robotDrive)
+            new ResetRotation(m_robotDrive, Rotation2d.fromDegrees(180)),
+            new AutoLevel(false, m_robotDrive.m_gyro, m_robotDrive)
+
+            // new DriveToWaypoint3(new Pose2d(1.4, 4.9, Rotation2d.fromDegrees(-180)), 0, m_robotDrive), // place holder to get out of community
+            // new WaitCommand(2),
+            // new DriveToWaypoint3( new Pose2d(5.2, 4.9, Rotation2d.fromDegrees(-180)), 0.0, m_robotDrive), // place holder for corner point for community
+            // new WaitCommand(2),
+            // new Rotate(m_robotDrive, 0),
+            // new WaitCommand(2),
+            // new DriveToWaypoint3( new Pose2d(5.2, 4.9, Rotation2d.fromDegrees(-180)), 0.0, m_robotDrive), // place holder for final point in front of charge station
+            // new WaitCommand(2),
+            // new AutoLevel(true, m_robotDrive.m_gyro, m_robotDrive)
         );    
     } else if (autonProcedure == AutonSelect.BLUE3){ //origin is at the right
         addCommands(
-            new SetConeMode(arm),
+            new SetConeMode(arm, m_robotDrive),
             new ResetRotation(m_robotDrive, Rotation2d.fromDegrees(180)),
             new WaitCommand(0.5),
             new ParallelDeadlineGroup(new WaitCommand(2), new ArmTrajectory(ArmPosition.HIGH, arm)),
@@ -141,7 +144,7 @@ public class SanjanAutonomous extends SequentialCommandGroup {
         );    
     } else if (autonProcedure == AutonSelect.BLUE2){
         addCommands(
-            new SetCubeMode(arm),
+            new SetCubeMode(arm, m_robotDrive),
             new ResetRotation(m_robotDrive, Rotation2d.fromDegrees(180)),
             new WaitCommand(0.5),
             new ParallelDeadlineGroup(new WaitCommand(2), new ArmTrajectory(ArmPosition.HIGH, arm)),

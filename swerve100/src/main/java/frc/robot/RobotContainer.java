@@ -23,6 +23,7 @@ import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
+import frc.robot.autonomous.Autonomous;
 import frc.robot.autonomous.Circle;
 import frc.robot.autonomous.DriveToAprilTag;
 import frc.robot.autonomous.DriveToWaypoint2;
@@ -43,6 +44,7 @@ import frc.robot.commands.Arm.SetCubeMode;
 import frc.robot.commands.Manipulator.Close;
 import frc.robot.commands.Manipulator.Home;
 import frc.robot.commands.Manipulator.Open;
+import frc.robot.subsystems.AutonGamePiece;
 import frc.robot.subsystems.AutonSelect;
 import frc.robot.subsystems.Manipulator;
 import frc.robot.subsystems.SwerveDriveSubsystem;
@@ -116,20 +118,19 @@ public class RobotContainer implements Sendable {
         m_alliance = DriverStation.Alliance.Red;
 
         m_robotDrive = new SwerveDriveSubsystem(m_alliance, kDriveCurrentLimit);
+
         if (m_alliance == DriverStation.Alliance.Blue) {
-            driveToLeftGrid = DriveToAprilTag.newDriveToAprilTag(6, 1.889, .55, control::goalOffset, m_robotDrive);
-            driveToCenterGrid = DriveToAprilTag.newDriveToAprilTag(7, 1.889, .55, control::goalOffset, m_robotDrive);
-            driveToRightGrid = DriveToAprilTag.newDriveToAprilTag(8, 1.889, .55, control::goalOffset, m_robotDrive);
-            driveToSubstation = DriveToAprilTag.newDriveToAprilTag(4, 0.01, -0.762, control::goalOffset, m_robotDrive);
+            driveToLeftGrid = DriveToAprilTag.newDriveToAprilTag(6, 0.95, .55, control::goalOffset, m_robotDrive);
+            driveToCenterGrid = DriveToAprilTag.newDriveToAprilTag(7, 0.95, .55, control::goalOffset, m_robotDrive);
+            driveToRightGrid = DriveToAprilTag.newDriveToAprilTag(8, 0.95, .55, control::goalOffset, m_robotDrive);
+            driveToSubstation = DriveToAprilTag.newDriveToAprilTag(4, 0.889, -0.749, control::goalOffset, m_robotDrive);
         } else {
             driveToLeftGrid = DriveToAprilTag.newDriveToAprilTag(1, 0.95, .55, control::goalOffset, m_robotDrive);
             driveToCenterGrid = DriveToAprilTag.newDriveToAprilTag(2, 0.95, .55, control::goalOffset, m_robotDrive);
             driveToRightGrid = DriveToAprilTag.newDriveToAprilTag(3, 0.95, .55, control::goalOffset, m_robotDrive);
-            driveToSubstation = DriveToAprilTag.newDriveToAprilTag(5, 0.05, -.53, control::goalOffset, m_robotDrive);
+            driveToSubstation = DriveToAprilTag.newDriveToAprilTag(5, 0.889, -0.749, control::goalOffset, m_robotDrive);
         }
 
-
-        
         
         armHigh = new ArmTrajectory(ArmPosition.HIGH, armController);
 
@@ -138,7 +139,7 @@ public class RobotContainer implements Sendable {
         armSubstation = new ArmTrajectory(ArmPosition.SUB, armController);
 
         ResetRotation resetRotation = new ResetRotation(m_robotDrive, new Rotation2d());
-        autoLevel = new AutoLevel(true, m_robotDrive.m_gyro, m_robotDrive);
+        autoLevel = new AutoLevel(false, m_robotDrive.m_gyro, m_robotDrive);
 
         ResetPose resetPose = new ResetPose(m_robotDrive, 0, 0, 0);
 
@@ -148,9 +149,9 @@ public class RobotContainer implements Sendable {
 
         closeCommand = new Close(manipulator);
 
-        setCubeMode = new SetCubeMode(armController);
+        setCubeMode = new SetCubeMode(armController, m_robotDrive);
         
-        setConeMode = new SetConeMode(armController);
+        setConeMode = new SetConeMode(armController, m_robotDrive);
 
         driveSlow = new DriveSlow(m_robotDrive, control);
 
@@ -173,7 +174,7 @@ public class RobotContainer implements Sendable {
 
         manualArm = new ManualArm(armController, control.getController());
 
-        
+        // control.autoLevel(autoLevel);
         control.driveToLeftGrid(driveToLeftGrid);
         control.driveToCenterGrid(driveToCenterGrid);
         control.driveToRightGrid(driveToRightGrid);
@@ -238,7 +239,8 @@ public class RobotContainer implements Sendable {
 
         // return new VasiliAutonomous(m_robotDrive);
 
-        return new SanjanAutonomous(AutonSelect.RED1, m_robotDrive, armController, manipulator);
+        // return new SanjanAutonomous(AutonSelect.BLUE1, m_robotDrive, armController, manipulator);
+        return new Autonomous(AutonSelect.BLUE2, AutonGamePiece.CONE, m_robotDrive, armController, manipulator);
     }
 
     public void runTest() {
@@ -281,5 +283,13 @@ public class RobotContainer implements Sendable {
         builder.addDoubleProperty("x controller error", () -> m_robotDrive.xController.getPositionError(), null);
         builder.addDoubleProperty("y controller error", () -> m_robotDrive.yController.getPositionError(), null);
 
+    }
+
+    public void ledStart(){
+        m_robotDrive.visionDataProvider.indicator.orange();
+    }
+
+    public void ledStop(){
+        m_robotDrive.visionDataProvider.indicator.close();
     }
 }
