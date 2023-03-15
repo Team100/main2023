@@ -47,7 +47,7 @@ public class AutoLevel extends CommandBase {
         
                if(Math.abs(Roll) > 2.5 || Math.abs(Pitch) > 2.5){   
                 count = 0;
-                drivetrain.drive(drivePitchAmount, -driveRollAmount, 0, false);     
+                drivetrain.driveSlow(drivePitchAmount, -driveRollAmount, 0, false);     
                } else{
                 count++;
                }
@@ -65,7 +65,7 @@ public class AutoLevel extends CommandBase {
         
                if(Math.abs(Roll) > 2.5 || Math.abs(Pitch) > 2.5){   
                 count = 0;
-                drivetrain.drive(drivePitchAmount, -driveRollAmount, 0, false);     
+                drivetrain.driveSlow(drivePitchAmount, -driveRollAmount, 0, false);     
                } else{
                 count++;
                }

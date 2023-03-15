@@ -8,6 +8,7 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj2.command.ParallelDeadlineGroup;
 import edu.wpi.first.wpilibj2.command.ParallelRaceGroup;
+import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.commands.AutoLevel;
@@ -45,24 +46,25 @@ public class Autonomous extends SequentialCommandGroup {
             new WaitCommand(0.25),
             new ResetRotation(m_robotDrive, Rotation2d.fromDegrees(180)),
             new AutoLevel(false, m_robotDrive.m_gyro, m_robotDrive)
+            // new ParallelDeadlineGroup(new WaitCommand(4), new DriveToWaypoint3(new Pose2d(m_robotDrive.getPose().getX() + 3, m_robotDrive.getPose().getY(), new Rotation2d()), 0, m_robotDrive))
         );
     } else if(autonProcedure == AutonSelect.BLUE1){
         addCommands(
             new SelectGamePiece(gamePiece, arm),
             new ResetRotation(m_robotDrive, Rotation2d.fromDegrees(180)),
             new WaitCommand(0.5),
-            new ParallelDeadlineGroup(new WaitCommand(2), new ArmTrajectory(ArmPosition.HIGH, arm)),
+            new ParallelDeadlineGroup(new WaitCommand(2), new ArmTrajectory(ArmPosition.MID, arm)),
             new WaitCommand(1),
             new ParallelDeadlineGroup(new WaitCommand(0.5), new Release(m_manipulator)),
             new ParallelDeadlineGroup(new WaitCommand(1), new Open(m_manipulator)),
             new WaitCommand(2),
-            new ParallelRaceGroup(new ArmTrajectory(ArmPosition.SAFE, arm), new WaitCommand(1.5))
+            new ParallelRaceGroup(new ArmTrajectory(ArmPosition.SAFE, arm), new WaitCommand(1.5)),
 
 
             // new WaitCommand(1),
             // new DriveToWaypoint3(new Pose2d(2.15, 4.70, Rotation2d.fromDegrees(-180)), 0, m_robotDrive),
             // new WaitCommand(2),
-            // new DriveToWaypoint3( new Pose2d(5.56, 4.7, Rotation2d.fromDegrees(-180)), 0.0, m_robotDrive),
+            new DriveToWaypoint3( new Pose2d(5.56, m_robotDrive.getPose().getY(), Rotation2d.fromDegrees(-180)), 0.0, m_robotDrive)
             // new WaitCommand(2),
             // new Rotate(m_robotDrive, 0),
             // new WaitCommand(2),
