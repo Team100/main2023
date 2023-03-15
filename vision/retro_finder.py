@@ -31,4 +31,11 @@ class RetroFinder:
                     "centroid": [cX, cY]
                 }
             )
+
+        cv.drawContours(img, [c], -1, (0, 255, 0), 2)
+        cv.circle(img, (cX, cY), 7, (255, 255, 255), -1)
+        cv.putText(img, "centroid", (cX - 20, cY - 20),
+                   cv.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 2)
+        cv.imshow(img)
+
         return tapes
