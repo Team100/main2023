@@ -9,7 +9,6 @@ class RetroFinder:
     def __init__(self, width, height, threshold, threshmode):
         self.threshold = threshold
         self.threshmode = threshmode
-        self.metersPerPixel = 1
         self.horizontal_offset = width/2
         self.vertical_offset = height/2
         # TODO: tune this value
@@ -25,10 +24,8 @@ class RetroFinder:
 
         for c in cnts:
             mmnts = cv.moments(c)
-            cX = (int(mmnts["m10"] / mmnts["m00"]) -
-                  self.horizontal_offset)*self.metersPerPixel
-            cY = (int(mmnts["m01"] / mmnts["m00"]) -
-                  self.vertical_offset)*self.metersPerPixel
+            cX = int(mmnts["m10"] / mmnts["m00"]) - self.horizontal_offset
+            cY = int(mmnts["m01"] / mmnts["m00"]) - self.vertical_offset
             tapes["tapes"].append(
                 {
                     "centroid": [cX, cY]
