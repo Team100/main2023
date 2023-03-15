@@ -11,6 +11,7 @@ import org.msgpack.jackson.dataformat.MessagePackFactory;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import edu.wpi.first.cscore.CameraServerCvJNI;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
@@ -33,11 +34,26 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.subsystems.SwerveDriveSubsystem;
 import team100.config.Camera;
 import team100.indicator.GoNoGoIndicator;
+import team100.indicator.OnboardIndicator;
 
 /**
  * Extracts robot pose estimates from camera input.
  */
 public class VisionDataProvider extends SubsystemBase implements TableEventListener {
+    /**
+     * If the tag is closer than this threshold, then the camera's estimate of tag
+     * rotation might be more accurate than the gyro, so we use the camera's
+     * estimate of tag rotation to update the robot pose. If the tag is further away
+     * than this, then the camera-derived rotation is probably less accurate than
+     * the gyro, so we use the gyro instead.
+     * 
+     * Set this to zero to disable tag-derived rotation and always use the gyro.
+     * 
+     * Set this to some large number (e.g. 100) to disable gyro-derived rotation and
+     * always use the camera.
+     */
+    private static final double kTagRotationBeliefThresholdMeters = 2.0;
+
     private final Supplier<Pose2d> getPose;
     private final DoublePublisher timestamp_publisher;
     private final ObjectMapper object_mapper;
@@ -51,8 +67,7 @@ public class VisionDataProvider extends SubsystemBase implements TableEventListe
 
     Pose2d currentRobotinFieldCoords;
 
-    private final GoNoGoIndicator indicator;
-    private double mostRecentVisionUpdate;
+    public final GoNoGoIndicator indicator;
     private Pose2d lastRobotInFieldCoords;
 
     public VisionDataProvider(
@@ -61,9 +76,13 @@ public class VisionDataProvider extends SubsystemBase implements TableEventListe
             Supplier<Pose2d> getPose)
             throws IOException {
 
+        // load the JNI (used by PoseEstimationHelper)
+        CameraServerCvJNI.forceLoad();
+
         this.getPose = getPose;
         this.poseEstimator = poseEstimator;
-        indicator = new GoNoGoIndicator(8); // 8 hz = flash fast
+        // indicator = new GoNoGoIndicator(1); // 8 hz = flash fast
+        indicator = new GoNoGoIndicator(1);
 
         currentRobotinFieldCoords = new Pose2d();
 
@@ -123,13 +142,13 @@ public class VisionDataProvider extends SubsystemBase implements TableEventListe
         Camera cam = Camera.get(serialNumber);
         switch (cam) {
             case REAR:
-                return new Transform3d(new Translation3d(0.4, 0, 0.3), new Rotation3d(0, -0.35, 3.14));
+                return new Transform3d(new Translation3d(-0.326, 0.003, 0.332), new Rotation3d(0, -0.419, 3.142));
             case FRONT:
-                return new Transform3d(new Translation3d(0, 0.3, 0.3), new Rotation3d(0, -0.35, 0.35));
+                return new Transform3d(new Translation3d(0.398, 0.075, 0.201), new Rotation3d(0, -0.35, 0));
             case RIGHT:
-                return new Transform3d(new Translation3d(0, -0.30, 0.3), new Rotation3d(0, -0.35, -0.35));
+                return new Transform3d(new Translation3d(0.012, -0.264, 0.229), new Rotation3d(0, -0.350, -0.350));
             case LEFT:
-                return new Transform3d(new Translation3d(0.4, 0.0, 0.2), new Rotation3d(0, 0, 0.35));
+                return new Transform3d(new Translation3d(0.012, 0.159, 0.240), new Rotation3d(0, -0.35, 0.35));
             case UNKNOWN:
                 return new Transform3d(new Translation3d(0.254, 0.127, 0.3), new Rotation3d(0, 0, 0));
             default:
@@ -162,7 +181,11 @@ public class VisionDataProvider extends SubsystemBase implements TableEventListe
                     0, 0, gyroRotation.getRadians());
 
             Pose3d robotPoseInFieldCoords = PoseEstimationHelper.getRobotPoseInFieldCoords(
-                    cameraInRobotCoordinates, tagInFieldCordsOptional.get(), b, robotRotationInFieldCoordsFromGyro);
+                    cameraInRobotCoordinates,
+                    tagInFieldCordsOptional.get(),
+                    b,
+                    robotRotationInFieldCoordsFromGyro,
+                    kTagRotationBeliefThresholdMeters);
             // Pose2d robotInFieldCords = robotPoseInFieldCoords.toPose2d();
             Translation2d robotTranslationInFieldCoords = robotPoseInFieldCoords.getTranslation().toTranslation2d();
 
@@ -173,18 +196,14 @@ public class VisionDataProvider extends SubsystemBase implements TableEventListe
                 double xComponent = translationSinceLast.getX();
                 double yComponent = translationSinceLast.getY();
                 if (xComponent * xComponent +
-                        yComponent * yComponent > kVisionChangeToleranceMeters
+                        yComponent * yComponent <= kVisionChangeToleranceMeters
                                 * kVisionChangeToleranceMeters) {
-                    double now = Timer.getFPGATimestamp();
-                    if (now - mostRecentVisionUpdate < 0.1) {
-                        indicator.go();
-                    } else {
-                        indicator.nogo();
-                    }
-                    mostRecentVisionUpdate = now;
-                    estimateConsumer.accept(currentRobotinFieldCoords, now - .075);
+                    // tell the vision indicator we have a fix.
+                    indicator.go();
+                    estimateConsumer.accept(currentRobotinFieldCoords, Timer.getFPGATimestamp() - .075);
                 }
             }
+
             lastRobotInFieldCoords = currentRobotinFieldCoords;
         }
     }

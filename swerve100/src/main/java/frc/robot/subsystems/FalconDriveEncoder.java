@@ -8,6 +8,7 @@ public class FalconDriveEncoder implements DriveEncoder {
     private final FalconDriveMotor m_motor;
     private final double m_distancePerPulse;
 
+    /** @param distancePerTurn in meters */
     public FalconDriveEncoder(String name,
             FalconDriveMotor motor,
             double distancePerTurn) {

@@ -7,7 +7,7 @@ package frc.robot.subsystems;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.AnalogEncoder;
-import edu.wpi.first.wpilibj.DigitalInput;
+// import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.FRCLib.Motors.FRCTalonSRX;
@@ -15,11 +15,11 @@ import frc.robot.FRCLib.Motors.FRCTalonSRX.FRCTalonSRXBuilder;
 
 public class Manipulator extends SubsystemBase {
   /** Creates a new Manipulator. */
-  FRCTalonSRX pinch;
+  public FRCTalonSRX pinch;
   public AnalogEncoder position;
   public PIDController pinchController;
   private double origin;
-  private DigitalInput sensor = new DigitalInput(0);
+//   private DigitalInput sensor = new DigitalInput(0);
 
   public Manipulator() {
     pinch = new FRCTalonSRXBuilder(10)
@@ -37,13 +37,14 @@ public class Manipulator extends SubsystemBase {
     //.withCurrentLimit(7)
     .build();
 
-    pinch.motor.configPeakCurrentLimit(25, 1000);
-    pinch.motor.configContinuousCurrentLimit(2);
+    pinch.motor.configPeakCurrentLimit(25);
+    // pinch.motor.configContinuousCurrentLimit(1);
 
     // pinch.motor.configPeakCurrentDuration(0)
     // pinch.motor.configPeakCurrentDuration(1000);
 
     pinch.motor.enableCurrentLimit(true);
+    // pinch.motor.enableCont
     // pinch.motor.configCurrent
 
     

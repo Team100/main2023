@@ -4,6 +4,7 @@ import edu.wpi.first.wpilibj.AddressableLED;
 import edu.wpi.first.wpilibj.AddressableLEDBuffer;
 import edu.wpi.first.wpilibj.Notifier;
 import edu.wpi.first.wpilibj.util.Color;
+import frc.robot.RobotContainer;
 
 /**
  * Demonstrates the use of an onboard LED strip as a boolean indicator, flashing
@@ -29,7 +30,10 @@ public class GoNoGoIndicator {
     private static enum State {
         OFF(Color.kBlack),
         NOGO(Color.kRed),
-        GO(Color.kGreen);
+        GO(Color.kGreen),
+        CUBE(new Color(254, 100, 0)),
+        CONE(new Color(255, 0, 80)),
+        ORANGE(new Color(255, 0, 40));
 
         private final AddressableLEDBuffer buffer;
 
@@ -45,9 +49,9 @@ public class GoNoGoIndicator {
         }
     }
 
-    private static final int kPort = 9;
+    private static final int kPort = 0;
     private final AddressableLED led;
-    private final Notifier notifier;
+    // private final Notifier notifier;
     private State active;
     private boolean flashOn;
 
@@ -55,12 +59,18 @@ public class GoNoGoIndicator {
      * @param freq Desired flashing frequency (Hz)
      */
     public GoNoGoIndicator(double freq) {
-        active = State.NOGO;
+        active = State.ORANGE;
+
         led = new AddressableLED(kPort);
         led.setLength(kStripLength);
         led.start();
-        notifier = new Notifier(this::flip);
-        notifier.startPeriodic(0.5 / freq);
+        State.ORANGE.set(led);
+        // notifier = new Notifier(this::flip);
+        // notifier.startPeriodic(0.5 / freq);
+    }
+
+    public void start(){
+        led.start();
     }
     
     public void close() {
@@ -68,19 +78,34 @@ public class GoNoGoIndicator {
     }
 
     public void go() {
-        active = State.GO;
+        // active = State.GO;
     }
 
     public void nogo() {
-        active = State.NOGO;
+        // active = State.NOGO;
     }
 
-    private void flip() {
-        if (flashOn) {
-            State.OFF.set(led);
-        } else {
-            active.set(led);
-        }
-        flashOn ^= true; // flip with xor
+    public void cone() {
+        active = State.CONE;
+        active.set(led);
     }
+
+    public void cube() {
+        active = State.CUBE;
+        active.set(led);
+    }
+
+    public void orange() {
+        active = State.ORANGE;
+        State.ORANGE.set(led);
+    }
+
+    // private void flip() {
+    //     if (flashOn) {
+    //         State.OFF.set(led);
+    //     } else {
+    //         active.set(led);
+    //     }
+    //     flashOn ^= true; // flip with xor
+    // }
 }

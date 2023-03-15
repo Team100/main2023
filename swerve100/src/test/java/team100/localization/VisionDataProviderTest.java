@@ -87,7 +87,7 @@ public class VisionDataProviderTest {
                         { 0 },
                         { 0 },
                         { 1 } });
-        Translation3d tagTranslationInCameraCoords = PoseEstimationHelper.blipToNWU(blip);
+        Translation3d tagTranslationInCameraCoords = PoseEstimationHelper.blipToTranslation(blip);
         Rotation3d tagRotationInCameraCoords = PoseEstimationHelper.tagRotationInRobotCoordsFromGyro(
                 tagInFieldCoords.getRotation(),
                 cameraRotationInFieldCoords);
@@ -112,8 +112,6 @@ public class VisionDataProviderTest {
     @Test
     public void testEstimateRobotPose() throws IOException {
         Supplier<Pose2d> robotPose = () -> new Pose2d(); // always at the origin
-        // at the moment this is red layout.
-        // TODO: make it work with either layout
         VisionDataProvider vdp = new VisionDataProvider(DriverStation.Alliance.Red, null, robotPose);
 
         String key = "foo";
@@ -146,6 +144,13 @@ public class VisionDataProviderTest {
                     poseEstimate.add(p);
                     timeEstimate.add(t);
                 }, key, blips);
+        // do it twice to convince vdp it's a good estimate
+        vdp.estimateRobotPose(
+                (i) -> new Transform3d(),
+                (p, t) -> {
+                    poseEstimate.add(p);
+                    timeEstimate.add(t);
+                }, key, blips);
         assertEquals(1, poseEstimate.size());
         assertEquals(1, timeEstimate.size());
         Pose2d result = poseEstimate.get(0);
@@ -157,18 +162,19 @@ public class VisionDataProviderTest {
 
     @Test
     public void testEstimateRobotPose2() throws IOException {
+        // robot is panned right 45
         Supplier<Pose2d> robotPose = () -> new Pose2d(0, 0, new Rotation2d(-Math.PI / 4)); // just for rotation
-        // at the moment this is red layout.
-        // TODO: make it work with either layout
         VisionDataProvider vdp = new VisionDataProvider(DriverStation.Alliance.Red, null, robotPose);
 
         String key = "foo";
         // in red layout blip 5 is on the other side of the field
+        double rot = Math.sqrt(2) / 2;
+        // because the tag is nearby we use the tag rotation so make it correct.
         Blip blip = new Blip(5,
-                new double[][] { // we don't actually use this
-                        { 1, 0, 0 },
+                new double[][] { // pan left in camera frame = -y rot
+                        { rot, 0, -rot },
                         { 0, 1, 0 },
-                        { 0, 0, 1 } },
+                        { rot, 0, rot } },
                 new double[][] {
                         { 0 },
                         { 0 },
@@ -186,6 +192,13 @@ public class VisionDataProviderTest {
         blips.tags.add(blip);
         final List<Pose2d> poseEstimate = new ArrayList<Pose2d>();
         final List<Double> timeEstimate = new ArrayList<Double>();
+        vdp.estimateRobotPose(
+                (i) -> new Transform3d(),
+                (p, t) -> {
+                    poseEstimate.add(p);
+                    timeEstimate.add(t);
+                }, key, blips);
+        // two good estimates are required
         vdp.estimateRobotPose(
                 (i) -> new Transform3d(),
                 (p, t) -> {

@@ -27,8 +27,10 @@ public class Open extends CommandBase {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    double openSpeed = m_manipulator.pinchController.calculate(m_manipulator.getPosition(), openPosition);
-    m_manipulator.pinch(openSpeed);
+    // double openSpeed = m_manipulator.pinchController.calculate(m_manipulator.getPosition(), openPosition);
+    // m_manipulator.pinch(openSpeed);
+
+    m_manipulator.pinch(0.2);
 }
 
   // Called once the command ends or is interrupted.

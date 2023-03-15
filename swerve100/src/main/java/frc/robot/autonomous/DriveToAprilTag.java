@@ -12,21 +12,26 @@ import team100.localization.AprilTagFieldLayoutWithCorrectOrientation;
 
 public class DriveToAprilTag extends DriveToWaypoint2 {
 
-    // TODO: Change depending on task
-    static Transform2d m_offset;
-
-    public DriveToAprilTag(Pose2d goal, double yOffset, Supplier<GoalOffset> goalSupplier, SwerveDriveSubsystem robotDrive) {
+    public DriveToAprilTag(
+            Pose2d goal,
+            double yOffset,
+            Supplier<GoalOffset> goalSupplier,
+            SwerveDriveSubsystem robotDrive) {
         super(goal, yOffset, goalSupplier, robotDrive);
     }
 
-    public static DriveToAprilTag newDriveToAprilTag(int tagID, double xOffset, double yOffset, Supplier<GoalOffset> goalSupplier,
+    public static DriveToAprilTag newDriveToAprilTag(
+            int tagID,
+            double xOffset,
+            double yOffset,
+            Supplier<GoalOffset> goalSupplier,
             SwerveDriveSubsystem robotDrive) {
         Pose2d m_goal = goal(tagID, xOffset, robotDrive.visionDataProvider.layout);
         return new DriveToAprilTag(m_goal, yOffset, goalSupplier, robotDrive);
     }
 
     public static Pose2d goal(int tagID, double xOffset, AprilTagFieldLayoutWithCorrectOrientation layout) {
-        m_offset= new Transform2d(new Translation2d(-xOffset, 0), new Rotation2d(0));
+        Transform2d m_offset = new Transform2d(new Translation2d(-xOffset, 0.2), new Rotation2d(0));
         Pose2d m_tagPose = layout.getTagPose(tagID).get().toPose2d();
         System.out.println(m_tagPose);
         Pose2d m_goal = m_tagPose.plus(m_offset);

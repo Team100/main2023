@@ -1,6 +1,5 @@
 package team100.control;
 
-import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.util.sendable.Sendable;
 import edu.wpi.first.util.sendable.SendableBuilder;
@@ -8,24 +7,30 @@ import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import frc.robot.autonomous.DriveToWaypoint2;
 import frc.robot.commands.DriveRotation;
+import frc.robot.commands.DriveSlow;
 import frc.robot.commands.GoalOffset;
 import frc.robot.commands.ResetPose;
 import frc.robot.commands.ResetRotation;
+import frc.robot.commands.AutoLevel;
 import frc.robot.commands.Arm.ArmTrajectory;
 import frc.robot.commands.Arm.DriveToSetpoint;
+import frc.robot.commands.Arm.SetConeMode;
+import frc.robot.commands.Arm.SetCubeMode;
 import frc.robot.commands.Manipulator.Close;
 import frc.robot.commands.Manipulator.Home;
 import frc.robot.commands.Manipulator.Open;
+import team100.commands.Defense;
 
 /**
  * see
  * https://docs.google.com/document/d/1M89x_IiguQdY0VhQlOjqADMa6SYVp202TTuXZ1Ps280/edit#
  */
 public class DualXboxControl implements Sendable {
-    private static final double kDtSeconds = 0.02;
-    private static final double kMaxRotationRateRadiansPerSecond = Math.PI;
+    // private static final double kDtSeconds = 0.02;
+    // private static final double kMaxRotationRateRadiansPerSecond = Math.PI;
     private static final double kTriggerThreshold = .5;
 
     private final CommandXboxController controller0;
@@ -48,6 +53,10 @@ public class DualXboxControl implements Sendable {
         controller0.x().whileTrue(command);
     };
 
+    public void autoLevel(AutoLevel command){
+        // controller0.x().whileTrue(command);
+    }
+
     public void driveToCenterGrid(DriveToWaypoint2 command) {
         controller0.a().whileTrue(command);
     };
@@ -60,16 +69,14 @@ public class DualXboxControl implements Sendable {
         controller0.y().whileTrue(command);
     };
 
-    public void resetRotation(ResetRotation command) {
-        controller0.rightBumper().onTrue(command);
+    public void resetRotation0(ResetRotation command) {
+        JoystickButton startButton = new JoystickButton(controller0.getHID(), 7);
+        startButton.onTrue(command); //TODO change these vals to middle buttons 
     }
 
-    public void autoLevel(frc.robot.commands.autoLevel command) {
-        // controller0.y().whileTrue(command);
-    }
-
-    public void driveRotation(DriveRotation command) {
-        controller0.rightBumper().whileTrue(command);
+    public void resetRotation180(ResetRotation command) {
+        JoystickButton startButton = new JoystickButton(controller0.getHID(), 8);
+        startButton.onTrue(command); //TODO change these vals to middle buttons 
     }
 
     /** @return [-1,1] */
@@ -82,23 +89,26 @@ public class DualXboxControl implements Sendable {
         return -1.0 * controller0.getRightX();
     }
 
+
     /** @return [-1,1] */
     public double rotSpeed() {
         return -1.0 * controller0.getLeftX();
     }
 
-    public void resetPose(ResetPose command) {
-        controller0.leftBumper().onTrue(command);
+    public void driveSlow(DriveSlow command) {
+        controller0.leftBumper().whileTrue(command);
+    }
+
+    // TODO: remove this
+    public XboxController getController0() {
+        return controller0.getHID();
     }
 
     public Rotation2d desiredRotation() {
         double desiredAngleDegrees = controller0.getHID().getPOV();
-        if (desiredAngleDegrees < 0) { // no POV input
-            double stickInput = MathUtil.applyDeadband(controller0.getLeftX(), 0.05);
-            double desiredRateRadiansPerSecond = stickInput * kMaxRotationRateRadiansPerSecond;
-            Rotation2d dRotation = new Rotation2d(desiredRateRadiansPerSecond * kDtSeconds);
-            previousRotation = previousRotation.minus(dRotation);
-            return previousRotation;
+
+        if (desiredAngleDegrees < 0) {
+            return null;
         }
         previousRotation = Rotation2d.fromDegrees(-1.0 * desiredAngleDegrees);
         return previousRotation;
@@ -117,6 +127,10 @@ public class DualXboxControl implements Sendable {
             return GoalOffset.right;
         }
         return GoalOffset.center;
+    }
+
+    public void defense(Defense defense) {
+        controller0.rightBumper().whileTrue(defense);
     }
 
     ///////////////////////////////
@@ -143,14 +157,6 @@ public class DualXboxControl implements Sendable {
         return controller1.getLeftY();
     }
 
-    public void driveToHigh(DriveToSetpoint command) {
-        controller1.y().whileTrue(command);
-    }
-
-    public void driveToSafe(SequentialCommandGroup command) {
-        controller1.rightBumper().whileTrue(command);
-    }
-
     // TODO: remove this
     public XboxController getController() {
         return controller1.getHID();
@@ -164,8 +170,12 @@ public class DualXboxControl implements Sendable {
         controller1.povDown().whileTrue(command);
     }
 
+    public void armSubstation(ArmTrajectory command) {
+        controller1.povRight().whileTrue(command);
+    }
+
     public void open(Open command) {
-        controller1.a().whileTrue(command);
+        // controller1.a().whileTrue(command);
     }
 
     public void home(Home command) {
@@ -176,11 +186,25 @@ public class DualXboxControl implements Sendable {
         controller1.x().whileTrue(command);
     }
 
+    public void cubeMode(SetCubeMode command) {
+        controller1.y().onTrue(command);
+    }
+
+    public void coneMode(SetConeMode command) {
+        controller1.a().onTrue(command);
+    }
+
+    
+
     @Override
     public void initSendable(SendableBuilder builder) {
         builder.setSmartDashboardType("xbox control");
         builder.addDoubleProperty("right y", () -> controller0.getRightY(), null);
         builder.addDoubleProperty("right x", () -> controller0.getRightX(), null);
         builder.addDoubleProperty("left x", () -> controller0.getLeftX(), null);
+
+        // builder.addDoubleProperty("x limited", () -> xLimited(), null);
+        // builder.addDoubleProperty("y limtied", () -> yLimited(), null);
+        // builder.addDoubleProperty("rot Limited", () -> rotLimited(), null);
     }
 }

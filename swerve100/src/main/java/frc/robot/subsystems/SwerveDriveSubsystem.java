@@ -78,10 +78,13 @@ public class SwerveDriveSubsystem extends SubsystemBase {
     public final double kMaxAngularSpeedRadiansPerSecond;
     public final double kMaxAngularSpeedRadiansPerSecondSquared;
 
-    private final SwerveModule m_frontLeft;
-    private final SwerveModule m_frontRight;
-    private final SwerveModule m_rearLeft;
-    private final SwerveModule m_rearRight;
+    public final double kSlowSpeedMetersPerSecond;
+    public final double kSlowAngularSpeedRadiansPerSecond;
+
+    public final SwerveModule m_frontLeft;
+    public final SwerveModule m_frontRight;
+    public final SwerveModule m_rearLeft;
+    public final SwerveModule m_rearRight;
 
     // The gyro sensor. We have a Nav-X.
     public final AHRS m_gyro;
@@ -91,11 +94,6 @@ public class SwerveDriveSubsystem extends SubsystemBase {
     private double xVelocity = 0;
     private double yVelocity = 0;
     private double thetaVelociy = 0;
-
-    private double x;
-    private double y;
-    private double rotation;
-    private boolean isFieldRelative;
 
     public VisionDataProvider visionDataProvider;
 
@@ -117,6 +115,9 @@ public class SwerveDriveSubsystem extends SubsystemBase {
         fieldTypePub = fieldTable.getStringTopic(".type").publish();
         fieldTypePub.set("Field2d");
 
+        kSlowSpeedMetersPerSecond = 0.5;
+        kSlowAngularSpeedRadiansPerSecond = 0.25;
+
         switch (Identity.get()) {
             case COMP_BOT:
                 headingController = new ProfiledPIDController( //
@@ -137,13 +138,13 @@ public class SwerveDriveSubsystem extends SubsystemBase {
                         0.15, // kP
                         0.0, // kI
                         0.0); // kD
-                xController.setTolerance(0.2);
+                xController.setTolerance(0.01);
 
                 yController = new PIDController(
                         0.15, // kP
                         0.0, // kI
                         0.0); // kD
-                yController.setTolerance(0.2);
+                yController.setTolerance(0.01);
 
                 thetaController = new ProfiledPIDController(
                         3.0, // kP
@@ -153,7 +154,7 @@ public class SwerveDriveSubsystem extends SubsystemBase {
                                 kMaxAngularSpeedRadiansPerSecond,
                                 kMaxAngularSpeedRadiansPerSecondSquared));
                 m_frontLeft = SwerveModuleFactory.WCPModule(
-                        "Front Left",   
+                        "Front Left",
                         11, // drive CAN
                         30, // turn CAN
                         0, // turn encoder
@@ -183,7 +184,7 @@ public class SwerveDriveSubsystem extends SubsystemBase {
                 break;
             case SWERVE_TWO:
                 headingController = new ProfiledPIDController( //
-                        1, // kP
+                        0.5, // kP
                         .5, // kI
                         0.15, // kD
                         new TrapezoidProfile.Constraints(
@@ -197,18 +198,20 @@ public class SwerveDriveSubsystem extends SubsystemBase {
                 kMaxAccelerationMetersPerSecondSquared = 10;
                 kMaxAngularSpeedRadiansPerSecond = 5;
                 kMaxAngularSpeedRadiansPerSecondSquared = 5;
-                
+
                 xController = new PIDController(
                         0.15, // kP
-                        0.0, // kI
+                        0, // kI
                         0.0); // kD
-                xController.setTolerance(0.2);
+                xController.setTolerance(0.01);
+                xController.setIntegratorRange(-0.5, 0.5);
 
                 yController = new PIDController(
                         0.15, // kP
-                        0.0, // kI
+                        0, // kI
                         0.0); // kD
-                yController.setTolerance(0.2);
+                yController.setTolerance(0.01);
+                yController.setIntegratorRange(-0.5, 0.5);
 
                 thetaController = new ProfiledPIDController(
                         3.0, // kP
@@ -455,7 +458,8 @@ public class SwerveDriveSubsystem extends SubsystemBase {
                 },
                 new Pose2d(),
                 VecBuilder.fill(0.03, 0.03, 0.03),
-                VecBuilder.fill(0.01, 0.01, Integer.MAX_VALUE));
+                VecBuilder.fill(0.01, 0.01, 0.04)); // note tight rotation variance here, used to be MAX_VALUE
+//                VecBuilder.fill(0.01, 0.01, Integer.MAX_VALUE));
         visionDataProvider = new VisionDataProvider(alliance, m_poseEstimator, () -> getPose());
 
         SmartDashboard.putData("Drive Subsystem", this);
@@ -488,6 +492,7 @@ public class SwerveDriveSubsystem extends SubsystemBase {
 
     @Override
     public void periodic() {
+        // System.out.println("MRRITRURUEUEUIWUIWEUIRHBIUEWFkj");
         updateOdometry();
         RobotContainer.m_field.setRobotPose(m_poseEstimator.getEstimatedPosition());
     }
@@ -505,6 +510,8 @@ public class SwerveDriveSubsystem extends SubsystemBase {
     }
 
     public void resetPose(Pose2d robotPose) {
+
+        m_gyro.calibrate();
         m_poseEstimator.resetPosition(getHeading(), new SwerveModulePosition[] {
                 m_frontLeft.getPosition(),
                 m_frontRight.getPosition(),
@@ -541,8 +548,7 @@ public class SwerveDriveSubsystem extends SubsystemBase {
         if (Math.abs(rot) < .01)
             rot = 0;
         double gyroRate = m_gyro.getRate() * 0.25;
-        // Rotation2d rotation2 = getPose().getRotation().minus(new Rotation2d(gyroRate));
-        Rotation2d rotation2 = getPose().getRotation();
+        Rotation2d rotation2 = getPose().getRotation().minus(new Rotation2d(gyroRate));
         desiredChassisSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(kMaxSpeedMetersPerSecond * xSpeed,
                 kMaxSpeedMetersPerSecond * ySpeed, kMaxAngularSpeedRadiansPerSecond * rot,
                 rotation2);
@@ -560,6 +566,32 @@ public class SwerveDriveSubsystem extends SubsystemBase {
 
         m_frontLeft.setDesiredState(swerveModuleStates[0]);
         System.out.println(desiredChassisSpeeds);
+        m_frontRight.setDesiredState(swerveModuleStates[1]);
+        m_rearLeft.setDesiredState(swerveModuleStates[2]);
+        m_rearRight.setDesiredState(swerveModuleStates[3]);
+    }
+
+    public void driveSlow(double xSpeed, double ySpeed, double rot, boolean fieldRelative) {
+        if (Math.abs(rot) < .01)
+            rot = 0;
+
+        Rotation2d rotation2 = getPose().getRotation();
+        desiredChassisSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(kMaxSpeedMetersPerSecond * xSpeed,
+                kMaxSpeedMetersPerSecond * ySpeed, kSlowAngularSpeedRadiansPerSecond * rot,
+                rotation2);
+
+        var swerveModuleStates = kDriveKinematics.toSwerveModuleStates(
+                fieldRelative
+                        ? desiredChassisSpeeds
+                        : new ChassisSpeeds(kSlowSpeedMetersPerSecond * xSpeed, kSlowSpeedMetersPerSecond * ySpeed,
+                                kSlowAngularSpeedRadiansPerSecond * rot));
+
+        SwerveDriveKinematics.desaturateWheelSpeeds(
+                swerveModuleStates, kSlowSpeedMetersPerSecond);
+
+        getRobotVelocity(swerveModuleStates);
+
+        m_frontLeft.setDesiredState(swerveModuleStates[0]);
         m_frontRight.setDesiredState(swerveModuleStates[1]);
         m_rearLeft.setDesiredState(swerveModuleStates[2]);
         m_rearRight.setDesiredState(swerveModuleStates[3]);
@@ -622,75 +654,50 @@ public class SwerveDriveSubsystem extends SubsystemBase {
     @Override
     public void initSendable(SendableBuilder builder) {
         super.initSendable(builder);
+
+        // Pose
         builder.addDoubleProperty("heading_radians", () -> 2 + this.getHeading().getRadians(), null);
         builder.addDoubleProperty("translationalx", () -> getPose().getX(), null);
         builder.addDoubleProperty("translationaly", () -> getPose().getY(), null);
         builder.addDoubleProperty("theta", () -> getPose().getRotation().getRadians(), null);
-        builder.addDoubleProperty("Front Left Position", () -> m_frontLeft.getPosition().distanceMeters, null);
-        builder.addDoubleProperty("Front Right Position", () -> m_frontRight.getPosition().distanceMeters, null);
-        builder.addDoubleProperty("Rear Left Position", () -> m_rearLeft.getPosition().distanceMeters, null);
-        builder.addDoubleProperty("Rear Right Position", () -> m_rearRight.getPosition().distanceMeters, null);
+
         builder.addDoubleProperty("Theta Controller Error", () -> thetaController.getPositionError(), null);
         builder.addDoubleProperty("Theta Controller Measurment", () -> getPose().getRotation().getRadians(), null);
         builder.addDoubleProperty("Theta Controller Setpoint", () -> thetaController.getSetpoint().position, null);
 
-        builder.addDoubleProperty("Front Left Turning Controller Output", () -> m_frontLeft.getTControllerOutput(),
-                null);
-        builder.addDoubleProperty("Front Right Turning Controller Output", () -> m_frontRight.getTControllerOutput(),
-                null);
-        builder.addDoubleProperty("Rear Left Turning Controller Output", () -> m_rearLeft.getTControllerOutput(), null);
-        
-        builder.addDoubleProperty("Rear Right Turning Controller Output", () -> m_rearRight.getTControllerOutput(),
-                null);
-        
-        
-        
-                builder.addDoubleProperty("Front Left Driving Controller Output", () -> m_frontLeft.getDControllerOutput(),
-                null);
-        builder.addDoubleProperty("Front Right Driving Controller Output", () -> m_frontRight.getDControllerOutput(),
-                null);
-        builder.addDoubleProperty("Rear Left Driving Controller Output", () -> m_rearLeft.getDControllerOutput(), null);
-        builder.addDoubleProperty("Rear Right Driving Controller Output", () -> m_rearRight.getDControllerOutput(),
-                null);
-
-        builder.addDoubleProperty("X controller Error", () -> xController.getPositionError(), null);
+        builder.addDoubleProperty("X controller Error (m)", () -> xController.getPositionError(), null);
         builder.addDoubleProperty("X controller Setpoint", () -> xController.getSetpoint(), null);
         builder.addDoubleProperty("X controller Measurment", () -> getPose().getX(), null);
 
-        builder.addDoubleProperty("Y controller Error", () -> yController.getPositionError(), null);
+        builder.addDoubleProperty("Y controller Error (m)", () -> yController.getPositionError(), null);
         builder.addDoubleProperty("Y controller Setpoint", () -> yController.getSetpoint(), null);
         builder.addDoubleProperty("Y controller Measurment", () -> getPose().getY(), null);
 
         builder.addBooleanProperty("Moving", () -> getMoving(), null);
 
-        builder.addDoubleProperty("X controller Velocity", () -> xVelocity, null);
-        builder.addDoubleProperty("Y controller Velocity", () -> yVelocity, null);
-        builder.addDoubleProperty("Theta controller Velocity", () -> thetaVelociy, null);
-        builder.addDoubleProperty("Pitch", () -> m_gyro.getPitch(), null);
-        builder.addDoubleProperty("Roll", () -> m_gyro.getRoll(), null);
+        builder.addDoubleProperty("X controller Velocity (m/s)", () -> xVelocity, null);
+        builder.addDoubleProperty("Y controller Velocity (m/s)", () -> yVelocity, null);
+        builder.addDoubleProperty("Theta controller Velocity (rad/s)", () -> thetaVelociy, null);
+
+        // Gyro
+        builder.addDoubleProperty("Gyro Roll (deg)", () -> m_gyro.getRoll(), null);
+        builder.addDoubleProperty("Gyro Pitch (deg)", () -> m_gyro.getPitch(), null);
+        builder.addDoubleProperty("Gyro Angle (deg)", () -> m_gyro.getAngle(), null);
+        builder.addDoubleProperty("Gyro Fused (deg)", () -> m_gyro.getFusedHeading(), null);
+        // Note getRate() appears to be in rad/sec not deg/s as the docs say
+        builder.addDoubleProperty("Gyro Rate (rad/s)", () -> m_gyro.getRate(), null);
+        builder.addDoubleProperty("Gyro Angle Mod 360 (deg)", () -> m_gyro.getAngle() % 360, null);
+        builder.addDoubleProperty("Gyro Compass Heading (deg)", () -> m_gyro.getCompassHeading(), null);
+
         builder.addDoubleProperty("Heading Degrees", () -> getHeading().getDegrees(), null);
         builder.addDoubleProperty("Heading Radians", () -> getHeading().getRadians(), null);
-        builder.addDoubleProperty("Compass Heading", () -> m_gyro.getCompassHeading(), null);
-        builder.addDoubleProperty("Angle", () -> m_gyro.getAngle(), null);
-        builder.addDoubleProperty("xSpeed", () -> x, null);
-        builder.addDoubleProperty("ySpeed", () -> y, null);
-        builder.addDoubleProperty("Rotation", () -> rotation, null);
-        builder.addBooleanProperty("Field Relative", () -> isFieldRelative, null);
-        // builder.addDoubleProperty("Identity", () -> Identity.get(), null);
 
-        builder.addDoubleProperty("Front Left Output", () -> m_frontLeft.getDriveOutput(), null);
-        builder.addDoubleProperty("Front Right Output", () -> m_frontRight.getDriveOutput(), null);
-        builder.addDoubleProperty("Rear Left Output", () -> m_rearLeft.getDriveOutput(), null);
-        builder.addDoubleProperty("Rear Right Output", () -> m_rearLeft.getDriveOutput(), null);
+        builder.addDoubleProperty("ChassisSpeedDesired Odometry X (m/s)", () -> desiredChassisSpeeds.vxMetersPerSecond, null);
+        builder.addDoubleProperty("ChassisSpeedDesired Odometry Y (m/s)", () -> desiredChassisSpeeds.vyMetersPerSecond, null);
 
-        // builder.addDoubleProperty("Speed Ms Odometry", () -> observedVelocity, null);
-        builder.addDoubleProperty("ChassisSpeedDesired Odometry X", () -> desiredChassisSpeeds.vxMetersPerSecond, null);
-        builder.addDoubleProperty("ChassisSpeedDesired Odometry Y", () -> desiredChassisSpeeds.vyMetersPerSecond, null);
-        builder.addDoubleProperty("GYRO ROLL", () -> m_gyro.getRoll(), null);
-
-        builder.addDoubleProperty("GYRO Fused", () -> m_gyro.getFusedHeading(), null);
-        builder.addDoubleProperty("Gyro Rate", () -> m_gyro.getRate(), null);
-        builder.addDoubleProperty("getAngle", () -> m_gyro.getAngle() % 360, null);
+        builder.addDoubleProperty("Heading Controller Setpoint (rad)", () -> headingController.getSetpoint().position, null);
+        builder.addDoubleProperty("Heading Controller Measurment (rad)", () -> getPose().getRotation().getRadians(), null);
+        builder.addDoubleProperty("Heading Controller Goal (rad)", () -> headingController.getGoal().position, null);
 
     }
 }
