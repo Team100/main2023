@@ -20,7 +20,7 @@ public class ArmController extends SubsystemBase {
     private double xSetpoint = 1;
     private double ySetpoint = 1;
 
-    public boolean cubeMode = false;
+    public boolean cubeMode = true;
 
     private double upperAngleSetpoint = 0;
     private double lowerAngleSetpoint = 0;
@@ -178,7 +178,7 @@ public class ArmController extends SubsystemBase {
      * @return lower arm angle
      */
     public double getLowerArm() {
-        double x = (lowerArmEncoder.getAbsolutePosition() - 0.480530) * 360;
+        double x = (lowerArmEncoder.getAbsolutePosition() - 0.510975) * 360;
         double formatted = x;
         // * Math.PI / 180;
         return (-1 * formatted) * Math.PI / 180;

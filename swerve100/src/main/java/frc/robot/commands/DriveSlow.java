@@ -1,5 +1,6 @@
 package frc.robot.commands;
 
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.SwerveDriveSubsystem;
 import team100.control.DualXboxControl;
@@ -16,10 +17,11 @@ public class DriveSlow extends CommandBase {
 
     @Override
     public void execute() {
+
         m_robotDrive.driveSlow(
-                m_control.xSpeed(),
-                m_control.ySpeed(),
-                m_control.rotSpeed(),
+                MathUtil.applyDeadband(m_control.xSpeed(), .1),
+                MathUtil.applyDeadband(m_control.ySpeed(), .1),
+                MathUtil.applyDeadband(m_control.rotSpeed(), .1),
                 true);
     }
 }

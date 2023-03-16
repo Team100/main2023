@@ -10,6 +10,7 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.math.trajectory.TrajectoryConfig;
 import edu.wpi.first.math.trajectory.TrajectoryGenerator;
+import edu.wpi.first.math.trajectory.TrajectoryParameterizer.TrajectoryGenerationException;
 import edu.wpi.first.networktables.DoublePublisher;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.Timer;
@@ -28,6 +29,8 @@ public class ArmTrajectory extends CommandBase {
     DoublePublisher setpointY = inst.getTable("Arm Trajec").getDoubleTopic("setpointY").publish();
     DoublePublisher measurmentX = inst.getTable("Arm Trajec").getDoubleTopic("measurmentX").publish();
     DoublePublisher measurmentY = inst.getTable("Arm Trajec").getDoubleTopic("measurmentY").publish();
+    DoublePublisher setpointUpper = inst.getTable("Arm Trajec").getDoubleTopic("Setpoint Upper").publish();
+    DoublePublisher setpointLower = inst.getTable("Arm Trajec").getDoubleTopic("Setpoint Lower").publish();
 
     private final Timer m_timer = new Timer();
     private final PIDController upperController;
@@ -76,13 +79,17 @@ public class ArmTrajectory extends CommandBase {
         InverseKinematicsAngle highGoalCone = new InverseKinematicsAngle(1.05, 0.58); // tuned for our mock up
         InverseKinematicsAngle midGoalCone = new InverseKinematicsAngle(1.53, 0.18); //not real
         InverseKinematicsAngle lowGoalCone = new InverseKinematicsAngle(2.21, 0); // not real
-        InverseKinematicsAngle subCone = new InverseKinematicsAngle(1.56, -0.02); // tuned for our mock up
+        InverseKinematicsAngle subCone = new InverseKinematicsAngle(1.473078, -0.462283 ); // tuned for our mock up
 
         // Cube
-        InverseKinematicsAngle highGoalCube = new InverseKinematicsAngle(1.41,0.56); //not real
+        InverseKinematicsAngle highGoalCube = new InverseKinematicsAngle(1.390242,0.648938); //not real
         InverseKinematicsAngle midGoalCube = new InverseKinematicsAngle(1.91, 0.19); //not real
-        InverseKinematicsAngle lowGoalCube = new InverseKinematicsAngle(2.51, 0.33); //not real
-        InverseKinematicsAngle subCube = new InverseKinematicsAngle(2.02, 0);//not real
+        InverseKinematicsAngle lowGoalCube = new InverseKinematicsAngle(2.271662, -0.049849); //not real
+        InverseKinematicsAngle subCube = new InverseKinematicsAngle(1.473078, -0.462283);//not real
+        InverseKinematicsAngle subToCube = new InverseKinematicsAngle(1.100452, -0.734924);//not real
+
+
+        InverseKinematicsAngle safeBack = new InverseKinematicsAngle(1.97, -0.55);
 
         InverseKinematicsAngle safeGoal = m_arm.calculate(0.2, 0.125);
 
@@ -90,11 +97,21 @@ public class ArmTrajectory extends CommandBase {
 
         // boolean notSafe = true;
 
+        try{
+
         if (m_position == ArmPosition.SAFE) {
             return TrajectoryGenerator.generateTrajectory(
                     new Pose2d(m_arm.getUpperArm(), m_arm.getLowerArm(), Rotation2d.fromDegrees(-180)),
                     List.of(new Translation2d(safeWaypoint.upperTheta, safeWaypoint.lowerTheta)),
                     new Pose2d(safeGoal.upperTheta, safeGoal.lowerTheta, Rotation2d.fromDegrees(-180)),
+                    trajecConfig);
+        }
+
+        if(m_position == ArmPosition.SAFEBACK){
+            return TrajectoryGenerator.generateTrajectory(
+                    new Pose2d(m_arm.getUpperArm(), m_arm.getLowerArm(), Rotation2d.fromDegrees(-180)),
+                    List.of(new Translation2d(safeWaypoint.upperTheta, safeWaypoint.lowerTheta)),
+                    new Pose2d(safeBack.upperTheta, safeBack.lowerTheta, Rotation2d.fromDegrees(-180)),
                     trajecConfig);
         }
 
@@ -123,6 +140,12 @@ public class ArmTrajectory extends CommandBase {
                         List.of(),
                         new Pose2d(subCone.upperTheta, subCone.lowerTheta, new Rotation2d(Math.PI / 2)),
                         trajecConfig);
+            } else if (m_position == ArmPosition.SUBTOCUBE) {
+                return TrajectoryGenerator.generateTrajectory(
+                        new Pose2d(m_arm.getUpperArm(), m_arm.getLowerArm(), new Rotation2d(Math.PI / 2)),
+                        List.of(),
+                        new Pose2d(subToCube.upperTheta, subToCube.lowerTheta, new Rotation2d(Math.PI / 2)),
+                        trajecConfig);
             }
         } else {
             if (m_position == ArmPosition.HIGH) {
@@ -149,10 +172,22 @@ public class ArmTrajectory extends CommandBase {
                         List.of(),
                         new Pose2d(subCube.upperTheta, subCube.lowerTheta, new Rotation2d(Math.PI / 2)),
                         trajecConfig);
+            } else if (m_position == ArmPosition.SUBTOCUBE) {
+                return TrajectoryGenerator.generateTrajectory(
+                        new Pose2d(m_arm.getUpperArm(), m_arm.getLowerArm(), new Rotation2d(Math.PI / 2)),
+                        List.of(),
+                        new Pose2d(subToCube.upperTheta, subToCube.lowerTheta, new Rotation2d(Math.PI / 2)),
+                        trajecConfig);
             }
         }
 
+    }catch(TrajectoryGenerationException e){
         return null;
+
+    }
+
+    return null;
+
 
         // if(m_position == ArmPosition.SAFE){
         // return TrajectoryGenerator.generateTrajectory(
