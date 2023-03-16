@@ -33,7 +33,7 @@ public class VasiliAutonomous extends SequentialCommandGroup {
         // command.addRequirements(m_robotDrive);
         addCommands(
                 // TODO add place cone/cube command here
-                //TODO Create a new holonmoic drive controller with the rotation fix
+                // TODO Create a new holonmoic drive controller with the rotation fix
                 moveFromStartingPoseToGamePiece
                         .newMoveFromStartingPoseToGamePiece(
                                 m_robotDrive,
@@ -43,15 +43,19 @@ public class VasiliAutonomous extends SequentialCommandGroup {
                                         new Rotation2d(Math.PI / 2)),
                                 new Pose2d(0, 0.92, new Rotation2d(Math.PI / 2)),
                                 () -> new Rotation2d(Math.PI)),
+
                 moveFromStartingPoseToGamePiece
                         .newMoveFromStartingPoseToGamePiece(
                                 m_robotDrive,
                                 new Pose2d(
-                                        m_robotDrive.getPose().getX(),
-                                        m_robotDrive.getPose().getY(),
+                                        0,
+                                        0.92,
                                         new Rotation2d()),
-                                new Pose2d(5.7, 0, new Rotation2d()),
-                                () -> new Rotation2d()));
+                                new Pose2d(5.7, 1.92, new Rotation2d()),
+                                () -> new Rotation2d(Math.PI)),
+                new Rotate(m_robotDrive, 0)            
+            );
+
 
         // TODO Make a pickup cone/cube from floor command here
 
