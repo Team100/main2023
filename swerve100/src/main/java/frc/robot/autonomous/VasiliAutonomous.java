@@ -41,7 +41,7 @@ public class VasiliAutonomous extends SequentialCommandGroup {
                                         m_robotDrive.getPose().getX(),
                                         m_robotDrive.getPose().getY(),
                                         new Rotation2d(Math.PI / 2)),
-                                new Pose2d(0, 1.92, new Rotation2d(Math.PI / 2)),
+                                new Pose2d(0, 0.92, new Rotation2d(Math.PI / 2)),
                                 () -> new Rotation2d(Math.PI)),
 
                 moveFromStartingPoseToGamePiece
@@ -49,7 +49,7 @@ public class VasiliAutonomous extends SequentialCommandGroup {
                                 m_robotDrive,
                                 new Pose2d(
                                         0,
-                                        1.92,
+                                        0.92,
                                         new Rotation2d()),
                                 new Pose2d(5.7, 1.92, new Rotation2d()),
                                 () -> new Rotation2d(Math.PI)),
