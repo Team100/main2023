@@ -40,52 +40,9 @@ public class Rotate extends ProfiledPIDCommand {
 
     @Override
     public boolean isFinished() {
-        System.out.println("ROTATTITINNNGNNGNGNGNGNG");
-        // return m_haveMeasurement
-        // && m_haveSetpoint
-        // && Math.abs(m_positionError) < m_positionTolerance
-        // && Math.abs(m_velocityError) < m_velocityTolerance;
+        return getController().atGoal();
 
-        // boolean atSetPoint = m_controller.atSetpoint();
-        // if (atSetPoint) {
-        // System.out.println("LETS A FRICKING OGOOOOOOOOOOOOOOOOOOOOOO");
-        // }
-        // return atSetPoint && m_goal.get().equals(getController().getSetpoint());
-        // return getController().atGoal();
-        // && Math.abs(m_positionError) < m_positionTolerance
-        // && Math.abs(m_velocityError) < m_velocityTolerance;
-
-        double setpointMinusMeasurement = m_controller.getPositionError();
-        double setpointMinusMeasurementVelocity = m_controller.getVelocityError();
-        double positionTolerance = m_controller.getPositionTolerance();
-        double velocityTolerance = m_controller.getVelocityTolerance();
-        double goalPosition = m_goal.get().position;
-        double goalVelocity = m_goal.get().velocity;
-        double setpointPosition = getController().getSetpoint().position;
-        double setpointVelocity = getController().getSetpoint().velocity;
-        System.out.printf("%5.3f %5.3f %5.3f %5.3f %5.3f %5.3f %5.3f %5.3f\n",
-                goalPosition,
-                goalVelocity,
-                setpointPosition,
-                setpointVelocity,
-                setpointMinusMeasurement,
-                setpointMinusMeasurementVelocity,
-                positionTolerance,
-                velocityTolerance);
-        double setpointMinusGoal = setpointVelocity - goalVelocity;
-        double setpointMinusGoalPosition = setpointPosition - goalPosition;
-        if (setpointMinusGoal < 0.05) {
-            if (setpointMinusGoalPosition < 0.05) {
-                if (setpointMinusMeasurement < 0.05) {
-                    if (setpointMinusMeasurementVelocity < 0.05) {
-                        return true;
-                    }
-                }
-            }
-        }
-        // return (atSetPoint && Math.abs(m_goal.get() - getController().getSetpoint())
-        // < 0.00001);
-        return false;
+        
     }
 
     @Override

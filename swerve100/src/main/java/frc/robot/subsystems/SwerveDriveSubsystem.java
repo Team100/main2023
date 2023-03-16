@@ -197,7 +197,7 @@ public class SwerveDriveSubsystem extends SubsystemBase {
                 kMaxSpeedMetersPerSecond = 5;
                 kMaxAccelerationMetersPerSecondSquared = 10;
                 kMaxAngularSpeedRadiansPerSecond = 5;
-                kMaxAngularSpeedRadiansPerSecondSquared = 5;
+                kMaxAngularSpeedRadiansPerSecondSquared = 4.5;
 
                 xController = new PIDController(
                         0.15, // kP
@@ -214,9 +214,9 @@ public class SwerveDriveSubsystem extends SubsystemBase {
                 yController.setIntegratorRange(-0.5, 0.5);
 
                 thetaController = new ProfiledPIDController(
-                        3.0, // kP
+                        3, // kP
                         0.0, // kI
-                        0.0, // kD
+                        0.0, // kD      
                         new TrapezoidProfile.Constraints(
                                 kMaxAngularSpeedRadiansPerSecond,
                                 kMaxAngularSpeedRadiansPerSecondSquared));

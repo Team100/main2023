@@ -26,7 +26,7 @@ public class moveFromStartingPoseToGamePiece extends TrajectoryCommand {
     // System.out.println(targetPose);
     TrajectoryConfig trajectoryConfig = new TrajectoryConfig(
         5,
-    4)
+5)
         // Add kinematics to ensure max speed is actually obeyed
         .setKinematics(SwerveDriveSubsystem.kDriveKinematics);
         Trajectory exampleTrajectory = TrajectoryGenerator.generateTrajectory(

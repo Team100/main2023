@@ -184,7 +184,7 @@ public class DriveToWaypoint2 extends CommandBase {
         this.desiredY = desiredState.poseMeters.getY();
 
         // System.out.println("*****************"+goal);
-        var targetChassisSpeeds = m_controller.calculate(m_swerve.getPose(), desiredState, goal.getRotation());
+        var targetChassisSpeeds = m_controller.calculate(m_swerve.getPose(), desiredState, m_swerve, goal.getRotation());
         var targetModuleStates = SwerveDriveSubsystem.kDriveKinematics.toSwerveModuleStates(targetChassisSpeeds);
 
         desiredXPublisher.set(desiredX);
