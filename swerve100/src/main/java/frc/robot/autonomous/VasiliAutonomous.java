@@ -51,7 +51,7 @@ public class VasiliAutonomous extends SequentialCommandGroup {
                                         0,
                                         0.92,
                                         new Rotation2d()),
-                                new Pose2d(5.7, 1.92, new Rotation2d()),
+                                new Pose2d(5.7, 0.92, new Rotation2d()),
                                 () -> new Rotation2d(Math.PI)),
                 new Rotate(m_robotDrive, 0)            
             );
