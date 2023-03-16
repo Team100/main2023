@@ -33,7 +33,7 @@ public class GoNoGoIndicator {
         GO(Color.kGreen),
         CUBE(new Color(254, 100, 0)),
         CONE(new Color(255, 0, 80)),
-        ORANGE(new Color(255, 0, 40));
+        ORANGE(new Color(255, 0, 30));
 
         private final AddressableLEDBuffer buffer;
 
