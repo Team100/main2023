@@ -50,6 +50,8 @@ public class DriveToWaypoint3 extends CommandBase {
     private GoalOffset previousOffset;
     private Transform2d goalTransform;
 
+    public Translation2d globalGoalTranslation;
+
     private final TrajectoryConfig translationConfig;
     private final ProfiledPIDController m_rotationController;
     private final PIDController xController;
@@ -87,7 +89,7 @@ public class DriveToWaypoint3 extends CommandBase {
                 1.25 // accel m/s/s
         ).setKinematics(SwerveDriveSubsystem.kDriveKinematics);
 
-        // globalGoalTranslation = new Translation2d();
+        globalGoalTranslation = new Translation2d();
 
         addRequirements(m_swerve);
 
@@ -111,7 +113,7 @@ public class DriveToWaypoint3 extends CommandBase {
                 .setKinematics(SwerveDriveSubsystem.kDriveKinematics);
         withStartVelocityConfig.setStartVelocity(startVelocity);
 
-        // globalGoalTranslation = goalTranslation;
+        globalGoalTranslation = goalTranslation;
         // TODO: Change starting waypoint to align with starting velocity
         try {
             return TrajectoryGenerator.generateTrajectory(
@@ -169,7 +171,7 @@ public class DriveToWaypoint3 extends CommandBase {
         this.desiredY = desiredState.poseMeters.getY();
 
         // System.out.println("*****************"+goal);
-        var targetChassisSpeeds = m_controller.calculate(m_swerve.getPose(), desiredState, goal.getRotation());
+        var targetChassisSpeeds = m_controller.calculate(m_swerve.getPose(), desiredState, m_swerve, goal.getRotation());
         var targetModuleStates = SwerveDriveSubsystem.kDriveKinematics.toSwerveModuleStates(targetChassisSpeeds);
 
         desiredXPublisher.set(desiredX);
@@ -179,15 +181,15 @@ public class DriveToWaypoint3 extends CommandBase {
 
         m_swerve.setModuleStates(targetModuleStates);
 
-        // if( Math.abs(globalGoalTranslation.getX() - m_swerve.getPose().getX()) < 0.15
-        // && Math.abs(globalGoalTranslation.getY() - m_swerve.getPose().getY()) < 0.15
-        // ){
-        // count++;
-        // }
+        if( Math.abs(globalGoalTranslation.getX() - m_swerve.getPose().getX()) < 0.15
+        && Math.abs(globalGoalTranslation.getY() - m_swerve.getPose().getY()) < 0.15
+        ){
+        count++;
+        }
 
-        // if(count >= 20){
-        // isFinished = true;
-        // }
+        if(count >= 20){
+        isFinished = true;
+        }
 
         // if(count >= 60){
         //     isFinished = true;

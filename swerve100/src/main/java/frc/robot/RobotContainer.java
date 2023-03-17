@@ -91,6 +91,12 @@ public class RobotContainer implements Sendable {
     private final ArmTrajectory armHigh;
     private final ArmTrajectory armSafe;
     private final ArmTrajectory armSubstation;
+    private final ArmTrajectory armLow;
+    private final ArmTrajectory armSafeBack;
+    private final ArmTrajectory armToSub;
+    private final ArmTrajectory armMid;
+
+
     private final SetCubeMode setCubeMode; 
     private final SetConeMode setConeMode; 
 
@@ -114,8 +120,7 @@ public class RobotContainer implements Sendable {
         control = new DualXboxControl();
 
         // m_alliance = DriverStation.getAlliance();
-
-        m_alliance = DriverStation.Alliance.Red;
+        m_alliance = DriverStation.Alliance.Blue;
 
         m_robotDrive = new SwerveDriveSubsystem(m_alliance, kDriveCurrentLimit);
 
@@ -123,12 +128,12 @@ public class RobotContainer implements Sendable {
             driveToLeftGrid = DriveToAprilTag.newDriveToAprilTag(6, 0.95, .55, control::goalOffset, m_robotDrive);
             driveToCenterGrid = DriveToAprilTag.newDriveToAprilTag(7, 0.95, .55, control::goalOffset, m_robotDrive);
             driveToRightGrid = DriveToAprilTag.newDriveToAprilTag(8, 0.95, .55, control::goalOffset, m_robotDrive);
-            driveToSubstation = DriveToAprilTag.newDriveToAprilTag(4, 0.889, -0.749, control::goalOffset, m_robotDrive);
+            driveToSubstation = DriveToAprilTag.newDriveToAprilTag(4, 0.53, -0.749, control::goalOffset, m_robotDrive);
         } else {
             driveToLeftGrid = DriveToAprilTag.newDriveToAprilTag(1, 0.95, .55, control::goalOffset, m_robotDrive);
             driveToCenterGrid = DriveToAprilTag.newDriveToAprilTag(2, 0.95, .55, control::goalOffset, m_robotDrive);
             driveToRightGrid = DriveToAprilTag.newDriveToAprilTag(3, 0.95, .55, control::goalOffset, m_robotDrive);
-            driveToSubstation = DriveToAprilTag.newDriveToAprilTag(5, 0.889, -0.749, control::goalOffset, m_robotDrive);
+            driveToSubstation = DriveToAprilTag.newDriveToAprilTag(5, 0.53, -0.749, control::goalOffset, m_robotDrive);
         }
 
         
@@ -159,6 +164,11 @@ public class RobotContainer implements Sendable {
 
         resetRotation180 = new ResetRotation(m_robotDrive, Rotation2d.fromDegrees(180));
 
+        armLow = new ArmTrajectory(ArmPosition.MID, armController);
+
+        armToSub = new ArmTrajectory(ArmPosition.SUBTOCUBE, armController);
+
+        armMid = new ArmTrajectory(ArmPosition.LOW, armController);
 
         driveWithHeading = new DriveWithHeading(
                 m_robotDrive,
@@ -174,12 +184,14 @@ public class RobotContainer implements Sendable {
 
         manualArm = new ManualArm(armController, control.getController());
 
+        armSafeBack = new ArmTrajectory(ArmPosition.SAFEBACK, armController);
+
         // control.autoLevel(autoLevel);
         control.driveToLeftGrid(driveToLeftGrid);
         control.driveToCenterGrid(driveToCenterGrid);
         control.driveToRightGrid(driveToRightGrid);
         control.driveToSubstation(driveToSubstation);
-        control.defense(defense);
+        // control.defense(defense);
         
         control.resetRotation0(resetRotation0);
         control.resetRotation180(resetRotation180);
@@ -196,9 +208,17 @@ public class RobotContainer implements Sendable {
         control.coneMode(setConeMode);
         control.cubeMode(setCubeMode);
 
-        control.driveSlow(driveSlow);
+        // control.driveSlow(driveSlow);
 
         control.armSubstation(armSubstation);
+
+        control.armLow(armLow);
+
+        control.armSafeBack(armSafeBack);
+
+        control.armToSub(armToSub);
+
+        // control.armMid(armMid);
 
 
 
@@ -212,7 +232,7 @@ public class RobotContainer implements Sendable {
                 control::rotSpeed,
                 m_robotDrive);
 
-        m_robotDrive.setDefaultCommand(driveWithHeading);
+        m_robotDrive.setDefaultCommand(driveManually);
 
         // Controller 1 triggers => manipulator open/close
         gripManually = new GripManually(
@@ -237,10 +257,10 @@ public class RobotContainer implements Sendable {
         // new IshanAutonomous(m_robotDrive)
         // );
 
-        // return new VasiliAutonomous(m_robotDrive);
+        return new VasiliAutonomous(m_robotDrive);
 
         // return new SanjanAutonomous(AutonSelect.BLUE1, m_robotDrive, armController, manipulator);
-        return new Autonomous(AutonSelect.BLUE2, AutonGamePiece.CONE, m_robotDrive, armController, manipulator);
+        // return new Autonomous(AutonSelect.BLUE2, AutonGamePiece.CONE, m_robotDrive, armController, manipulator);
     }
 
     public void runTest() {

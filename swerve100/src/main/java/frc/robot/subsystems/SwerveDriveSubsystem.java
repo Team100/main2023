@@ -78,8 +78,8 @@ public class SwerveDriveSubsystem extends SubsystemBase {
     public final double kMaxAngularSpeedRadiansPerSecond;
     public final double kMaxAngularSpeedRadiansPerSecondSquared;
 
-    public final double kSlowSpeedMetersPerSecond;
-    public final double kSlowAngularSpeedRadiansPerSecond;
+    // public final double kSlowSpeedMetersPerSecond;
+    // public final double kSlowAngularSpeedRadiansPerSecond;
 
     public final SwerveModule m_frontLeft;
     public final SwerveModule m_frontRight;
@@ -115,8 +115,8 @@ public class SwerveDriveSubsystem extends SubsystemBase {
         fieldTypePub = fieldTable.getStringTopic(".type").publish();
         fieldTypePub.set("Field2d");
 
-        kSlowSpeedMetersPerSecond = 0.5;
-        kSlowAngularSpeedRadiansPerSecond = 0.25;
+        // kSlowSpeedMetersPerSecond = 0.5;
+        // kSlowAngularSpeedRadiansPerSecond = 0.25;
 
         switch (Identity.get()) {
             case COMP_BOT:
@@ -130,7 +130,7 @@ public class SwerveDriveSubsystem extends SubsystemBase {
                 headingController.setIntegratorRange(-0.1, 0.1);
                 // Note very low heading tolerance.
                 headingController.setTolerance(Units.degreesToRadians(0.1));
-                kMaxSpeedMetersPerSecond = 5;
+                kMaxSpeedMetersPerSecond = 15;
                 kMaxAccelerationMetersPerSecondSquared = 10;
                 kMaxAngularSpeedRadiansPerSecond = 5;
                 kMaxAngularSpeedRadiansPerSecondSquared = 5;
@@ -158,28 +158,28 @@ public class SwerveDriveSubsystem extends SubsystemBase {
                         11, // drive CAN
                         30, // turn CAN
                         0, // turn encoder
-                        0.26, // turn offset
+                        0.263906, // turn offset
                         currentLimit);
                 m_frontRight = SwerveModuleFactory.WCPModule(
                         "Front Right",
                         12, // drive CAN
                         32, // turn CAN
                         1, // turn encoder
-                        0.87, // turn offset
+                        0.876270, // turn offset
                         currentLimit);
                 m_rearLeft = SwerveModuleFactory.WCPModule(
                         "Rear Left",
                         21, // drive CAN
                         31, // turn CAN
                         2, // turn encoder
-                        0.27, // turn offset
+                        0.162685, // turn offset
                         currentLimit);
                 m_rearRight = SwerveModuleFactory.WCPModule(
                         "Rear Right",
                         22, // drive CAN
                         33, // turn CAN
                         3, // turn encoder
-                        0.46, // turn offset
+                        0.465788, // turn offset
                         currentLimit);
                 break;
             case SWERVE_TWO:
@@ -197,26 +197,26 @@ public class SwerveDriveSubsystem extends SubsystemBase {
                 kMaxSpeedMetersPerSecond = 5;
                 kMaxAccelerationMetersPerSecondSquared = 10;
                 kMaxAngularSpeedRadiansPerSecond = 5;
-                kMaxAngularSpeedRadiansPerSecondSquared = 5;
+                kMaxAngularSpeedRadiansPerSecondSquared = 4.5;
 
                 xController = new PIDController(
-                        0.15, // kP
-                        0, // kI
+                        2, // kP
+                        0.1, // kI
                         0.0); // kD
                 xController.setTolerance(0.01);
                 xController.setIntegratorRange(-0.5, 0.5);
 
                 yController = new PIDController(
-                        0.15, // kP
-                        0, // kI
+                        2, // kP
+                        0.1, // kI
                         0.0); // kD
                 yController.setTolerance(0.01);
                 yController.setIntegratorRange(-0.5, 0.5);
 
                 thetaController = new ProfiledPIDController(
-                        3.0, // kP
+                        3, // kP
                         0.0, // kI
-                        0.0, // kD
+                        0.0, // kD      
                         new TrapezoidProfile.Constraints(
                                 kMaxAngularSpeedRadiansPerSecond,
                                 kMaxAngularSpeedRadiansPerSecondSquared));
@@ -459,7 +459,7 @@ public class SwerveDriveSubsystem extends SubsystemBase {
                 new Pose2d(),
                 VecBuilder.fill(0.03, 0.03, 0.03),
                 VecBuilder.fill(0.01, 0.01, 0.04)); // note tight rotation variance here, used to be MAX_VALUE
-//                VecBuilder.fill(0.01, 0.01, Integer.MAX_VALUE));
+        // VecBuilder.fill(0.01, 0.01, Integer.MAX_VALUE));
         visionDataProvider = new VisionDataProvider(alliance, m_poseEstimator, () -> getPose());
 
         SmartDashboard.putData("Drive Subsystem", this);
@@ -572,26 +572,34 @@ public class SwerveDriveSubsystem extends SubsystemBase {
     }
 
     public void driveSlow(double xSpeed, double ySpeed, double rot, boolean fieldRelative) {
+        xSpeed = MathUtil.clamp(xSpeed, -1, 1);
+        ySpeed = MathUtil.clamp(ySpeed, -1, 1);
+        rot = MathUtil.clamp(rot, -1, 1);
+        // if (Math.abs(xSpeed) < .01)
+        // xSpeed = 100 * xSpeed * xSpeed * Math.signum(xSpeed);
+        // if (Math.abs(ySpeed) < .01)
+        // ySpeed = 100 * ySpeed * ySpeed * Math.signum(ySpeed);
         if (Math.abs(rot) < .01)
             rot = 0;
-
-        Rotation2d rotation2 = getPose().getRotation();
-        desiredChassisSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(kMaxSpeedMetersPerSecond * xSpeed,
-                kMaxSpeedMetersPerSecond * ySpeed, kSlowAngularSpeedRadiansPerSecond * rot,
+        double gyroRate = m_gyro.getRate() * 0.25;
+        Rotation2d rotation2 = getPose().getRotation().minus(new Rotation2d(gyroRate));
+        desiredChassisSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(6 * xSpeed,
+                6 * ySpeed, 5 * rot,
                 rotation2);
-
+        // TODO fix fieldRelative making this go crazy when it is off
         var swerveModuleStates = kDriveKinematics.toSwerveModuleStates(
                 fieldRelative
                         ? desiredChassisSpeeds
-                        : new ChassisSpeeds(kSlowSpeedMetersPerSecond * xSpeed, kSlowSpeedMetersPerSecond * ySpeed,
-                                kSlowAngularSpeedRadiansPerSecond * rot));
+                        : new ChassisSpeeds(7 * xSpeed, 7 * ySpeed,
+                                5 * rot));
 
         SwerveDriveKinematics.desaturateWheelSpeeds(
-                swerveModuleStates, kSlowSpeedMetersPerSecond);
+                swerveModuleStates, 6);
 
         getRobotVelocity(swerveModuleStates);
 
         m_frontLeft.setDesiredState(swerveModuleStates[0]);
+        System.out.println(desiredChassisSpeeds);
         m_frontRight.setDesiredState(swerveModuleStates[1]);
         m_rearLeft.setDesiredState(swerveModuleStates[2]);
         m_rearRight.setDesiredState(swerveModuleStates[3]);
@@ -692,11 +700,15 @@ public class SwerveDriveSubsystem extends SubsystemBase {
         builder.addDoubleProperty("Heading Degrees", () -> getHeading().getDegrees(), null);
         builder.addDoubleProperty("Heading Radians", () -> getHeading().getRadians(), null);
 
-        builder.addDoubleProperty("ChassisSpeedDesired Odometry X (m/s)", () -> desiredChassisSpeeds.vxMetersPerSecond, null);
-        builder.addDoubleProperty("ChassisSpeedDesired Odometry Y (m/s)", () -> desiredChassisSpeeds.vyMetersPerSecond, null);
+        builder.addDoubleProperty("ChassisSpeedDesired Odometry X (m/s)", () -> desiredChassisSpeeds.vxMetersPerSecond,
+                null);
+        builder.addDoubleProperty("ChassisSpeedDesired Odometry Y (m/s)", () -> desiredChassisSpeeds.vyMetersPerSecond,
+                null);
 
-        builder.addDoubleProperty("Heading Controller Setpoint (rad)", () -> headingController.getSetpoint().position, null);
-        builder.addDoubleProperty("Heading Controller Measurment (rad)", () -> getPose().getRotation().getRadians(), null);
+        builder.addDoubleProperty("Heading Controller Setpoint (rad)", () -> headingController.getSetpoint().position,
+                null);
+        builder.addDoubleProperty("Heading Controller Measurment (rad)", () -> getPose().getRotation().getRadians(),
+                null);
         builder.addDoubleProperty("Heading Controller Goal (rad)", () -> headingController.getGoal().position, null);
 
     }

@@ -1,5 +1,7 @@
 package team100.control;
 
+import org.opencv.video.KalmanFilter;
+
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.util.sendable.Sendable;
 import edu.wpi.first.util.sendable.SendableBuilder;
@@ -75,13 +77,13 @@ public class DualXboxControl implements Sendable {
     }
 
     public void resetRotation180(ResetRotation command) {
-        JoystickButton startButton = new JoystickButton(controller0.getHID(), 8);
-        startButton.onTrue(command); //TODO change these vals to middle buttons 
-    }
+            JoystickButton startButton = new JoystickButton(controller0.getHID(), 8);
+            startButton.onTrue(command); //TODO change these vals to middle buttons 
+        }
 
-    /** @return [-1,1] */
-    public double xSpeed() {
-        return -1.0 * controller0.getRightY();
+        /** @return [-1,1] */
+        public double xSpeed() {
+            return -1.0 * controller0.getRightY();
     }
 
     /** @return [-1,1] */
@@ -166,12 +168,25 @@ public class DualXboxControl implements Sendable {
         controller1.povUp().whileTrue(command);
     }
 
+    public void armLow(ArmTrajectory command){
+        controller1.povLeft().whileTrue(command);
+    }
+
     public void armSafe(ArmTrajectory command) {
         controller1.povDown().whileTrue(command);
     }
 
+    public void armSafeBack(ArmTrajectory command) {
+        controller1.leftBumper().whileTrue(command);
+    }
+
     public void armSubstation(ArmTrajectory command) {
         controller1.povRight().whileTrue(command);
+    }
+
+    public void armMid(ArmTrajectory command){
+        JoystickButton button = new JoystickButton(controller0.getHID(), 7);
+        button.whileTrue(command);
     }
 
     public void open(Open command) {
@@ -192,6 +207,13 @@ public class DualXboxControl implements Sendable {
 
     public void coneMode(SetConeMode command) {
         controller1.a().onTrue(command);
+    }
+
+    public void armToSub(ArmTrajectory command){
+        // JoystickButton button = new JoystickButton(controller1.getHID(), 7);
+        // button.onTrue(command);
+
+        controller1.rightBumper().whileTrue(command);
     }
 
     

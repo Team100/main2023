@@ -6,7 +6,6 @@ package frc.robot.commands;
 
 import static edu.wpi.first.util.ErrorMessages.requireNonNullParam;
 
-import edu.wpi.first.math.controller.HolonomicDriveController;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -18,6 +17,7 @@ import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 import frc.robot.subsystems.SwerveDriveSubsystem;
+import frc.robot.autonomous.HolonomicDriveController2;
 
 import java.util.function.Consumer;
 import java.util.function.Supplier;
@@ -50,7 +50,7 @@ public class SwerveControllerCommand extends CommandBase {
     private final Trajectory m_trajectory;
     private final Supplier<Pose2d> m_pose;
     private final SwerveDriveKinematics m_kinematics;
-    private final HolonomicDriveController m_controller;
+    private final HolonomicDriveController2 m_controller;
     private final Consumer<SwerveModuleState[]> m_outputModuleStates;
     ///////////////////////////////
     ///////////////////////////////
@@ -110,7 +110,7 @@ public class SwerveControllerCommand extends CommandBase {
                 trajectory,
                 pose,
                 kinematics,
-                new HolonomicDriveController(
+                new HolonomicDriveController2(
                         requireNonNullParam(xController, "xController", "SwerveControllerCommand"),
                         requireNonNullParam(yController, "yController", "SwerveControllerCommand"),
                         requireNonNullParam(thetaController, "thetaController", "SwerveControllerCommand")),
@@ -219,7 +219,7 @@ public class SwerveControllerCommand extends CommandBase {
             Trajectory trajectory,
             Supplier<Pose2d> pose,
             SwerveDriveKinematics kinematics,
-            HolonomicDriveController controller,
+            HolonomicDriveController2 controller,
             Consumer<SwerveModuleState[]> outputModuleStates,
             SwerveDriveSubsystem robotDrive,
             AHRS gyro,
@@ -266,7 +266,7 @@ public class SwerveControllerCommand extends CommandBase {
             Trajectory trajectory,
             Supplier<Pose2d> pose,
             SwerveDriveKinematics kinematics,
-            HolonomicDriveController controller,
+            HolonomicDriveController2 controller,
             Supplier<Rotation2d> desiredRotation,
             Consumer<SwerveModuleState[]> outputModuleStates,
             SwerveDriveSubsystem robotDrive,
@@ -292,7 +292,7 @@ public class SwerveControllerCommand extends CommandBase {
     double gyroRate = m_gyro.getRate() * 0.25;
     Rotation2d  rotation2 = m_desiredRotation.get().minus(new Rotation2d(gyroRate));
     var targetChassisSpeeds =
-        m_controller.calculate(m_pose.get(), desiredState, rotation2);
+        m_controller.calculate(m_pose.get(), desiredState, m_robotDrive, rotation2);
     var targetModuleStates = m_kinematics.toSwerveModuleStates(targetChassisSpeeds);
     m_outputModuleStates.accept(targetModuleStates);
   }
