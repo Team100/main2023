@@ -32,7 +32,7 @@ class RetroFinder:
 
         tapes = {}
         tapes["tapes"] = []
-
+        contours = contours[:2]
         for c in contours:
             mmnts = cv2.moments(c)
             _, _, _, cnt_height = cv2.boundingRect(c)
@@ -50,7 +50,7 @@ class RetroFinder:
 
             tapes["tapes"].append(
                 {
-                    "pose_t": tape.toList()
+                    "pose_t": tape
                 }
             )
 
@@ -62,9 +62,9 @@ class RetroFinder:
         float_formatter = {"float_kind": lambda x: f"{x:4.1f}"}
         wpi_t = np.array([tape[2], -tape[0], -tape[1]])
         cv2.drawContours(img, [cnt], -1, (0, 255, 0), 2)
-        cv2.circle(img, (cX, cY), 7, (255, 255, 255), -1)
-        cv2.putText(img, f"t: {np.array2string(wpi_t.flatten(), formatter=float_formatter)}", (cX - 20, cY - 20),
-                    cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 2)
+        # cv2.circle(img, (cX, cY), 7, (255, 255, 255), -1)
+        # cv2.putText(img, f"t: {np.array2string(wpi_t.flatten(), formatter=float_formatter)}", (cX - 20, cY - 20),
+        #             cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 2)
 
     def analyze(self, request):
         buffer = request.make_buffer("lores")
@@ -73,7 +73,7 @@ class RetroFinder:
         img = img.reshape((self.height, self.width))
         img = img[: self.height, : self.width]
         self.find(img)
-        self.output_stream.put(img)
+        self.output_stream.putFrame(img)
 
 def main():
     print("main")
