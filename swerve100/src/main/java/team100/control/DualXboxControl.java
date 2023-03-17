@@ -77,13 +77,13 @@ public class DualXboxControl implements Sendable {
     }
 
     public void resetRotation180(ResetRotation command) {
-        JoystickButton startButton = new JoystickButton(controller0.getHID(), 8);
-        startButton.onTrue(command); //TODO change these vals to middle buttons 
-    }
+            JoystickButton startButton = new JoystickButton(controller0.getHID(), 8);
+            startButton.onTrue(command); //TODO change these vals to middle buttons 
+        }
 
-    /** @return [-1,1] */
-    public double xSpeed() {
-        return -1.0 * controller0.getRightY();
+        /** @return [-1,1] */
+        public double xSpeed() {
+            return -1.0 * controller0.getRightY();
     }
 
     /** @return [-1,1] */

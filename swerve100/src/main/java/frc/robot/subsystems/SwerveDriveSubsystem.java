@@ -200,15 +200,15 @@ public class SwerveDriveSubsystem extends SubsystemBase {
                 kMaxAngularSpeedRadiansPerSecondSquared = 4.5;
 
                 xController = new PIDController(
-                        0.15, // kP
-                        0, // kI
+                        2, // kP
+                        0.1, // kI
                         0.0); // kD
                 xController.setTolerance(0.01);
                 xController.setIntegratorRange(-0.5, 0.5);
 
                 yController = new PIDController(
-                        0.15, // kP
-                        0, // kI
+                        2, // kP
+                        0.1, // kI
                         0.0); // kD
                 yController.setTolerance(0.01);
                 yController.setIntegratorRange(-0.5, 0.5);
