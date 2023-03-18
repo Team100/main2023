@@ -1,13 +1,8 @@
 package frc.robot.autonomous;
 
-import org.opencv.features2d.KAZE;
-
-import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.spline.Spline;
 import edu.wpi.first.math.trajectory.TrajectoryGenerator.ControlVectorList;
-import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import frc.robot.subsystems.SwerveDriveSubsystem;
 
@@ -44,11 +39,6 @@ public class VasiliAutonomous extends SequentialCommandGroup {
             new double[] { 0.0, 0, 0 },
             new double[] { 0.0, 2, 0.0 }
         ));
-
-        // controlVectors.add(new Spline.ControlVector( 
-        //     new double[] { 0, 4, 0 },
-        //     new double[] { 2, 0, 0 }
-        // ));
 
         controlVectors.add(new Spline.ControlVector( 
             new double[] { 5, 4, 0 },
