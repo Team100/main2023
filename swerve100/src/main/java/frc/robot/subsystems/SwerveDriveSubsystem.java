@@ -62,6 +62,9 @@ public class SwerveDriveSubsystem extends SubsystemBase {
                 kTrackWidth = 0.5;
                 kWheelBase = 0.5;
                 break;
+            case TEST_BOARD_6B: // for testing
+                kTrackWidth = 0.5;
+                kWheelBase = 0.5;
             default:
                 throw new IllegalStateException("Identity is not swerve: " + Identity.get().name());
         }
