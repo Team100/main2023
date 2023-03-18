@@ -7,42 +7,50 @@ from cscore import CameraServer
 from ntcore import NetworkTableInstance
 from picamera2 import Picamera2
 from pupil_apriltags import Detector
-import imutils
 import math
 
 
 class RetroFinder:
 
-    def __init__(self, camera_params, threshold, threshmode):
-        self.threshold = threshold
-        self.threshmode = threshmode
+    def __init__(self, camera_params, hsv_lower, hsv_higher):
+        self.hsv_lower = hsv_lower
+        self.hsv_higher = hsv_higher
         self.scale_factor = 1
         self.width = camera_params[0]
         self.height = camera_params[1]
         self.tape_height = 10.5
-        self.draw = False
+        self.draw = True
         self.theta = 0
         self.at_detector = Detector(families="tag16h5")
         self.output_stream = CameraServer.putVideo("Processed", self.width, self.height)
 
     def find(self, img):
-        _, thresh = cv2.threshold(img, self.threshold, 255, self.threshmode)
+        green_range = cv2.inRange(img, self.hsv_lower, self.hsv_higher)
+        floodfill = green_range.copy()
+        h, w = green_range.shape[:2]
+        mask = np.zeros((h+2, w+2), np.uint8)
+        cv2.floodFill(floodfill, mask, (0,0), 255)
+        floodfill_inv = cv2.bitwise_not(floodfill)
+        img_floodfill = green_range | floodfill_inv
         contours, hierarchy = cv2.findContours(
-            thresh, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
-
+            img_floodfill, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
         tapes = {}
         tapes["tapes"] = []
-        contours = contours[:2]
+        print(contours)
         for c in contours:
-            mmnts = cv2.moments(c)
             _, _, _, cnt_height = cv2.boundingRect(c)
+            if (cnt_height < 50):
+                continue
+            mmnts = cv2.moments(c)
+            if (mmnts["m00"] == 0):
+                continue
 
-            cX = int(mmnts["m10"] / mmnts["m00"]) - self.width/2
-            cY = int(mmnts["m01"] / mmnts["m00"]) - self.height/2
+            cX = int(mmnts["m10"] / mmnts["m00"])
+            cY = int(mmnts["m01"] / mmnts["m00"])
 
-            translation_x = cX * \
+            translation_x = (cX-self.width)* \
                 (self.tape_height*math.cos(self.theta)/cnt_height)
-            translation_y = cY * \
+            translation_y = (cY-self.height) * \
                 (self.tape_height*math.cos(self.theta)/cnt_height)
             translation_z = (self.tape_height*self.scale_factor*math.cos(self.theta))/(cnt_height)
 
@@ -56,24 +64,27 @@ class RetroFinder:
 
             if (self.draw):
                 self.draw_result(img, c, cX, cY, tape)
+            self.output_stream.putFrame(img)
         return tapes
 
-    def draw_result(img, cnt, cX, cY, tape):
+    def draw_result(self, img, cnt, cX, cY, tape):
         float_formatter = {"float_kind": lambda x: f"{x:4.1f}"}
         wpi_t = np.array([tape[2], -tape[0], -tape[1]])
         cv2.drawContours(img, [cnt], -1, (0, 255, 0), 2)
-        # cv2.circle(img, (cX, cY), 7, (255, 255, 255), -1)
-        # cv2.putText(img, f"t: {np.array2string(wpi_t.flatten(), formatter=float_formatter)}", (cX - 20, cY - 20),
-        #             cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 2)
+        cv2.circle(img, (int(cX), int(cY)), 7, (0, 0, 0), -1)
+        cv2.putText(img, f"t: {np.array2string(wpi_t.flatten(), formatter=float_formatter)}", (int(cX) - 20, int(cY) - 20),
+                    cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 0), 2)
 
     def analyze(self, request):
-        buffer = request.make_buffer("lores")
-        y_len = self.width * self.height
-        img = np.frombuffer(buffer, dtype=np.uint8, count=y_len)
-        img = img.reshape((self.height, self.width))
-        img = img[: self.height, : self.width]
-        self.find(img)
-        self.output_stream.putFrame(img)
+        buffer = request.make_array("lores")
+        # img = np.frombuffer(buffer, dtype=np.uint8)
+        img = buffer
+        # print(buffer.shape)
+        # img = img.reshape((self.height, self.width))
+        img_bgr = cv2.cvtColor(img, cv2.COLOR_YUV420p2BGR)
+        img_hsv = cv2.cvtColor(img_bgr, cv2.COLOR_BGR2HSV)
+        img_hsv = np.ascontiguousarray(img_hsv)
+        self.find(img_hsv)
 
 def main():
     print("main")
@@ -117,7 +128,7 @@ def main():
     # Roborio IP: 10.1.0.2
     # Pi IP: 10.1.0.21
     camera_params = [width, height]
-    output = RetroFinder(camera_params, 245, cv2.THRESH_BINARY)
+    output = RetroFinder(camera_params, (20, 35, 120), (40, 200, 255))
 
     camera.start()
     try:
