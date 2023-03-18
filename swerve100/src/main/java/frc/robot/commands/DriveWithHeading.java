@@ -31,11 +31,12 @@ public class DriveWithHeading extends CommandBase {
 
     private boolean snapMode = false;
 
-    private static final double kSpeedModifier = 1.0;
+    private static final double kSpeedModifier = 5.0;
     Pose2d currentPose;
     // Supplier<Double> rotSpeed;
     double thetaOuput = 0;
     double yOutput;
+    double thetaControllerOutput;
 
     public DriveWithHeading(SwerveDriveSubsystem robotDrive, DoubleSupplier xSpeed, DoubleSupplier ySpeed,
             Supplier<Rotation2d> desiredRotation, DoubleSupplier rotSpeed, String name) {
@@ -92,14 +93,15 @@ public class DriveWithHeading extends CommandBase {
         double currentRads = MathUtil.angleModulus(currentPose.getRotation().getRadians());
 
         if (snapMode && Math.abs(rotSwitch) < 0.1) {
-            thetaOuput = m_headingController.calculate(currentRads, desiredRotation);
+            thetaControllerOutput = m_headingController.calculate(currentRads, desiredRotation);
+            thetaOuput = thetaControllerOutput + m_headingController.getSetpoint().velocity;
         } else {
             snapMode = false;
-            thetaOuput = rotDBRemoved;
+            thetaOuput = rotDBRemoved*kSpeedModifier;
             desiredRotation = currentRads;
         }
 
-        m_robotDrive.drive(xDBRemoved * kSpeedModifier, yDBRemoved * kSpeedModifier, thetaOuput, true);
+        m_robotDrive.driveIdk(xDBRemoved * kSpeedModifier, yDBRemoved * kSpeedModifier, thetaOuput, true);
 
         lastRotationSetpoint = new Rotation2d(desiredRotation);
     }
@@ -120,8 +122,10 @@ public class DriveWithHeading extends CommandBase {
         super.initSendable(builder);
         builder.addDoubleProperty("Error", () -> m_headingController.getPositionError(), null);
         builder.addDoubleProperty("Measurment", () -> currentPose.getRotation().getRadians(), null);
-        builder.addDoubleProperty("Setpoint", () -> m_headingController.getSetpoint().position, null);
+        builder.addDoubleProperty("Setpoint Position", () -> m_headingController.getSetpoint().position, null);
+        builder.addDoubleProperty("Setpoint Velocity", () -> m_headingController.getSetpoint().velocity, null);
         builder.addDoubleProperty("Goal", () -> m_headingController.getGoal().position, null);
+        builder.addDoubleProperty("HeadingControllerOutput", () -> thetaControllerOutput, null);
         // builder.addDoubleProperty("ControllerOutput", () -> radiansPerSecond, null);
         // builder.addDoubleProperty("Chassis Speeds", () ->
         // targetChasisSpeeds.omegaRadiansPerSecond, null);
