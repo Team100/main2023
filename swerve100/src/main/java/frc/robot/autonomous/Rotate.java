@@ -18,7 +18,7 @@ public class Rotate extends ProfiledPIDCommand {
     public Rotate(SwerveDriveSubsystem m_robotDrive, double targetAngleRadians) {
         super(
                 // new PIDController(1, 0, 0),
-                m_robotDrive.thetaController,
+                m_robotDrive.headingController,
                 () -> m_robotDrive.getPose().getRotation().getRadians(),
                 targetAngleRadians,
                 (output, state) -> m_robotDrive.drive(0, 0, output, false),
