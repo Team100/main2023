@@ -94,14 +94,14 @@ public class DriveWithHeading extends CommandBase {
 
         if (snapMode && Math.abs(rotSwitch) < 0.1) {
             thetaControllerOutput = m_headingController.calculate(currentRads, desiredRotation);
-            thetaOuput = thetaControllerOutput + m_headingController.getSetpoint().velocity;
+            thetaOuput = thetaControllerOutput*kSpeedModifier + m_headingController.getSetpoint().velocity;
         } else {
             snapMode = false;
             thetaOuput = rotDBRemoved*kSpeedModifier;
             desiredRotation = currentRads;
         }
 
-        m_robotDrive.driveIdk(xDBRemoved * kSpeedModifier, yDBRemoved * kSpeedModifier, thetaOuput, true);
+        m_robotDrive.driveMetersPerSec(xDBRemoved * kSpeedModifier, yDBRemoved * kSpeedModifier, thetaOuput, true);
 
         lastRotationSetpoint = new Rotation2d(desiredRotation);
     }
@@ -110,7 +110,7 @@ public class DriveWithHeading extends CommandBase {
     @Override
     public void end(boolean interrupted) {
     }
-
+    
     // Returns true when the command should end.
     @Override
     public boolean isFinished() {
