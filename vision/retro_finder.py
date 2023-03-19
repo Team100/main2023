@@ -1,3 +1,4 @@
+from enum import Enum
 import cv2
 import libcamera
 import msgpack
@@ -8,38 +9,68 @@ from ntcore import NetworkTableInstance
 from picamera2 import Picamera2
 from pupil_apriltags import Detector
 import math
-
-
+    
 class RetroFinder:
 
-    def __init__(self, camera_params, hsv_lower, hsv_higher):
+    def __init__(self, topic_name, camera_params, hsv_lower, hsv_higher):
         self.hsv_lower = hsv_lower
         self.hsv_higher = hsv_higher
         self.scale_factor = 1
         self.width = camera_params[0]
         self.height = camera_params[1]
-        self.tape_height = 10.5
-        self.draw = True
+        self.tape_height = .105
         self.theta = 0
-        self.at_detector = Detector(families="tag16h5")
+        self.topic_name = topic_name
+        self.initialize_nt()
         self.output_stream = CameraServer.putVideo("Processed", self.width, self.height)
+
+    def initialize_nt(self):
+        """Start NetworkTables with Rio as server, set up publisher."""
+        inst = NetworkTableInstance.getDefault()
+        inst.startClient4("retro-finder")
+        # this is always the RIO IP address; set a matching static IP on your
+        # laptop if you're using this in simulation.
+        inst.setServer("10.1.0.2")
+        # Table for vision output information
+        self.vision_nt = inst.getTable("Vision")
+        self.vision_nt_msgpack = self.vision_nt.getRawTopic(self.topic_name).publish(
+            "msgpack"
+        )
 
     def find(self, img):
         green_range = cv2.inRange(img, self.hsv_lower, self.hsv_higher)
+        img_rgb = cv2.cvtColor(img, cv2.COLOR_HSV2RGB)
         floodfill = green_range.copy()
         h, w = green_range.shape[:2]
         mask = np.zeros((h+2, w+2), np.uint8)
         cv2.floodFill(floodfill, mask, (0,0), 255)
         floodfill_inv = cv2.bitwise_not(floodfill)
         img_floodfill = green_range | floodfill_inv
+        median = cv2.medianBlur(img_floodfill, 5)
+        # mean_x = np.mean(green_range, 1)
+        # print(mean_x.shape)
+        # mean_y = np.mean(green_range, 0)
+        
+        # thresh_x = mean_x > 2
+        # print(thresh_x.dtype)
+        # thresh_y = mean_y > 1
+        # thresh = np.zeros([self.height, self.width], dtype = np.uint8)
+        # for i in range(self.height):
+        #     for j in range(self.width):
+        #         if (thresh_x[i] and thresh_y[j]):
+        #             thresh[i, j] = 255
+        # print(thresh)
         contours, hierarchy = cv2.findContours(
-            img_floodfill, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+            median, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
         tapes = {}
         tapes["tapes"] = []
-        print(contours)
         for c in contours:
-            _, _, _, cnt_height = cv2.boundingRect(c)
+            _, _, cnt_width, cnt_height = cv2.boundingRect(c)
             if (cnt_height < 50):
+                continue
+            if (cnt_height/cnt_width < 2):
+                continue
+            if (cnt_height/cnt_width > 5):
                 continue
             mmnts = cv2.moments(c)
             if (mmnts["m00"] == 0):
@@ -48,9 +79,9 @@ class RetroFinder:
             cX = int(mmnts["m10"] / mmnts["m00"])
             cY = int(mmnts["m01"] / mmnts["m00"])
 
-            translation_x = (cX-self.width)* \
+            translation_x = (cX-self.width/2)* \
                 (self.tape_height*math.cos(self.theta)/cnt_height)
-            translation_y = (cY-self.height) * \
+            translation_y = (cY-self.height/2) * \
                 (self.tape_height*math.cos(self.theta)/cnt_height)
             translation_z = (self.tape_height*self.scale_factor*math.cos(self.theta))/(cnt_height)
 
@@ -61,10 +92,8 @@ class RetroFinder:
                     "pose_t": tape
                 }
             )
-
-            if (self.draw):
-                self.draw_result(img, c, cX, cY, tape)
-            self.output_stream.putFrame(img)
+            self.draw_result(img_rgb, c, cX, cY, tape)
+        self.output_stream.putFrame(img_rgb)
         return tapes
 
     def draw_result(self, img, cnt, cX, cY, tape):
@@ -82,9 +111,13 @@ class RetroFinder:
         # print(buffer.shape)
         # img = img.reshape((self.height, self.width))
         img_bgr = cv2.cvtColor(img, cv2.COLOR_YUV420p2BGR)
+        img_bgr = img_bgr[201:401,:,:]
         img_hsv = cv2.cvtColor(img_bgr, cv2.COLOR_BGR2HSV)
         img_hsv = np.ascontiguousarray(img_hsv)
-        self.find(img_hsv)
+        tapes = self.find(img_hsv)
+        posebytes = msgpack.packb(tapes)
+
+        self.vision_nt_msgpack.set(posebytes)
 
 def main():
     print("main")
@@ -111,10 +144,13 @@ def main():
         "size": (fullwidth, fullheight),
     },
     lores={"format": "YUV420", "size": (width, height)},
-    controls={
+        controls={
         "FrameDurationLimits": (5000, 33333),  # 41 fps
         # noise reduction takes time
         "NoiseReductionMode": libcamera.controls.draft.NoiseReductionModeEnum.Off,
+        "AwbEnable": False,
+        "AeEnable": False,
+        "AnalogueGain": 1.0
     },
 )
     print("REQUESTED")
@@ -127,8 +163,9 @@ def main():
 
     # Roborio IP: 10.1.0.2
     # Pi IP: 10.1.0.21
-    camera_params = [width, height]
-    output = RetroFinder(camera_params, (20, 35, 120), (40, 200, 255))
+    camera_params = [width, 200]
+    topic_name = "tapes"
+    output = RetroFinder(topic_name, camera_params, (20, 0, 0), (40, 255, 240))
 
     camera.start()
     try:
