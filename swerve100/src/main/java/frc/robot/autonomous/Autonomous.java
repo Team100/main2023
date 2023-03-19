@@ -8,17 +8,15 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj2.command.ParallelDeadlineGroup;
 import edu.wpi.first.wpilibj2.command.ParallelRaceGroup;
-import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.commands.AutoLevel;
 import frc.robot.commands.ResetRotation;
 import frc.robot.commands.SelectGamePiece;
 import frc.robot.commands.Arm.ArmTrajectory;
-import frc.robot.commands.Arm.SetConeMode;
-import frc.robot.commands.Arm.SetCubeMode;
 import frc.robot.commands.Manipulator.Open;
 import frc.robot.commands.Manipulator.Release;
+import frc.robot.subsystems.AHRSClass;
 import frc.robot.subsystems.AutonGamePiece;
 import frc.robot.subsystems.AutonSelect;
 import frc.robot.subsystems.Manipulator;
@@ -31,7 +29,7 @@ import frc.robot.subsystems.Arm.ArmPosition;
 // https://docs.wpilib.org/en/stable/docs/software/commandbased/convenience-features.html
 public class Autonomous extends SequentialCommandGroup {
   /** Creates a new Autonomous. */
-  public Autonomous(AutonSelect autonProcedure, AutonGamePiece gamePiece, SwerveDriveSubsystem m_robotDrive, ArmController arm, Manipulator m_manipulator) {
+  public Autonomous(AutonSelect autonProcedure, AutonGamePiece gamePiece, SwerveDriveSubsystem m_robotDrive, ArmController arm, Manipulator m_manipulator, AHRSClass m_gyro) {
     
     if(autonProcedure == AutonSelect.BLUE2){
         addCommands(
@@ -45,7 +43,7 @@ public class Autonomous extends SequentialCommandGroup {
             new ParallelRaceGroup(new ArmTrajectory(ArmPosition.SAFE, arm), new WaitCommand(2)),
             new WaitCommand(0.25),
             new ResetRotation(m_robotDrive, Rotation2d.fromDegrees(180)),
-            new AutoLevel(false, m_robotDrive.m_gyro, m_robotDrive)
+            new AutoLevel(false, m_robotDrive, m_gyro)
             // new ParallelDeadlineGroup(new WaitCommand(4), new DriveToWaypoint3(new Pose2d(m_robotDrive.getPose().getX() + 3, m_robotDrive.getPose().getY(), new Rotation2d()), 0, m_robotDrive))
         );
     } else if(autonProcedure == AutonSelect.BLUE1){

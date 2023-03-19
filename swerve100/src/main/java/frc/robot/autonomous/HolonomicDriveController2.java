@@ -13,7 +13,7 @@ import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.networktables.DoublePublisher;
 import edu.wpi.first.networktables.NetworkTableInstance;
-import frc.robot.subsystems.SwerveDriveSubsystem;
+import frc.robot.subsystems.AHRSClass;
 
 /**
  * This holonomic drive controller can be used to follow trajectories using a holonomic drivetrain
@@ -31,7 +31,7 @@ public class HolonomicDriveController2 {
   private Rotation2d m_rotationError = new Rotation2d();
   private Pose2d m_poseTolerance = new Pose2d();
   private boolean m_enabled = true;
-  private SwerveDriveSubsystem m_robotDrive;
+  private AHRSClass m_gyro;
 
   private final PIDController m_xController;
   private final PIDController m_yController;
@@ -97,9 +97,9 @@ public class HolonomicDriveController2 {
       Pose2d currentPose,
       Pose2d trajectoryPose,
       double desiredLinearVelocityMetersPerSecond,
-      SwerveDriveSubsystem robotDrive,
+      AHRSClass gyro,
       Rotation2d desiredHeading) {
-    m_robotDrive = robotDrive;
+    m_gyro = gyro;
 
     // If this is the first run, then we need to reset the theta controller to the current pose's
     // heading.
@@ -132,7 +132,7 @@ public class HolonomicDriveController2 {
 
     xFBPublisher.set(xFeedback);
     // Return next output.
-    double gyroRate = m_robotDrive.m_gyro.getRate() * 0.25;
+    double gyroRate = m_gyro.getRedundantGyroRate() * 0.25;
     Rotation2d rotation2 = currentPose.getRotation().minus(new Rotation2d(gyroRate));
     return ChassisSpeeds.fromFieldRelativeSpeeds(
         xFF + xFeedback, yFF + yFeedback, thetaFF, rotation2);
@@ -147,9 +147,9 @@ public class HolonomicDriveController2 {
    * @return The next output of the holonomic drive controller.
    */
   public ChassisSpeeds calculate(
-    Pose2d currentPose, Trajectory.State desiredState, SwerveDriveSubsystem robotDrive, Rotation2d desiredHeading) {
+    Pose2d currentPose, Trajectory.State desiredState, AHRSClass gyro, Rotation2d desiredHeading) {
     return calculate(
-        currentPose, desiredState.poseMeters, desiredState.velocityMetersPerSecond, robotDrive, desiredHeading);
+        currentPose, desiredState.poseMeters, desiredState.velocityMetersPerSecond, gyro, desiredHeading);
   }
 
   /**

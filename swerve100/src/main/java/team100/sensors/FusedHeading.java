@@ -15,6 +15,8 @@ import edu.wpi.first.math.system.LinearSystem;
 import edu.wpi.first.util.sendable.Sendable;
 import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import frc.robot.subsystems.AHRSClass;
+import frc.robot.subsystems.SwerveDriveSubsystem;
 import team100.util.Unroller;
 
 /**
@@ -52,14 +54,14 @@ public class FusedHeading implements Supplier<Rotation2d>, Sendable {
     private static final Matrix<N1, N1> kControlInput = Matrix.mat(Nat.N1(), Nat.N1()).fill(0);
 
     private final Unroller m_mag;
-    private final LSM6DSOX_I2C m_gyro;
+    private final AHRSClass m_gyro; 
     // 2 states, 1 input, 2 outputs
     private final LinearSystem<N2, N1, N2> m_system;
     private final KalmanFilter<N2, N1, N2> m_filter;
 
-    public FusedHeading() {
+    public FusedHeading(AHRSClass gyro) {
+        m_gyro = gyro;
         m_mag = new Unroller(new LIS3MDL_I2C());
-        m_gyro = new LSM6DSOX_I2C();
         m_system = new LinearSystem<N2, N1, N2>(kA, kB, kC, kD);
         m_filter = new KalmanFilter<N2, N1, N2>(Nat.N2(), Nat.N2(), m_system, kStateStdDevs, kOutputStdDevs, kDtSec);
         Matrix<N2, N2> K = m_filter.getK();
@@ -83,7 +85,7 @@ public class FusedHeading implements Supplier<Rotation2d>, Sendable {
     }
 
     private double getNWUGyroRadiansPerSec() {
-        return m_gyro.getRate();
+        return m_gyro.getRedundantGyroRate();
     }
 
     private double m_nwuMagRadians;

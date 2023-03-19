@@ -44,6 +44,7 @@ import frc.robot.commands.Arm.SetCubeMode;
 import frc.robot.commands.Manipulator.Close;
 import frc.robot.commands.Manipulator.Home;
 import frc.robot.commands.Manipulator.Open;
+import frc.robot.subsystems.AHRSClass;
 import frc.robot.subsystems.AutonGamePiece;
 import frc.robot.subsystems.AutonSelect;
 import frc.robot.subsystems.Manipulator;
@@ -66,6 +67,7 @@ public class RobotContainer implements Sendable {
     private final SwerveDriveSubsystem m_robotDrive;
     private final Manipulator manipulator;
     private final ArmController armController;
+    private final AHRSClass ahrsclass;
 
     // CONTROL
     private final DualXboxControl control;
@@ -74,7 +76,6 @@ public class RobotContainer implements Sendable {
     private final AutoLevel autoLevel;
     private final DriveManually driveManually;
     private final GripManually gripManually;
-
     private final ManualArm manualArm;
 
 
@@ -96,7 +97,6 @@ public class RobotContainer implements Sendable {
     private final ArmTrajectory armToSub;
     private final ArmTrajectory armMid;
 
-
     private final SetCubeMode setCubeMode; 
     private final SetConeMode setConeMode; 
 
@@ -111,8 +111,8 @@ public class RobotContainer implements Sendable {
 
     public RobotContainer() throws IOException {
         // THIS IS FROM BOB'S DELETED CODE
-
         final double kDriveCurrentLimit = 40;
+        ahrsclass = new AHRSClass();
         manipulator = new Manipulator();
         armController = new ArmController();
 
@@ -122,7 +122,7 @@ public class RobotContainer implements Sendable {
         // m_alliance = DriverStation.getAlliance();
         m_alliance = DriverStation.Alliance.Blue;
 
-        m_robotDrive = new SwerveDriveSubsystem(m_alliance, kDriveCurrentLimit);
+        m_robotDrive = new SwerveDriveSubsystem(m_alliance, kDriveCurrentLimit, ahrsclass);
 
         if (m_alliance == DriverStation.Alliance.Blue) {
             driveToLeftGrid = DriveToAprilTag.newDriveToAprilTag(6, 0.95, .55, control::goalOffset, m_robotDrive);
@@ -144,7 +144,7 @@ public class RobotContainer implements Sendable {
         armSubstation = new ArmTrajectory(ArmPosition.SUB, armController);
 
         ResetRotation resetRotation = new ResetRotation(m_robotDrive, new Rotation2d());
-        autoLevel = new AutoLevel(false, m_robotDrive.m_gyro, m_robotDrive);
+        autoLevel = new AutoLevel(false, m_robotDrive, ahrsclass);
 
         ResetPose resetPose = new ResetPose(m_robotDrive, 0, 0, 0);
 
@@ -196,7 +196,6 @@ public class RobotContainer implements Sendable {
         control.resetRotation0(resetRotation0);
         control.resetRotation180(resetRotation180);
 
-        
         control.armHigh(armHigh);
         control.armSafe(armSafe);
         // control.armSubstation(armSubstation);
@@ -257,7 +256,7 @@ public class RobotContainer implements Sendable {
         // new IshanAutonomous(m_robotDrive)
         // );
 
-        return new VasiliAutonomous(m_robotDrive);
+        return new VasiliAutonomous(m_robotDrive, ahrsclass);
 
         // return new SanjanAutonomous(AutonSelect.BLUE1, m_robotDrive, armController, manipulator);
         // return new Autonomous(AutonSelect.BLUE2, AutonGamePiece.CONE, m_robotDrive, armController, manipulator);

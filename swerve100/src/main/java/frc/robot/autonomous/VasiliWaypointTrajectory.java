@@ -10,6 +10,7 @@ import edu.wpi.first.math.trajectory.TrajectoryGenerator.ControlVectorList;
 import edu.wpi.first.math.trajectory.constraint.CentripetalAccelerationConstraint;
 import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import frc.robot.subsystems.AHRSClass;
 import frc.robot.subsystems.SwerveDriveSubsystem;
 
 public class VasiliWaypointTrajectory extends TrajectoryCommand {
@@ -17,14 +18,14 @@ public class VasiliWaypointTrajectory extends TrajectoryCommand {
 
     /** Creates a new moveFromStartingPoseToGamePiece. */
     public VasiliWaypointTrajectory(SwerveDriveSubsystem m_robotDrive, Trajectory trajectory,
-            Supplier<Rotation2d> desiredRotation) {
-        super(m_robotDrive, trajectory, desiredRotation);
+            Supplier<Rotation2d> desiredRotation, AHRSClass gyro) {
+        super(m_robotDrive, trajectory, desiredRotation, gyro);
         SmartDashboard.putData("Move From Starting Pose To Game Piece", this);
     }
 
     public static VasiliWaypointTrajectory newMoveFromStartingPoseToGamePiece(SwerveDriveSubsystem m_robotDrive,
             ControlVectorList controlVectors,
-            Supplier<Rotation2d> desiredRotation) {
+            Supplier<Rotation2d> desiredRotation, AHRSClass gyro) {
 
         // ControlVectorList controlVectors = new ControlVectorList();
         // at origin, pointing down x
@@ -61,7 +62,7 @@ public class VasiliWaypointTrajectory extends TrajectoryCommand {
         // targetPose,
         // trajectoryConfig);
         // // System.out.println(exampleTrajectory);
-        return new VasiliWaypointTrajectory(m_robotDrive, t, () -> desiredRotation.get());
+        return new VasiliWaypointTrajectory(m_robotDrive, t, () -> desiredRotation.get(), gyro);
     }
 
     @Override

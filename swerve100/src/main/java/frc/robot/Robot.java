@@ -13,7 +13,6 @@ import team100.config.Identity;
 
 public class Robot extends TimedRobot {
     private Command m_autonomousCommand;
-
     UsbCamera manipulatorCamera;
 
     private RobotContainer m_robotContainer;

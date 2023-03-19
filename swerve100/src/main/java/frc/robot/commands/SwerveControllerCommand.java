@@ -16,6 +16,7 @@ import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.Subsystem;
+import frc.robot.subsystems.AHRSClass;
 import frc.robot.subsystems.SwerveDriveSubsystem;
 import frc.robot.autonomous.HolonomicDriveController2;
 
@@ -59,8 +60,7 @@ public class SwerveControllerCommand extends CommandBase {
     ///////////////////////////////
     ///////////////////////////////
     private final Supplier<Rotation2d> m_desiredRotation;
-    private final SwerveDriveSubsystem m_robotDrive;
-    private AHRS m_gyro;
+    private final AHRSClass m_gyro;
 
     /**
      * Constructs a new SwerveControllerCommand that when executed will follow the
@@ -103,8 +103,7 @@ public class SwerveControllerCommand extends CommandBase {
             ProfiledPIDController thetaController,
             Supplier<Rotation2d> desiredRotation,
             Consumer<SwerveModuleState[]> outputModuleStates,
-            SwerveDriveSubsystem robotDrive,
-            AHRS gyro,
+            AHRSClass gyro,
             Subsystem... requirements) {
         this(
                 trajectory,
@@ -116,7 +115,6 @@ public class SwerveControllerCommand extends CommandBase {
                         requireNonNullParam(thetaController, "thetaController", "SwerveControllerCommand")),
                 desiredRotation,
                 outputModuleStates,
-                robotDrive,
                 gyro,
                 requirements);
     }
@@ -166,8 +164,7 @@ public class SwerveControllerCommand extends CommandBase {
             PIDController yController,
             ProfiledPIDController thetaController,
             Consumer<SwerveModuleState[]> outputModuleStates,
-            SwerveDriveSubsystem robotDrive,
-            AHRS gyro,
+            AHRSClass gyro,
             Subsystem... requirements) {
         this(
                 trajectory,
@@ -178,7 +175,6 @@ public class SwerveControllerCommand extends CommandBase {
                 thetaController,
                 () -> trajectory.getStates().get(trajectory.getStates().size() - 1).poseMeters.getRotation(),
                 outputModuleStates,
-                robotDrive,
                 gyro,
                 requirements);
     }
@@ -221,8 +217,7 @@ public class SwerveControllerCommand extends CommandBase {
             SwerveDriveKinematics kinematics,
             HolonomicDriveController2 controller,
             Consumer<SwerveModuleState[]> outputModuleStates,
-            SwerveDriveSubsystem robotDrive,
-            AHRS gyro,
+            AHRSClass gyro,
             Subsystem... requirements) {
         this(
                 trajectory,
@@ -231,7 +226,6 @@ public class SwerveControllerCommand extends CommandBase {
                 controller,
                 () -> trajectory.getStates().get(trajectory.getStates().size() - 1).poseMeters.getRotation(),
                 outputModuleStates,
-                robotDrive,
                 gyro,
                 requirements);
     }
@@ -269,14 +263,12 @@ public class SwerveControllerCommand extends CommandBase {
             HolonomicDriveController2 controller,
             Supplier<Rotation2d> desiredRotation,
             Consumer<SwerveModuleState[]> outputModuleStates,
-            SwerveDriveSubsystem robotDrive,
-            AHRS gyro,
+            AHRSClass gyro,
             Subsystem... requirements) {
         m_trajectory = requireNonNullParam(trajectory, "trajectory", "SwerveControllerCommand");
         m_pose = requireNonNullParam(pose, "pose", "SwerveControllerCommand");
         m_kinematics = requireNonNullParam(kinematics, "kinematics", "SwerveControllerCommand");
         m_controller = requireNonNullParam(controller, "controller", "SwerveControllerCommand");
-        m_robotDrive = robotDrive;
         m_gyro = gyro;
         m_desiredRotation = requireNonNullParam(desiredRotation, "desiredRotation", "SwerveControllerCommand");
 
@@ -289,10 +281,10 @@ public class SwerveControllerCommand extends CommandBase {
   public void execute() {
     double curTime = m_timer.get();
     var desiredState = m_trajectory.sample(curTime);
-    double gyroRate = m_gyro.getRate() * 0.25;
+    double gyroRate = m_gyro.getRedundantGyroRate() * 0.25;
     Rotation2d  rotation2 = m_desiredRotation.get().minus(new Rotation2d(gyroRate));
     var targetChassisSpeeds =
-        m_controller.calculate(m_pose.get(), desiredState, m_robotDrive, rotation2);
+        m_controller.calculate(m_pose.get(), desiredState, m_gyro, rotation2);
     var targetModuleStates = m_kinematics.toSwerveModuleStates(targetChassisSpeeds);
     m_outputModuleStates.accept(targetModuleStates);
   }

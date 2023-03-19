@@ -11,16 +11,17 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.math.trajectory.TrajectoryConfig;
 import edu.wpi.first.math.trajectory.TrajectoryGenerator;
+import frc.robot.subsystems.AHRSClass;
 import frc.robot.subsystems.SwerveDriveSubsystem;
 
 /** Add your docs here. */
 public class Forward extends TrajectoryCommand {
 
-    public Forward(SwerveDriveSubsystem m_robotDrive, Trajectory trajectory) {
-        super(m_robotDrive, trajectory);
+    public Forward(SwerveDriveSubsystem m_robotDrive, Trajectory trajectory, AHRSClass gyro) {
+        super(m_robotDrive, trajectory, gyro);
         
     }
-    static Forward newForward(SwerveDriveSubsystem m_robotDrive, double x) {
+    static Forward newForward(SwerveDriveSubsystem m_robotDrive, double x, AHRSClass gyro) {
         Pose2d currentRobotPose = m_robotDrive.getPose();
             double xRobot = currentRobotPose.getX();
             double yRobot = currentRobotPose.getY();
@@ -42,6 +43,6 @@ public class Forward extends TrajectoryCommand {
                     new Pose2d(xRobot + x, yRobot, rotRobot),
                     trajectoryConfig);
     
-            return new Forward(m_robotDrive, exampleTrajectory);
+            return new Forward(m_robotDrive, exampleTrajectory, gyro);
        } 
 }

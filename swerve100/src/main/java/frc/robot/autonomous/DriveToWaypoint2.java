@@ -19,6 +19,7 @@ import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.commands.GoalOffset;
+import frc.robot.subsystems.AHRSClass;
 import frc.robot.subsystems.SwerveDriveSubsystem;
 
 /**
@@ -30,7 +31,7 @@ import frc.robot.subsystems.SwerveDriveSubsystem;
  */
 public class DriveToWaypoint2 extends CommandBase {
     private static final TrapezoidProfile.Constraints rotationConstraints = new TrapezoidProfile.Constraints(6, 12);
-
+    private AHRSClass m_gyro;
     private double desiredX = 0;
     private double desiredY = 0;
     // private Pose2d desiredPose;
@@ -184,7 +185,7 @@ public class DriveToWaypoint2 extends CommandBase {
         this.desiredY = desiredState.poseMeters.getY();
 
         // System.out.println("*****************"+goal);
-        var targetChassisSpeeds = m_controller.calculate(m_swerve.getPose(), desiredState, m_swerve, goal.getRotation());
+        var targetChassisSpeeds = m_controller.calculate(m_swerve.getPose(), desiredState, m_gyro, goal.getRotation());
         var targetModuleStates = SwerveDriveSubsystem.kDriveKinematics.toSwerveModuleStates(targetChassisSpeeds);
 
         desiredXPublisher.set(desiredX);

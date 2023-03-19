@@ -2,8 +2,6 @@ package frc.robot.subsystems;
 
 import java.io.IOException;
 
-import com.kauailabs.navx.frc.AHRS;
-
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.controller.PIDController;
@@ -24,7 +22,6 @@ import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StringPublisher;
 import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.SerialPort;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.RobotContainer;
@@ -65,6 +62,11 @@ public class SwerveDriveSubsystem extends SubsystemBase {
             case TEST_BOARD_6B: // for testing
                 kTrackWidth = 0.5;
                 kWheelBase = 0.5;
+                break;
+            case CAMERA_DOLLY:
+                kTrackWidth = 1;
+                kWheelBase = 1;
+                break;
             default:
                 throw new IllegalStateException("Identity is not swerve: " + Identity.get().name());
         }
@@ -89,8 +91,6 @@ public class SwerveDriveSubsystem extends SubsystemBase {
     public final SwerveModule m_rearLeft;
     public final SwerveModule m_rearRight;
 
-    // The gyro sensor. We have a Nav-X.
-    public final AHRS m_gyro;
     // Odometry class for tracking robot pose
     private final SwerveDrivePoseEstimator m_poseEstimator;
 
@@ -99,7 +99,7 @@ public class SwerveDriveSubsystem extends SubsystemBase {
     private double thetaVelociy = 0;
 
     public VisionDataProvider visionDataProvider;
-
+    AHRSClass m_gyro;
     private boolean moving = false;
 
     public final PIDController xController;
@@ -110,7 +110,8 @@ public class SwerveDriveSubsystem extends SubsystemBase {
     private final DoubleArrayPublisher robotPosePub;
     private final StringPublisher fieldTypePub;
 
-    public SwerveDriveSubsystem(DriverStation.Alliance alliance, double currentLimit) throws IOException {
+    public SwerveDriveSubsystem(DriverStation.Alliance alliance, double currentLimit, AHRSClass gyro) throws IOException {
+        m_gyro = gyro;
         // Sets up Field2d pose tracking for glass.
         NetworkTableInstance inst = NetworkTableInstance.getDefault();
         NetworkTable fieldTable = inst.getTable("field");
@@ -445,11 +446,72 @@ public class SwerveDriveSubsystem extends SubsystemBase {
                         0.789, // turn offset
                         currentLimit);
                 break;
+            case CAMERA_DOLLY:
+            headingController = new ProfiledPIDController( //
+                        1, // kP
+                        0, // kI
+                        0, // kD
+                        new TrapezoidProfile.Constraints(
+                                2 * Math.PI, // speed rad/s
+                                4 * Math.PI)); // accel rad/s/s
+                headingController.setIntegratorRange(-0.1, 0.1);
+                // Note very low heading tolerance.
+                headingController.setTolerance(Units.degreesToRadians(0.1));
+                kMaxSpeedMetersPerSecond = 15;
+                kMaxAccelerationMetersPerSecondSquared = 10;
+                kMaxAngularSpeedRadiansPerSecond = 5;
+                kMaxAngularSpeedRadiansPerSecondSquared = 5;
+                xController = new PIDController(
+                        0.15, // kP
+                        0.0, // kI
+                        0.0); // kD
+                xController.setTolerance(0.01);
+
+                yController = new PIDController(
+                        0.15, // kP
+                        0.0, // kI
+                        0.0); // kD
+                yController.setTolerance(0.01);
+
+                thetaController = new ProfiledPIDController(
+                        3.0, // kP
+                        0.0, // kI
+                        0.0, // kD
+                        new TrapezoidProfile.Constraints(
+                                kMaxAngularSpeedRadiansPerSecond,
+                                kMaxAngularSpeedRadiansPerSecondSquared));
+                m_frontLeft = SwerveModuleFactory.WCPModule(
+                        "Front Left",
+                        11, // drive CAN
+                        30, // turn CAN
+                        0, // turn encoder
+                        0.267276, // turn offset
+                        currentLimit);
+                m_frontRight = SwerveModuleFactory.WCPModule(
+                        "Front Right",
+                        12, // drive CAN
+                        32, // turn CAN
+                        1, // turn encoder
+                        0.872709, // turn offset
+                        currentLimit);
+                m_rearLeft = SwerveModuleFactory.WCPModule(
+                        "Rear Left",
+                        21, // drive CAN
+                        31, // turn CAN
+                        2, // turn encoder
+                        0.754813, // turn offset
+                        currentLimit);
+                m_rearRight = SwerveModuleFactory.WCPModule(
+                        "Rear Right",
+                        22, // drive CAN
+                        33, // turn CAN
+                        3, // turn encoder
+                        0.477917, // turn offset
+                        currentLimit);
+            break;
             default:
                 throw new IllegalStateException("Identity is not swerve: " + Identity.get().name());
         }
-
-        m_gyro = new AHRS(SerialPort.Port.kUSB);
         m_poseEstimator = new SwerveDrivePoseEstimator(
                 kDriveKinematics,
                 getHeading(),
@@ -514,7 +576,6 @@ public class SwerveDriveSubsystem extends SubsystemBase {
 
     public void resetPose(Pose2d robotPose) {
 
-        m_gyro.calibrate();
         m_poseEstimator.resetPosition(getHeading(), new SwerveModulePosition[] {
                 m_frontLeft.getPosition(),
                 m_frontRight.getPosition(),
@@ -555,7 +616,7 @@ public class SwerveDriveSubsystem extends SubsystemBase {
     }
 
     public void driveMetersPerSec(double xSpeedMetersPerSec, double ySpeedMetersPerSec, double rotRadiansPerSec, boolean fieldRelative) {
-        double gyroRate = m_gyro.getRate() * 0.25;
+        double gyroRate = m_gyro.getRedundantGyroRate() * 0.25;
         Rotation2d rotation2 = getPose().getRotation().minus(new Rotation2d(gyroRate));
         desiredChassisSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(xSpeedMetersPerSec, ySpeedMetersPerSec, rotRadiansPerSec,
                 rotation2);
@@ -581,11 +642,12 @@ public class SwerveDriveSubsystem extends SubsystemBase {
         rot = MathUtil.clamp(rot, -1, 1);
         // if (Math.abs(xSpeed) < .01)
         // xSpeed = 100 * xSpeed * xSpeed * Math.signum(xSpeed);
+         
         // if (Math.abs(ySpeed) < .01)
         // ySpeed = 100 * ySpeed * ySpeed * Math.signum(ySpeed);
         if (Math.abs(rot) < .01)
             rot = 0;
-        double gyroRate = m_gyro.getRate() * 0.25;
+        double gyroRate = m_gyro.getRedundantGyroRate() * 0.25;
         Rotation2d rotation2 = getPose().getRotation().minus(new Rotation2d(gyroRate));
         desiredChassisSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(6 * xSpeed,
                 6 * ySpeed, 5 * rot,
@@ -660,7 +722,7 @@ public class SwerveDriveSubsystem extends SubsystemBase {
     }
 
     public Rotation2d getHeading() {
-        return Rotation2d.fromDegrees(-m_gyro.getYaw());
+        return Rotation2d.fromDegrees(-m_gyro.getRedundantYaw());
     }
 
     @Override
@@ -668,7 +730,6 @@ public class SwerveDriveSubsystem extends SubsystemBase {
         super.initSendable(builder);
 
         // Pose
-        builder.addDoubleProperty("heading_radians", () -> 2 + this.getHeading().getRadians(), null);
         builder.addDoubleProperty("translationalx", () -> getPose().getX(), null);
         builder.addDoubleProperty("translationaly", () -> getPose().getY(), null);
         builder.addDoubleProperty("theta", () -> getPose().getRotation().getRadians(), null);
@@ -690,16 +751,6 @@ public class SwerveDriveSubsystem extends SubsystemBase {
         builder.addDoubleProperty("X controller Velocity (m/s)", () -> xVelocity, null);
         builder.addDoubleProperty("Y controller Velocity (m/s)", () -> yVelocity, null);
         builder.addDoubleProperty("Theta controller Velocity (rad/s)", () -> thetaVelociy, null);
-
-        // Gyro
-        builder.addDoubleProperty("Gyro Roll (deg)", () -> m_gyro.getRoll(), null);
-        builder.addDoubleProperty("Gyro Pitch (deg)", () -> m_gyro.getPitch(), null);
-        builder.addDoubleProperty("Gyro Angle (deg)", () -> m_gyro.getAngle(), null);
-        builder.addDoubleProperty("Gyro Fused (deg)", () -> m_gyro.getFusedHeading(), null);
-        // Note getRate() appears to be in rad/sec not deg/s as the docs say
-        builder.addDoubleProperty("Gyro Rate (rad/s)", () -> m_gyro.getRate(), null);
-        builder.addDoubleProperty("Gyro Angle Mod 360 (deg)", () -> m_gyro.getAngle() % 360, null);
-        builder.addDoubleProperty("Gyro Compass Heading (deg)", () -> m_gyro.getCompassHeading(), null);
 
         builder.addDoubleProperty("Heading Degrees", () -> getHeading().getDegrees(), null);
         builder.addDoubleProperty("Heading Radians", () -> getHeading().getRadians(), null);
