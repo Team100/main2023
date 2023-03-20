@@ -99,7 +99,9 @@ public class SwerveDriveSubsystem extends SubsystemBase {
     private double thetaVelociy = 0;
 
     public VisionDataProvider visionDataProvider;
-    AHRSClass m_gyro;
+
+    private final AHRSClass m_gyro;
+
     private boolean moving = false;
 
     public final PIDController xController;

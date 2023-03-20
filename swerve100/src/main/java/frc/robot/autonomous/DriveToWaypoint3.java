@@ -31,7 +31,7 @@ import frc.robot.subsystems.SwerveDriveSubsystem;
  */
 public class DriveToWaypoint3 extends CommandBase {
     private static final TrapezoidProfile.Constraints rotationConstraints = new TrapezoidProfile.Constraints(6, 12);
-    private AHRSClass m_gyro;
+    private final AHRSClass m_gyro;
     private double desiredX = 0;
     private double desiredY = 0;
     // private Pose2d desiredPose;
@@ -65,9 +65,10 @@ public class DriveToWaypoint3 extends CommandBase {
     int count = 0;
 
 
-    public DriveToWaypoint3(Pose2d goal, double yOffset, SwerveDriveSubsystem m_swerve) {
+    public DriveToWaypoint3(Pose2d goal, double yOffset, SwerveDriveSubsystem m_swerve, AHRSClass gyro) {
         this.goal = goal;
         this.m_swerve = m_swerve;
+        m_gyro = gyro;
 
         System.out.println("CONSTRUCTOR****************************************************");
 
@@ -83,7 +84,7 @@ public class DriveToWaypoint3 extends CommandBase {
         yController = new PIDController(1.1, 1, 0);
         yController.setIntegratorRange(-0.6, 0.5);
         // yController.setTolerance(0.05);
-        m_controller = new HolonomicDriveController2(xController, yController, m_rotationController);
+        m_controller = new HolonomicDriveController2(xController, yController, m_rotationController, m_gyro);
         
         translationConfig = new TrajectoryConfig(
                 5, // velocity m/s
@@ -172,7 +173,7 @@ public class DriveToWaypoint3 extends CommandBase {
         this.desiredY = desiredState.poseMeters.getY();
 
         // System.out.println("*****************"+goal);
-        var targetChassisSpeeds = m_controller.calculate(m_swerve.getPose(), desiredState, m_gyro, goal.getRotation());
+        var targetChassisSpeeds = m_controller.calculate(m_swerve.getPose(), desiredState, goal.getRotation());
         var targetModuleStates = SwerveDriveSubsystem.kDriveKinematics.toSwerveModuleStates(targetChassisSpeeds);
 
         desiredXPublisher.set(desiredX);

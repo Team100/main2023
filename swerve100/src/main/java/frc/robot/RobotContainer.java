@@ -125,15 +125,15 @@ public class RobotContainer implements Sendable {
         m_robotDrive = new SwerveDriveSubsystem(m_alliance, kDriveCurrentLimit, ahrsclass);
 
         if (m_alliance == DriverStation.Alliance.Blue) {
-            driveToLeftGrid = DriveToAprilTag.newDriveToAprilTag(6, 0.95, .55, control::goalOffset, m_robotDrive);
-            driveToCenterGrid = DriveToAprilTag.newDriveToAprilTag(7, 0.95, .55, control::goalOffset, m_robotDrive);
-            driveToRightGrid = DriveToAprilTag.newDriveToAprilTag(8, 0.95, .55, control::goalOffset, m_robotDrive);
-            driveToSubstation = DriveToAprilTag.newDriveToAprilTag(4, 0.53, -0.749, control::goalOffset, m_robotDrive);
+            driveToLeftGrid = DriveToAprilTag.newDriveToAprilTag(6, 0.95, .55, control::goalOffset, m_robotDrive, ahrsclass);
+            driveToCenterGrid = DriveToAprilTag.newDriveToAprilTag(7, 0.95, .55, control::goalOffset, m_robotDrive, ahrsclass);
+            driveToRightGrid = DriveToAprilTag.newDriveToAprilTag(8, 0.95, .55, control::goalOffset, m_robotDrive, ahrsclass);
+            driveToSubstation = DriveToAprilTag.newDriveToAprilTag(4, 0.53, -0.749, control::goalOffset, m_robotDrive, ahrsclass);
         } else {
-            driveToLeftGrid = DriveToAprilTag.newDriveToAprilTag(1, 0.95, .55, control::goalOffset, m_robotDrive);
-            driveToCenterGrid = DriveToAprilTag.newDriveToAprilTag(2, 0.95, .55, control::goalOffset, m_robotDrive);
-            driveToRightGrid = DriveToAprilTag.newDriveToAprilTag(3, 0.95, .55, control::goalOffset, m_robotDrive);
-            driveToSubstation = DriveToAprilTag.newDriveToAprilTag(5, 0.53, -0.749, control::goalOffset, m_robotDrive);
+            driveToLeftGrid = DriveToAprilTag.newDriveToAprilTag(1, 0.95, .55, control::goalOffset, m_robotDrive, ahrsclass);
+            driveToCenterGrid = DriveToAprilTag.newDriveToAprilTag(2, 0.95, .55, control::goalOffset, m_robotDrive, ahrsclass);
+            driveToRightGrid = DriveToAprilTag.newDriveToAprilTag(3, 0.95, .55, control::goalOffset, m_robotDrive, ahrsclass);
+            driveToSubstation = DriveToAprilTag.newDriveToAprilTag(5, 0.53, -0.749, control::goalOffset, m_robotDrive, ahrsclass);
         }
 
         
@@ -176,7 +176,8 @@ public class RobotContainer implements Sendable {
                 control::ySpeed,
                 control::desiredRotation,
                 control::rotSpeed,
-                "");
+                "",
+                ahrsclass);
 
         driveRotation = new DriveRotation(m_robotDrive, control::rotSpeed);
 

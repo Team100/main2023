@@ -20,7 +20,7 @@ import frc.robot.subsystems.SwerveDriveSubsystem;
 
 /** Add your docs here. */
 public class Circle extends CommandBase {
-    AHRSClass gyro;
+    AHRSClass m_gyro;
     SwerveDriveSubsystem m_robotDrive;
     double radius;
     boolean done;
@@ -28,7 +28,7 @@ public class Circle extends CommandBase {
     public Circle(SwerveDriveSubsystem m_robotDrive, double radius, AHRSClass gyro) {
         this.m_robotDrive = m_robotDrive;
         this.radius = radius;
-
+        m_gyro = gyro;
         addRequirements(this.m_robotDrive);
     }
 
@@ -43,7 +43,7 @@ public class Circle extends CommandBase {
             m_robotDrive.thetaController,
             () -> new Rotation2d(),
             m_robotDrive::setModuleStates,
-            gyro,
+            m_gyro,
             m_robotDrive);
 
         CommandScheduler.getInstance().schedule(s);

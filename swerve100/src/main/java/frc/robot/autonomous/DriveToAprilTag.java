@@ -7,6 +7,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import frc.robot.commands.GoalOffset;
+import frc.robot.subsystems.AHRSClass;
 import frc.robot.subsystems.SwerveDriveSubsystem;
 import team100.localization.AprilTagFieldLayoutWithCorrectOrientation;
 
@@ -16,8 +17,9 @@ public class DriveToAprilTag extends DriveToWaypoint2 {
             Pose2d goal,
             double yOffset,
             Supplier<GoalOffset> goalSupplier,
-            SwerveDriveSubsystem robotDrive) {
-        super(goal, yOffset, goalSupplier, robotDrive);
+            SwerveDriveSubsystem robotDrive,
+            AHRSClass gyro) {
+        super(goal, yOffset, goalSupplier, robotDrive, gyro);
     }
 
     public static DriveToAprilTag newDriveToAprilTag(
@@ -25,9 +27,10 @@ public class DriveToAprilTag extends DriveToWaypoint2 {
             double xOffset,
             double yOffset,
             Supplier<GoalOffset> goalSupplier,
-            SwerveDriveSubsystem robotDrive) {
+            SwerveDriveSubsystem robotDrive,
+            AHRSClass gyro) {
         Pose2d m_goal = goal(tagID, xOffset, robotDrive.visionDataProvider.layout);
-        return new DriveToAprilTag(m_goal, yOffset, goalSupplier, robotDrive);
+        return new DriveToAprilTag(m_goal, yOffset, goalSupplier, robotDrive, gyro);
     }
 
     public static Pose2d goal(int tagID, double xOffset, AprilTagFieldLayoutWithCorrectOrientation layout) {

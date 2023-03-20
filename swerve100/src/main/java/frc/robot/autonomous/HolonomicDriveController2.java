@@ -31,7 +31,7 @@ public class HolonomicDriveController2 {
   private Rotation2d m_rotationError = new Rotation2d();
   private Pose2d m_poseTolerance = new Pose2d();
   private boolean m_enabled = true;
-  private AHRSClass m_gyro;
+  private final AHRSClass m_gyro;
 
   private final PIDController m_xController;
   private final PIDController m_yController;
@@ -53,7 +53,8 @@ public class HolonomicDriveController2 {
    * @param thetaController A profiled PID controller to respond to error in angle.
    */
   public HolonomicDriveController2(
-      PIDController xController, PIDController yController, ProfiledPIDController thetaController) {
+      PIDController xController, PIDController yController, ProfiledPIDController thetaController, AHRSClass gyro) {
+    m_gyro = gyro;
     m_xController = xController;
     m_yController = yController;
     m_thetaController = thetaController;
@@ -97,9 +98,7 @@ public class HolonomicDriveController2 {
       Pose2d currentPose,
       Pose2d trajectoryPose,
       double desiredLinearVelocityMetersPerSecond,
-      AHRSClass gyro,
       Rotation2d desiredHeading) {
-    m_gyro = gyro;
 
     // If this is the first run, then we need to reset the theta controller to the current pose's
     // heading.
@@ -147,9 +146,9 @@ public class HolonomicDriveController2 {
    * @return The next output of the holonomic drive controller.
    */
   public ChassisSpeeds calculate(
-    Pose2d currentPose, Trajectory.State desiredState, AHRSClass gyro, Rotation2d desiredHeading) {
+    Pose2d currentPose, Trajectory.State desiredState, Rotation2d desiredHeading) {
     return calculate(
-        currentPose, desiredState.poseMeters, desiredState.velocityMetersPerSecond, gyro, desiredHeading);
+        currentPose, desiredState.poseMeters, desiredState.velocityMetersPerSecond, desiredHeading);
   }
 
   /**

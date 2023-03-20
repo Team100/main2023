@@ -14,13 +14,13 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 /** Add your docs here. */
 public class AHRSClass implements Sendable {
-    public static boolean gyrosWorking = true;
-    public final AHRS m_gyro1;
-    public final AHRS m_gyro2;
-    public static boolean gyro1Connected = true;
-    public static boolean gyro2Connected = true;
-    float gyroZOffset_I2C;
-    float gyroZOffset_USB;
+    public boolean gyrosWorking = true;
+    private final AHRS m_gyro1;
+    private final AHRS m_gyro2;
+    private boolean gyro1Connected = true;
+    private boolean gyro2Connected = true;
+    private float gyroZOffset_I2C;
+    private float gyroZOffset_USB;
     public AHRSClass() {
         m_gyro1 = new AHRS(SerialPort.Port.kUSB);
         m_gyro2 = new AHRS(I2C.Port.kMXP);

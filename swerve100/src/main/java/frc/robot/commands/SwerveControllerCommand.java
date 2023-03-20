@@ -112,7 +112,7 @@ public class SwerveControllerCommand extends CommandBase {
                 new HolonomicDriveController2(
                         requireNonNullParam(xController, "xController", "SwerveControllerCommand"),
                         requireNonNullParam(yController, "yController", "SwerveControllerCommand"),
-                        requireNonNullParam(thetaController, "thetaController", "SwerveControllerCommand")),
+                        requireNonNullParam(thetaController, "thetaController", "SwerveControllerCommand"), gyro),
                 desiredRotation,
                 outputModuleStates,
                 gyro,
@@ -284,7 +284,7 @@ public class SwerveControllerCommand extends CommandBase {
     double gyroRate = m_gyro.getRedundantGyroRate() * 0.25;
     Rotation2d  rotation2 = m_desiredRotation.get().minus(new Rotation2d(gyroRate));
     var targetChassisSpeeds =
-        m_controller.calculate(m_pose.get(), desiredState, m_gyro, rotation2);
+        m_controller.calculate(m_pose.get(), desiredState, rotation2);
     var targetModuleStates = m_kinematics.toSwerveModuleStates(targetChassisSpeeds);
     m_outputModuleStates.accept(targetModuleStates);
   }

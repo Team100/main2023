@@ -10,7 +10,7 @@ import frc.robot.subsystems.AHRSClass;
 import frc.robot.subsystems.SwerveDriveSubsystem;
 
 public class AutoLevel extends CommandBase {
-  AHRSClass m_gyro;
+  private final AHRSClass m_gyro;
   private final SwerveDriveSubsystem m_robotDrive;
   private int count = 0;
   boolean reversed;

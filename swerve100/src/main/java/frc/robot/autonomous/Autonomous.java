@@ -62,7 +62,7 @@ public class Autonomous extends SequentialCommandGroup {
             // new WaitCommand(1),
             // new DriveToWaypoint3(new Pose2d(2.15, 4.70, Rotation2d.fromDegrees(-180)), 0, m_robotDrive),
             // new WaitCommand(2),
-            new DriveToWaypoint3( new Pose2d(5.56, m_robotDrive.getPose().getY(), Rotation2d.fromDegrees(-180)), 0.0, m_robotDrive)
+            new DriveToWaypoint3( new Pose2d(5.56, m_robotDrive.getPose().getY(), Rotation2d.fromDegrees(-180)), 0.0, m_robotDrive, m_gyro)
             // new WaitCommand(2),
             // new Rotate(m_robotDrive, 0),
             // new WaitCommand(2),

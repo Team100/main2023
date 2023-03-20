@@ -50,13 +50,13 @@ public class SanjanAutonomous extends SequentialCommandGroup {
             new WaitCommand(2),
             new ParallelRaceGroup(new ArmTrajectory(ArmPosition.SAFE, arm), new WaitCommand(1.5)),
             new WaitCommand(1),
-            new DriveToWaypoint3(new Pose2d(1.4, 6.9, Rotation2d.fromDegrees(-180)), 0, m_robotDrive),
+            new DriveToWaypoint3(new Pose2d(1.4, 6.9, Rotation2d.fromDegrees(-180)), 0, m_robotDrive, m_gyro),
             new WaitCommand(2),
-            new DriveToWaypoint3( new Pose2d(5.2, 6.9, Rotation2d.fromDegrees(-180)), 0.0, m_robotDrive),
+            new DriveToWaypoint3( new Pose2d(5.2, 6.9, Rotation2d.fromDegrees(-180)), 0.0, m_robotDrive, m_gyro),
             new WaitCommand(2),
             new Rotate(m_robotDrive, 0),
             new WaitCommand(2),
-            new DriveToWaypoint3( new Pose2d(5.2, 4.9, Rotation2d.fromDegrees(-180)), 0.0, m_robotDrive),
+            new DriveToWaypoint3( new Pose2d(5.2, 4.9, Rotation2d.fromDegrees(-180)), 0.0, m_robotDrive, m_gyro),
             new WaitCommand(2),
             new AutoLevel(true, m_robotDrive, m_gyro)
         );
@@ -72,13 +72,13 @@ public class SanjanAutonomous extends SequentialCommandGroup {
             new WaitCommand(2),
             new ParallelRaceGroup(new ArmTrajectory(ArmPosition.SAFE, arm), new WaitCommand(1.5)),
             new WaitCommand(1),
-            new DriveToWaypoint3(new Pose2d(1.4, 6.9, Rotation2d.fromDegrees(-180)), 0, m_robotDrive), // place holder to get out of community
+            new DriveToWaypoint3(new Pose2d(1.4, 6.9, Rotation2d.fromDegrees(-180)), 0, m_robotDrive, m_gyro), // place holder to get out of community
             new WaitCommand(2),
-            new DriveToWaypoint3( new Pose2d(5.2, 6.9, Rotation2d.fromDegrees(-180)), 0.0, m_robotDrive), // place holder for corner point for community
+            new DriveToWaypoint3( new Pose2d(5.2, 6.9, Rotation2d.fromDegrees(-180)), 0.0, m_robotDrive, m_gyro), // place holder for corner point for community
             new WaitCommand(2),
             new Rotate(m_robotDrive, 0),
             new WaitCommand(2),
-            new DriveToWaypoint3( new Pose2d(5.2, 4.9, Rotation2d.fromDegrees(-180)), 0.0, m_robotDrive), // place holder for final point in front of charge station
+            new DriveToWaypoint3( new Pose2d(5.2, 4.9, Rotation2d.fromDegrees(-180)), 0.0, m_robotDrive, m_gyro), // place holder for final point in front of charge station
             new WaitCommand(2),
             new AutoLevel(true, m_robotDrive, m_gyro)
         );    
@@ -133,13 +133,13 @@ public class SanjanAutonomous extends SequentialCommandGroup {
             new WaitCommand(2),
             new ParallelRaceGroup(new ArmTrajectory(ArmPosition.SAFE, arm), new WaitCommand(1.5)),
             new WaitCommand(1),
-            new DriveToWaypoint3(new Pose2d(1.4, 4.9, Rotation2d.fromDegrees(-180)), 0, m_robotDrive), // place holder to get out of community
+            new DriveToWaypoint3(new Pose2d(1.4, 4.9, Rotation2d.fromDegrees(-180)), 0, m_robotDrive, m_gyro), // place holder to get out of community
             new WaitCommand(2),
-            new DriveToWaypoint3( new Pose2d(5.2, 4.9, Rotation2d.fromDegrees(-180)), 0.0, m_robotDrive), // place holder for corner point for community
+            new DriveToWaypoint3( new Pose2d(5.2, 4.9, Rotation2d.fromDegrees(-180)), 0.0, m_robotDrive, m_gyro), // place holder for corner point for community
             new WaitCommand(2),
             new Rotate(m_robotDrive, 0),
             new WaitCommand(2),
-            new DriveToWaypoint3( new Pose2d(5.2, 4.9, Rotation2d.fromDegrees(-180)), 0.0, m_robotDrive), // place holder for final point in front of charge station
+            new DriveToWaypoint3( new Pose2d(5.2, 4.9, Rotation2d.fromDegrees(-180)), 0.0, m_robotDrive, m_gyro), // place holder for final point in front of charge station
             new WaitCommand(2),
             new AutoLevel(true, m_robotDrive, m_gyro)
         );    

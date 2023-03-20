@@ -18,6 +18,7 @@ import frc.robot.subsystems.SwerveDriveSubsystem;
 import frc.robot.subsystems.AHRSClass;
 
 public class DriveWithHeading extends CommandBase {
+    private final AHRSClass m_gyro;
     /** Creates a new DrivePID. */
     SwerveDriveSubsystem m_robotDrive;
     ProfiledPIDController m_headingController;
@@ -39,8 +40,9 @@ public class DriveWithHeading extends CommandBase {
     double thetaControllerOutput;
 
     public DriveWithHeading(SwerveDriveSubsystem robotDrive, DoubleSupplier xSpeed, DoubleSupplier ySpeed,
-            Supplier<Rotation2d> desiredRotation, DoubleSupplier rotSpeed, String name) {
+            Supplier<Rotation2d> desiredRotation, DoubleSupplier rotSpeed, String name, AHRSClass gyro) {
         // Use addRequirements() here to declare subsystem dependencies.
+        m_gyro = gyro;
         m_robotDrive = robotDrive;
         m_headingController = m_robotDrive.headingController;
         m_desiredRotation = desiredRotation;
@@ -91,7 +93,7 @@ public class DriveWithHeading extends CommandBase {
         currentPose = m_robotDrive.getPose();
         double currentRads = MathUtil.angleModulus(currentPose.getRotation().getRadians());
 
-        if (snapMode && Math.abs(rotSwitch) < 0.1 && AHRSClass.gyrosWorking) {
+        if (snapMode && Math.abs(rotSwitch) < 0.1 && m_gyro.gyrosWorking) {
             thetaControllerOutput = m_headingController.calculate(currentRads, desiredRotation);
             thetaOuput = thetaControllerOutput*kSpeedModifier + m_headingController.getSetpoint().velocity;
         } else {
