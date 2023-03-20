@@ -161,40 +161,40 @@ public class SwerveDriveSubsystem extends SubsystemBase {
                         11, // drive CAN
                         30, // turn CAN
                         0, // turn encoder
-                        0.263906, // turn offset
+                        0.262873, // turn offset
                         currentLimit);
                 m_frontRight = SwerveModuleFactory.WCPModule(
                         "Front Right",
                         12, // drive CAN
                         32, // turn CAN
                         1, // turn encoder
-                        0.876270, // turn offset
+                        0.872509, // turn offset
                         currentLimit);
                 m_rearLeft = SwerveModuleFactory.WCPModule(
                         "Rear Left",
                         21, // drive CAN
                         31, // turn CAN
                         2, // turn encoder
-                        0.162685, // turn offset
+                        0.055213, // turn offset
                         currentLimit);
                 m_rearRight = SwerveModuleFactory.WCPModule(
                         "Rear Right",
                         22, // drive CAN
                         33, // turn CAN
                         3, // turn encoder
-                        0.465788, // turn offset
+                        0.471017, // turn offset
                         currentLimit);
                 break;
             case SWERVE_TWO:
                 headingController = new ProfiledPIDController( //
-                        0.5, // kP
-                        .5, // kI
-                        0.15, // kD
+                        2, // kP
+                        1, // kI
+                        0.2, // kD
                         new TrapezoidProfile.Constraints(
                                 2 * Math.PI, // speed rad/s
-                                2 * Math.PI)); // accel rad/s/s
+                                4 * Math.PI)); // accel rad/s/s
 
-                headingController.setIntegratorRange(-0.1, 0.1);
+                headingController.setIntegratorRange(-0.5, 0.5);
                 // Note very low heading tolerance.
                 headingController.setTolerance(Units.degreesToRadians(0.1));
                 kMaxSpeedMetersPerSecond = 5;
@@ -219,7 +219,7 @@ public class SwerveDriveSubsystem extends SubsystemBase {
                 thetaController = new ProfiledPIDController(
                         3, // kP
                         0.0, // kI
-                        0.0, // kD      
+                        0.0, // kD
                         new TrapezoidProfile.Constraints(
                                 kMaxAngularSpeedRadiansPerSecond,
                                 kMaxAngularSpeedRadiansPerSecondSquared));
@@ -540,35 +540,36 @@ public class SwerveDriveSubsystem extends SubsystemBase {
      *                      field.
      */
     @SuppressWarnings("ParameterName")
-    public void drive(double xSpeed, double ySpeed, double rot, boolean fieldRelative) {
-        xSpeed = MathUtil.clamp(xSpeed, -1, 1);
-        ySpeed = MathUtil.clamp(ySpeed, -1, 1);
-        rot = MathUtil.clamp(rot, -1, 1);
+    public void drive(final double xSpeed, final double ySpeed, final double rot, boolean fieldRelative) {
+        double xSpeedMetersPerSec = kMaxSpeedMetersPerSecond * MathUtil.clamp(xSpeed, -1, 1);
+        double ySpeedMetersPerSec = kMaxSpeedMetersPerSecond * MathUtil.clamp(ySpeed, -1 ,1);
+        double rotRadiansPerSec = kMaxAngularSpeedRadiansPerSecond * MathUtil.applyDeadband(MathUtil.clamp(rot, -1, 1), 0.01);
+        // double rotConstant = 0.25;
+        // xSpeed = xSpeed * (Math.abs(Math.abs(rotConstant*rot)-1));
+        // ySpeed = ySpeed * (Math.abs(Math.abs(rotConstant*rot)-1));
         // if (Math.abs(xSpeed) < .01)
         // xSpeed = 100 * xSpeed * xSpeed * Math.signum(xSpeed);
         // if (Math.abs(ySpeed) < .01)
         // ySpeed = 100 * ySpeed * ySpeed * Math.signum(ySpeed);
-        if (Math.abs(rot) < .01)
-            rot = 0;
+        driveIdk(xSpeedMetersPerSec, ySpeedMetersPerSec, rotRadiansPerSec, fieldRelative);
+    }
+
+    public void driveIdk(double xSpeedMetersPerSec, double ySpeedMetersPerSec, double rotRadiansPerSec, boolean fieldRelative) {
         double gyroRate = m_gyro.getRate() * 0.25;
         Rotation2d rotation2 = getPose().getRotation().minus(new Rotation2d(gyroRate));
-        desiredChassisSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(kMaxSpeedMetersPerSecond * xSpeed,
-                kMaxSpeedMetersPerSecond * ySpeed, kMaxAngularSpeedRadiansPerSecond * rot,
+        desiredChassisSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(xSpeedMetersPerSec, ySpeedMetersPerSec, rotRadiansPerSec,
                 rotation2);
-        // TODO fix fieldRelative making this go crazy when it is off
+        ChassisSpeeds startChassisSpeeds = new ChassisSpeeds(xSpeedMetersPerSec, ySpeedMetersPerSec, rotRadiansPerSec);
         var swerveModuleStates = kDriveKinematics.toSwerveModuleStates(
                 fieldRelative
                         ? desiredChassisSpeeds
-                        : new ChassisSpeeds(kMaxSpeedMetersPerSecond * xSpeed, kMaxSpeedMetersPerSecond * ySpeed,
-                                kMaxAngularSpeedRadiansPerSecond * rot));
-
+                        : startChassisSpeeds);
         SwerveDriveKinematics.desaturateWheelSpeeds(
                 swerveModuleStates, kMaxSpeedMetersPerSecond);
 
         getRobotVelocity(swerveModuleStates);
 
         m_frontLeft.setDesiredState(swerveModuleStates[0]);
-        System.out.println(desiredChassisSpeeds);
         m_frontRight.setDesiredState(swerveModuleStates[1]);
         m_rearLeft.setDesiredState(swerveModuleStates[2]);
         m_rearRight.setDesiredState(swerveModuleStates[3]);

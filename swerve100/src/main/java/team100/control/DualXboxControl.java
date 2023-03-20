@@ -1,24 +1,18 @@
 package team100.control;
 
-import org.opencv.video.KalmanFilter;
-
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.util.sendable.Sendable;
 import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import frc.robot.autonomous.DriveToWaypoint2;
-import frc.robot.commands.DriveRotation;
 import frc.robot.commands.DriveSlow;
 import frc.robot.commands.GoalOffset;
-import frc.robot.commands.ResetPose;
 import frc.robot.commands.ResetRotation;
 import frc.robot.commands.AutoLevel;
 import frc.robot.commands.Arm.ArmTrajectory;
-import frc.robot.commands.Arm.DriveToSetpoint;
 import frc.robot.commands.Arm.SetConeMode;
 import frc.robot.commands.Arm.SetCubeMode;
 import frc.robot.commands.Manipulator.Close;
