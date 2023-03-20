@@ -11,15 +11,16 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.math.trajectory.TrajectoryConfig;
 import edu.wpi.first.math.trajectory.TrajectoryGenerator;
+import frc.robot.subsystems.AHRSClass;
 import frc.robot.subsystems.SwerveDriveSubsystem;
 
 public class Dodge extends TrajectoryCommand {
 
-  public Dodge(SwerveDriveSubsystem m_robotDrive, Trajectory trajectory) {
-    super(m_robotDrive, trajectory);
+  public Dodge(SwerveDriveSubsystem m_robotDrive, Trajectory trajectory, AHRSClass gyro) {
+    super(m_robotDrive, trajectory, gyro);
   }
 
-  static Dodge newDodge(SwerveDriveSubsystem m_robotDrive, double y) {
+  static Dodge newDodge(SwerveDriveSubsystem m_robotDrive, double y, AHRSClass gyro) {
     Pose2d currentRobotPose = m_robotDrive.getPose();
       double xRobot = currentRobotPose.getX();
       double yRobot = currentRobotPose.getY();
@@ -42,7 +43,7 @@ public class Dodge extends TrajectoryCommand {
               new Pose2d(xRobot, yRobot + y, rotRobot),
               trajectoryConfig);
 
-        return new Dodge(m_robotDrive, exampleTrajectory);
+        return new Dodge(m_robotDrive, exampleTrajectory, gyro);
 
     }
 }

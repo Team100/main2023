@@ -52,7 +52,7 @@ public class FusedHeading implements Supplier<Rotation2d>, Sendable {
     private static final Matrix<N1, N1> kControlInput = Matrix.mat(Nat.N1(), Nat.N1()).fill(0);
 
     private final Unroller m_mag;
-    private final LSM6DSOX_I2C m_gyro;
+    private final LSM6DSOX_I2C m_gyro; 
     // 2 states, 1 input, 2 outputs
     private final LinearSystem<N2, N1, N2> m_system;
     private final KalmanFilter<N2, N1, N2> m_filter;

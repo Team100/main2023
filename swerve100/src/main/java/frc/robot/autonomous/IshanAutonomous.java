@@ -9,11 +9,12 @@ import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.math.trajectory.TrajectoryConfig;
 import edu.wpi.first.math.trajectory.TrajectoryGenerator;
 import frc.robot.commands.SwerveControllerCommand;
+import frc.robot.subsystems.AHRSClass;
 import frc.robot.subsystems.SwerveDriveSubsystem;
 
 public class IshanAutonomous extends SwerveControllerCommand {
 
-    public IshanAutonomous(SwerveDriveSubsystem m_robotDrive) {
+    public IshanAutonomous(SwerveDriveSubsystem m_robotDrive, AHRSClass gyro) {
         super(genTrajectory(m_robotDrive),
                 m_robotDrive::getPose,
                 SwerveDriveSubsystem.kDriveKinematics,
@@ -22,8 +23,7 @@ public class IshanAutonomous extends SwerveControllerCommand {
                 m_robotDrive.thetaController,
                 () -> new Rotation2d(),
                 m_robotDrive::setModuleStates,
-                m_robotDrive,
-                m_robotDrive.m_gyro,
+                gyro,
                 m_robotDrive);
     }
 

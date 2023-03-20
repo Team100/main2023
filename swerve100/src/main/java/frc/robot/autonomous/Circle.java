@@ -15,19 +15,20 @@ import edu.wpi.first.math.trajectory.TrajectoryGenerator;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.commands.SwerveControllerCommand;
+import frc.robot.subsystems.AHRSClass;
 import frc.robot.subsystems.SwerveDriveSubsystem;
 
 /** Add your docs here. */
 public class Circle extends CommandBase {
-
+    AHRSClass m_gyro;
     SwerveDriveSubsystem m_robotDrive;
     double radius;
     boolean done;
 
-    public Circle(SwerveDriveSubsystem m_robotDrive, double radius) {
+    public Circle(SwerveDriveSubsystem m_robotDrive, double radius, AHRSClass gyro) {
         this.m_robotDrive = m_robotDrive;
         this.radius = radius;
-
+        m_gyro = gyro;
         addRequirements(this.m_robotDrive);
     }
 
@@ -42,8 +43,7 @@ public class Circle extends CommandBase {
             m_robotDrive.thetaController,
             () -> new Rotation2d(),
             m_robotDrive::setModuleStates,
-            m_robotDrive,
-            m_robotDrive.m_gyro,
+            m_gyro,
             m_robotDrive);
 
         CommandScheduler.getInstance().schedule(s);

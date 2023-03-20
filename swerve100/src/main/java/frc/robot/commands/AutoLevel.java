@@ -4,32 +4,31 @@
 
 package frc.robot.commands;
 
-import com.kauailabs.navx.frc.AHRS;
-
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj2.command.CommandBase;
+import frc.robot.subsystems.AHRSClass;
 import frc.robot.subsystems.SwerveDriveSubsystem;
 
 public class AutoLevel extends CommandBase {
-  private final SwerveDriveSubsystem drivetrain;
-  private AHRS m_gyro;
+  private final AHRSClass m_gyro;
+  private final SwerveDriveSubsystem m_robotDrive;
   private int count = 0;
   boolean reversed;
     /** Creates a new autoLevel. */
   double startX = 0;
-  public AutoLevel(boolean r, AHRS gyro, SwerveDriveSubsystem we) {
-    drivetrain = we;
+  public AutoLevel(boolean r, SwerveDriveSubsystem robotDrive, AHRSClass gyro) {
     m_gyro = gyro;
+    m_robotDrive = robotDrive;
     reversed = r;
     // Use addRequirements() here to declare subsystem dependencies.
-    addRequirements(drivetrain);
+    addRequirements(m_robotDrive);
   }
 
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
 
-    startX = drivetrain.getPose().getX();
+    startX = m_robotDrive.getPose().getX();
     count = 0;
   }
 
@@ -37,9 +36,9 @@ public class AutoLevel extends CommandBase {
   public void execute() {
 
     if(reversed){
-        if(drivetrain.getPose().getX() <= 4.155){
-            double Roll = m_gyro.getRoll();
-            double Pitch = m_gyro.getPitch();
+        if(m_robotDrive.getPose().getX() <= 4.155){
+            double Roll = m_gyro.getRedundantRoll();
+            double Pitch = m_gyro.getRedundantPitch();
                 // System.out.println(Roll);
                 double driveRollAmount = MathUtil.clamp(0.005 * Roll, -0.08, 0.08);
                 double drivePitchAmount = MathUtil.clamp(0.005   * Pitch, -0.08, 0.08);
@@ -47,17 +46,17 @@ public class AutoLevel extends CommandBase {
         
                if(Math.abs(Roll) > 2.5 || Math.abs(Pitch) > 2.5){   
                 count = 0;
-                drivetrain.driveSlow(drivePitchAmount, -driveRollAmount, 0, false);     
+                m_robotDrive.driveSlow(drivePitchAmount, -driveRollAmount, 0, false);     
                } else{
                 count++;
                }
         } else {
-            drivetrain.drive(-0.3, 0, 0, true);
+            m_robotDrive.drive(-0.3, 0, 0, true);
         }
     } else {
-        if(drivetrain.getPose().getX() >= 3.277){ //TODO real number needed TOTAL GUESS
-            double Roll = m_gyro.getRoll();
-            double Pitch = m_gyro.getPitch();
+        if(m_robotDrive.getPose().getX() >= 3.277){ //TODO real number needed TOTAL GUESS
+            double Roll = m_gyro.getRedundantRoll();
+            double Pitch = m_gyro.getRedundantPitch();
                 // System.out.println(Roll);
                 double driveRollAmount = MathUtil.clamp(0.004 * Roll, -0.08, 0.08);
                 double drivePitchAmount = MathUtil.clamp(0.004   * Pitch, -0.08, 0.08);
@@ -65,12 +64,12 @@ public class AutoLevel extends CommandBase {
         
                if(Math.abs(Roll) > 2.5 || Math.abs(Pitch) > 2.5){   
                 count = 0;
-                drivetrain.driveSlow(drivePitchAmount, -driveRollAmount, 0, false);     
+                m_robotDrive.driveSlow(drivePitchAmount, -driveRollAmount, 0, false);     
                } else{
                 count++;
                }
         } else {
-            drivetrain.drive(0.3, 0, 0, true);
+            m_robotDrive.drive(0.3, 0, 0, true);
         }
     }
 

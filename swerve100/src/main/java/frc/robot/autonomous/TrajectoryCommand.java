@@ -6,12 +6,13 @@ import java.util.function.Supplier;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.trajectory.Trajectory;
 import frc.robot.commands.SwerveControllerCommand;
+import frc.robot.subsystems.AHRSClass;
 import frc.robot.subsystems.SwerveDriveSubsystem;
 
 public abstract class TrajectoryCommand extends SwerveControllerCommand {
     SwerveDriveSubsystem m_robotDrive;
 
-    public TrajectoryCommand(SwerveDriveSubsystem m_robotDrive, Trajectory trajectory) {
+    public TrajectoryCommand(SwerveDriveSubsystem m_robotDrive, Trajectory trajectory, AHRSClass gyro) {
 
         super(
                 trajectory,
@@ -22,13 +23,12 @@ public abstract class TrajectoryCommand extends SwerveControllerCommand {
                 m_robotDrive.thetaController,
                 () -> new Rotation2d(),
                 m_robotDrive::setModuleStates,
-                m_robotDrive,
-                m_robotDrive.m_gyro,
+                gyro,
                 m_robotDrive);
         this.m_robotDrive = m_robotDrive;
         addRequirements(this.m_robotDrive);
     }
-    public TrajectoryCommand(SwerveDriveSubsystem m_robotDrive, Trajectory trajectory, Supplier<Rotation2d> desiredRotation) {
+    public TrajectoryCommand(SwerveDriveSubsystem m_robotDrive, Trajectory trajectory, Supplier<Rotation2d> desiredRotation, AHRSClass gyro) {
 
         super(
                 trajectory,
@@ -39,8 +39,7 @@ public abstract class TrajectoryCommand extends SwerveControllerCommand {
                 m_robotDrive.thetaController,
                 desiredRotation,
                 m_robotDrive::setModuleStates,
-                m_robotDrive,
-                m_robotDrive.m_gyro,
+                gyro,
                 m_robotDrive);
         this.m_robotDrive = m_robotDrive;
         addRequirements(this.m_robotDrive);

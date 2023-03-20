@@ -4,6 +4,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.spline.Spline;
 import edu.wpi.first.math.trajectory.TrajectoryGenerator.ControlVectorList;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+import frc.robot.subsystems.AHRSClass;
 import frc.robot.subsystems.SwerveDriveSubsystem;
 
 public class VasiliAutonomous extends SequentialCommandGroup {
@@ -12,7 +13,7 @@ public class VasiliAutonomous extends SequentialCommandGroup {
 
     
     /** Creates a new autonomous. */
-    public VasiliAutonomous(SwerveDriveSubsystem m_robotDrive) {
+    public VasiliAutonomous(SwerveDriveSubsystem m_robotDrive, AHRSClass m_gyro) {
         // Add your commands in the addCommands() call, e.g.
         // addCommands(new FooCommand(), new BarCommand());
         // Rotation2d desiredRots = new Rotation2d(Math.PI);
@@ -62,7 +63,8 @@ public class VasiliAutonomous extends SequentialCommandGroup {
                         .newMoveFromStartingPoseToGamePiece(
                                 m_robotDrive,
                                 controlVectors,
-                                () -> new Rotation2d(Math.PI)),
+                                () -> new Rotation2d(Math.PI),
+                                m_gyro),
                 new Rotate(m_robotDrive, 0)
         );
 

@@ -15,8 +15,10 @@ import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.SwerveDriveSubsystem;
+import frc.robot.subsystems.AHRSClass;
 
 public class DriveWithHeading extends CommandBase {
+    private final AHRSClass m_gyro;
     /** Creates a new DrivePID. */
     SwerveDriveSubsystem m_robotDrive;
     ProfiledPIDController m_headingController;
@@ -26,7 +28,6 @@ public class DriveWithHeading extends CommandBase {
     private final DoubleSupplier xSpeed;
     private final DoubleSupplier ySpeed;
     private final DoubleSupplier rotSpeed;
-
     private Rotation2d lastRotationSetpoint;
 
     private boolean snapMode = false;
@@ -39,8 +40,9 @@ public class DriveWithHeading extends CommandBase {
     double thetaControllerOutput;
 
     public DriveWithHeading(SwerveDriveSubsystem robotDrive, DoubleSupplier xSpeed, DoubleSupplier ySpeed,
-            Supplier<Rotation2d> desiredRotation, DoubleSupplier rotSpeed, String name) {
+            Supplier<Rotation2d> desiredRotation, DoubleSupplier rotSpeed, String name, AHRSClass gyro) {
         // Use addRequirements() here to declare subsystem dependencies.
+        m_gyro = gyro;
         m_robotDrive = robotDrive;
         m_headingController = m_robotDrive.headingController;
         m_desiredRotation = desiredRotation;
@@ -88,11 +90,10 @@ public class DriveWithHeading extends CommandBase {
             snapMode = true;
             desiredRotation = pov.getRadians();
         }
-
         currentPose = m_robotDrive.getPose();
         double currentRads = MathUtil.angleModulus(currentPose.getRotation().getRadians());
 
-        if (snapMode && Math.abs(rotSwitch) < 0.1) {
+        if (snapMode && Math.abs(rotSwitch) < 0.1 && m_gyro.getGyroWorking()) {
             thetaControllerOutput = m_headingController.calculate(currentRads, desiredRotation);
             thetaOuput = thetaControllerOutput*kSpeedModifier + m_headingController.getSetpoint().velocity;
         } else {
@@ -110,7 +111,7 @@ public class DriveWithHeading extends CommandBase {
     @Override
     public void end(boolean interrupted) {
     }
-    
+
     // Returns true when the command should end.
     @Override
     public boolean isFinished() {
