@@ -26,9 +26,9 @@ public class AHRSClass implements Sendable {
         m_gyro2 = new AHRS(I2C.Port.kMXP);
         m_gyro1.enableBoardlevelYawReset(true);
         m_gyro2.enableBoardlevelYawReset(true);
-        // while (m_gyro2.isCalibrating() || m_gyro1.isCalibrating()){
-        //     // System.out.println("Waiting for calibration to finish");  
-        // }
+         while (m_gyro1.isConnected() && m_gyro1.isCalibrating() || m_gyro2.isConnected() && m_gyro2.isCalibrating()) {
+    //    System.out.println("Waiting for calibration to finish");  
+         }
         m_gyro1.calibrate();
         m_gyro2.calibrate();
         gyroZOffset_I2C = -m_gyro2.getRawGyroZ();
