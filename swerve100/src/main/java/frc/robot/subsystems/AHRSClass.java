@@ -14,7 +14,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 /** Add your docs here. */
 public class AHRSClass implements Sendable {
-    public boolean gyrosWorking = true;
+    private boolean gyrosWorking = true;
     private final AHRS m_gyro1;
     private final AHRS m_gyro2;
     private boolean gyro1Connected = true;
@@ -153,6 +153,9 @@ public class AHRSClass implements Sendable {
                 gyrosWorking = false;
             }
             return (redundGyroZ)/tmpInputs;
+        }
+        public boolean getGyroWorking() {
+            return gyrosWorking;
         }
         public void initSendable(SendableBuilder builder) {
         builder.addDoubleProperty("Gyro Redundant Roll (deg)", () -> getRedundantRoll(), null);

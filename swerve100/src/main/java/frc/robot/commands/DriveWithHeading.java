@@ -93,7 +93,7 @@ public class DriveWithHeading extends CommandBase {
         currentPose = m_robotDrive.getPose();
         double currentRads = MathUtil.angleModulus(currentPose.getRotation().getRadians());
 
-        if (snapMode && Math.abs(rotSwitch) < 0.1 && m_gyro.gyrosWorking) {
+        if (snapMode && Math.abs(rotSwitch) < 0.1 && m_gyro.getGyroWorking()) {
             thetaControllerOutput = m_headingController.calculate(currentRads, desiredRotation);
             thetaOuput = thetaControllerOutput*kSpeedModifier + m_headingController.getSetpoint().velocity;
         } else {
