@@ -147,9 +147,9 @@ public class SwerveModuleFactory {
 
         // Drive(IVE FF
         SimpleMotorFeedforward driveFeedforward = new SimpleMotorFeedforward(//
-                0.045, // kS makes it go further when almost at goal
+                0.04, // kS makes it go further when almost at goal
                 0.15, // kV
-                0); // kA
+                0.02); // kA
 
         // TURNING FF
         SimpleMotorFeedforward turningFeedforward = new SimpleMotorFeedforward(//

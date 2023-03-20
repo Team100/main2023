@@ -14,10 +14,11 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 /** Add your docs here. */
 public class AHRSClass implements Sendable {
+    public static boolean gyrosWorking = true;
     public final AHRS m_gyro1;
     public final AHRS m_gyro2;
-    boolean gyro1Connected = true;
-    boolean gyro2Connected = true;
+    public static boolean gyro1Connected = true;
+    public static boolean gyro2Connected = true;
     float gyroZOffset_I2C;
     float gyroZOffset_USB;
     public AHRSClass() {
@@ -51,6 +52,10 @@ public class AHRSClass implements Sendable {
               redundYaw += m_gyro2.getYaw();
               tmpInputs +=1;
             }
+            if (!gyro2Connected && !gyro1Connected) {
+                System.out.println("GYROS BROKE");
+                gyrosWorking = false;
+            }
             return (redundYaw)/tmpInputs;
           }
     
@@ -70,6 +75,10 @@ public class AHRSClass implements Sendable {
             if (gyro1Connected) {
               redundPitch += m_gyro1.getPitch();
               tmpInputs +=1;
+            }
+            if (!gyro2Connected && !gyro1Connected) {
+                System.out.println("GYROS BROKE");
+                gyrosWorking = false;
             }
             return (redundPitch)/tmpInputs;
           }
@@ -91,6 +100,10 @@ public class AHRSClass implements Sendable {
               redundRoll += m_gyro1.getRoll();
               tmpInputs +=1;
             }
+            if (!gyro2Connected && !gyro1Connected) {
+                System.out.println("GYROS BROKE");
+                gyrosWorking = false;
+            }
             return (redundRoll)/tmpInputs;
           }
     
@@ -110,6 +123,10 @@ public class AHRSClass implements Sendable {
             if (gyro1Connected) {
               redundRate += m_gyro1.getRate();
               tmpInputs +=1;
+            }
+            if (!gyro2Connected && !gyro1Connected) {
+                System.out.println("GYROS BROKE");
+                gyrosWorking = false;
             }
             return (redundRate)/tmpInputs;
         }
@@ -131,6 +148,10 @@ public class AHRSClass implements Sendable {
               redundGyroZ += m_gyro1.getRawGyroZ() + gyroZOffset_USB;
               tmpInputs +=1;
             }
+            if (!gyro2Connected && !gyro1Connected) {
+                System.out.println("GYROS BROKE");
+                gyrosWorking = false;
+            }
             return (redundGyroZ)/tmpInputs;
         }
         public void initSendable(SendableBuilder builder) {
@@ -148,5 +169,6 @@ public class AHRSClass implements Sendable {
         builder.addDoubleProperty("Gyro 2 Compass Heading (deg)", () -> m_gyro2.getCompassHeading(), null);
         builder.addBooleanProperty("Gyro 1 Connected", () -> gyro1Connected, null);
         builder.addBooleanProperty("Gyro 2 Connected", () -> gyro2Connected, null);
+        builder.addBooleanProperty("Any Gyros Working", () -> gyrosWorking, null);
         }
 }

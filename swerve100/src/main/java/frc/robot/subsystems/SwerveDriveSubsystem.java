@@ -190,7 +190,7 @@ public class SwerveDriveSubsystem extends SubsystemBase {
                 headingController = new ProfiledPIDController( //
                         1, // kP
                         0, // kI
-                        0, // kD
+                        0.05, // kD
                         new TrapezoidProfile.Constraints(
                                 2 * Math.PI, // speed rad/s
                                 4 * Math.PI)); // accel rad/s/s
@@ -229,7 +229,7 @@ public class SwerveDriveSubsystem extends SubsystemBase {
                         11, // drive CAN
                         3, // turn PWM
                         1, // turn encoder
-                        0.032635, // turn offset
+                        0.035097, // turn offset
                         currentLimit);
                 m_frontRight = SwerveModuleFactory.AMModule(
                         "Front Right",
