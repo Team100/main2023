@@ -32,7 +32,7 @@ public class DriveWithHeading extends CommandBase {
 
     private boolean snapMode = false;
 
-    private static final double kSpeedModifier = 5.0;
+    private static final double kSpeedModifier = 6.0;
     Pose2d currentPose;
     // Supplier<Double> rotSpeed;
     double thetaOuput = 0;

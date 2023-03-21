@@ -257,12 +257,12 @@ public class SwerveDriveSubsystem extends SubsystemBase {
                 break;
             case SWERVE_ONE:
                 headingController = new ProfiledPIDController( //
-                        1, // kP
-                        .5, // kI
-                        0.15, // kD
+                        0.5, // kP
+                        0, // kI
+                        0, // kD
                         new TrapezoidProfile.Constraints(
                                 2 * Math.PI, // speed rad/s
-                                2 * Math.PI)); // accel rad/s/s
+                                4 * Math.PI)); // accel rad/s/s
 
                 headingController.setIntegratorRange(-0.1, 0.1);
                 // Note very low heading tolerance.
