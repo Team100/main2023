@@ -253,7 +253,7 @@ public class SwerveDriveSubsystem extends SubsystemBase {
                         22, // drive CAN
                         0, // turn PWM
                         2, // turn encoder
-                        0.894767, // turn offset
+                        0.605593, // turn offset
                         currentLimit);
                 break;
             case SWERVE_ONE:
