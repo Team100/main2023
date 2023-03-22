@@ -10,6 +10,10 @@ import edu.wpi.first.math.util.Units;
 import edu.wpi.first.util.sendable.Sendable;
 import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import frc.robot.subsystems.drive.DriveEncoder;
+import frc.robot.subsystems.drive.DriveMotor;
+import frc.robot.subsystems.turning.TurningEncoder;
+import frc.robot.subsystems.turning.TurningMotor;
 
 public class SwerveModule implements Sendable {
     private final String m_name;
