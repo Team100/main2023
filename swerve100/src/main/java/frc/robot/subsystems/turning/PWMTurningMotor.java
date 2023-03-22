@@ -1,19 +1,17 @@
-package frc.robot.subsystems;
-
-import com.ctre.phoenix.motorcontrol.can.WPI_VictorSPX;
+package frc.robot.subsystems.turning;
 
 import edu.wpi.first.util.sendable.SendableBuilder;
+import edu.wpi.first.wpilibj.motorcontrol.PWMMotorController;
+import edu.wpi.first.wpilibj.motorcontrol.VictorSP;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
-public class CANTurningMotor implements TurningMotor {
-    private final WPI_VictorSPX m_motor;
-    private final int channel;
+public class PWMTurningMotor implements TurningMotor {
+    private final PWMMotorController m_motor;
     public static final double kTurningCurrentLimit = 10;
 
-    public CANTurningMotor(String name, int channel) {
-        m_motor = new WPI_VictorSPX(channel);
-        this.channel = channel;
-        SmartDashboard.putData(String.format("CAN Turning Motor %s", name), this);
+    public PWMTurningMotor(String name, int channel) {
+        m_motor = new VictorSP(channel);
+        SmartDashboard.putData(String.format("PWM Turning Motor %s", name), this);
     }
 
     @Override
@@ -29,8 +27,8 @@ public class CANTurningMotor implements TurningMotor {
     @Override
     public void initSendable(SendableBuilder builder) {
         builder.setSmartDashboardType("PWMTurningMotor");
-        builder.addDoubleProperty("Device ID", () -> channel, null);
+        builder.addDoubleProperty("Device ID", () -> m_motor.getChannel(), null);
         builder.addDoubleProperty("Output", this::get, null);
     }
-
+    
 }

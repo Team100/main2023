@@ -22,6 +22,7 @@ import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StringPublisher;
 import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.RobotContainer;
@@ -713,6 +714,19 @@ public class SwerveDriveSubsystem extends SubsystemBase {
         m_frontRight.setOutput(desiredOutputs[1][0], desiredOutputs[1][1]);
         m_rearLeft.setOutput(desiredOutputs[2][0], desiredOutputs[2][1]);
         m_rearRight.setOutput(desiredOutputs[3][0], desiredOutputs[3][1]);
+
+        // full-speed printing to see the signal without networktables
+        System.out.printf("T %5.3f FL(p%5.3f v%5.3f) FR(p%5.3f v%5.3f) RL(p%5.3f v%5.3f) RR(p%5.3f v%5.3f)\n",
+        Timer.getFPGATimestamp(),
+         m_frontLeft.getPosition().distanceMeters,
+         m_frontLeft.getState().speedMetersPerSecond,
+         m_frontRight.getPosition().distanceMeters,
+         m_frontRight.getState().speedMetersPerSecond,
+         m_rearLeft.getPosition().distanceMeters,
+         m_rearLeft.getState().speedMetersPerSecond,
+         m_rearRight.getPosition().distanceMeters,
+         m_rearRight.getState().speedMetersPerSecond
+        );
     }
 
     /** Resets the drive encoders to currently read a position of 0. */

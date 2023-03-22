@@ -4,6 +4,12 @@ import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
+import frc.robot.subsystems.drive.FalconDriveEncoder;
+import frc.robot.subsystems.drive.FalconDriveMotor;
+import frc.robot.subsystems.turning.AnalogTurningEncoder;
+import frc.robot.subsystems.turning.CANTurningMotor;
+import frc.robot.subsystems.turning.FalconTurningMotor;
+import frc.robot.subsystems.turning.PWMTurningMotor;
 
 public class SwerveModuleFactory {
 
