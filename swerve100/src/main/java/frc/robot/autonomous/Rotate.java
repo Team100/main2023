@@ -18,7 +18,7 @@ public class Rotate extends ProfiledPIDCommand {
     public Rotate(SwerveDriveSubsystem m_robotDrive, double targetAngleRadians) {
         super(
                 // new PIDController(1, 0, 0),
-                m_robotDrive.thetaController,
+                m_robotDrive.headingController,
                 () -> m_robotDrive.getPose().getRotation().getRadians(),
                 targetAngleRadians,
                 (output, state) -> m_robotDrive.drive(0, 0, output, false),
@@ -36,7 +36,7 @@ public class Rotate extends ProfiledPIDCommand {
     // @Override
     // public void initialize() {
     // m_timer.start();
-    // }
+    // } 
 
     @Override
     public boolean isFinished() {
@@ -49,6 +49,14 @@ public class Rotate extends ProfiledPIDCommand {
     public void end(boolean isInterupted) {
         System.out.println("DONEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE");
         // m_timer.stop();
+
+        m_robotDrive.m_frontLeft.setOutput(0, 0);
+        
+        m_robotDrive.m_frontRight.setOutput(0, 0);
+
+        m_robotDrive.m_rearLeft.setOutput(0, 0);
+
+        m_robotDrive.m_rearRight.setOutput(0, 0);
     }
 
     @Override

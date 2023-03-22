@@ -32,7 +32,9 @@ public class FalconDriveMotor implements DriveMotor {
 
     @Override
     public void set(double output) {
-        m_motor.set(MathUtil.clamp(output, -1.0, 1.0));
+        // m_motor.set(MathUtil.clamp(output, -1.0, 1.0));
+
+        m_motor.setVoltage(12 * MathUtil.clamp(output, -1.0, 1.0));
     }
 
     @Override

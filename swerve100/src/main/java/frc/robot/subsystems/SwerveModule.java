@@ -1,5 +1,6 @@
 package frc.robot.subsystems;
 
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
@@ -71,7 +72,38 @@ public class SwerveModule implements Sendable {
         driveFeedForwardOutput = m_driveFeedforward.calculate(
                 state.speedMetersPerSecond,
                 accelMetersPerSecondPerSecond);
-        setOutput(driveMotorControllerOutput + driveFeedForwardOutput,
+
+        // if(MathUtil.applyDeadband(driveMotorControllerOutput, .01) == 0){
+        //     driveMotorControllerOutput = 0;
+        //     driveFeedForwardOutput = 0;
+        // }
+
+        // if(MathUtil.applyDeadband(turningMotorControllerOutput, .01) == 0){
+        //     turningMotorControllerOutput = 0;
+        //     turningFeedForwardOutput = 0;
+        // }
+
+
+        double driveOutput = MathUtil.applyDeadband(driveMotorControllerOutput + driveFeedForwardOutput, 0.03);
+        double turnOutput = MathUtil.applyDeadband(turningMotorControllerOutput + turningFeedForwardOutput, 0.03);
+
+        setOutput(driveOutput,
+                turnOutput);
+    }
+
+    public void setDesiredStateNoFF(SwerveModuleState desiredState) {
+        SwerveModuleState state = SwerveModuleState.optimize(desiredState, getTurningRotation());
+        driveMotorControllerOutput = m_driveController.calculate(getDriveSpeedMS(), state.speedMetersPerSecond);
+        turningMotorControllerOutput = m_turningController.calculate(getTurningAngleRad(), state.angle.getRadians());
+        turningFeedForwardOutput = m_turningFeedforward.calculate(getTurnSetpointVelocityRadS(), 0);
+        // TODO: smooth out accel
+        double accelMetersPerSecondPerSecond = (state.speedMetersPerSecond - previousSpeedMetersPerSecond) / 0.02;
+        previousSpeedMetersPerSecond = state.speedMetersPerSecond;
+        driveFeedForwardOutput = m_driveFeedforward.calculate(
+                state.speedMetersPerSecond,
+                accelMetersPerSecondPerSecond);
+
+        setOutput(driveMotorControllerOutput,
                 turningMotorControllerOutput + turningFeedForwardOutput);
     }
 

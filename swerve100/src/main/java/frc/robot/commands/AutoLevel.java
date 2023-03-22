@@ -37,7 +37,7 @@ public class AutoLevel extends CommandBase {
   public void execute() {
 
     if(reversed){
-        if(drivetrain.getPose().getX() <= 4.155){
+        if(drivetrain.getPose().getX() <= 4.255){ //4.125
             double Roll = m_gyro.getRoll();
             double Pitch = m_gyro.getPitch();
                 // System.out.println(Roll);

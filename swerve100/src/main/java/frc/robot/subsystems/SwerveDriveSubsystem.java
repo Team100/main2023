@@ -121,12 +121,12 @@ public class SwerveDriveSubsystem extends SubsystemBase {
         switch (Identity.get()) {
             case COMP_BOT:
                 headingController = new ProfiledPIDController( //
-                        1, // kP
-                        .5, // kI
-                        0.15, // kD
+                        0, // kP
+                        0, // kI
+                        0, // kD
                         new TrapezoidProfile.Constraints(
                                 2 * Math.PI, // speed rad/s
-                                2 * Math.PI)); // accel rad/s/s
+                                4 * Math.PI)); // accel rad/s/s
                 headingController.setIntegratorRange(-0.1, 0.1);
                 // Note very low heading tolerance.
                 headingController.setTolerance(Units.degreesToRadians(0.1));
@@ -158,28 +158,28 @@ public class SwerveDriveSubsystem extends SubsystemBase {
                         11, // drive CAN
                         30, // turn CAN
                         0, // turn encoder
-                        0.263906, // turn offset
+                        0.267276, // turn offset
                         currentLimit);
                 m_frontRight = SwerveModuleFactory.WCPModule(
                         "Front Right",
                         12, // drive CAN
                         32, // turn CAN
                         1, // turn encoder
-                        0.876270, // turn offset
+                        0.872793, // turn offset
                         currentLimit);
                 m_rearLeft = SwerveModuleFactory.WCPModule(
                         "Rear Left",
                         21, // drive CAN
                         31, // turn CAN
                         2, // turn encoder
-                        0.162685, // turn offset
+                        0.754087, // turn offset
                         currentLimit);
                 m_rearRight = SwerveModuleFactory.WCPModule(
                         "Rear Right",
                         22, // drive CAN
                         33, // turn CAN
                         3, // turn encoder
-                        0.465788, // turn offset
+                        0.477936, // turn offset
                         currentLimit);
                 break;
             case SWERVE_TWO:
@@ -457,8 +457,8 @@ public class SwerveDriveSubsystem extends SubsystemBase {
                         m_rearRight.getPosition()
                 },
                 new Pose2d(),
-                VecBuilder.fill(0.03, 0.03, 0.03),
-                VecBuilder.fill(0.01, 0.01, 0.04)); // note tight rotation variance here, used to be MAX_VALUE
+                VecBuilder.fill(0.5, 0.5, 0.5),
+                VecBuilder.fill(0.1, 0.1, 0.4)); // note tight rotation variance here, used to be MAX_VALUE
         // VecBuilder.fill(0.01, 0.01, Integer.MAX_VALUE));
         visionDataProvider = new VisionDataProvider(alliance, m_poseEstimator, () -> getPose());
 
@@ -590,11 +590,11 @@ public class SwerveDriveSubsystem extends SubsystemBase {
         var swerveModuleStates = kDriveKinematics.toSwerveModuleStates(
                 fieldRelative
                         ? desiredChassisSpeeds
-                        : new ChassisSpeeds(7 * xSpeed, 7 * ySpeed,
+                        : new ChassisSpeeds(4.5 * xSpeed, 4.5 * ySpeed,
                                 5 * rot));
 
         SwerveDriveKinematics.desaturateWheelSpeeds(
-                swerveModuleStates, 6);
+                swerveModuleStates, 4.5);
 
         getRobotVelocity(swerveModuleStates);
 
@@ -612,6 +612,18 @@ public class SwerveDriveSubsystem extends SubsystemBase {
         m_frontRight.setDesiredState(desiredStates[1]);
         m_rearLeft.setDesiredState(desiredStates[2]);
         m_rearRight.setDesiredState(desiredStates[3]);
+
+        getRobotVelocity(desiredStates);
+
+    }
+
+    public void setModuleStatesNoFF(SwerveModuleState[] desiredStates) {
+        SwerveDriveKinematics.desaturateWheelSpeeds(
+                desiredStates, kMaxSpeedMetersPerSecond);
+        m_frontLeft.setDesiredStateNoFF(desiredStates[0]);
+        m_frontRight.setDesiredStateNoFF(desiredStates[1]);
+        m_rearLeft.setDesiredStateNoFF(desiredStates[2]);
+        m_rearRight.setDesiredStateNoFF(desiredStates[3]);
 
         getRobotVelocity(desiredStates);
 

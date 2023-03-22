@@ -44,6 +44,9 @@ public class HolonomicDriveController2 {
   DoublePublisher xFFPublisher = inst.getTable("Holonomic2").getDoubleTopic("xFF").publish();
   DoublePublisher xFBPublisher = inst.getTable("Holonomic2").getDoubleTopic("xFB").publish();
 
+  DoublePublisher yFFPublisher = inst.getTable("Holonomic2").getDoubleTopic("yFF").publish();
+  DoublePublisher yFBPublisher = inst.getTable("Holonomic2").getDoubleTopic("yFB").publish();
+
 
   /**
    * Constructs a holonomic drive controller.
@@ -112,12 +115,15 @@ public class HolonomicDriveController2 {
     
     
     double xFF = desiredLinearVelocityMetersPerSecond * trajectoryPose.getRotation().getCos();
+
     double yFF = desiredLinearVelocityMetersPerSecond * trajectoryPose.getRotation().getSin();
+    
     double thetaFF =
         m_thetaController.calculate(
             currentPose.getRotation().getRadians(), desiredHeading.getRadians());
 
     xFFPublisher.set(xFF);
+    yFFPublisher.set(yFF);
 
     m_poseError = trajectoryPose.relativeTo(currentPose);
     m_rotationError = desiredHeading.minus(currentPose.getRotation());
@@ -131,6 +137,7 @@ public class HolonomicDriveController2 {
     double yFeedback = m_yController.calculate(currentPose.getY(), trajectoryPose.getY());
 
     xFBPublisher.set(xFeedback);
+    yFBPublisher.set(yFeedback);
     // Return next output.
     double gyroRate = m_robotDrive.m_gyro.getRate() * 0.25;
     Rotation2d rotation2 = currentPose.getRotation().minus(new Rotation2d(gyroRate));

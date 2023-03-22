@@ -125,7 +125,9 @@ public class RobotContainer implements Sendable {
         m_robotDrive = new SwerveDriveSubsystem(m_alliance, kDriveCurrentLimit);
 
         if (m_alliance == DriverStation.Alliance.Blue) {
-            driveToLeftGrid = DriveToAprilTag.newDriveToAprilTag(6, 0.95, .55, control::goalOffset, m_robotDrive);
+            // driveToLeftGrid = DriveToAprilTag.newDriveToAprilTag(6, 0.95, .55, control::goalOffset, m_robotDrive);
+            driveToLeftGrid = DriveToAprilTag.newDriveToAprilTag(6, 1.5, 0, control::goalOffset, m_robotDrive);
+
             driveToCenterGrid = DriveToAprilTag.newDriveToAprilTag(7, 0.95, .55, control::goalOffset, m_robotDrive);
             driveToRightGrid = DriveToAprilTag.newDriveToAprilTag(8, 0.95, .55, control::goalOffset, m_robotDrive);
             driveToSubstation = DriveToAprilTag.newDriveToAprilTag(4, 0.53, -0.749, control::goalOffset, m_robotDrive);
@@ -220,6 +222,8 @@ public class RobotContainer implements Sendable {
 
         // control.armMid(armMid);
 
+        control.resetPose(resetPose);
+
 
 
 
@@ -232,7 +236,7 @@ public class RobotContainer implements Sendable {
                 control::rotSpeed,
                 m_robotDrive);
 
-        m_robotDrive.setDefaultCommand(driveManually);
+        m_robotDrive.setDefaultCommand(driveWithHeading);
 
         // Controller 1 triggers => manipulator open/close
         gripManually = new GripManually(

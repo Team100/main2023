@@ -24,6 +24,7 @@ import frc.robot.commands.Arm.SetCubeMode;
 import frc.robot.commands.Manipulator.Close;
 import frc.robot.commands.Manipulator.Home;
 import frc.robot.commands.Manipulator.Open;
+import pabeles.concurrency.ConcurrencyOps.Reset;
 import team100.commands.Defense;
 
 /**
@@ -98,12 +99,16 @@ public class DualXboxControl implements Sendable {
     }
 
     public void driveSlow(DriveSlow command) {
-        controller0.leftBumper().whileTrue(command);
+        // controller0.leftBumper().whileTrue(command);
     }
 
     // TODO: remove this
     public XboxController getController0() {
         return controller0.getHID();
+    }
+
+    public void resetPose(ResetPose command){
+        controller0.leftBumper().onTrue(command);
     }
 
     public Rotation2d desiredRotation() {
