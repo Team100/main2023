@@ -1,4 +1,4 @@
-package frc.robot.subsystems;
+package frc.robot.subsystems.drive;
 
 import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -19,20 +19,18 @@ public class FalconDriveEncoder implements DriveEncoder {
 
     @Override
     public double getDistance() {
-        return m_motor.getSensorCollection().getIntegratedSensorPosition() * m_distancePerPulse;
+        return m_motor.getPosition() * m_distancePerPulse;
     }
 
     @Override
     public double getRate() {
         // sensor velocity is 1/2048ths of a turn per 100ms
-        return m_motor.getSensorCollection().getIntegratedSensorVelocity()
-                * 10 * m_distancePerPulse;
+        return m_motor.getVelocity() * 10 * m_distancePerPulse;
     }
 
     @Override
     public void reset() {
-        m_motor.getSensorCollection().setIntegratedSensorPosition(0, 0);
-
+        m_motor.resetPosition();
     }
 
     @Override
