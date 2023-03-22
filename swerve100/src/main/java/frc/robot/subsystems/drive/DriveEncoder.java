@@ -1,4 +1,4 @@
-package frc.robot.subsystems;
+package frc.robot.subsystems.drive;
 
 import edu.wpi.first.util.sendable.Sendable;
 
@@ -6,7 +6,7 @@ public interface DriveEncoder extends Sendable {
     /** @return encoder rate in meters per second */
     double getRate();
 
-    /** @return accumulated distance in meters per second */
+    /** @return accumulated distance in meters */
     double getDistance();
 
     /** set distance to zero */

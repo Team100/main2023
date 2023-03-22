@@ -125,7 +125,9 @@ public class RobotContainer implements Sendable {
         m_robotDrive = new SwerveDriveSubsystem(m_alliance, kDriveCurrentLimit, ahrsclass);
 
         if (m_alliance == DriverStation.Alliance.Blue) {
-            driveToLeftGrid = DriveToAprilTag.newDriveToAprilTag(6, 0.95, .55, control::goalOffset, m_robotDrive, ahrsclass);
+            // driveToLeftGrid = DriveToAprilTag.newDriveToAprilTag(6, 0.95, .55, control::goalOffset, m_robotDrive, ahrsclass);
+            driveToLeftGrid = DriveToAprilTag.newDriveToAprilTag(6, 1.5, 0, control::goalOffset, m_robotDrive,  ahrsclass);
+
             driveToCenterGrid = DriveToAprilTag.newDriveToAprilTag(7, 0.95, .55, control::goalOffset, m_robotDrive, ahrsclass);
             driveToRightGrid = DriveToAprilTag.newDriveToAprilTag(8, 0.95, .55, control::goalOffset, m_robotDrive, ahrsclass);
             driveToSubstation = DriveToAprilTag.newDriveToAprilTag(4, 0.53, -0.749, control::goalOffset, m_robotDrive, ahrsclass);
@@ -219,6 +221,8 @@ public class RobotContainer implements Sendable {
         control.armToSub(armToSub);
 
         // control.armMid(armMid);
+
+        control.resetPose(resetPose);
 
 
 
