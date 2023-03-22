@@ -36,7 +36,7 @@ public class Rotate extends ProfiledPIDCommand {
     // @Override
     // public void initialize() {
     // m_timer.start();
-    // }
+    // } 
 
     @Override
     public boolean isFinished() {
@@ -49,6 +49,14 @@ public class Rotate extends ProfiledPIDCommand {
     public void end(boolean isInterupted) {
         System.out.println("DONEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE");
         // m_timer.stop();
+
+        m_robotDrive.m_frontLeft.setOutput(0, 0);
+        
+        m_robotDrive.m_frontRight.setOutput(0, 0);
+
+        m_robotDrive.m_rearLeft.setOutput(0, 0);
+
+        m_robotDrive.m_rearRight.setOutput(0, 0);
     }
 
     @Override

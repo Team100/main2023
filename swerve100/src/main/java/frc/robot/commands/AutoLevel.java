@@ -36,8 +36,8 @@ public class AutoLevel extends CommandBase {
   public void execute() {
 
     if(reversed){
-        if(m_robotDrive.getPose().getX() <= 4.155){
-            double Roll = m_gyro.getRedundantRoll();
+        if(m_robotDrive.getPose().getX() <= 4.255){ //4.125
+            double Roll = m_gyro.getRedundantYaw();
             double Pitch = m_gyro.getRedundantPitch();
                 // System.out.println(Roll);
                 double driveRollAmount = MathUtil.clamp(0.005 * Roll, -0.08, 0.08);
