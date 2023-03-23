@@ -2,9 +2,7 @@ package team100.indicator;
 
 import edu.wpi.first.wpilibj.AddressableLED;
 import edu.wpi.first.wpilibj.AddressableLEDBuffer;
-import edu.wpi.first.wpilibj.Notifier;
 import edu.wpi.first.wpilibj.util.Color;
-import frc.robot.RobotContainer;
 
 /**
  * Demonstrates the use of an onboard LED strip as a boolean indicator, flashing

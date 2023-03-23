@@ -1,7 +1,6 @@
 package frc.robot.autonomous;
 
 import java.util.List;
-import java.util.function.Supplier;
 
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
