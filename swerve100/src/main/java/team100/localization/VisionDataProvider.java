@@ -34,7 +34,6 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.subsystems.SwerveDriveSubsystem;
 import team100.config.Camera;
 import team100.indicator.GoNoGoIndicator;
-import team100.indicator.OnboardIndicator;
 
 /**
  * Extracts robot pose estimates from camera input.

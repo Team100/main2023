@@ -1,10 +1,9 @@
-// Copyright (c) FIRST and other WPILib contributors.
-// Open Source Software; you can modify and/or share it under the terms of
-// the WPILib BSD license file in the root directory of this project.
-
 package frc.robot.commands;
 
 import static edu.wpi.first.util.ErrorMessages.requireNonNullParam;
+
+import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
@@ -16,14 +15,8 @@ import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.Subsystem;
-import frc.robot.subsystems.AHRSClass;
-import frc.robot.subsystems.SwerveDriveSubsystem;
 import frc.robot.autonomous.HolonomicDriveController2;
-
-import java.util.function.Consumer;
-import java.util.function.Supplier;
-
-import com.kauailabs.navx.frc.AHRS;
+import frc.robot.subsystems.AHRSClass;
 
 /**
  * A command that uses two PID controllers ({@link PIDController}) and a
