@@ -6,7 +6,7 @@ import retro_serializer
 
 class FakeResult:
     def __init__(self) -> None:
-        self.pose_t = np.array([[1], [2], [3]], dtype=np.float32)
+        self.pose_t = np.array([1, 2, 3], dtype=np.float32)
 
 
 class TestRetroSerializer(unittest.TestCase):
@@ -22,9 +22,10 @@ class TestRetroSerializer(unittest.TestCase):
         # this is just copied from whatever the serializer produced.
         self.assertEqual(
             (
+            
                 "81a574617065739181a6706f73655f74"
-                "9391cb3ff000000000000091cb400000"
-                "000000000091cb4008000000000000"
+                "93cb3ff0000000000000cb40000000000"
+                "00000cb4008000000000000"
             ),
             serialized_result.hex(),
         )
