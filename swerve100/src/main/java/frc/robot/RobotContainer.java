@@ -1,5 +1,7 @@
 package frc.robot;
 
+import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 
 import edu.wpi.first.math.geometry.Pose2d;
@@ -67,7 +69,8 @@ public class RobotContainer implements Sendable {
     private final SwerveDriveSubsystem m_robotDrive;
     private final Manipulator manipulator;
     private final ArmController armController;
-    private final AHRSClass ahrsclass;
+    private final AHRSClass 
+    ahrsclass;
 
     // CONTROL
     private final DualXboxControl control;
@@ -85,7 +88,8 @@ public class RobotContainer implements Sendable {
     private final ResetRotation resetRotation0;
     private final ResetRotation resetRotation180;
 
-
+    File myObj;
+    FileWriter myWriter;
 
     private final DriveToAprilTag driveToSubstation, driveToLeftGrid, driveToCenterGrid, driveToRightGrid;
 
@@ -119,14 +123,18 @@ public class RobotContainer implements Sendable {
         // // NEW CONTROL
         control = new DualXboxControl();
 
+        myObj = new File("/home/lvuser/logs.txt");
+        myWriter = new FileWriter("/home/lvuser/logs.txt", true);
+
+
         // m_alliance = DriverStation.getAlliance();
-        m_alliance = DriverStation.Alliance.Blue;
+        m_alliance = DriverStation.Alliance.Red;
 
         m_robotDrive = new SwerveDriveSubsystem(m_alliance, kDriveCurrentLimit, ahrsclass);
 
         if (m_alliance == DriverStation.Alliance.Blue) {
             // driveToLeftGrid = DriveToAprilTag.newDriveToAprilTag(6, 0.95, .55, control::goalOffset, m_robotDrive, ahrsclass);
-            driveToLeftGrid = DriveToAprilTag.newDriveToAprilTag(6, 1.5, 0, control::goalOffset, m_robotDrive,  ahrsclass);
+            driveToLeftGrid = DriveToAprilTag.newDriveToAprilTag(6, 1.25, 0, control::goalOffset, m_robotDrive,  ahrsclass);
 
             driveToCenterGrid = DriveToAprilTag.newDriveToAprilTag(7, 0.95, .55, control::goalOffset, m_robotDrive, ahrsclass);
             driveToRightGrid = DriveToAprilTag.newDriveToAprilTag(8, 0.95, .55, control::goalOffset, m_robotDrive, ahrsclass);
@@ -135,7 +143,9 @@ public class RobotContainer implements Sendable {
             driveToLeftGrid = DriveToAprilTag.newDriveToAprilTag(1, 0.95, .55, control::goalOffset, m_robotDrive, ahrsclass);
             driveToCenterGrid = DriveToAprilTag.newDriveToAprilTag(2, 0.95, .55, control::goalOffset, m_robotDrive, ahrsclass);
             driveToRightGrid = DriveToAprilTag.newDriveToAprilTag(3, 0.95, .55, control::goalOffset, m_robotDrive, ahrsclass);
-            driveToSubstation = DriveToAprilTag.newDriveToAprilTag(5, 0.53, -0.749, control::goalOffset, m_robotDrive, ahrsclass);
+            // driveToSubstation = DriveToAprilTag.newDriveToAprilTag(5, 0.53, -0.749, control::goalOffset, m_robotDrive, ahrsclass);
+            driveToSubstation = DriveToAprilTag.newDriveToAprilTag(5, 0.9, -0.72, control::goalOffset, m_robotDrive, ahrsclass);
+
         }
 
         
@@ -210,7 +220,7 @@ public class RobotContainer implements Sendable {
         control.coneMode(setConeMode);
         control.cubeMode(setCubeMode);
 
-        // control.driveSlow(driveSlow);
+        control.driveSlow(driveSlow);
 
         control.armSubstation(armSubstation);
 
@@ -283,20 +293,23 @@ public class RobotContainer implements Sendable {
     }
 
     public void runTest2() {
-        XboxController controller0 = new XboxController(0);
-        boolean rearLeft = controller0.getAButton();
-        boolean rearRight = controller0.getBButton();
-        boolean frontLeft = controller0.getXButton();
-        boolean frontRight = controller0.getYButton();
-        double driveControl = controller0.getLeftY();
-        double turnControl = controller0.getLeftX();
-        double[][] desiredOutputs = {
-                { frontLeft ? driveControl : 0, frontLeft ? turnControl : 0 },
-                { frontRight ? driveControl : 0, frontRight ? turnControl : 0 },
-                { rearLeft ? driveControl : 0, rearLeft ? turnControl : 0 },
-                { rearRight ? driveControl : 0, rearRight ? turnControl : 0 }
-        };
-        m_robotDrive.test(desiredOutputs);
+        
+            XboxController controller0 = new XboxController(0);
+            boolean rearLeft = controller0.getAButton();
+            boolean rearRight = controller0.getBButton();
+            boolean frontLeft = controller0.getXButton();
+            boolean frontRight = controller0.getYButton();
+            double driveControl = controller0.getLeftY();
+            double turnControl = controller0.getLeftX();
+            double[][] desiredOutputs = {
+                    { frontLeft ? driveControl : 0, frontLeft ? turnControl : 0 },
+                    { frontRight ? driveControl : 0, frontRight ? turnControl : 0 },
+                    { rearLeft ? driveControl : 0, rearLeft ? turnControl : 0 },
+                    { rearRight ? driveControl : 0, rearRight ? turnControl : 0 }
+            };
+            m_robotDrive.test(desiredOutputs, myWriter);
+        
+       
     }
 
     @Override

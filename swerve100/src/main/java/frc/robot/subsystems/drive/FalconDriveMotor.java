@@ -37,11 +37,11 @@ public class FalconDriveMotor implements DriveMotor {
 
         // default is 100 ms, i.e. lots of smoothing. robot loop is 20 ms, so this seems
         // like a good maximum.
-        require(m_motor.configVelocityMeasurementPeriod(SensorVelocityMeasPeriod.Period_20Ms));
+        require(m_motor.configVelocityMeasurementPeriod(SensorVelocityMeasPeriod.Period_1Ms));
 
         // default is 64 samples i.e. 64 ms worth of samples. try 16 to kinda match the
         // period?
-        require(m_motor.configVelocityMeasurementWindow(16));
+        require(m_motor.configVelocityMeasurementWindow(1));
 
         SmartDashboard.putData(String.format("Falcon Drive Motor %s", name), this);
     }
@@ -58,7 +58,7 @@ public class FalconDriveMotor implements DriveMotor {
 
     @Override
     public void set(double output) {
-        m_motor.setVoltage(12 * MathUtil.clamp(output, -1.0, 1.0));
+        m_motor.setVoltage(10 * MathUtil.clamp(output, -1.3, 1.3));
     }
 
     @Override

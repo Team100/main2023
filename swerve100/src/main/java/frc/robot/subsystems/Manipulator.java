@@ -33,17 +33,17 @@ public class Manipulator extends SubsystemBase {
     .withPeakOutputForward(1)
     .withPeakOutputReverse(-1)
     //.withNeutralMode(Constants.DrivetrainConstants.DrivetrainMotors.LeftMaster.NEUTRAL_MODE)
-    // .withCurrentLimitEnabled(true)
+    .withCurrentLimitEnabled(true)
     //.withCurrentLimit(7)
     .build();
 
-    pinch.motor.configPeakCurrentLimit(25);
+    pinch.motor.configPeakCurrentLimit(45);
     // pinch.motor.configContinuousCurrentLimit(1);
 
     // pinch.motor.configPeakCurrentDuration(0)
     // pinch.motor.configPeakCurrentDuration(1000);
 
-    pinch.motor.enableCurrentLimit(true);
+    // pinch.motor.enableCurrentLimit(true);
     // pinch.motor.enableCont
     // pinch.motor.configCurrent
 

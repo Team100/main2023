@@ -1,5 +1,7 @@
 package frc.robot.subsystems;
 
+import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 
 import edu.wpi.first.math.MathUtil;
@@ -525,8 +527,8 @@ public class SwerveDriveSubsystem extends SubsystemBase {
                         m_rearRight.getPosition()
                 },
                 new Pose2d(),
-                VecBuilder.fill(0.5, 0.5, 0.5),
-                VecBuilder.fill(0.1, 0.1, 0.4)); // note tight rotation variance here, used to be MAX_VALUE
+                VecBuilder.fill(0.5,0.5, 0.5),
+                VecBuilder.fill(0.4, 0.4, 0.4)); // note tight rotation variance here, used to be MAX_VALUE
         // VecBuilder.fill(0.01, 0.01, Integer.MAX_VALUE));
         visionDataProvider = new VisionDataProvider(alliance, m_poseEstimator, () -> getPose());
 
@@ -674,6 +676,44 @@ public class SwerveDriveSubsystem extends SubsystemBase {
         m_rearRight.setDesiredState(swerveModuleStates[3]);
     }
 
+    public void driveFine(double xSpeed, double ySpeed, double rot, boolean fieldRelative) {
+
+        double kMaxSpeed = 0.75;
+        double kMaxRot = 0.5;
+        xSpeed = MathUtil.clamp(xSpeed, -1, 1);
+        ySpeed = MathUtil.clamp(ySpeed, -1, 1);
+        rot = MathUtil.clamp(rot, -1, 1);
+        // if (Math.abs(xSpeed) < .01)
+        // xSpeed = 100 * xSpeed * xSpeed * Math.signum(xSpeed);
+         
+        // if (Math.abs(ySpeed) < .01)
+        // ySpeed = 100 * ySpeed * ySpeed * Math.signum(ySpeed);
+        if (Math.abs(rot) < .01)
+            rot = 0;
+        double gyroRate = m_gyro.getRedundantGyroRate() * 0.25;
+        Rotation2d rotation2 = getPose().getRotation().minus(new Rotation2d(gyroRate));
+        desiredChassisSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(kMaxSpeed * xSpeed,
+                kMaxSpeed * ySpeed, kMaxRot * rot,
+                rotation2);
+        // TODO fix fieldRelative making this go crazy when it is off
+        var swerveModuleStates = kDriveKinematics.toSwerveModuleStates(
+                fieldRelative
+                        ? desiredChassisSpeeds
+                        : new ChassisSpeeds(kMaxSpeed * xSpeed, kMaxSpeed * ySpeed,
+                                kMaxRot * rot));
+
+        SwerveDriveKinematics.desaturateWheelSpeeds(
+                swerveModuleStates, kMaxSpeed);
+
+        getRobotVelocity(swerveModuleStates);
+
+        m_frontLeft.setDesiredState(swerveModuleStates[0]);
+        System.out.println(desiredChassisSpeeds);
+        m_frontRight.setDesiredState(swerveModuleStates[1]);
+        m_rearLeft.setDesiredState(swerveModuleStates[2]);
+        m_rearRight.setDesiredState(swerveModuleStates[3]);
+    }
+
     public void setModuleStates(SwerveModuleState[] desiredStates) {
         SwerveDriveKinematics.desaturateWheelSpeeds(
                 desiredStates, kMaxSpeedMetersPerSecond);
@@ -721,24 +761,38 @@ public class SwerveDriveSubsystem extends SubsystemBase {
         }
     }
 
-    public void test(double[][] desiredOutputs) {
+    public void test(double[][] desiredOutputs, FileWriter writer) {
         m_frontLeft.setOutput(desiredOutputs[0][0], desiredOutputs[0][1]);
         m_frontRight.setOutput(desiredOutputs[1][0], desiredOutputs[1][1]);
         m_rearLeft.setOutput(desiredOutputs[2][0], desiredOutputs[2][1]);
         m_rearRight.setOutput(desiredOutputs[3][0], desiredOutputs[3][1]);
 
         // full-speed printing to see the signal without networktables
-        System.out.printf("T %5.3f FL(p%5.3f v%5.3f) FR(p%5.3f v%5.3f) RL(p%5.3f v%5.3f) RR(p%5.3f v%5.3f)\n",
-        Timer.getFPGATimestamp(),
-         m_frontLeft.getPosition().distanceMeters,
-         m_frontLeft.getState().speedMetersPerSecond,
-         m_frontRight.getPosition().distanceMeters,
-         m_frontRight.getState().speedMetersPerSecond,
-         m_rearLeft.getPosition().distanceMeters,
-         m_rearLeft.getState().speedMetersPerSecond,
-         m_rearRight.getPosition().distanceMeters,
-         m_rearRight.getState().speedMetersPerSecond
-        );
+        // System.out.printf("T %5.3f FL(p%5.3f v%5.3f) FR(p%5.3f v%5.3f) RL(p%5.3f v%5.3f) RR(p%5.3f v%5.3f)\n",
+        // System.out.printf("T %5.3f FL(p%5.3f v%5.3f)",
+
+        try {
+            writer.write("Timestamp: " + Timer.getFPGATimestamp() + ", P" + m_frontLeft.getPosition().distanceMeters + ", " + m_frontLeft.getState().speedMetersPerSecond + "\n" );
+            // writer.write("Deez");
+
+            writer.flush();
+            // System.out.println("Successfully wrote to the file.");
+          } catch (IOException e) {
+            System.out.println("An error occurred.");
+            e.printStackTrace();
+          }
+
+        
+        // Timer.getFPGATimestamp(),
+        //  m_frontLeft.getPosition().distanceMeters,
+        //  m_frontLeft.getState().speedMetersPerSecond
+        //  m_frontRight.getPosition().distanceMeters,
+        //  m_frontRight.getState().speedMetersPerSecond,
+        //  m_rearLeft.getPosition().distanceMeters,
+        //  m_rearLeft.getState().speedMetersPerSecond,
+        //  m_rearRight.getPosition().distanceMeters,
+        //  m_rearRight.getState().speedMetersPerSecond
+        
     }
 
     /** Resets the drive encoders to currently read a position of 0. */

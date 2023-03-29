@@ -94,7 +94,7 @@ public class DualXboxControl implements Sendable {
     }
 
     public void driveSlow(DriveSlow command) {
-        // controller0.leftBumper().whileTrue(command);
+        controller0.leftBumper().whileTrue(command);
     }
 
     // TODO: remove this
@@ -103,7 +103,7 @@ public class DualXboxControl implements Sendable {
     }
 
     public void resetPose(ResetPose command){
-        controller0.leftBumper().onTrue(command);
+        // controller0.leftBumper().onTrue(command);
     }
 
     public Rotation2d desiredRotation() {

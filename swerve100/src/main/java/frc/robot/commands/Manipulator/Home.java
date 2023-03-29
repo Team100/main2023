@@ -19,7 +19,7 @@ public class Home extends CommandBase {
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-    m_manipulator.pinch(0.4);
+    m_manipulator.pinch(0.6);
   }
 
   // Called every time the scheduler runs while the command is scheduled.

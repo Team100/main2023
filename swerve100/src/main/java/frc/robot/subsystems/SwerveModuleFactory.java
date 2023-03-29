@@ -55,7 +55,7 @@ public class SwerveModuleFactory {
         // DRIVE FF
         SimpleMotorFeedforward driveFeedforward = new SimpleMotorFeedforward( //
                 0.06, // kS: from experiment; overcome friction for low-effort moves
-                .25, // kV
+                .3, // kV
                 0.025);
 
         // TURNING FF

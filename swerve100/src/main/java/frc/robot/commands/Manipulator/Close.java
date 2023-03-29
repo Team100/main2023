@@ -11,7 +11,7 @@ import frc.robot.subsystems.Manipulator;
 public class Close extends CommandBase {
   /** Creates a new Close. */
   Manipulator m_manipulator;
-
+  boolean first = true;
   Timer m_timer;
   public Close(Manipulator manipulator) {
     // Use addRequirements() here to declare subsystem dependencies.
@@ -23,25 +23,38 @@ public class Close extends CommandBase {
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-    m_manipulator.pinch.motor.configPeakCurrentLimit(25);
+    m_manipulator.pinch.motor.configPeakCurrentLimit(45);
 
     m_timer.restart();
+    first = true;
   }
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    if(m_timer.get() > 1){
-        m_manipulator.pinch.motor.configPeakCurrentLimit(8);
 
-    }
-    m_manipulator.pinch(-0.5);
+    // if(m_manipulator.getStatorCurrent() <= -11){
+    //   // first = false;
+
+    //   if(m_timer.get() >= 1){
+
+    //     m_manipulator.pinch.motor.configPeakCurrentLimit(5);
+    //     System.out.println("DEEZ");
+    //   }
+      
+
+    // }
+
+    // System.out.println("YOOOOO");
+
+
+    m_manipulator.pinch(-0.8);
   }
 
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
-    m_manipulator.pinch.motor.configPeakCurrentLimit(25);
+    m_manipulator.pinch.motor.configPeakCurrentLimit(45);
   }
 
   // Returns true when the command should end.

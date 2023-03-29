@@ -31,7 +31,7 @@ import frc.robot.subsystems.SwerveDriveSubsystem;
  * Trigger.whileTrue().
  */
 public class DriveToWaypoint2 extends CommandBase {
-    private static final TrapezoidProfile.Constraints rotationConstraints = new TrapezoidProfile.Constraints(6, 12);
+    private static final TrapezoidProfile.Constraints rotationConstraints = new TrapezoidProfile.Constraints(8, 12);
     private final AHRSClass m_gyro;
     private double desiredX = 0;
     private double desiredY = 0;
@@ -49,6 +49,8 @@ public class DriveToWaypoint2 extends CommandBase {
 
     DoublePublisher poseXErrorPublisher = inst.getTable("Drive To Waypoint").getDoubleTopic("Error X PUB").publish();
     DoublePublisher poseYErrorPublisher = inst.getTable("Drive To Waypoint").getDoubleTopic("Error Y PUB").publish();
+
+    DoublePublisher rotSetpoint = inst.getTable("Drive To Waypoint").getDoubleTopic("Rot Setpoint").publish();
 
     // DoublePublisher holonomicYSetpoint = inst.getTable("Drive To Waypoint").getDoubleTopic("Holonomic Y Setpoint").publish();
     // DoublePublisher holonomicXSetpoint = inst.getTable("Drive To Waypoint").getDoubleTopic("Holonomic X Setpoint").publish();
@@ -91,23 +93,26 @@ public class DriveToWaypoint2 extends CommandBase {
         previousOffset = goalOffsetSupplier.get();
         m_yOffset = yOffset;
 
-        m_rotationController = new ProfiledPIDController(1.3, 0, 0, rotationConstraints);
+        m_rotationController = new ProfiledPIDController(6.5, 0, 1, rotationConstraints); //4.5
         m_rotationController.setTolerance(Math.PI / 180);
 
         // xController = new PIDController(2, 0, 0);
 
-        xController = new PIDController(1, 0, 0);
+        xController = new PIDController(2, 0, 0); //2.5
         xController.setIntegratorRange(-0.3, 0.3);
-        xController.setTolerance(0.00000000001);
+        xController.setTolerance(0.00000001);
 
-        yController = new PIDController(0.7, 0, 0);
+        yController = new PIDController(2, 0, 0); //2.5
         yController.setIntegratorRange(-0.3, 0.3);
+        yController.setTolerance(0.00000001);
+
         // yController.setTolerance(0.05);
+
         m_controller = new HolonomicDriveController2(xController, yController, m_rotationController, m_gyro);
         
         translationConfig = new TrajectoryConfig(
                 5, // velocity m/s
-                2 // accel m/s/s
+                4.5 // accel m/s/s
         ).setKinematics(SwerveDriveSubsystem.kDriveKinematics);
 
         // globalGoalTranslation = new Translation2d();
@@ -208,6 +213,9 @@ public class DriveToWaypoint2 extends CommandBase {
         poseXPublisher.set(m_swerve.getPose().getX());
         poseYPublisher.set(m_swerve.getPose().getY());
         desiredRotPublisher.set(goal.getRotation().getRadians());
+
+        rotSetpoint.set(m_rotationController.getSetpoint().position);
+
 
         poseRotPublisher.set(m_swerve.getPose().getRotation().getRadians());
 
