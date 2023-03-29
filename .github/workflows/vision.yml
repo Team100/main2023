@@ -25,6 +25,7 @@ jobs:
           python -m pip install --upgrade pip
           pip install ruff pytest
           pip install numpy
+          pip install msgpack
           if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
         
 # turn off linting for now
