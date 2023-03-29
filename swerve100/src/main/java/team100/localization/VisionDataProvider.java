@@ -51,7 +51,7 @@ public class VisionDataProvider extends SubsystemBase implements TableEventListe
      * Set this to some large number (e.g. 100) to disable gyro-derived rotation and
      * always use the camera.
      */
-    private static final double kTagRotationBeliefThresholdMeters = 2.0;
+    private static final double kTagRotationBeliefThresholdMeters = 1;
 
     private final Supplier<Pose2d> getPose;
     private final DoublePublisher timestamp_publisher;
@@ -63,6 +63,9 @@ public class VisionDataProvider extends SubsystemBase implements TableEventListe
     public AprilTagFieldLayoutWithCorrectOrientation layout;
 
     SwerveDriveSubsystem m_robotDrive;
+
+
+    Rotation3d tagRotation;
 
     Pose2d currentRobotinFieldCoords;
 
@@ -98,6 +101,7 @@ public class VisionDataProvider extends SubsystemBase implements TableEventListe
         object_mapper = new ObjectMapper(new MessagePackFactory());
         NetworkTable vision_table = inst.getTable("Vision");
 
+        tagRotation = new Rotation3d();
         // Listen to ALL the updates in the vision table. :-)
         vision_table.addListener(EnumSet.of(NetworkTableEvent.Kind.kValueAll), this);
         SmartDashboard.putData("Vision Data Provider", this);
@@ -139,15 +143,17 @@ public class VisionDataProvider extends SubsystemBase implements TableEventListe
     private Transform3d cameraOffset(String serialNumber) {
 
         Camera cam = Camera.get(serialNumber);
+        
+        
         switch (cam) {
             // case REAR:
             //     return new Transform3d(new Translation3d(-0.326, 0.003, 0.332), new Rotation3d(0, -0.419, 3.142));
             case FRONT:
                 return new Transform3d(new Translation3d(0.398, 0.075, 0.201), new Rotation3d(0, -0.35, 0));
             case RIGHT:
-                return new Transform3d(new Translation3d(0.012, -0.264, 0.229), new Rotation3d(0, -0.38, -0.350));
+                return new Transform3d(new Translation3d(0.012, -0.264, 0.229), new Rotation3d(0, -0.401, -0.35)); //-0.399363
             case LEFT:
-                return new Transform3d(new Translation3d(0.012, 0.159, 0.240), new Rotation3d(0, -0.35, 0.35));
+                return new Transform3d(new Translation3d(0.012, 0.159, 0.240), new Rotation3d(0, -0.332, 0.35)); //0.566077
             case UNKNOWN:
                 return new Transform3d(new Translation3d(0.254, 0.127, 0.3), new Rotation3d(0, 0, 0));
             default:
@@ -185,11 +191,13 @@ public class VisionDataProvider extends SubsystemBase implements TableEventListe
                     b,
                     robotRotationInFieldCoordsFromGyro,
                     kTagRotationBeliefThresholdMeters);
+
             // Pose2d robotInFieldCords = robotPoseInFieldCoords.toPose2d();
             Translation2d robotTranslationInFieldCoords = robotPoseInFieldCoords.getTranslation().toTranslation2d();
 
             currentRobotinFieldCoords = new Pose2d(robotTranslationInFieldCoords, gyroRotation);
 
+            tagRotation = PoseEstimationHelper.blipToRotation(b);
             if (lastRobotInFieldCoords != null) {
                 Transform2d translationSinceLast = currentRobotinFieldCoords.minus(lastRobotInFieldCoords);
                 double xComponent = translationSinceLast.getX();
@@ -213,6 +221,7 @@ public class VisionDataProvider extends SubsystemBase implements TableEventListe
         builder.addDoubleProperty("Vision X", () -> currentRobotinFieldCoords.getX(), null);
         builder.addDoubleProperty("Vision Y", () -> currentRobotinFieldCoords.getY(), null);
         builder.addDoubleProperty("Vision Rotation", () -> currentRobotinFieldCoords.getRotation().getRadians(), null);
+        builder.addDoubleProperty("Tag Rotation", () -> tagRotation.getAngle(), null);
     }
 
 }

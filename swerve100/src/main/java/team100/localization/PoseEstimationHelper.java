@@ -31,7 +31,9 @@ public class PoseEstimationHelper {
             Blip blip,
             Rotation3d robotRotationInFieldCoordsFromGyro,
             double thresholdMeters) {
+
         Translation3d tagTranslationInCameraCoords = blipToTranslation(blip);
+
         if (tagTranslationInCameraCoords.getNorm() < thresholdMeters) {
             return getRobotPoseInFieldCoords(
                     cameraInRobotCoords,

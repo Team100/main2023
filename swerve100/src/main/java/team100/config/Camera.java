@@ -12,7 +12,7 @@ public enum Camera {
     FRONT("1000000013c9c96c"),
     // REAR("100000004e0a1fb9"),
     LEFT("10000000a7c673d9"),
-    RIGHT("100000004e0a1fb9"),
+    RIGHT("10000000a7a892c0"),
     UNKNOWN(null);
 
     private static Map<String, Camera> cameras = new HashMap<String, Camera>();

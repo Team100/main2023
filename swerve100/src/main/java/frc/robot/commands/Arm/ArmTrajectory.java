@@ -76,22 +76,29 @@ public class ArmTrajectory extends CommandBase {
     private Trajectory makeTrajectory() {
 
         // Cone
-        InverseKinematicsAngle highGoalCone = new InverseKinematicsAngle(1.05, 0.58); // tuned for our mock up
+        InverseKinematicsAngle highGoalCone = new InverseKinematicsAngle(1.512406, 0.006089); // tuned for our mock up
         InverseKinematicsAngle midGoalCone = new InverseKinematicsAngle(1.53, 0.18); //not real
         InverseKinematicsAngle lowGoalCone = new InverseKinematicsAngle(2.21, 0); // not real
-        InverseKinematicsAngle subCone = new InverseKinematicsAngle(1.473078, -0.462283 ); // tuned for our mock up
+        InverseKinematicsAngle subCone = new InverseKinematicsAngle(1.512406, 0.006089); // tuned for our mock up
 
         // Cube
         InverseKinematicsAngle highGoalCube = new InverseKinematicsAngle(1.390242,0.648938); //not real
         InverseKinematicsAngle midGoalCube = new InverseKinematicsAngle(1.91, 0.19); //not real
         InverseKinematicsAngle lowGoalCube = new InverseKinematicsAngle(2.271662, -0.049849); //not real
-        InverseKinematicsAngle subCube = new InverseKinematicsAngle(1.473078, -0.462283);//not real
+        InverseKinematicsAngle subCube = new InverseKinematicsAngle(1.575104   , -0.064480);//not real
         InverseKinematicsAngle subToCube = new InverseKinematicsAngle(1.100452, -0.734924);//not real
 
+        //Auton
+        InverseKinematicsAngle autonLow = new InverseKinematicsAngle(2.277,0.8108); //not real
+        InverseKinematicsAngle autonGrab = new InverseKinematicsAngle(2.394, 0.787); //not real
+        // InverseKinematicsAngle lowGoalCube = new InverseKinematicsAngle(2.271662, -0.049849); //not real
 
         InverseKinematicsAngle safeBack = new InverseKinematicsAngle(1.97, -0.55);
 
-        InverseKinematicsAngle safeGoal = m_arm.calculate(0.2, 0.125);
+        // InverseKinematicsAngle safeGoalCone = m_arm.calculate(2.01, -0.75);
+
+        InverseKinematicsAngle safeGoalCube = m_arm.calculate(0, 0);
+
 
         InverseKinematicsAngle safeWaypoint = m_arm.calculate(0.7, 0.44);
 
@@ -100,11 +107,13 @@ public class ArmTrajectory extends CommandBase {
         try{
 
         if (m_position == ArmPosition.SAFE) {
-            return TrajectoryGenerator.generateTrajectory(
-                    new Pose2d(m_arm.getUpperArm(), m_arm.getLowerArm(), Rotation2d.fromDegrees(-180)),
-                    List.of(new Translation2d(safeWaypoint.upperTheta, safeWaypoint.lowerTheta)),
-                    new Pose2d(safeGoal.upperTheta, safeGoal.lowerTheta, Rotation2d.fromDegrees(-180)),
-                    trajecConfig);
+            // return TrajectoryGenerator.generateTrajectory(
+            //         new Pose2d(m_arm.getUpperArm(), m_arm.getLowerArm(), Rotation2d.fromDegrees(-180)),
+            //         List.of(new Translation2d(safeWaypoint.upperTheta, safeWaypoint.lowerTheta)),
+            //         new Pose2d(safeGoalCone.upperTheta, safeGoalCone.lowerTheta, Rotation2d.fromDegrees(-180)),
+            //         trajecConfig);
+
+            return null;
         }
 
         if(m_position == ArmPosition.SAFEBACK){
@@ -122,11 +131,17 @@ public class ArmTrajectory extends CommandBase {
                         List.of(),
                         new Pose2d(highGoalCone.upperTheta, highGoalCone.lowerTheta, new Rotation2d(Math.PI / 2)),
                         trajecConfig);
+
+                // return TrajectoryGenerator.generateTrajectory(
+                //         new Pose2d(m_arm.getUpperArm(), m_arm.getLowerArm(), new Rotation2d(Math.PI / 2)),
+                //         List.of(),
+                //         new Pose2d(autonLow.upperTheta, autonLow.lowerTheta, new Rotation2d(Math.PI / 2)),
+                //         trajecConfig);
             } else if (m_position == ArmPosition.MID) {
                 return TrajectoryGenerator.generateTrajectory(
                         new Pose2d(m_arm.getUpperArm(), m_arm.getLowerArm(), new Rotation2d(Math.PI / 2)),
                         List.of(),
-                        new Pose2d(midGoalCone.upperTheta, midGoalCone.lowerTheta, new Rotation2d(Math.PI / 2)),
+                        new Pose2d(autonGrab.upperTheta, autonGrab.lowerTheta, new Rotation2d(Math.PI / 2)),
                         trajecConfig);
             } else if (m_position == ArmPosition.LOW) {
                 return TrajectoryGenerator.generateTrajectory(
