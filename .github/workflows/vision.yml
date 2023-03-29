@@ -1,5 +1,5 @@
 # see https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-python
-name: Python package
+name: Vision Unit Tests
 
 on: [push]
 
