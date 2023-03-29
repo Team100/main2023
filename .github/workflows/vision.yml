@@ -24,6 +24,7 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install ruff pytest
+          pip install numpy
           if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
         
 # turn off linting for now
