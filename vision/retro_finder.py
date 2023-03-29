@@ -15,7 +15,7 @@ class RetroFinder:
     def __init__(self, topic_name, camera_params, hsv_lower, hsv_higher):
         self.hsv_lower = hsv_lower
         self.hsv_higher = hsv_higher
-        self.scale_factor = 1
+        self.scale_factor = 100
         self.width = camera_params[0]
         self.height = camera_params[1]
         self.tape_height = .105
@@ -102,7 +102,7 @@ class RetroFinder:
         cv2.drawContours(img, [cnt], -1, (0, 255, 0), 2)
         cv2.circle(img, (int(cX), int(cY)), 7, (0, 0, 0), -1)
         cv2.putText(img, f"t: {np.array2string(wpi_t.flatten(), formatter=float_formatter)}", (int(cX) - 20, int(cY) - 20),
-                    cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 0), 2)
+                    cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 2)
 
     def analyze(self, request):
         buffer = request.make_array("lores")
@@ -150,7 +150,7 @@ def main():
         "NoiseReductionMode": libcamera.controls.draft.NoiseReductionModeEnum.Off,
         "AwbEnable": False,
         "AeEnable": False,
-        "AnalogueGain": 1.0
+        "AnalogueGain": 4.0
     },
 )
     print("REQUESTED")
@@ -165,7 +165,7 @@ def main():
     # Pi IP: 10.1.0.21
     camera_params = [width, 200]
     topic_name = "tapes"
-    output = RetroFinder(topic_name, camera_params, (20, 0, 0), (40, 255, 240))
+    output = RetroFinder(topic_name, camera_params, (20, 250, 100), (40, 255, 255))
 
     camera.start()
     try:
