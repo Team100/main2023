@@ -46,6 +46,8 @@ import frc.robot.commands.Arm.SetCubeMode;
 import frc.robot.commands.Manipulator.Close;
 import frc.robot.commands.Manipulator.Home;
 import frc.robot.commands.Manipulator.Open;
+import frc.robot.commands.Retro.DriveToRetroReflectiveTape;
+import frc.robot.commands.Retro.LedOn;
 import frc.robot.subsystems.AHRSClass;
 import frc.robot.subsystems.AutonGamePiece;
 import frc.robot.subsystems.AutonSelect;
@@ -53,6 +55,7 @@ import frc.robot.subsystems.Manipulator;
 import frc.robot.subsystems.SwerveDriveSubsystem;
 import frc.robot.subsystems.Arm.ArmController;
 import frc.robot.subsystems.Arm.ArmPosition;
+import team100.Retro.Illuminator;
 import team100.commands.Defense;
 import team100.commands.DriveManually;
 import team100.commands.GripManually;
@@ -101,6 +104,11 @@ public class RobotContainer implements Sendable {
     private final ArmTrajectory armToSub;
     private final ArmTrajectory armMid;
 
+    private final Illuminator illuminator;
+
+    private final LedOn ledOn;
+    private final DriveToRetroReflectiveTape retroTape;
+
     private final SetCubeMode setCubeMode; 
     private final SetConeMode setConeMode; 
 
@@ -119,6 +127,7 @@ public class RobotContainer implements Sendable {
         ahrsclass = new AHRSClass();
         manipulator = new Manipulator();
         armController = new ArmController();
+        illuminator = new Illuminator();
 
         // // NEW CONTROL
         control = new DualXboxControl();
@@ -182,6 +191,8 @@ public class RobotContainer implements Sendable {
 
         armMid = new ArmTrajectory(ArmPosition.LOW, armController);
 
+        retroTape = new DriveToRetroReflectiveTape(m_robotDrive);
+
         driveWithHeading = new DriveWithHeading(
                 m_robotDrive,
                 control::xSpeed,
@@ -198,6 +209,8 @@ public class RobotContainer implements Sendable {
         manualArm = new ManualArm(armController, control.getController());
 
         armSafeBack = new ArmTrajectory(ArmPosition.SAFEBACK, armController);
+
+        ledOn = new LedOn(illuminator);
 
         // control.autoLevel(autoLevel);
         control.driveToLeftGrid(driveToLeftGrid);
@@ -233,6 +246,10 @@ public class RobotContainer implements Sendable {
         // control.armMid(armMid);
 
         control.resetPose(resetPose);
+
+        control.ledOn(ledOn);
+
+        control.tapeDetect(retroTape);
 
 
 
