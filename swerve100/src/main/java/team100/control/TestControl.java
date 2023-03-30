@@ -19,15 +19,13 @@ import frc.robot.commands.Arm.SetCubeMode;
 import frc.robot.commands.Manipulator.Close;
 import frc.robot.commands.Manipulator.Home;
 import frc.robot.commands.Manipulator.Open;
-import frc.robot.commands.Retro.DriveToRetroReflectiveTape;
-import frc.robot.commands.Retro.LedOn;
 import team100.commands.Defense;
 
 /**
  * see
  * https://docs.google.com/document/d/1M89x_IiguQdY0VhQlOjqADMa6SYVp202TTuXZ1Ps280/edit#
  */
-public class DualXboxControl implements Sendable {
+public class TestControl implements Sendable {
     // private static final double kDtSeconds = 0.02;
     // private static final double kMaxRotationRateRadiansPerSecond = Math.PI;
     private static final double kTriggerThreshold = .5;
@@ -36,7 +34,7 @@ public class DualXboxControl implements Sendable {
     private final CommandXboxController controller1;
     Rotation2d previousRotation = new Rotation2d(0);
 
-    public DualXboxControl() {
+    public TestControl() {
         controller0 = new CommandXboxController(0);
         System.out.printf("Controller0: %s\n", controller0.getHID().getName());
         controller1 = new CommandXboxController(1);
@@ -178,7 +176,7 @@ public class DualXboxControl implements Sendable {
     }
 
     public void armSafeBack(ArmTrajectory command) {
-        // controller1.leftBumper().whileTrue(command);
+        controller1.leftBumper().whileTrue(command);
     }
 
     public void armSubstation(ArmTrajectory command) {
@@ -214,16 +212,10 @@ public class DualXboxControl implements Sendable {
         // JoystickButton button = new JoystickButton(controller1.getHID(), 7);
         // button.onTrue(command);
 
-        // controller1.rightBumper().whileTrue(command);
-    }
-
-    public void ledOn(LedOn command){
         controller1.rightBumper().whileTrue(command);
     }
 
-    public void tapeDetect(DriveToRetroReflectiveTape command){
-        controller1.leftBumper().whileTrue(command);
-    }
+    
 
     
 

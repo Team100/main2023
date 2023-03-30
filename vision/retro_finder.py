@@ -15,7 +15,7 @@ class RetroFinder:
     def __init__(self, topic_name, camera_params, hsv_lower, hsv_higher):
         self.hsv_lower = hsv_lower
         self.hsv_higher = hsv_higher
-        self.scale_factor = 100
+        self.scale_factor = 641
         self.width = camera_params[0]
         self.height = camera_params[1]
         self.tape_height = .105
@@ -32,7 +32,7 @@ class RetroFinder:
         # laptop if you're using this in simulation.
         inst.setServer("10.1.0.2")
         # Table for vision output information
-        self.vision_nt = inst.getTable("Vision")
+        self.vision_nt = inst.getTable("RetroVision")
         self.vision_nt_msgpack = self.vision_nt.getRawTopic(self.topic_name).publish(
             "msgpack"
         )
@@ -47,19 +47,7 @@ class RetroFinder:
         floodfill_inv = cv2.bitwise_not(floodfill)
         img_floodfill = green_range | floodfill_inv
         median = cv2.medianBlur(img_floodfill, 5)
-        # mean_x = np.mean(green_range, 1)
-        # print(mean_x.shape)
-        # mean_y = np.mean(green_range, 0)
-        
-        # thresh_x = mean_x > 2
-        # print(thresh_x.dtype)
-        # thresh_y = mean_y > 1
-        # thresh = np.zeros([self.height, self.width], dtype = np.uint8)
-        # for i in range(self.height):
-        #     for j in range(self.width):
-        #         if (thresh_x[i] and thresh_y[j]):
-        #             thresh[i, j] = 255
-        # print(thresh)
+ 
         contours, hierarchy = cv2.findContours(
             median, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
         tapes = {}
@@ -73,9 +61,9 @@ class RetroFinder:
             if (cnt_height/cnt_width > 5):
                 continue
             mmnts = cv2.moments(c)
+            
             if (mmnts["m00"] == 0):
                 continue
-
             cX = int(mmnts["m10"] / mmnts["m00"])
             cY = int(mmnts["m01"] / mmnts["m00"])
 
@@ -86,22 +74,22 @@ class RetroFinder:
             translation_z = (self.tape_height*self.scale_factor*math.cos(self.theta))/(cnt_height)
 
             tape = [translation_x, translation_y, translation_z]
-
+            wpi_t = [tape[2], -tape[0], -tape[1]]
             tapes["tapes"].append(
                 {
-                    "pose_t": tape
+                    "pose_t": wpi_t
                 }
             )
-            self.draw_result(img_rgb, c, cX, cY, tape)
+            self.draw_result(img_rgb, c, cX, cY, wpi_t)
         self.output_stream.putFrame(img_rgb)
         return tapes
 
-    def draw_result(self, img, cnt, cX, cY, tape):
+    def draw_result(self, img, cnt, cX, cY, wpi_t):
+        wpi_tb = np.array(wpi_t)
         float_formatter = {"float_kind": lambda x: f"{x:4.1f}"}
-        wpi_t = np.array([tape[2], -tape[0], -tape[1]])
         cv2.drawContours(img, [cnt], -1, (0, 255, 0), 2)
         cv2.circle(img, (int(cX), int(cY)), 7, (0, 0, 0), -1)
-        cv2.putText(img, f"t: {np.array2string(wpi_t.flatten(), formatter=float_formatter)}", (int(cX) - 20, int(cY) - 20),
+        cv2.putText(img, f"t: {np.array2string(wpi_tb.flatten(), formatter=float_formatter)}", (int(cX) - 20, int(cY) - 20),
                     cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 2)
 
     def analyze(self, request):
@@ -111,7 +99,7 @@ class RetroFinder:
         # print(buffer.shape)
         # img = img.reshape((self.height, self.width))
         img_bgr = cv2.cvtColor(img, cv2.COLOR_YUV420p2BGR)
-        img_bgr = img_bgr[201:401,:,:]
+        img_bgr = img_bgr[176:426,:,:]
         img_hsv = cv2.cvtColor(img_bgr, cv2.COLOR_BGR2HSV)
         img_hsv = np.ascontiguousarray(img_hsv)
         tapes = self.find(img_hsv)
@@ -150,9 +138,11 @@ def main():
         "NoiseReductionMode": libcamera.controls.draft.NoiseReductionModeEnum.Off,
         "AwbEnable": False,
         "AeEnable": False,
-        "AnalogueGain": 4.0
+        #"AeEnable": True, # for testing
+        #"AnalogueGain": 4.0
     },
 )
+    camera_config["transform"] = libcamera.Transform(hflip=1, vflip=1)
     print("REQUESTED")
     print(camera_config)
     camera.align_configuration(camera_config)
@@ -162,10 +152,10 @@ def main():
     print(camera.camera_controls)
 
     # Roborio IP: 10.1.0.2
-    # Pi IP: 10.1.0.21
-    camera_params = [width, 200]
+    # Pi IP: 10.1.0.11
+    camera_params = [width, 250]
     topic_name = "tapes"
-    output = RetroFinder(topic_name, camera_params, (20, 250, 100), (40, 255, 255))
+    output = RetroFinder(topic_name, camera_params, (20, 250, 100), (60, 255, 255))
 
     camera.start()
     try:

@@ -620,6 +620,14 @@ public class SwerveDriveSubsystem extends SubsystemBase {
         driveMetersPerSec(xSpeedMetersPerSec, ySpeedMetersPerSec, rotRadiansPerSec, fieldRelative);
     }
 
+    public void driveTape(final double xSpeed, final double ySpeed, final double rot, boolean fieldRelative) {
+        // double xSpeedMetersPerSec = kMaxSpeedMetersPerSecond * MathUtil.clamp(xSpeed, -1, 1);
+        // double ySpeedMetersPerSec = kMaxSpeedMetersPerSecond * MathUtil.clamp(ySpeed, -1 ,1);
+        // double rotRadiansPerSec = kMaxAngularSpeedRadiansPerSecond * MathUtil.applyDeadband(MathUtil.clamp(rot, -1, 1), 0.01);
+        
+        driveMetersPerSec(xSpeed, ySpeed, rot, fieldRelative);
+    }    
+
     public void driveMetersPerSec(double xSpeedMetersPerSec, double ySpeedMetersPerSec, double rotRadiansPerSec, boolean fieldRelative) {
         double gyroRate = m_gyro.getRedundantGyroRate() * 0.25;
         System.out.println(gyroRate);
@@ -640,6 +648,28 @@ public class SwerveDriveSubsystem extends SubsystemBase {
         m_frontRight.setDesiredState(swerveModuleStates[1]);
         m_rearLeft.setDesiredState(swerveModuleStates[2]);
         m_rearRight.setDesiredState(swerveModuleStates[3]);
+    }
+
+    public void driveWithHeading(double xSpeedMetersPerSec, double ySpeedMetersPerSec, double rotRadiansPerSec, boolean fieldRelative) {
+        double gyroRate = m_gyro.getRedundantGyroRate() * 0.25;
+        System.out.println(gyroRate);
+        Rotation2d rotation2 = getPose().getRotation().minus(new Rotation2d(gyroRate));
+        desiredChassisSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(xSpeedMetersPerSec, ySpeedMetersPerSec, rotRadiansPerSec,
+                rotation2);
+        ChassisSpeeds startChassisSpeeds = new ChassisSpeeds(xSpeedMetersPerSec, ySpeedMetersPerSec, rotRadiansPerSec);
+        var swerveModuleStates = kDriveKinematics.toSwerveModuleStates(
+                fieldRelative
+                        ? desiredChassisSpeeds
+                        : startChassisSpeeds);
+        SwerveDriveKinematics.desaturateWheelSpeeds(
+                swerveModuleStates, kMaxSpeedMetersPerSecond);
+
+        getRobotVelocity(swerveModuleStates);
+
+        m_frontLeft.setDesiredDriveState(swerveModuleStates[0]);
+        m_frontRight.setDesiredDriveState(swerveModuleStates[1]);
+        m_rearLeft.setDesiredDriveState(swerveModuleStates[2]);
+        m_rearRight.setDesiredDriveState(swerveModuleStates[3]);
     }
 
     public void driveSlow(double xSpeed, double ySpeed, double rot, boolean fieldRelative) {

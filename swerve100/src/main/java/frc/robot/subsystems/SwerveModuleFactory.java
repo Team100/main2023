@@ -64,8 +64,14 @@ public class SwerveModuleFactory {
                 0.003,// kV: from experiment; higher than AM modules, less reduction gear
                 0); // kA: I have no idea what this value should be
 
+        SimpleMotorFeedforward headingDriveFeedForward = new SimpleMotorFeedforward( //
+                0.06, // kS: friction is unimportant
+                0.25,// kV: from experiment; higher than AM modules, less reduction gear
+                0.08); // kA: I have no idea what this value should be
+
+
         return new SwerveModule(name, driveMotor, turningMotor, driveEncoder, turningEncoder,
-                driveController, turningController, driveFeedforward, turningFeedforward);
+                driveController, turningController, driveFeedforward, turningFeedforward, headingDriveFeedForward);
     }
 
     // for 8048's config
@@ -113,8 +119,14 @@ public class SwerveModuleFactory {
                 0.1, // kS
                 0.005); // kV
 
+        SimpleMotorFeedforward headingDriveFeedForward = new SimpleMotorFeedforward( //
+                0.06, // kS: friction is unimportant
+                0.25,// kV: from experiment; higher than AM modules, less reduction gear
+                0.08); // kA: I have no idea what this value should be
+
+
         return new SwerveModule(name, driveMotor, turningMotor, driveEncoder, turningEncoder,
-                driveController, turningController, driveFeedforward, turningFeedforward);
+                driveController, turningController, driveFeedforward, turningFeedforward, headingDriveFeedForward);
 
     }
 
@@ -163,7 +175,13 @@ public class SwerveModuleFactory {
                 0.003, // kV
                 0); // kA
 
+        SimpleMotorFeedforward headingDriveFeedForward = new SimpleMotorFeedforward( //
+                0.06, // kS: friction is unimportant
+                0.25,// kV: from experiment; higher than AM modules, less reduction gear
+                0.08); // kA: I have no idea what this value should be
+
+
         return new SwerveModule(name, driveMotor, turningMotor, driveEncoder, turningEncoder,
-                driveController, turningController, driveFeedforward, turningFeedforward);
+                driveController, turningController, driveFeedforward, turningFeedforward, headingDriveFeedForward);
     }
 }

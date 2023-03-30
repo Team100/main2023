@@ -102,7 +102,7 @@ public class DriveWithHeading extends CommandBase {
             desiredRotation = currentRads;
         }
 
-        m_robotDrive.driveMetersPerSec(xDBRemoved * kSpeedModifier, yDBRemoved * kSpeedModifier, thetaOuput, true);
+        m_robotDrive.driveWithHeading(xDBRemoved * kSpeedModifier, yDBRemoved * kSpeedModifier, thetaOuput, true);
 
         lastRotationSetpoint = new Rotation2d(desiredRotation);
     }
