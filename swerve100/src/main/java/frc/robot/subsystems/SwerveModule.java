@@ -123,7 +123,12 @@ public class SwerveModule implements Sendable {
         //     turningMotorControllerOutput = 0;
         //     turningFeedForwardOutput = 0;
         // }
+        
 
+        // System.out.println(driveMotorControllerOutput); 
+        // System.out.println(driveFeedForwardOutput);
+        // System.out.println(turningMotorControllerOutput);
+        // System.out.println(turningFeedForwardOutput);
 
         double driveOutput = MathUtil.applyDeadband(driveMotorControllerOutput + driveFeedForwardOutput, 0.03);
         double turnOutput = MathUtil.applyDeadband(turningMotorControllerOutput + turningFeedForwardOutput, 0.03);
