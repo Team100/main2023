@@ -130,18 +130,18 @@ public class SwerveDriveSubsystem extends SubsystemBase {
         switch (Identity.get()) {
             case COMP_BOT:
                 headingController = new ProfiledPIDController( //
-                        1, // kP //0
+                        0.65, // kP //0.75
                         0, // kI
-                        0, // kD
+                        0, // kD //0.1
                         new TrapezoidProfile.Constraints(
                                 2 * Math.PI, // speed rad/s
                                 4 * Math.PI)); // accel rad/s/s
                 headingController.setIntegratorRange(-0.1, 0.1);
                 // Note very low heading tolerance.
                 headingController.setTolerance(Units.degreesToRadians(0.1));
-                kMaxSpeedMetersPerSecond = 15;
-                kMaxAccelerationMetersPerSecondSquared = 10;
-                kMaxAngularSpeedRadiansPerSecond = 5;
+                kMaxSpeedMetersPerSecond = 5; //2
+                kMaxAccelerationMetersPerSecondSquared = 10; //3
+                kMaxAngularSpeedRadiansPerSecond = 5; //5
                 kMaxAngularSpeedRadiansPerSecondSquared = 5;
                 xController = new PIDController(
                         0.15, // kP
@@ -626,7 +626,7 @@ public class SwerveDriveSubsystem extends SubsystemBase {
     }    
 
     public void driveMetersPerSec(double xSpeedMetersPerSec, double ySpeedMetersPerSec, double rotRadiansPerSec, boolean fieldRelative) {
-        double gyroRate = m_gyro.getRedundantGyroRate() * 0.25;
+        double gyroRate = m_gyro.getRedundantGyroRate() * 0.15;
         // System.out.println(gyroRate);
         Rotation2d rotation2 = getPose().getRotation().minus(new Rotation2d(gyroRate));
         desiredChassisSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(xSpeedMetersPerSec, ySpeedMetersPerSec, rotRadiansPerSec,
@@ -648,7 +648,7 @@ public class SwerveDriveSubsystem extends SubsystemBase {
     }
 
     public void driveWithHeading(double xSpeedMetersPerSec, double ySpeedMetersPerSec, double rotRadiansPerSec, boolean fieldRelative) {
-        double gyroRate = m_gyro.getRedundantGyroRate() * 0.25;
+        double gyroRate = m_gyro.getRedundantGyroRate() * 0.15;
         double rotConstant = 0;
         // System.out.println(gyroRate);
         Rotation2d rotation2 = getPose().getRotation().minus(new Rotation2d(gyroRate));

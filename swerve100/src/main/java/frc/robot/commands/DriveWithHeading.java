@@ -96,7 +96,9 @@ public class DriveWithHeading extends CommandBase {
         if (snapMode && Math.abs(rotSwitch) < 0.1 && m_gyro.getGyroWorking()) {
             thetaControllerOutput = m_headingController.calculate(currentRads, desiredRotation);
             // System.out.println(thetaControllerOutput);
-            thetaOuput = MathUtil.clamp(thetaControllerOutput*kSpeedModifier + m_headingController.getSetpoint().velocity, -kSpeedModifier, kSpeedModifier);
+            // thetaOuput = MathUtil.clamp(thetaControllerOutput*kSpeedModifier + m_headingController.getSetpoint().velocity, -kSpeedModifier, kSpeedModifier);
+            thetaOuput = thetaControllerOutput*kSpeedModifier + m_headingController.getSetpoint().velocity;
+
         } else {
             snapMode = false;
             thetaOuput = rotDBRemoved*kSpeedModifier;
@@ -130,6 +132,7 @@ public class DriveWithHeading extends CommandBase {
         // builder.addDoubleProperty("ControllerOutput", () -> radiansPerSecond, null);
         // builder.addDoubleProperty("Chassis Speeds", () ->
         // targetChasisSpeeds.omegaRadiansPerSecond, null);
+        builder.addDoubleProperty("Theta Outpit", () -> thetaOuput, null);
 
     }
 }

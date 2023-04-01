@@ -65,9 +65,9 @@ public class SwerveModuleFactory {
                 0); // kA: I have no idea what this value should be
 
         SimpleMotorFeedforward headingDriveFeedForward = new SimpleMotorFeedforward( //
-                0.06, // kS: friction is unimportant
+                0.01, // kS: friction is unimportant
                 0.25,// kV: from experiment; higher than AM modules, less reduction gear
-                0.08); // kA: I have no idea what this value should be
+                0); // kA: I have no idea what this value should be
 
 
         return new SwerveModule(name, driveMotor, turningMotor, driveEncoder, turningEncoder,
