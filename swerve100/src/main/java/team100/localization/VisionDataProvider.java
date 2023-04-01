@@ -31,8 +31,10 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.RobotContainer;
 import frc.robot.subsystems.SwerveDriveSubsystem;
 import team100.config.Camera;
+import team100.control.DualXboxControl;
 import team100.indicator.GoNoGoIndicator;
 
 /**
@@ -72,10 +74,18 @@ public class VisionDataProvider extends SubsystemBase implements TableEventListe
     public final GoNoGoIndicator indicator;
     private Pose2d lastRobotInFieldCoords;
 
+    DualXboxControl m_control;
+
+    boolean tagFound = false;
+
+    Timer m_timer;
+
+
     public VisionDataProvider(
             DriverStation.Alliance alliance,
             SwerveDrivePoseEstimator poseEstimator,
-            Supplier<Pose2d> getPose)
+            Supplier<Pose2d> getPose,
+            DualXboxControl control)
             throws IOException {
 
         // load the JNI (used by PoseEstimationHelper)
@@ -104,6 +114,12 @@ public class VisionDataProvider extends SubsystemBase implements TableEventListe
         tagRotation = new Rotation3d();
         // Listen to ALL the updates in the vision table. :-)
         vision_table.addListener(EnumSet.of(NetworkTableEvent.Kind.kValueAll), this);
+
+        m_control = control;
+
+        m_timer = new Timer();
+
+        m_timer.start();
         SmartDashboard.putData("Vision Data Provider", this);
     }
 
@@ -172,6 +188,10 @@ public class VisionDataProvider extends SubsystemBase implements TableEventListe
             BiConsumer<Pose2d, Double> estimateConsumer,
             String key,
             Blips blips) {
+
+        if(blips.tags.size() == 0){
+            tagFound = false;
+        }
         for (Blip b : blips.tags) {
             Optional<Pose3d> tagInFieldCordsOptional = layout.getTagPose(b.id);
             if (!tagInFieldCordsOptional.isPresent())
@@ -206,13 +226,41 @@ public class VisionDataProvider extends SubsystemBase implements TableEventListe
                         yComponent * yComponent <= kVisionChangeToleranceMeters
                                 * kVisionChangeToleranceMeters) {
                     // tell the vision indicator we have a fix.
-                    indicator.go();
+                    // indicator.go();
+                    // tagFound = true;
+                    rumbleOn();
+
                     estimateConsumer.accept(currentRobotinFieldCoords, Timer.getFPGATimestamp() - .075);
                 }
             }
 
             lastRobotInFieldCoords = currentRobotinFieldCoords;
         }
+
+        rumbleCheck();
+
+    }
+
+    public void rumbleOn(){
+        m_timer.restart();
+
+        // m_control.rumbleOn();
+    }
+
+    public void rumbleCheck(){
+
+        if(RobotContainer.isEnabled()){
+            System.out.println("NOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO");
+            if(m_timer.get() > 0.1){
+                m_control.rumbleOff();
+            } else {
+                // m_timer.restart();
+                m_control.rumbleOn();
+            }
+        }
+
+        
+
     }
 
     @Override

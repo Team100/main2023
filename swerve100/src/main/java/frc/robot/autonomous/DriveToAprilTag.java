@@ -18,8 +18,9 @@ public class DriveToAprilTag extends DriveToWaypoint2 {
             double yOffset,
             Supplier<GoalOffset> goalSupplier,
             SwerveDriveSubsystem robotDrive,
-            AHRSClass gyro) {
-        super(goal, yOffset, goalSupplier, robotDrive, gyro);
+            AHRSClass gyro,
+            Supplier<Double> gamePieceOffset) {
+        super(goal, yOffset, goalSupplier, robotDrive, gyro, gamePieceOffset);
     }
 
     public static DriveToAprilTag newDriveToAprilTag(
@@ -28,9 +29,10 @@ public class DriveToAprilTag extends DriveToWaypoint2 {
             double yOffset,
             Supplier<GoalOffset> goalSupplier,
             SwerveDriveSubsystem robotDrive,
-            AHRSClass gyro) {
+            AHRSClass gyro,
+            Supplier<Double> gamePieceOffset) {
         Pose2d m_goal = goal(tagID, xOffset, robotDrive.visionDataProvider.layout);
-        return new DriveToAprilTag(m_goal, yOffset, goalSupplier, robotDrive, gyro);
+        return new DriveToAprilTag(m_goal, yOffset, goalSupplier, robotDrive, gyro, gamePieceOffset);
     }
 
     public static Pose2d goal(int tagID, double xOffset, AprilTagFieldLayoutWithCorrectOrientation layout) {

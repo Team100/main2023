@@ -12,6 +12,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.FRCLib.Motors.FRCTalonSRX;
 import frc.robot.FRCLib.Motors.FRCTalonSRX.FRCTalonSRXBuilder;
+import frc.robot.subsystems.GamePieceDetection.GamepieceLocator;
 
 public class Manipulator extends SubsystemBase {
   /** Creates a new Manipulator. */
@@ -19,7 +20,7 @@ public class Manipulator extends SubsystemBase {
   public AnalogEncoder position;
   public PIDController pinchController;
   private double origin;
-//   private DigitalInput sensor = new DigitalInput(0);
+  GamepieceLocator gamepieceLocator;
 
   public Manipulator() {
     pinch = new FRCTalonSRXBuilder(10)
@@ -37,7 +38,7 @@ public class Manipulator extends SubsystemBase {
     //.withCurrentLimit(7)
     .build();
 
-    pinch.motor.configPeakCurrentLimit(45);
+    pinch.motor.configPeakCurrentLimit(30);
     // pinch.motor.configContinuousCurrentLimit(1);
 
     // pinch.motor.configPeakCurrentDuration(0)
@@ -48,12 +49,12 @@ public class Manipulator extends SubsystemBase {
     // pinch.motor.configCurrent
 
     
-
-    
-
+    gamepieceLocator = new GamepieceLocator();
+  
     position = new AnalogEncoder(6);
 
     position.reset();
+    
     pinchController = new PIDController(0.2, 0, 0);
 
     SmartDashboard.putData("Manipulator", this);
@@ -114,6 +115,14 @@ public class Manipulator extends SubsystemBase {
     }else{
       return false;
     }
+  }
+
+  public double getGamePieceOffset(){
+    return gamepieceLocator.getOffsetMeters();
+  }
+
+  public boolean hasGamepiece(){
+    return gamepieceLocator.hasGamepiece();
   }
 
   public void initSendable(SendableBuilder builder) {

@@ -95,26 +95,19 @@ public class ArmTrajectory extends CommandBase {
 
         InverseKinematicsAngle safeBack = new InverseKinematicsAngle(1.97, -0.55);
 
-        // InverseKinematicsAngle safeGoalCone = m_arm.calculate(2.01, -0.75);
+        InverseKinematicsAngle safeGoalCone = new InverseKinematicsAngle(1.921083, -0.757354); //not real
 
-        InverseKinematicsAngle safeGoalCube = m_arm.calculate(0, 0);
+    
+        InverseKinematicsAngle safeGoalCube = new InverseKinematicsAngle(1.921083, -0.757354); //not real
 
-
+        
         InverseKinematicsAngle safeWaypoint = m_arm.calculate(0.7, 0.44);
 
         // boolean notSafe = true;
 
         try{
 
-        if (m_position == ArmPosition.SAFE) {
-            // return TrajectoryGenerator.generateTrajectory(
-            //         new Pose2d(m_arm.getUpperArm(), m_arm.getLowerArm(), Rotation2d.fromDegrees(-180)),
-            //         List.of(new Translation2d(safeWaypoint.upperTheta, safeWaypoint.lowerTheta)),
-            //         new Pose2d(safeGoalCone.upperTheta, safeGoalCone.lowerTheta, Rotation2d.fromDegrees(-180)),
-            //         trajecConfig);
-
-            return null;
-        }
+        
 
         if(m_position == ArmPosition.SAFEBACK){
             return TrajectoryGenerator.generateTrajectory(
@@ -125,6 +118,17 @@ public class ArmTrajectory extends CommandBase {
         }
 
         if (!m_arm.cubeMode) {
+
+            if (m_position == ArmPosition.SAFE) {
+                return TrajectoryGenerator.generateTrajectory(
+                        new Pose2d(m_arm.getUpperArm(), m_arm.getLowerArm(), Rotation2d.fromDegrees(-180)),
+                        List.of(new Translation2d(safeWaypoint.upperTheta, safeWaypoint.lowerTheta)),
+                        new Pose2d(safeGoalCone.upperTheta, safeGoalCone.lowerTheta, Rotation2d.fromDegrees(-180)),
+                        trajecConfig);
+    
+                // return null;
+            }
+
             if (m_position == ArmPosition.HIGH) {
                 return TrajectoryGenerator.generateTrajectory(
                         new Pose2d(m_arm.getUpperArm(), m_arm.getLowerArm(), new Rotation2d(Math.PI / 2)),
@@ -163,6 +167,17 @@ public class ArmTrajectory extends CommandBase {
                         trajecConfig);
             }
         } else {
+
+            if (m_position == ArmPosition.SAFE) {
+                return TrajectoryGenerator.generateTrajectory(
+                        new Pose2d(m_arm.getUpperArm(), m_arm.getLowerArm(), Rotation2d.fromDegrees(-180)),
+                        List.of(new Translation2d(safeWaypoint.upperTheta, safeWaypoint.lowerTheta)),
+                        new Pose2d(safeGoalCube.upperTheta, safeGoalCube.lowerTheta, Rotation2d.fromDegrees(-180)),
+                        trajecConfig);
+    
+                // return null;
+            }
+
             if (m_position == ArmPosition.HIGH) {
                 return TrajectoryGenerator.generateTrajectory(
                         new Pose2d(m_arm.getUpperArm(), m_arm.getLowerArm(), new Rotation2d(Math.PI / 2)),

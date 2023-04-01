@@ -239,7 +239,7 @@ public class ArmController extends SubsystemBase {
 }
 
 class ArmKinematics {
-    private static final double kUpperArmLength = 0.905;
+    private static final double kUpperArmLength = 0.92;
     private static final double kLowerArmLength = 0.93;
 
     /**

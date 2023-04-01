@@ -4,62 +4,37 @@
 
 package frc.robot.commands.Manipulator;
 
-import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.Manipulator;
 
-public class Close extends CommandBase {
-  /** Creates a new Close. */
+public class CloseSlow extends CommandBase {
+  /** Creates a new CloseSlow. */
+
   Manipulator m_manipulator;
-  boolean first = true;
-  Timer m_timer;
-  public Close(Manipulator manipulator) {
+  public CloseSlow(Manipulator manipulator) {
     // Use addRequirements() here to declare subsystem dependencies.
+
     m_manipulator = manipulator;
-    m_timer = new Timer();
-    addRequirements(m_manipulator);
   }
 
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-    m_manipulator.pinch.motor.configPeakCurrentLimit(45);
-
-    m_timer.restart();
-    first = true;
+    m_manipulator.pinch.motor.configPeakCurrentLimit(10);
   }
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-
-    // if(m_manipulator.getStatorCurrent() <= -11){
-    //   // first = false;
-
-    //   if(m_timer.get() >= 1){
-
-    //     m_manipulator.pinch.motor.configPeakCurrentLimit(5);
-    //     System.out.println("DEEZ");
-    //   }
-      
-
-    // }
-
-    // System.out.println("YOOOOO");
-
-    // if(m_manipulator.hasGamepiece() == false){
-        m_manipulator.pinch(-0.5);
-    // } else {
-        // m_manipulator.pinch.motor.configPeakCurrentLimit(5);
-    // }
-
-
+    m_manipulator.pinch(-0.12);
   }
 
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
     m_manipulator.pinch.motor.configPeakCurrentLimit(30);
+
+    m_manipulator.pinch(0);
   }
 
   // Returns true when the command should end.

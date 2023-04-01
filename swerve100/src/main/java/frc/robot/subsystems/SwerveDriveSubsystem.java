@@ -29,6 +29,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.RobotContainer;
 import team100.config.Identity;
+import team100.control.DualXboxControl;
 import team100.localization.VisionDataProvider;
 
 public class SwerveDriveSubsystem extends SubsystemBase {
@@ -115,7 +116,9 @@ public class SwerveDriveSubsystem extends SubsystemBase {
     private final DoubleArrayPublisher robotPosePub;
     private final StringPublisher fieldTypePub;
 
-    public SwerveDriveSubsystem(DriverStation.Alliance alliance, double currentLimit, AHRSClass gyro) throws IOException {
+    DualXboxControl m_control;
+
+    public SwerveDriveSubsystem(DriverStation.Alliance alliance, double currentLimit, AHRSClass gyro, DualXboxControl control) throws IOException {
         m_gyro = gyro;
         // Sets up Field2d pose tracking for glass.
         NetworkTableInstance inst = NetworkTableInstance.getDefault();
@@ -123,7 +126,7 @@ public class SwerveDriveSubsystem extends SubsystemBase {
         robotPosePub = fieldTable.getDoubleArrayTopic("robotPose").publish();
         fieldTypePub = fieldTable.getStringTopic(".type").publish();
         fieldTypePub.set("Field2d");
-
+        m_control = control;
         // kSlowSpeedMetersPerSecond = 0.5;
         // kSlowAngularSpeedRadiansPerSecond = 0.25;
 
@@ -530,7 +533,7 @@ public class SwerveDriveSubsystem extends SubsystemBase {
                 VecBuilder.fill(0.5,0.5, 0.5),
                 VecBuilder.fill(0.4, 0.4, 0.4)); // note tight rotation variance here, used to be MAX_VALUE
         // VecBuilder.fill(0.01, 0.01, Integer.MAX_VALUE));
-        visionDataProvider = new VisionDataProvider(alliance, m_poseEstimator, () -> getPose());
+        visionDataProvider = new VisionDataProvider(alliance, m_poseEstimator, () -> getPose(), control);
 
         SmartDashboard.putData("Drive Subsystem", this);
     }
@@ -564,6 +567,7 @@ public class SwerveDriveSubsystem extends SubsystemBase {
     public void periodic() {
         // System.out.println("MRRITRURUEUEUIWUIWEUIRHBIUEWFkj");
         updateOdometry();
+        // m_control.rumbleOn();
         RobotContainer.m_field.setRobotPose(m_poseEstimator.getEstimatedPosition());
     }
 
