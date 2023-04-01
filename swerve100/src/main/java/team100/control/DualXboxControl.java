@@ -4,6 +4,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.util.sendable.Sendable;
 import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
@@ -13,10 +14,12 @@ import frc.robot.commands.DriveSlow;
 import frc.robot.commands.GoalOffset;
 import frc.robot.commands.ResetPose;
 import frc.robot.commands.ResetRotation;
+import frc.robot.commands.RumbleOn;
 import frc.robot.commands.Arm.ArmTrajectory;
 import frc.robot.commands.Arm.SetConeMode;
 import frc.robot.commands.Arm.SetCubeMode;
 import frc.robot.commands.Manipulator.Close;
+import frc.robot.commands.Manipulator.CloseSlow;
 import frc.robot.commands.Manipulator.Home;
 import frc.robot.commands.Manipulator.Open;
 import frc.robot.commands.Retro.DriveToRetroReflectiveTape;
@@ -57,7 +60,7 @@ public class DualXboxControl implements Sendable {
     }
 
     public void driveToCenterGrid(DriveToWaypoint2 command) {
-        controller0.a().whileTrue(command);
+        // controller0.a().whileTrue(command);
     };
 
     public void driveToRightGrid(DriveToWaypoint2 command) {
@@ -136,6 +139,21 @@ public class DualXboxControl implements Sendable {
         controller0.rightBumper().whileTrue(defense);
     }
 
+    public void rumbleOn() {
+        controller0.getHID().setRumble(RumbleType.kLeftRumble, 1.0);
+        controller0.getHID().setRumble(RumbleType.kRightRumble, 1.0);
+    }
+    
+    public void rumbleTrigger(RumbleOn command){
+        controller0.a().whileTrue(command);
+    }
+
+    public void rumbleOff() {
+        controller0.getHID().setRumble(RumbleType.kLeftRumble, 0);
+        controller0.getHID().setRumble(RumbleType.kRightRumble, 0);
+
+    }
+
     ///////////////////////////////
     //
     // OPERATOR: arm and manipulator controls
@@ -181,6 +199,15 @@ public class DualXboxControl implements Sendable {
         // controller1.leftBumper().whileTrue(command);
     }
 
+    public void closeSlow(CloseSlow command) {
+        // controller1.leftBumper().whileTrue(command);
+
+        // controller1.a().whileTrue(command);
+
+
+        controller1.leftBumper().whileTrue(command);
+    }
+
     public void armSubstation(ArmTrajectory command) {
         controller1.povRight().whileTrue(command);
     }
@@ -218,11 +245,11 @@ public class DualXboxControl implements Sendable {
     }
 
     public void ledOn(LedOn command){
-        controller1.rightBumper().whileTrue(command);
+        // controller1.rightBumper().whileTrue(command);
     }
 
     public void tapeDetect(DriveToRetroReflectiveTape command){
-        controller1.leftBumper().whileTrue(command);
+        // controller1.leftBumper().whileTrue(command);
     }
 
     

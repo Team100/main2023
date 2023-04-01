@@ -42,7 +42,7 @@ public class Robot extends TimedRobot {
     public void disabledInit() {
         // m_robotContainer.ledStop();
         m_robotContainer.ledStart();
-
+        m_robotContainer.enabled = false;
     }
 
     @Override
@@ -69,6 +69,9 @@ public class Robot extends TimedRobot {
         if (m_autonomousCommand != null) {
             m_autonomousCommand.cancel();
         }
+
+        m_robotContainer.enabled = true;
+
     }
 
     @Override

@@ -17,6 +17,6 @@ public class ManualArm extends CommandBase {
 
     @Override
     public void execute() {
-        arm.driveManually(m_controller.getLeftY()/4, m_controller.getRightX()/4);
+        arm.driveManually(m_controller.getLeftY()/2, m_controller.getRightX()/2);
     }
 }

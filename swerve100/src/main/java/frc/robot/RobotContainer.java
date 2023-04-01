@@ -37,6 +37,7 @@ import frc.robot.commands.DriveSlow;
 import frc.robot.commands.DriveWithHeading;
 import frc.robot.commands.ResetPose;
 import frc.robot.commands.ResetRotation;
+import frc.robot.commands.RumbleOn;
 import frc.robot.commands.AutoLevel;
 import frc.robot.commands.Arm.ArmTrajectory;
 import frc.robot.commands.Arm.DriveToSetpoint;
@@ -44,6 +45,7 @@ import frc.robot.commands.Arm.ManualArm;
 import frc.robot.commands.Arm.SetConeMode;
 import frc.robot.commands.Arm.SetCubeMode;
 import frc.robot.commands.Manipulator.Close;
+import frc.robot.commands.Manipulator.CloseSlow;
 import frc.robot.commands.Manipulator.Home;
 import frc.robot.commands.Manipulator.Open;
 import frc.robot.commands.Retro.DriveToRetroReflectiveTape;
@@ -116,10 +118,15 @@ public class RobotContainer implements Sendable {
     private final Home homeCommand;
     private final Close closeCommand;
     private final Open openCommand;
+    private final CloseSlow closeSlowCommand;
 
     private final DriveSlow driveSlow;
 
     public final static Field2d m_field = new Field2d();
+
+    public final RumbleOn rumbleOn;
+
+    public static boolean enabled = false;
 
     public RobotContainer() throws IOException {
         // THIS IS FROM BOB'S DELETED CODE
@@ -139,23 +146,39 @@ public class RobotContainer implements Sendable {
         // m_alliance = DriverStation.getAlliance();
         m_alliance = DriverStation.Alliance.Red;
 
-        m_robotDrive = new SwerveDriveSubsystem(m_alliance, kDriveCurrentLimit, ahrsclass);
+        m_robotDrive = new SwerveDriveSubsystem(m_alliance, kDriveCurrentLimit, ahrsclass, control);
 
         if (m_alliance == DriverStation.Alliance.Blue) {
             // driveToLeftGrid = DriveToAprilTag.newDriveToAprilTag(6, 0.95, .55, control::goalOffset, m_robotDrive, ahrsclass);
-            driveToLeftGrid = DriveToAprilTag.newDriveToAprilTag(6, 1.25, 0, control::goalOffset, m_robotDrive,  ahrsclass);
+            driveToLeftGrid = DriveToAprilTag.newDriveToAprilTag(6, 1.25, 0, control::goalOffset, m_robotDrive,  ahrsclass, () -> 0.0);
 
-            driveToCenterGrid = DriveToAprilTag.newDriveToAprilTag(7, 0.95, .55, control::goalOffset, m_robotDrive, ahrsclass);
-            driveToRightGrid = DriveToAprilTag.newDriveToAprilTag(8, 0.95, .55, control::goalOffset, m_robotDrive, ahrsclass);
-            driveToSubstation = DriveToAprilTag.newDriveToAprilTag(4, 0.53, -0.749, control::goalOffset, m_robotDrive, ahrsclass);
+            driveToCenterGrid = DriveToAprilTag.newDriveToAprilTag(7, 0.95, .55, control::goalOffset, m_robotDrive, ahrsclass, () -> 0.0);
+            driveToRightGrid = DriveToAprilTag.newDriveToAprilTag(8, 0.95, .55, control::goalOffset, m_robotDrive, ahrsclass, () -> 0.0);
+            driveToSubstation = DriveToAprilTag.newDriveToAprilTag(4, 0.53, -0.749, control::goalOffset, m_robotDrive, ahrsclass, () -> 0.0);
         } else {
-            driveToLeftGrid = DriveToAprilTag.newDriveToAprilTag(1, 0.95, .55, control::goalOffset, m_robotDrive, ahrsclass);
-            driveToCenterGrid = DriveToAprilTag.newDriveToAprilTag(2, 0.95, .55, control::goalOffset, m_robotDrive, ahrsclass);
-            driveToRightGrid = DriveToAprilTag.newDriveToAprilTag(3, 0.95, .55, control::goalOffset, m_robotDrive, ahrsclass);
+            driveToLeftGrid = DriveToAprilTag.newDriveToAprilTag(1, 0.95, .55, control::goalOffset, m_robotDrive, ahrsclass, () -> 0.0);
+            driveToCenterGrid = DriveToAprilTag.newDriveToAprilTag(2, 0.95, .55, control::goalOffset, m_robotDrive, ahrsclass, () -> 0.0);
+            driveToRightGrid = DriveToAprilTag.newDriveToAprilTag(3, 0.95, .55, control::goalOffset, m_robotDrive, ahrsclass,() -> 0.0);
             // driveToSubstation = DriveToAprilTag.newDriveToAprilTag(5, 0.53, -0.749, control::goalOffset, m_robotDrive, ahrsclass);
-            driveToSubstation = DriveToAprilTag.newDriveToAprilTag(5, 0.9, -0.72, control::goalOffset, m_robotDrive, ahrsclass);
+            driveToSubstation = DriveToAprilTag.newDriveToAprilTag(5, 0.9, -0.72, control::goalOffset, m_robotDrive, ahrsclass, () -> 0.0);
 
         }
+
+        // if (m_alliance == DriverStation.Alliance.Blue) {
+        //     // driveToLeftGrid = DriveToAprilTag.newDriveToAprilTag(6, 0.95, .55, control::goalOffset, m_robotDrive, ahrsclass);
+        //     driveToLeftGrid = DriveToAprilTag.newDriveToAprilTag(6, 1.25, 0, control::goalOffset, m_robotDrive,  ahrsclass, () -> manipulator.getGamePieceOffset());
+
+        //     driveToCenterGrid = DriveToAprilTag.newDriveToAprilTag(7, 0.95, .55, control::goalOffset, m_robotDrive, ahrsclass, () -> manipulator.getGamePieceOffset());
+        //     driveToRightGrid = DriveToAprilTag.newDriveToAprilTag(8, 0.95, .55, control::goalOffset, m_robotDrive, ahrsclass, () -> manipulator.getGamePieceOffset());
+        //     driveToSubstation = DriveToAprilTag.newDriveToAprilTag(4, 0.53, -0.749, control::goalOffset, m_robotDrive, ahrsclass, () -> manipulator.getGamePieceOffset());
+        // } else {
+        //     driveToLeftGrid = DriveToAprilTag.newDriveToAprilTag(1, 0.95, .55, control::goalOffset, m_robotDrive, ahrsclass, () -> manipulator.getGamePieceOffset());
+        //     driveToCenterGrid = DriveToAprilTag.newDriveToAprilTag(2, 0.95, .55, control::goalOffset, m_robotDrive, ahrsclass, () -> manipulator.getGamePieceOffset());
+        //     driveToRightGrid = DriveToAprilTag.newDriveToAprilTag(3, 0.95, .55, control::goalOffset, m_robotDrive, ahrsclass, () -> manipulator.getGamePieceOffset());
+        //     // driveToSubstation = DriveToAprilTag.newDriveToAprilTag(5, 0.53, -0.749, control::goalOffset, m_robotDrive, ahrsclass);
+        //     driveToSubstation = DriveToAprilTag.newDriveToAprilTag(5, 0.9, -0.72, control::goalOffset, m_robotDrive, ahrsclass,() -> manipulator.getGamePieceOffset());
+
+        // }
 
         
         armHigh = new ArmTrajectory(ArmPosition.HIGH, armController);
@@ -193,6 +216,9 @@ public class RobotContainer implements Sendable {
 
         retroTape = new DriveToRetroReflectiveTape(m_robotDrive);
 
+        closeSlowCommand = new CloseSlow(manipulator);
+
+
         driveWithHeading = new DriveWithHeading(
                 m_robotDrive,
                 control::xSpeed,
@@ -211,6 +237,8 @@ public class RobotContainer implements Sendable {
         armSafeBack = new ArmTrajectory(ArmPosition.SAFEBACK, armController);
 
         ledOn = new LedOn(illuminator);
+
+        rumbleOn = new RumbleOn(control);
 
         // control.autoLevel(autoLevel);
         control.driveToLeftGrid(driveToLeftGrid);
@@ -250,6 +278,10 @@ public class RobotContainer implements Sendable {
         control.ledOn(ledOn);
 
         control.tapeDetect(retroTape);
+        
+        control.rumbleTrigger(rumbleOn);
+
+        control.closeSlow(closeSlowCommand);
 
 
 
@@ -345,5 +377,9 @@ public class RobotContainer implements Sendable {
 
     public void ledStop(){
         m_robotDrive.visionDataProvider.indicator.close();
+    }
+
+    public static boolean isEnabled(){
+        return enabled;
     }
 }
