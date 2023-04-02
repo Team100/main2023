@@ -63,9 +63,9 @@ public class ArmTrajectory extends CommandBase {
         lowerController = new PIDController(3, 0, 0);
 
         if (m_position != ArmPosition.SAFE) {
-            trajecConfig = new TrajectoryConfig(12, 2);
+            trajecConfig = new TrajectoryConfig(12, 5);
         } else {
-            trajecConfig = new TrajectoryConfig(12, 1);
+            trajecConfig = new TrajectoryConfig(12, 2);
         }
 
         addRequirements(m_arm);
@@ -83,7 +83,7 @@ public class ArmTrajectory extends CommandBase {
 
         // Cube
         InverseKinematicsAngle highGoalCube = new InverseKinematicsAngle(1.390242,0.648938); //not real
-        InverseKinematicsAngle midGoalCube = new InverseKinematicsAngle(1.91, 0.19); //not real
+        InverseKinematicsAngle midGoalCube = new InverseKinematicsAngle(1.702710, 0.409309); //not real
         InverseKinematicsAngle lowGoalCube = new InverseKinematicsAngle(2.271662, -0.049849); //not real
         InverseKinematicsAngle subCube = new InverseKinematicsAngle(1.575104   , -0.064480);//not real
         InverseKinematicsAngle subToCube = new InverseKinematicsAngle(1.100452, -0.734924);//not real

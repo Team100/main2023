@@ -9,6 +9,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import frc.robot.autonomous.DriveToWaypoint2;
+import frc.robot.autonomous.Rotate;
 import frc.robot.commands.AutoLevel;
 import frc.robot.commands.DriveSlow;
 import frc.robot.commands.GoalOffset;
@@ -152,6 +153,11 @@ public class DualXboxControl implements Sendable {
         controller0.getHID().setRumble(RumbleType.kLeftRumble, 0);
         controller0.getHID().setRumble(RumbleType.kRightRumble, 0);
 
+    }
+
+    public void rotate0(Rotate command){
+        JoystickButton button = new JoystickButton(controller0.getHID(), 9);
+        button.whileTrue(command);
     }
 
     ///////////////////////////////

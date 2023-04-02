@@ -22,23 +22,35 @@ public class AHRSClass implements Sendable {
     private boolean gyro2Connected = true;
     private float gyroZOffset_I2C;
     private float gyroZOffset_USB;
+    private boolean timeGap = false;   
+    // private boolean balls = false;
 
-    // Timer m_timer;
+    Timer m_timer;
     public AHRSClass() {
-
-        // m_timer.restart();
+        m_timer = new Timer();
+        m_timer.start();
 
         m_gyro1 = new AHRS(SerialPort.Port.kUSB);
         m_gyro2 = new AHRS(I2C.Port.kMXP);
         m_gyro1.enableBoardlevelYawReset(true);
-        m_gyro2.enableBoardlevelYawReset(true);
-        m_gyro1.zeroYaw();
-        m_gyro2.zeroYaw();  
-         while (m_gyro1.isConnected() && m_gyro1.isCalibrating() || m_gyro2.isConnected() && m_gyro2.isCalibrating()  ) {
-    //    System.out.println("Waiting for calibration to finish");  
-         }
+        m_gyro2.enableBoardlevelYawReset(true); 
         m_gyro1.calibrate();
         m_gyro2.calibrate();
+
+        while(m_timer.get() < 2){
+
+        }
+
+        while ((m_gyro1.isConnected() && m_gyro1.isCalibrating() || m_gyro2.isConnected() && m_gyro2.isCalibrating()) || timeGap ) {
+        //  if(m_timer.get() > 2){
+        //     timeGap = true;
+        //  }
+        }
+        // balls = true;
+         
+        m_gyro1.zeroYaw();
+        m_gyro2.zeroYaw(); 
+        
         gyroZOffset_I2C = -m_gyro2.getRawGyroZ();
         gyroZOffset_USB = -m_gyro1.getRawGyroZ();
         SmartDashboard.putData("AHRSClass", this);

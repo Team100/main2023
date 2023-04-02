@@ -30,6 +30,7 @@ import frc.robot.autonomous.Circle;
 import frc.robot.autonomous.DriveToAprilTag;
 import frc.robot.autonomous.DriveToWaypoint2;
 import frc.robot.autonomous.MoveToAprilTag;
+import frc.robot.autonomous.Rotate;
 import frc.robot.autonomous.SanjanAutonomous;
 import frc.robot.autonomous.VasiliAutonomous;
 import frc.robot.commands.DriveRotation;
@@ -126,6 +127,8 @@ public class RobotContainer implements Sendable {
 
     public final RumbleOn rumbleOn;
 
+    public final Rotate rotateCommand;
+
     public static boolean enabled = false;
 
     public RobotContainer() throws IOException {
@@ -218,6 +221,8 @@ public class RobotContainer implements Sendable {
 
         closeSlowCommand = new CloseSlow(manipulator);
 
+        rotateCommand = new Rotate(m_robotDrive, 0);
+
 
         driveWithHeading = new DriveWithHeading(
                 m_robotDrive,
@@ -282,6 +287,8 @@ public class RobotContainer implements Sendable {
         control.rumbleTrigger(rumbleOn);
 
         control.closeSlow(closeSlowCommand);
+
+        control.rotate0(rotateCommand);
 
 
 
