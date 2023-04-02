@@ -112,6 +112,7 @@ public class SwerveDriveSubsystem extends SubsystemBase {
     public final PIDController yController;
     public final ProfiledPIDController headingController;
     public ProfiledPIDController thetaController;
+    public final ProfiledPIDController rotateController;
 
     private final DoubleArrayPublisher robotPosePub;
     private final StringPublisher fieldTypePub;
@@ -133,15 +134,25 @@ public class SwerveDriveSubsystem extends SubsystemBase {
         switch (Identity.get()) {
             case COMP_BOT:
                 headingController = new ProfiledPIDController( //
-                        0.65, // kP //0.75
+                        0.67, // kP //0.75
                         0, // kI
                         0, // kD //0.1
                         new TrapezoidProfile.Constraints(
                                 2 * Math.PI, // speed rad/s
                                 4 * Math.PI)); // accel rad/s/s
+                rotateController = new ProfiledPIDController( //
+                        1, // kP //0.75
+                        0.5, // kI
+                        0, // kD //0.1
+                        new TrapezoidProfile.Constraints(
+                                2 * Math.PI, // speed rad/s
+                                4 * Math.PI)); // accel rad/s/s
                 headingController.setIntegratorRange(-0.1, 0.1);
+                rotateController.setIntegratorRange(-0.2, 0.2);
+
+                
                 // Note very low heading tolerance.
-                headingController.setTolerance(Units.degreesToRadians(0.1));
+                headingController.setTolerance(0.01);
                 kMaxSpeedMetersPerSecond = 5; //2
                 kMaxAccelerationMetersPerSecondSquared = 10; //3
                 kMaxAngularSpeedRadiansPerSecond = 5; //5
@@ -199,6 +210,14 @@ public class SwerveDriveSubsystem extends SubsystemBase {
                         1, // kP
                         0, // kI
                         0.15, // kD
+                        new TrapezoidProfile.Constraints(
+                                2 * Math.PI, // speed rad/s
+                                4 * Math.PI)); // accel rad/s/s
+
+                rotateController = new ProfiledPIDController( //
+                        0.7, // kP //0.75
+                        0, // kI
+                        0, // kD //0.1
                         new TrapezoidProfile.Constraints(
                                 2 * Math.PI, // speed rad/s
                                 4 * Math.PI)); // accel rad/s/s
@@ -270,6 +289,14 @@ public class SwerveDriveSubsystem extends SubsystemBase {
                                 2 * Math.PI, // speed rad/s
                                 4 * Math.PI)); // accel rad/s/s
 
+                rotateController = new ProfiledPIDController( //
+                        0.7, // kP //0.75
+                        0, // kI
+                        0, // kD //0.1
+                        new TrapezoidProfile.Constraints(
+                                2 * Math.PI, // speed rad/s
+                                4 * Math.PI)); // accel rad/s/s
+
                 headingController.setIntegratorRange(-0.1, 0.1);
                 // Note very low heading tolerance.
                 headingController.setTolerance(Units.degreesToRadians(0.1));
@@ -333,6 +360,13 @@ public class SwerveDriveSubsystem extends SubsystemBase {
                         new TrapezoidProfile.Constraints(
                                 2 * Math.PI, // speed rad/s
                                 2 * Math.PI)); // accel rad/s/s
+                rotateController = new ProfiledPIDController( //
+                        0.7, // kP //0.75
+                        0, // kI
+                        0, // kD //0.1
+                        new TrapezoidProfile.Constraints(
+                                2 * Math.PI, // speed rad/s
+                                4 * Math.PI)); // accel rad/s/s
 
                 headingController.setIntegratorRange(-0.1, 0.1);
                 // Note very low heading tolerance.
@@ -398,6 +432,14 @@ public class SwerveDriveSubsystem extends SubsystemBase {
                                 2 * Math.PI, // speed rad/s
                                 2 * Math.PI)); // accel rad/s/s
 
+                rotateController = new ProfiledPIDController( //
+                        0.7, // kP //0.75
+                        0, // kI
+                        0, // kD //0.1
+                        new TrapezoidProfile.Constraints(
+                                2 * Math.PI, // speed rad/s
+                                4 * Math.PI)); // accel rad/s/s
+
                 headingController.setIntegratorRange(-0.1, 0.1);
                 // Note very low heading tolerance.
                 headingController.setTolerance(Units.degreesToRadians(0.1));
@@ -459,6 +501,14 @@ public class SwerveDriveSubsystem extends SubsystemBase {
                         1, // kP
                         0, // kI
                         0, // kD
+                        new TrapezoidProfile.Constraints(
+                                2 * Math.PI, // speed rad/s
+                                4 * Math.PI)); // accel rad/s/s
+
+                rotateController = new ProfiledPIDController( //
+                        0.7, // kP //0.75
+                        0, // kI
+                        0, // kD //0.1
                         new TrapezoidProfile.Constraints(
                                 2 * Math.PI, // speed rad/s
                                 4 * Math.PI)); // accel rad/s/s
@@ -715,6 +765,44 @@ public class SwerveDriveSubsystem extends SubsystemBase {
 
         double kMaxSpeed = 0.75;
         double kMaxRot = 0.5;
+        xSpeed = MathUtil.clamp(xSpeed, -1, 1);
+        ySpeed = MathUtil.clamp(ySpeed, -1, 1);
+        rot = MathUtil.clamp(rot, -1, 1);
+        // if (Math.abs(xSpeed) < .01)
+        // xSpeed = 100 * xSpeed * xSpeed * Math.signum(xSpeed);
+         
+        // if (Math.abs(ySpeed) < .01)
+        // ySpeed = 100 * ySpeed * ySpeed * Math.signum(ySpeed);
+        if (Math.abs(rot) < .01)
+            rot = 0;
+        double gyroRate = m_gyro.getRedundantGyroRate() * 0.25;
+        Rotation2d rotation2 = getPose().getRotation().minus(new Rotation2d(gyroRate));
+        desiredChassisSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(kMaxSpeed * xSpeed,
+                kMaxSpeed * ySpeed, kMaxRot * rot,
+                rotation2);
+        // TODO fix fieldRelative making this go crazy when it is off
+        var swerveModuleStates = kDriveKinematics.toSwerveModuleStates(
+                fieldRelative
+                        ? desiredChassisSpeeds
+                        : new ChassisSpeeds(kMaxSpeed * xSpeed, kMaxSpeed * ySpeed,
+                                kMaxRot * rot));
+
+        SwerveDriveKinematics.desaturateWheelSpeeds(
+                swerveModuleStates, kMaxSpeed);
+
+        getRobotVelocity(swerveModuleStates);
+
+        m_frontLeft.setDesiredState(swerveModuleStates[0]);
+        // System.out.println(desiredChassisSpeeds);
+        m_frontRight.setDesiredState(swerveModuleStates[1]);
+        m_rearLeft.setDesiredState(swerveModuleStates[2]);
+        m_rearRight.setDesiredState(swerveModuleStates[3]);
+    }
+
+    public void driveMedium(double xSpeed, double ySpeed, double rot, boolean fieldRelative) {
+
+        double kMaxSpeed = 2;
+        double kMaxRot = 2;
         xSpeed = MathUtil.clamp(xSpeed, -1, 1);
         ySpeed = MathUtil.clamp(ySpeed, -1, 1);
         rot = MathUtil.clamp(rot, -1, 1);
