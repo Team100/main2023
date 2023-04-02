@@ -250,7 +250,7 @@ public class VisionDataProvider extends SubsystemBase implements TableEventListe
     public void rumbleCheck(){
 
         if(RobotContainer.isEnabled()){
-            System.out.println("NOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO");
+            // System.out.println("NOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO");
             if(m_timer.get() > 0.1){
                 m_control.rumbleOff();
             } else {

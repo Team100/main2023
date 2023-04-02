@@ -140,8 +140,8 @@ public class DualXboxControl implements Sendable {
     }
 
     public void rumbleOn() {
-        controller0.getHID().setRumble(RumbleType.kLeftRumble, 1.0);
-        controller0.getHID().setRumble(RumbleType.kRightRumble, 1.0);
+        controller0.getHID().setRumble(RumbleType.kLeftRumble, 0.0);
+        controller0.getHID().setRumble(RumbleType.kRightRumble, 0.0);
     }
     
     public void rumbleTrigger(RumbleOn command){

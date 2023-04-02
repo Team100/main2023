@@ -19,9 +19,9 @@ public class DriveSlow extends CommandBase {
     public void execute() {
 
         m_robotDrive.driveFine(
-                MathUtil.applyDeadband(m_control.xSpeed(), .05),
-                MathUtil.applyDeadband(m_control.ySpeed(), .05),
-                MathUtil.applyDeadband(m_control.rotSpeed(), .05),
+                MathUtil.applyDeadband(m_control.xSpeed()/2, .02),
+                MathUtil.applyDeadband(m_control.ySpeed()/2, .02),
+                MathUtil.applyDeadband(m_control.rotSpeed()/2, .02),
                 true);
     }
 }

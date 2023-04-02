@@ -10,6 +10,7 @@ import edu.wpi.first.util.sendable.Sendable;
 import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.I2C;
 import edu.wpi.first.wpilibj.SerialPort;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 /** Add your docs here. */
@@ -21,12 +22,19 @@ public class AHRSClass implements Sendable {
     private boolean gyro2Connected = true;
     private float gyroZOffset_I2C;
     private float gyroZOffset_USB;
+
+    // Timer m_timer;
     public AHRSClass() {
+
+        // m_timer.restart();
+
         m_gyro1 = new AHRS(SerialPort.Port.kUSB);
         m_gyro2 = new AHRS(I2C.Port.kMXP);
         m_gyro1.enableBoardlevelYawReset(true);
         m_gyro2.enableBoardlevelYawReset(true);
-         while (m_gyro1.isConnected() && m_gyro1.isCalibrating() || m_gyro2.isConnected() && m_gyro2.isCalibrating()) {
+        m_gyro1.zeroYaw();
+        m_gyro2.zeroYaw();  
+         while (m_gyro1.isConnected() && m_gyro1.isCalibrating() || m_gyro2.isConnected() && m_gyro2.isCalibrating()  ) {
     //    System.out.println("Waiting for calibration to finish");  
          }
         m_gyro1.calibrate();
@@ -165,13 +173,17 @@ public class AHRSClass implements Sendable {
         builder.addDoubleProperty("Gyro 1 Fused (deg)", () -> m_gyro1.getFusedHeading(), null);
         builder.addDoubleProperty("Gyro 2 Fused (deg)", () -> m_gyro2.getFusedHeading(), null);
         builder.addDoubleProperty("Gyro Redundant Rate (rad/s)", () -> getRedundantGyroRate(), null);
-        builder.addDoubleProperty("Gyro Yaw", () -> getRedundantYaw(), null);
+        builder.addDoubleProperty("Gyro Redundant Yaw", () -> getRedundantYaw(), null);
+        builder.addDoubleProperty("Gyro 1 Yaw", () -> m_gyro1.getYaw(), null);
+        builder.addDoubleProperty("Gyro 2 Yaw", () -> m_gyro2.getYaw(), null);
         builder.addDoubleProperty("Gyro 1 Angle Mod 360 (deg)", () -> m_gyro1.getAngle() % 360, null);
         builder.addDoubleProperty("Gyro 2 Angle Mod 360 (deg)", () -> m_gyro2.getAngle() % 360, null);
         builder.addDoubleProperty("Gyro 1 Compass Heading (deg)", () -> m_gyro1.getCompassHeading(), null);
         builder.addDoubleProperty("Gyro 2 Compass Heading (deg)", () -> m_gyro2.getCompassHeading(), null);
         builder.addBooleanProperty("Gyro 1 Connected", () -> gyro1Connected, null);
         builder.addBooleanProperty("Gyro 2 Connected", () -> gyro2Connected, null);
+        builder.addBooleanProperty("Gyro 1 Connected Raw", () -> m_gyro1.isConnected(), null);
+        builder.addBooleanProperty("Gyro 2 Connected Raw", () -> m_gyro2.isConnected(), null);
         builder.addBooleanProperty("Any Gyros Working", () -> gyrosWorking, null);
         }
 }

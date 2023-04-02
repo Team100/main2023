@@ -77,9 +77,9 @@ public class ArmTrajectory extends CommandBase {
 
         // Cone
         InverseKinematicsAngle highGoalCone = new InverseKinematicsAngle(1.141496, 0.533380); // tuned for our mock up
-        InverseKinematicsAngle midGoalCone = new InverseKinematicsAngle(1.53, 0.18); //not real
+        InverseKinematicsAngle midGoalCone = new InverseKinematicsAngle(1.465381, 0.018905); //not real
         InverseKinematicsAngle lowGoalCone = new InverseKinematicsAngle(2.21, 0); // not real
-        InverseKinematicsAngle subCone = new InverseKinematicsAngle(1.512406, 0.006089); // tuned for our mock up
+        InverseKinematicsAngle subCone = new InverseKinematicsAngle(1.440255, 0.006418); // tuned for our mock up
 
         // Cube
         InverseKinematicsAngle highGoalCube = new InverseKinematicsAngle(1.390242,0.648938); //not real
