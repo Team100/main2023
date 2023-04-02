@@ -40,6 +40,7 @@ import frc.robot.commands.ResetPose;
 import frc.robot.commands.ResetRotation;
 import frc.robot.commands.RumbleOn;
 import frc.robot.commands.AutoLevel;
+import frc.robot.commands.DriveMedium;
 import frc.robot.commands.Arm.ArmTrajectory;
 import frc.robot.commands.Arm.DriveToSetpoint;
 import frc.robot.commands.Arm.ManualArm;
@@ -130,6 +131,8 @@ public class RobotContainer implements Sendable {
     public final Rotate rotateCommand;
 
     public static boolean enabled = false;
+
+    public DriveMedium driveMediumCommand;
 
     public RobotContainer() throws IOException {
         // THIS IS FROM BOB'S DELETED CODE
@@ -245,6 +248,8 @@ public class RobotContainer implements Sendable {
 
         rumbleOn = new RumbleOn(control);
 
+        driveMediumCommand = new DriveMedium(m_robotDrive, control);
+
         // control.autoLevel(autoLevel);
         control.driveToLeftGrid(driveToLeftGrid);
         control.driveToCenterGrid(driveToCenterGrid);
@@ -289,6 +294,8 @@ public class RobotContainer implements Sendable {
         control.closeSlow(closeSlowCommand);
 
         control.rotate0(rotateCommand);
+
+        control.driveMedium(driveMediumCommand);
 
 
 

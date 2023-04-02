@@ -799,6 +799,44 @@ public class SwerveDriveSubsystem extends SubsystemBase {
         m_rearRight.setDesiredState(swerveModuleStates[3]);
     }
 
+    public void driveMedium(double xSpeed, double ySpeed, double rot, boolean fieldRelative) {
+
+        double kMaxSpeed = 2;
+        double kMaxRot = 2;
+        xSpeed = MathUtil.clamp(xSpeed, -1, 1);
+        ySpeed = MathUtil.clamp(ySpeed, -1, 1);
+        rot = MathUtil.clamp(rot, -1, 1);
+        // if (Math.abs(xSpeed) < .01)
+        // xSpeed = 100 * xSpeed * xSpeed * Math.signum(xSpeed);
+         
+        // if (Math.abs(ySpeed) < .01)
+        // ySpeed = 100 * ySpeed * ySpeed * Math.signum(ySpeed);
+        if (Math.abs(rot) < .01)
+            rot = 0;
+        double gyroRate = m_gyro.getRedundantGyroRate() * 0.25;
+        Rotation2d rotation2 = getPose().getRotation().minus(new Rotation2d(gyroRate));
+        desiredChassisSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(kMaxSpeed * xSpeed,
+                kMaxSpeed * ySpeed, kMaxRot * rot,
+                rotation2);
+        // TODO fix fieldRelative making this go crazy when it is off
+        var swerveModuleStates = kDriveKinematics.toSwerveModuleStates(
+                fieldRelative
+                        ? desiredChassisSpeeds
+                        : new ChassisSpeeds(kMaxSpeed * xSpeed, kMaxSpeed * ySpeed,
+                                kMaxRot * rot));
+
+        SwerveDriveKinematics.desaturateWheelSpeeds(
+                swerveModuleStates, kMaxSpeed);
+
+        getRobotVelocity(swerveModuleStates);
+
+        m_frontLeft.setDesiredState(swerveModuleStates[0]);
+        // System.out.println(desiredChassisSpeeds);
+        m_frontRight.setDesiredState(swerveModuleStates[1]);
+        m_rearLeft.setDesiredState(swerveModuleStates[2]);
+        m_rearRight.setDesiredState(swerveModuleStates[3]);
+    }
+
     public void setModuleStates(SwerveModuleState[] desiredStates) {
         SwerveDriveKinematics.desaturateWheelSpeeds(
                 desiredStates, kMaxSpeedMetersPerSecond);

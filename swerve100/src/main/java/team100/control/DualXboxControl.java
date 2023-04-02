@@ -11,6 +11,7 @@ import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import frc.robot.autonomous.DriveToWaypoint2;
 import frc.robot.autonomous.Rotate;
 import frc.robot.commands.AutoLevel;
+import frc.robot.commands.DriveMedium;
 import frc.robot.commands.DriveSlow;
 import frc.robot.commands.GoalOffset;
 import frc.robot.commands.ResetPose;
@@ -137,7 +138,9 @@ public class DualXboxControl implements Sendable {
     }
 
     public void defense(Defense defense) {
-        controller0.rightBumper().whileTrue(defense);
+        JoystickButton button = new JoystickButton(controller0.getHID(), 10);
+
+        button.whileTrue(defense);
     }
 
     public void rumbleOn() {
@@ -158,6 +161,10 @@ public class DualXboxControl implements Sendable {
     public void rotate0(Rotate command){
         JoystickButton button = new JoystickButton(controller0.getHID(), 9);
         button.whileTrue(command);
+    }
+
+    public void driveMedium(DriveMedium command){
+        controller0.rightBumper().whileTrue(command);
     }
 
     ///////////////////////////////
