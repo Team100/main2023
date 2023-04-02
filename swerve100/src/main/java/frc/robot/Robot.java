@@ -4,6 +4,7 @@ import java.io.IOException;
 
 import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.cscore.UsbCamera;
+import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.util.WPILibVersion;
@@ -14,6 +15,11 @@ import team100.config.Identity;
 public class Robot extends TimedRobot {
     private Command m_autonomousCommand;
     UsbCamera manipulatorCamera;
+
+    private final DigitalInput auto1 = new DigitalInput(0);
+    private DigitalInput auto2 = new DigitalInput(1);
+    private DigitalInput auto4 = new DigitalInput(2);
+    private DigitalInput auto8 = new DigitalInput(3);
 
     private RobotContainer m_robotContainer;
 
@@ -31,6 +37,8 @@ public class Robot extends TimedRobot {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+        
+        
     }
 
     @Override
@@ -49,9 +57,20 @@ public class Robot extends TimedRobot {
     public void disabledPeriodic() {
     }
 
+    private int getAutoSwitchValue() {
+        int val = 0;
+        for (DigitalInput s : new DigitalInput[]{auto8, auto4, auto2, auto1}) {
+            val <<= 1;
+            val += s.get() ? 1 : 0;
+        }
+
+        return val;
+    }
+
     @Override
     public void autonomousInit() {
-        m_autonomousCommand = m_robotContainer.getAutonomousCommand2();
+        int routine = getAutoSwitchValue();
+        m_autonomousCommand = m_robotContainer.getAutonomousCommand2(routine);
 
         if (m_autonomousCommand != null) {
             m_autonomousCommand.schedule();
