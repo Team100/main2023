@@ -77,13 +77,13 @@ public class ArmTrajectory extends CommandBase {
 
         // Cone
         InverseKinematicsAngle highGoalCone = new InverseKinematicsAngle(1.141496, 0.533380); // tuned for our mock up
-        InverseKinematicsAngle midGoalCone = new InverseKinematicsAngle(1.53, 0.18); //not real
+        InverseKinematicsAngle midGoalCone = new InverseKinematicsAngle(1.465381, 0.018905); //not real
         InverseKinematicsAngle lowGoalCone = new InverseKinematicsAngle(2.21, 0); // not real
-        InverseKinematicsAngle subCone = new InverseKinematicsAngle(1.512406, 0.006089); // tuned for our mock up
+        InverseKinematicsAngle subCone = new InverseKinematicsAngle(1.360337, -0.030528); // tuned for our mock up
 
         // Cube
         InverseKinematicsAngle highGoalCube = new InverseKinematicsAngle(1.390242,0.648938); //not real
-        InverseKinematicsAngle midGoalCube = new InverseKinematicsAngle(1.91, 0.19); //not real
+        InverseKinematicsAngle midGoalCube = new InverseKinematicsAngle(1.702710, 0.409309); //not real
         InverseKinematicsAngle lowGoalCube = new InverseKinematicsAngle(2.271662, -0.049849); //not real
         InverseKinematicsAngle subCube = new InverseKinematicsAngle(1.575104   , -0.064480);//not real
         InverseKinematicsAngle subToCube = new InverseKinematicsAngle(1.100452, -0.734924);//not real
@@ -95,7 +95,7 @@ public class ArmTrajectory extends CommandBase {
 
         InverseKinematicsAngle safeBack = new InverseKinematicsAngle(1.97, -0.55);
 
-        InverseKinematicsAngle safeGoalCone = new InverseKinematicsAngle(1.921083, -0.757354); //not real
+        InverseKinematicsAngle safeGoalCone = new InverseKinematicsAngle(1.684286, -0.403670); //not real
 
     
         InverseKinematicsAngle safeGoalCube = new InverseKinematicsAngle(1.921083, -0.757354); //not real

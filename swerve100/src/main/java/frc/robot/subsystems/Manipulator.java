@@ -4,6 +4,8 @@
 
 package frc.robot.subsystems;
 
+import com.ctre.phoenix.motorcontrol.NeutralMode;
+
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.AnalogEncoder;
@@ -33,7 +35,7 @@ public class Manipulator extends SubsystemBase {
     // .withSensorPhase(Constants.DrivetrainConstants.DrivetrainMotors.LeftMaster.SENSOR_PHASE)
     .withPeakOutputForward(1)
     .withPeakOutputReverse(-1)
-    //.withNeutralMode(Constants.DrivetrainConstants.DrivetrainMotors.LeftMaster.NEUTRAL_MODE)
+    .withNeutralMode(NeutralMode.Brake)
     .withCurrentLimitEnabled(true)
     //.withCurrentLimit(7)
     .build();

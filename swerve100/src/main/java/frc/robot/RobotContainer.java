@@ -30,6 +30,7 @@ import frc.robot.autonomous.Circle;
 import frc.robot.autonomous.DriveToAprilTag;
 import frc.robot.autonomous.DriveToWaypoint2;
 import frc.robot.autonomous.MoveToAprilTag;
+import frc.robot.autonomous.Rotate;
 import frc.robot.autonomous.SanjanAutonomous;
 import frc.robot.autonomous.VasiliAutonomous;
 import frc.robot.commands.DriveRotation;
@@ -39,6 +40,7 @@ import frc.robot.commands.ResetPose;
 import frc.robot.commands.ResetRotation;
 import frc.robot.commands.RumbleOn;
 import frc.robot.commands.AutoLevel;
+import frc.robot.commands.DriveMedium;
 import frc.robot.commands.Arm.ArmTrajectory;
 import frc.robot.commands.Arm.DriveToSetpoint;
 import frc.robot.commands.Arm.ManualArm;
@@ -126,7 +128,11 @@ public class RobotContainer implements Sendable {
 
     public final RumbleOn rumbleOn;
 
+    public final Rotate rotateCommand;
+
     public static boolean enabled = false;
+
+    public DriveMedium driveMediumCommand;
 
     public RobotContainer() throws IOException {
         // THIS IS FROM BOB'S DELETED CODE
@@ -218,6 +224,8 @@ public class RobotContainer implements Sendable {
 
         closeSlowCommand = new CloseSlow(manipulator);
 
+        rotateCommand = new Rotate(m_robotDrive, 0);
+
 
         driveWithHeading = new DriveWithHeading(
                 m_robotDrive,
@@ -239,6 +247,8 @@ public class RobotContainer implements Sendable {
         ledOn = new LedOn(illuminator);
 
         rumbleOn = new RumbleOn(control);
+
+        driveMediumCommand = new DriveMedium(m_robotDrive, control);
 
         // control.autoLevel(autoLevel);
         control.driveToLeftGrid(driveToLeftGrid);
@@ -282,6 +292,10 @@ public class RobotContainer implements Sendable {
         control.rumbleTrigger(rumbleOn);
 
         control.closeSlow(closeSlowCommand);
+
+        control.rotate0(rotateCommand);
+
+        control.driveMedium(driveMediumCommand);
 
 
 
