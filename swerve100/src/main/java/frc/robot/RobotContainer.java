@@ -23,6 +23,7 @@ import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+import edu.wpi.first.wpilibj2.command.SwerveControllerCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.autonomous.Autonomous;
@@ -70,6 +71,8 @@ public class RobotContainer implements Sendable {
     
 
     // CONFIG
+
+    
     private final DriverStation.Alliance m_alliance;
 
     // SUBSYSTEMS
@@ -107,6 +110,8 @@ public class RobotContainer implements Sendable {
     private final ArmTrajectory armSafeBack;
     private final ArmTrajectory armToSub;
     private final ArmTrajectory armMid;
+    private final ArmTrajectory armSafeWaypoint;
+    // private final ArmTrajectory armSafeWaypoint;
 
     private final Illuminator illuminator;
 
@@ -133,6 +138,8 @@ public class RobotContainer implements Sendable {
     public static boolean enabled = false;
 
     public DriveMedium driveMediumCommand;
+
+
 
     public RobotContainer() throws IOException {
         // THIS IS FROM BOB'S DELETED CODE
@@ -226,6 +233,8 @@ public class RobotContainer implements Sendable {
 
         rotateCommand = new Rotate(m_robotDrive, 0);
 
+        armSafeWaypoint = new ArmTrajectory(ArmPosition.SAFEWAYPOINT, armController);
+
 
         driveWithHeading = new DriveWithHeading(
                 m_robotDrive,
@@ -234,7 +243,8 @@ public class RobotContainer implements Sendable {
                 control::desiredRotation,
                 control::rotSpeed,
                 "",
-                ahrsclass);
+                ahrsclass,
+                armController);
 
         driveRotation = new DriveRotation(m_robotDrive, control::rotSpeed);
 
@@ -297,6 +307,14 @@ public class RobotContainer implements Sendable {
 
         control.driveMedium(driveMediumCommand);
 
+        // control.armSubSafe(armSubSafe);
+
+        control.armSafe(armSafe);
+
+        control.safeWaypoint(armSafeWaypoint);
+
+        // control.armSafeSequential(armSafeWaypoint, armSafe);
+
 
 
 
@@ -328,13 +346,13 @@ public class RobotContainer implements Sendable {
 
     
 
-    public Command getAutonomousCommand2() {
+    public Command getAutonomousCommand2(int routine, boolean isBlueAlliance) {
         // return new SequentialCommandGroup(
         // new IshanAutonomous(m_robotDrive),
         // new IshanAutonomous(m_robotDrive)
         // );
 
-        return new VasiliAutonomous(m_robotDrive, ahrsclass);
+        return new VasiliAutonomous(m_robotDrive, ahrsclass, armController, manipulator);
 
         // return new SanjanAutonomous(AutonSelect.BLUE1, m_robotDrive, armController, manipulator);
         // return new Autonomous(AutonSelect.BLUE2, AutonGamePiece.CONE, m_robotDrive, armController, manipulator);

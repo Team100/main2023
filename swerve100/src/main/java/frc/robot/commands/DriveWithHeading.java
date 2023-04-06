@@ -15,6 +15,7 @@ import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.SwerveDriveSubsystem;
+import frc.robot.subsystems.Arm.ArmController;
 import frc.robot.subsystems.AHRSClass;
 
 public class DriveWithHeading extends CommandBase {
@@ -39,13 +40,17 @@ public class DriveWithHeading extends CommandBase {
     double yOutput;
     double thetaControllerOutput;
 
+    ArmController m_arm;
+
     public DriveWithHeading(SwerveDriveSubsystem robotDrive, DoubleSupplier xSpeed, DoubleSupplier ySpeed,
-            Supplier<Rotation2d> desiredRotation, DoubleSupplier rotSpeed, String name, AHRSClass gyro) {
+            Supplier<Rotation2d> desiredRotation, DoubleSupplier rotSpeed, String name, AHRSClass gyro, ArmController arm) {
         // Use addRequirements() here to declare subsystem dependencies.
         m_gyro = gyro;
         m_robotDrive = robotDrive;
         m_headingController = m_robotDrive.headingController;
         m_desiredRotation = desiredRotation;
+
+        m_arm = arm;
 
         lastRotationSetpoint = new Rotation2d(0);
 
@@ -101,17 +106,24 @@ public class DriveWithHeading extends CommandBase {
 
         } else {
             snapMode = false;
-            thetaOuput = rotDBRemoved*kSpeedModifier;
+            thetaOuput = (rotDBRemoved/2)*kSpeedModifier;
             desiredRotation = currentRads;
         }
 
-        m_robotDrive.driveWithHeading(xDBRemoved * kSpeedModifier, yDBRemoved * kSpeedModifier, thetaOuput, true);
+        // if(m_arm.getLowerArm() >=0.2){
+            m_robotDrive.driveWithHeading(xDBRemoved * kSpeedModifier, yDBRemoved * kSpeedModifier, thetaOuput, true);
+        // } else {
+            // m_robotDrive.driveWithHeading(xDBRemoved * kSpeedModifier, yDBRemoved * kSpeedModifier, thetaOuput, true);
+
+        // }
+
         lastRotationSetpoint = new Rotation2d(desiredRotation);
     }
 
     // Called once the command ends or is interrupted.
     @Override
     public void end(boolean interrupted) {
+        snapMode = false;
     }
 
     // Returns true when the command should end.

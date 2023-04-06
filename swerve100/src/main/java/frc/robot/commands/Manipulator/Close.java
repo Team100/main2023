@@ -47,11 +47,14 @@ public class Close extends CommandBase {
 
     // System.out.println("YOOOOO");
 
-    // if(m_manipulator.hasGamepiece() == false){
-        m_manipulator.pinch(-0.5);
-    // } else {
-        // m_manipulator.pinch.motor.configPeakCurrentLimit(5);
-    // }
+    if(m_manipulator.hasGamepiece() == false){
+        m_manipulator.pinch(-0.8);
+    } else {
+        System.out.println("YESSS");
+        m_manipulator.pinch.motor.configPeakCurrentLimit(7);
+        m_manipulator.pinch(-0.2);
+
+    }
 
 
   }
@@ -59,6 +62,8 @@ public class Close extends CommandBase {
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
+    m_manipulator.pinch(0);
+
     m_manipulator.pinch.motor.configPeakCurrentLimit(30);
   }
 

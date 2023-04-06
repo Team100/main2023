@@ -21,6 +21,9 @@ public class Robot extends TimedRobot {
     private DigitalInput auto4 = new DigitalInput(2);
     private DigitalInput auto8 = new DigitalInput(3);
 
+    private DigitalInput alliance1 = new DigitalInput(4);
+    private DigitalInput alliance2 = new DigitalInput(5);
+
     private RobotContainer m_robotContainer;
 
     @Override
@@ -67,10 +70,30 @@ public class Robot extends TimedRobot {
         return val;
     }
 
+
+    private boolean getAlliance() {
+        int val = 0;
+        for (DigitalInput s : new DigitalInput[]{alliance2, alliance1}) {
+            val <<= 1;
+            val += s.get() ? 1 : 0;
+        }
+
+        //0 is redAlliance
+        if(val == 0){
+            return false;
+        }
+
+
+
+        return true;
+    }
+
+
     @Override
     public void autonomousInit() {
         int routine = getAutoSwitchValue();
-        m_autonomousCommand = m_robotContainer.getAutonomousCommand2(routine);
+        boolean isBlueAlliance = getAlliance();
+        m_autonomousCommand = m_robotContainer.getAutonomousCommand2(routine, isBlueAlliance);
 
         if (m_autonomousCommand != null) {
             m_autonomousCommand.schedule();

@@ -2,6 +2,7 @@ package frc.robot.subsystems.turning;
 
 import com.ctre.phoenix.ErrorCode;
 import com.ctre.phoenix.motorcontrol.InvertType;
+import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.StatorCurrentLimitConfiguration;
 import com.ctre.phoenix.motorcontrol.SupplyCurrentLimitConfiguration;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
@@ -19,6 +20,7 @@ public class FalconTurningMotor implements TurningMotor {
     public FalconTurningMotor(String name, int canId) {
         m_motor = new WPI_TalonFX(canId);
         require(m_motor.configFactoryDefault());
+        m_motor.setNeutralMode(NeutralMode.Brake);
         m_motor.setInverted(InvertType.InvertMotorOutput);
         require(m_motor.configStatorCurrentLimit(
                 new StatorCurrentLimitConfiguration(true, kTurningCurrentLimit, kTurningCurrentLimit, 0)));

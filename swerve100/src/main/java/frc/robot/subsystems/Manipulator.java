@@ -44,12 +44,12 @@ public class Manipulator extends SubsystemBase {
     // pinch.motor.configContinuousCurrentLimit(1);
 
     // pinch.motor.configPeakCurrentDuration(0)
-    // pinch.motor.configPeakCurrentDuration(1000);
+    pinch.motor.configPeakCurrentDuration(1000);
 
     // pinch.motor.enableCurrentLimit(true);
     // pinch.motor.enableCont
     // pinch.motor.configCurrent
-
+    // mconfigPeakCurrentDuration
     
     gamepieceLocator = new GamepieceLocator();
   

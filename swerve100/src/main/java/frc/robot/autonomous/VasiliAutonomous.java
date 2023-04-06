@@ -3,10 +3,18 @@ package frc.robot.autonomous;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.spline.Spline;
 import edu.wpi.first.math.trajectory.TrajectoryGenerator.ControlVectorList;
+import edu.wpi.first.wpilibj2.command.ParallelDeadlineGroup;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.commands.AutoLevel;
+import frc.robot.commands.Arm.ArmTrajectory;
+import frc.robot.commands.Arm.SetCubeMode;
+import frc.robot.commands.Manipulator.Close;
 import frc.robot.subsystems.AHRSClass;
+import frc.robot.subsystems.Manipulator;
 import frc.robot.subsystems.SwerveDriveSubsystem;
+import frc.robot.subsystems.Arm.ArmController;
+import frc.robot.subsystems.Arm.ArmPosition;
 
 public class VasiliAutonomous extends SequentialCommandGroup {
 
@@ -14,7 +22,7 @@ public class VasiliAutonomous extends SequentialCommandGroup {
 
     
     /** Creates a new autonomous. */
-    public VasiliAutonomous(SwerveDriveSubsystem m_robotDrive, AHRSClass m_gyro) {
+    public VasiliAutonomous(SwerveDriveSubsystem m_robotDrive, AHRSClass m_gyro, ArmController m_arm, Manipulator m_manipulator) {
         // Add your commands in the addCommands() call, e.g.
         // addCommands(new FooCommand(), new BarCommand());
         // Rotation2d desiredRots = new Rotation2d(Math.PI);
@@ -87,13 +95,18 @@ public class VasiliAutonomous extends SequentialCommandGroup {
                 //                 "output/GoBackToStation(x).wpilib.json")
                 // new Rotate(m_robotDrive, 0)
 
+                new SetCubeMode(m_arm, m_robotDrive),
+                new ParallelDeadlineGroup(new WaitCommand(3), new ArmTrajectory(ArmPosition.HIGH, m_arm)),
+                new ParallelDeadlineGroup(new WaitCommand(2), new Close(m_manipulator)),
+                new ParallelDeadlineGroup(new WaitCommand(2), new ArmTrajectory(ArmPosition.SAFE, m_arm)),
+
                 VasiliWaypointTrajectory
                         .newMoveFromStartingPoseToGamePiece(
                                 m_robotDrive,
                                 controlVectors,
                                 () -> new Rotation2d(Math.PI),
                                 m_gyro,
-                                "output/Charge(x).wpilib.json"),
+                                "output/Red1ToCharge.wpilib.json"),
 
                 new AutoLevel(true, m_robotDrive, m_gyro)
         );

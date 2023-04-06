@@ -46,7 +46,9 @@ public class AutoLevel extends CommandBase {
         
                if(Math.abs(Roll) > 2.5 || Math.abs(Pitch) > 2.5){   
                 count = 0;
-                m_robotDrive.driveSlow(drivePitchAmount, -driveRollAmount, 0, false);     
+                // m_robotDrive.driveSlow(drivePitchAmount, -driveRollAmount, 0, false);     
+                m_robotDrive.driveSlow(drivePitchAmount, 0, 0, false);     
+
                } else{
                 count++;
                }

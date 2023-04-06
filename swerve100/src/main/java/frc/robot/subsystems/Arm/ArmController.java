@@ -34,6 +34,8 @@ public class ArmController extends SubsystemBase {
 
     private final AnalogEncoder upperArmEncoder = new AnalogEncoder(5);
 
+    public double softStop = -0.594938;
+
     public ArmController() {
         // TrapezoidProfile.Constraints constraints = new TrapezoidProfile.Constraints(
         //         0.3, // velocity rad/s
@@ -176,10 +178,10 @@ public class ArmController extends SubsystemBase {
      * @return lower arm angle
      */
     public double getLowerArm() {
-        double x = (lowerArmEncoder.getAbsolutePosition() - 0.487101) * 360;
+        double x = (lowerArmEncoder.getAbsolutePosition() - 0.838144) * 360;
         double formatted = x;
         // * Math.PI / 180;
-        return (-1 * formatted) * Math.PI / 180;
+        return (-1.0 * formatted) * Math.PI / 180;
     }
 
     /**
@@ -190,7 +192,7 @@ public class ArmController extends SubsystemBase {
      */
     public double getUpperArm() {
         // double x = (upperArmEncoder.getAbsolutePosition() - 0.53) * 350 + 3;
-        double x = (upperArmEncoder.getAbsolutePosition() - 0.257182) * 350;
+        double x = (upperArmEncoder.getAbsolutePosition() - 0.265428) * 350;
         double formatted = x;
 
         return formatted * Math.PI / 180;
@@ -205,11 +207,34 @@ public class ArmController extends SubsystemBase {
     }
 
     public void setLowerArm(double x) {
+
+        if(getLowerArm() <= softStop && x < 0){
+            lowerArmMotor.motor.set(x);
+        } else {
+            lowerArmMotor.motor.set(0);
+
+        }
         lowerArmMotor.motor.set(x);
     }
 
     public void setUpperArm(double x) {
         upperArmMotor.motor.set(x);
+    }
+
+    public void driveLowerArm(double x) {
+        lowerArmMotor.motor.setVoltage(12* x);
+    }
+
+    public void driveUpperArm(double x) {
+        upperArmMotor.motor.set(12 * x);
+    }
+
+    public double getUpperArmRel() {
+        return upperArmMotor.getSelectedSensorPosition();
+    }
+
+    public double getLowerArmRel() {
+        return lowerArmMotor.getSelectedSensorPosition();
     }
 
 
@@ -233,6 +258,7 @@ public class ArmController extends SubsystemBase {
         builder.addDoubleProperty("Upper Angle Setpoint", () -> upperAngleSetpoint, null);
         builder.addDoubleProperty("Lower Angle Setpoint", () -> lowerAngleSetpoint, null);
         builder.addBooleanProperty("Cube Mode", () -> cubeMode, null);
+        builder.addDoubleProperty("Upper Arm Relative", () -> getUpperArmRel(), null);
 
     }
 

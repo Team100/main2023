@@ -44,9 +44,9 @@ public class SwerveModuleFactory {
 
         // TURNING PID
         ProfiledPIDController turningController = new ProfiledPIDController(
-                0.5, // kP: low P because not much reduction gearing.
-                0.0, // kI
-                0.0, // kD
+                1, // kP: low P because not much reduction gearing.
+                1, // kI
+                0, // kD
                 new TrapezoidProfile.Constraints( //
                         20 * Math.PI, // max angular speed radians/sec
                         20 * Math.PI)); // max accel radians/sec/sec
