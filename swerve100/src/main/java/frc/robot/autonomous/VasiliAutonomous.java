@@ -103,7 +103,6 @@ public class VasiliAutonomous extends SequentialCommandGroup {
                 VasiliWaypointTrajectory
                         .newMoveFromStartingPoseToGamePiece(
                                 m_robotDrive,
-                                controlVectors,
                                 () -> new Rotation2d(Math.PI),
                                 m_gyro,
                                 "output/Red1ToCharge.wpilib.json"),
