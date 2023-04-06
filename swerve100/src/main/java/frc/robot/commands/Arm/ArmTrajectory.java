@@ -36,6 +36,9 @@ public class ArmTrajectory extends CommandBase {
     private final PIDController upperController;
     private final PIDController lowerController;
 
+    private final PIDController upperDownController;
+    private final PIDController lowerDownController;
+
     private Trajectory m_trajectory;
 
     private final TrajectoryConfig trajecConfig;
@@ -46,6 +49,8 @@ public class ArmTrajectory extends CommandBase {
     // Pose2d m_goal;
     ArmController m_arm;
     private ArmPosition m_position;
+
+    private boolean isSafeWaypoint = false;
 
     public ArmTrajectory(ArmPosition position, ArmController arm) {
         // Use addRequirements() here to declare subsystem dependencies.
@@ -59,13 +64,19 @@ public class ArmTrajectory extends CommandBase {
         //         3 // accel rad/s^2
         // );
 
-        upperController = new PIDController(3, 0, 0);
-        lowerController = new PIDController(3, 0, 0);
+        upperController = new PIDController(4, 0.2, 0.05);
+        lowerController = new PIDController(3, 0, 0.1);
+
+        upperDownController = new PIDController(2.5, 0, 0);
+        lowerDownController = new PIDController(2.5, 0, 0);
+
+        upperController.setTolerance(0.001);
+        lowerController.setTolerance(0.001);
 
         if (m_position != ArmPosition.SAFE) {
-            trajecConfig = new TrajectoryConfig(12, 2);
+            trajecConfig = new TrajectoryConfig(12, 2  );
         } else {
-            trajecConfig = new TrajectoryConfig(12, 1);
+            trajecConfig = new TrajectoryConfig(9, 1.5);
         }
 
         addRequirements(m_arm);
@@ -77,15 +88,15 @@ public class ArmTrajectory extends CommandBase {
 
         // Cone
         InverseKinematicsAngle highGoalCone = new InverseKinematicsAngle(1.141496, 0.533380); // tuned for our mock up
-        InverseKinematicsAngle midGoalCone = new InverseKinematicsAngle(1.465381, 0.018905); //not real
+        InverseKinematicsAngle midGoalCone = new InverseKinematicsAngle(1.545253, 0.275188); //not real
         InverseKinematicsAngle lowGoalCone = new InverseKinematicsAngle(2.21, 0); // not real
-        InverseKinematicsAngle subCone = new InverseKinematicsAngle(1.360337, -0.030528); // tuned for our mock up
+        InverseKinematicsAngle subCone = new InverseKinematicsAngle(1.408241, -0.006084); // tuned for our mock up
 
         // Cube
-        InverseKinematicsAngle highGoalCube = new InverseKinematicsAngle(1.390242,0.648938); //not real
-        InverseKinematicsAngle midGoalCube = new InverseKinematicsAngle(1.702710, 0.409309); //not real
+        InverseKinematicsAngle highGoalCube = new InverseKinematicsAngle(1.206391,0.526467); //not real
+        InverseKinematicsAngle midGoalCube = new InverseKinematicsAngle(1.687309, 0.150418); //not real
         InverseKinematicsAngle lowGoalCube = new InverseKinematicsAngle(2.271662, -0.049849); //not real
-        InverseKinematicsAngle subCube = new InverseKinematicsAngle(1.575104   , -0.064480);//not real
+        InverseKinematicsAngle subCube = new InverseKinematicsAngle(1.480104   , -0.04);//not real
         InverseKinematicsAngle subToCube = new InverseKinematicsAngle(1.100452, -0.734924);//not real
 
         //Auton
@@ -95,15 +106,21 @@ public class ArmTrajectory extends CommandBase {
 
         InverseKinematicsAngle safeBack = new InverseKinematicsAngle(1.97, -0.55);
 
-        InverseKinematicsAngle safeGoalCone = new InverseKinematicsAngle(1.684286, -0.403670); //not real
+        InverseKinematicsAngle safeGoalCone = new InverseKinematicsAngle(1.838205, -0.639248); //not real
 
     
-        InverseKinematicsAngle safeGoalCube = new InverseKinematicsAngle(1.921083, -0.757354); //not real
+        InverseKinematicsAngle safeGoalCube = new InverseKinematicsAngle(1.680436, -0.298320); //not real
 
         
-        InverseKinematicsAngle safeWaypoint = m_arm.calculate(0.7, 0.44);
+        InverseKinematicsAngle safeWaypoint = new InverseKinematicsAngle(1.226285, -0.394089); //not real
+
+
+
+        InverseKinematicsAngle subSafeWaypoint = m_arm.calculate(1.329387, -0.238770);
 
         // boolean notSafe = true;
+
+        isSafeWaypoint = false;
 
         try{
 
@@ -129,6 +146,17 @@ public class ArmTrajectory extends CommandBase {
                 // return null;
             }
 
+            if(m_position == ArmPosition.SAFEWAYPOINT){
+                isSafeWaypoint = true;
+
+                return TrajectoryGenerator.generateTrajectory(
+                        new Pose2d(m_arm.getUpperArm(), m_arm.getLowerArm(), Rotation2d.fromDegrees(-180)),
+                        List.of(),
+                        new Pose2d(safeWaypoint.upperTheta, safeWaypoint.lowerTheta, Rotation2d.fromDegrees(-180)),
+                        trajecConfig);
+
+            }
+
             if (m_position == ArmPosition.HIGH) {
                 return TrajectoryGenerator.generateTrajectory(
                         new Pose2d(m_arm.getUpperArm(), m_arm.getLowerArm(), new Rotation2d(Math.PI / 2)),
@@ -145,7 +173,7 @@ public class ArmTrajectory extends CommandBase {
                 return TrajectoryGenerator.generateTrajectory(
                         new Pose2d(m_arm.getUpperArm(), m_arm.getLowerArm(), new Rotation2d(Math.PI / 2)),
                         List.of(),
-                        new Pose2d(autonGrab.upperTheta, autonGrab.lowerTheta, new Rotation2d(Math.PI / 2)),
+                        new Pose2d(midGoalCone.upperTheta, midGoalCone.lowerTheta, new Rotation2d(Math.PI / 2)),
                         trajecConfig);
             } else if (m_position == ArmPosition.LOW) {
                 return TrajectoryGenerator.generateTrajectory(
@@ -176,6 +204,16 @@ public class ArmTrajectory extends CommandBase {
                         trajecConfig);
     
                 // return null;
+            }
+
+            if(m_position == ArmPosition.SAFEWAYPOINT){
+
+                isSafeWaypoint = true;
+                return TrajectoryGenerator.generateTrajectory(
+                        new Pose2d(m_arm.getUpperArm(), m_arm.getLowerArm(), Rotation2d.fromDegrees(-180)),
+                        List.of(),
+                        new Pose2d(safeWaypoint.upperTheta, safeWaypoint.lowerTheta, Rotation2d.fromDegrees(-180)),
+                        trajecConfig);
             }
 
             if (m_position == ArmPosition.HIGH) {
@@ -256,21 +294,26 @@ public class ArmTrajectory extends CommandBase {
         double desiredUpper = desiredState.poseMeters.getX();
         double desiredLower = desiredState.poseMeters.getY();
 
-        double upperSpeed = upperController.calculate(m_arm.getUpperArm(), desiredUpper);
-        double lowerSpeed = lowerController.calculate(m_arm.getLowerArm(), desiredLower);
+        double upperSpeed = 0;
+        double lowerSpeed = 0;
 
-        // double uFF =
-        // upperArmFeedforward.calculate(desiredState.velocityMetersPerSecond, 0);
-        // double lFF =
-        // upperArmFeedforward.calculate(desiredState.velocityMetersPerSecond, 0);
+        if(m_position == ArmPosition.SAFE){
+            upperSpeed = upperDownController.calculate(m_arm.getUpperArm(), desiredUpper);
+            lowerSpeed = lowerDownController.calculate(m_arm.getLowerArm(), desiredLower);    
+        } else {
+            upperSpeed = upperController.calculate(m_arm.getUpperArm(), desiredUpper);
+            lowerSpeed = lowerController.calculate(m_arm.getLowerArm(), desiredLower);
+        }
 
+        
         m_arm.setUpperArm(upperSpeed);
         m_arm.setLowerArm(lowerSpeed);
 
         measurmentX.set(m_arm.getUpperArm());
         measurmentY.set(m_arm.getLowerArm());
-        setpointX.set(desiredUpper);
-        setpointY.set(desiredLower);
+
+        setpointUpper.set(desiredUpper);
+        setpointLower.set(desiredLower);
 
     }
 
@@ -279,5 +322,18 @@ public class ArmTrajectory extends CommandBase {
         m_arm.setUpperArm(0);
         m_arm.setLowerArm(0);
     }
+
+    @Override
+    public boolean isFinished() {
+
+        if(isSafeWaypoint){
+            return m_timer.hasElapsed(m_trajectory.getTotalTimeSeconds());
+        } else {
+            return false;
+        }
+        
+    }
+
+
   
 }

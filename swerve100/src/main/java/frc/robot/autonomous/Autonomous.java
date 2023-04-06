@@ -29,70 +29,26 @@ import frc.robot.subsystems.Arm.ArmPosition;
 // https://docs.wpilib.org/en/stable/docs/software/commandbased/convenience-features.html
 public class Autonomous extends SequentialCommandGroup {
   /** Creates a new Autonomous. */
-  public Autonomous(AutonSelect autonProcedure, AutonGamePiece gamePiece, SwerveDriveSubsystem m_robotDrive, ArmController arm, Manipulator m_manipulator, AHRSClass m_gyro) {
+  public Autonomous(SwerveDriveSubsystem m_robotDrive, ArmController arm, Manipulator m_manipulator, AHRSClass m_gyro, int routine, boolean isBlueAlliance) {
     
-    if(autonProcedure == AutonSelect.BLUE2){
+      if(routine == 0){
         addCommands(
-            new SelectGamePiece(gamePiece, arm),
-            new ResetRotation(m_robotDrive, Rotation2d.fromDegrees(180)),
-            new ParallelDeadlineGroup(new WaitCommand(2), new ArmTrajectory(ArmPosition.HIGH, arm)),
-            // new WaitCommand(1),
-            new ParallelDeadlineGroup(new WaitCommand(0.5), new Release(m_manipulator)),
-            new ParallelDeadlineGroup(new WaitCommand(0.5), new Open(m_manipulator)),
-            // new WaitCommand(2),
-            new ParallelRaceGroup(new ArmTrajectory(ArmPosition.SAFE, arm), new WaitCommand(2)),
-            new WaitCommand(0.25),
-            new ResetRotation(m_robotDrive, Rotation2d.fromDegrees(180)),
-            new AutoLevel(false, m_robotDrive, m_gyro)
-            // new ParallelDeadlineGroup(new WaitCommand(4), new DriveToWaypoint3(new Pose2d(m_robotDrive.getPose().getX() + 3, m_robotDrive.getPose().getY(), new Rotation2d()), 0, m_robotDrive))
+          new ResetRotation(m_robotDrive, Rotation2d.fromDegrees(180)),
+          new ParallelDeadlineGroup(new WaitCommand(2), new ArmTrajectory(ArmPosition.HIGH, arm)),
+          // new WaitCommand(1),
+          new ParallelDeadlineGroup(new WaitCommand(0.5), new Release(m_manipulator)),
+          new ParallelDeadlineGroup(new WaitCommand(0.5), new Open(m_manipulator)),
+          // new WaitCommand(2),
+          new ParallelRaceGroup(new ArmTrajectory(ArmPosition.SAFE, arm), new WaitCommand(2)),
+          new WaitCommand(0.25),
+          new ResetRotation(m_robotDrive, Rotation2d.fromDegrees(180)),
+          new AutoLevel(false, m_robotDrive, m_gyro)
         );
-    } else if(autonProcedure == AutonSelect.BLUE1){
-        addCommands(
-            new SelectGamePiece(gamePiece, arm),
-            new ResetRotation(m_robotDrive, Rotation2d.fromDegrees(180)),
-            new WaitCommand(0.5),
-            new ParallelDeadlineGroup(new WaitCommand(2), new ArmTrajectory(ArmPosition.MID, arm)),
-            new WaitCommand(1),
-            new ParallelDeadlineGroup(new WaitCommand(0.5), new Release(m_manipulator)),
-            new ParallelDeadlineGroup(new WaitCommand(1), new Open(m_manipulator)),
-            new WaitCommand(2),
-            new ParallelRaceGroup(new ArmTrajectory(ArmPosition.SAFE, arm), new WaitCommand(1.5)),
-
-
-            // new WaitCommand(1),
-            // new DriveToWaypoint3(new Pose2d(2.15, 4.70, Rotation2d.fromDegrees(-180)), 0, m_robotDrive),
-            // new WaitCommand(2),
-            new DriveToWaypoint3( new Pose2d(5.56, m_robotDrive.getPose().getY(), Rotation2d.fromDegrees(-180)), 0.0, m_robotDrive, m_gyro)
-            // new WaitCommand(2),
-            // new Rotate(m_robotDrive, 0),
-            // new WaitCommand(2),
-            // new DriveToWaypoint3( new Pose2d(5.56, 2.72, Rotation2d.fromDegrees(-180)), 0.0, m_robotDrive),
-            // new WaitCommand(2),
-            // new AutoLevel(true, m_robotDrive.m_gyro, m_robotDrive)
-        );
-    } else if(autonProcedure == AutonSelect.BLUE3){
-        addCommands(
-            new SelectGamePiece(gamePiece, arm),
-            new ResetRotation(m_robotDrive, Rotation2d.fromDegrees(180)),
-            new WaitCommand(0.5),
-            new ParallelDeadlineGroup(new WaitCommand(2), new ArmTrajectory(ArmPosition.HIGH, arm)),
-            new WaitCommand(1),
-            new ParallelDeadlineGroup(new WaitCommand(0.5), new Release(m_manipulator)),
-            new ParallelDeadlineGroup(new WaitCommand(1), new Open(m_manipulator)),
-            new WaitCommand(2),
-            new ParallelRaceGroup(new ArmTrajectory(ArmPosition.SAFE, arm), new WaitCommand(1.5))
-            // new WaitCommand(1),
-            // new DriveToWaypoint3(new Pose2d(2.15, 0.754, Rotation2d.fromDegrees(-180)), 0, m_robotDrive),
-            // new WaitCommand(2),
-            // new DriveToWaypoint3( new Pose2d(5.56, 0.754, Rotation2d.fromDegrees(-180)), 0.0, m_robotDrive),
-            // new WaitCommand(2),
-            // new Rotate(m_robotDrive, 0),
-            // new WaitCommand(2),
-            // new DriveToWaypoint3( new Pose2d(5.56, 2.72, Rotation2d.fromDegrees(-180)), 0.0, m_robotDrive),
-            // new WaitCommand(2),
-            // new AutoLevel(true, m_robotDrive.m_gyro, m_robotDrive)
-        );
-    } 
+      } 
+        
     
+    
+  
   }
+
 }

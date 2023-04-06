@@ -763,7 +763,7 @@ public class SwerveDriveSubsystem extends SubsystemBase {
 
     public void driveFine(double xSpeed, double ySpeed, double rot, boolean fieldRelative) {
 
-        double kMaxSpeed = 0.75;
+        double kMaxSpeed = 0.8;
         double kMaxRot = 0.5;
         xSpeed = MathUtil.clamp(xSpeed, -1, 1);
         ySpeed = MathUtil.clamp(ySpeed, -1, 1);
@@ -801,7 +801,7 @@ public class SwerveDriveSubsystem extends SubsystemBase {
 
     public void driveMedium(double xSpeed, double ySpeed, double rot, boolean fieldRelative) {
 
-        double kMaxSpeed = 2;
+        double kMaxSpeed = 2.5;
         double kMaxRot = 2;
         xSpeed = MathUtil.clamp(xSpeed, -1, 1);
         ySpeed = MathUtil.clamp(ySpeed, -1, 1);

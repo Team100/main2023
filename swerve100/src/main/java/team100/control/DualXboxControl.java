@@ -6,6 +6,7 @@ import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import frc.robot.autonomous.DriveToWaypoint2;
@@ -208,6 +209,16 @@ public class DualXboxControl implements Sendable {
         controller1.povDown().whileTrue(command);
     }
 
+    public void safeWaypoint(ArmTrajectory command) {
+        // SequentialCommandGroup commandGroup = new SequentialCommandGroup(command, comman)
+        controller1.rightBumper().whileTrue(command);
+    }
+
+    public void armSafeSequential(ArmTrajectory command, ArmTrajectory command2) {
+        SequentialCommandGroup commandGroup = new SequentialCommandGroup(command, command2);
+        controller1.povDown().whileTrue(commandGroup);
+    }
+
     public void armSafeBack(ArmTrajectory command) {
         // controller1.leftBumper().whileTrue(command);
     }
@@ -263,6 +274,10 @@ public class DualXboxControl implements Sendable {
 
     public void tapeDetect(DriveToRetroReflectiveTape command){
         // controller1.leftBumper().whileTrue(command);
+    }
+
+    public void armSubSafe(ArmTrajectory command){
+        // controller1.rightBumper().whileTrue(command);
     }
 
     
