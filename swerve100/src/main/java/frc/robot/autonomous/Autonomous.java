@@ -14,6 +14,8 @@ import frc.robot.commands.AutoLevel;
 import frc.robot.commands.ResetRotation;
 import frc.robot.commands.SelectGamePiece;
 import frc.robot.commands.Arm.ArmTrajectory;
+import frc.robot.commands.Arm.SetCubeMode;
+import frc.robot.commands.Manipulator.Close;
 import frc.robot.commands.Manipulator.Open;
 import frc.robot.commands.Manipulator.Release;
 import frc.robot.subsystems.AHRSClass;
@@ -29,22 +31,140 @@ import frc.robot.subsystems.Arm.ArmPosition;
 // https://docs.wpilib.org/en/stable/docs/software/commandbased/convenience-features.html
 public class Autonomous extends SequentialCommandGroup {
   /** Creates a new Autonomous. */
-  public Autonomous(SwerveDriveSubsystem m_robotDrive, ArmController arm, Manipulator m_manipulator, AHRSClass m_gyro, int routine, boolean isBlueAlliance) {
+  public Autonomous(SwerveDriveSubsystem m_robotDrive, ArmController m_arm, Manipulator m_manipulator, AHRSClass m_gyro, int routine, boolean isBlueAlliance) {
     
       if(routine == 0){
         addCommands(
-          new ResetRotation(m_robotDrive, Rotation2d.fromDegrees(180)),
-          new ParallelDeadlineGroup(new WaitCommand(2), new ArmTrajectory(ArmPosition.HIGH, arm)),
-          // new WaitCommand(1),
-          new ParallelDeadlineGroup(new WaitCommand(0.5), new Release(m_manipulator)),
-          new ParallelDeadlineGroup(new WaitCommand(0.5), new Open(m_manipulator)),
-          // new WaitCommand(2),
-          new ParallelRaceGroup(new ArmTrajectory(ArmPosition.SAFE, arm), new WaitCommand(2)),
-          new WaitCommand(0.25),
-          new ResetRotation(m_robotDrive, Rotation2d.fromDegrees(180)),
-          new AutoLevel(false, m_robotDrive, m_gyro)
+            new SetCubeMode(m_arm, m_robotDrive),
+            new ParallelDeadlineGroup(new WaitCommand(3), new ArmTrajectory(ArmPosition.HIGH, m_arm)),
+            new ParallelDeadlineGroup(new WaitCommand(2), new Close(m_manipulator)),
+            new ParallelDeadlineGroup(new WaitCommand(2), new ArmTrajectory(ArmPosition.SAFE, m_arm)),
+            new WaitCommand(0.25),
+            new ResetRotation(m_robotDrive, Rotation2d.fromDegrees(180))
+        //   new AutoLevel(false, m_robotDrive, m_gyro)
         );
-      } 
+      }else if(routine == 1){
+        if(isBlueAlliance){
+            addCommands(
+
+                new SetCubeMode(m_arm, m_robotDrive),
+                new ParallelDeadlineGroup(new WaitCommand(3), new ArmTrajectory(ArmPosition.HIGH, m_arm)),
+                new ParallelDeadlineGroup(new WaitCommand(2), new Close(m_manipulator)),
+                new ParallelDeadlineGroup(new WaitCommand(2), new ArmTrajectory(ArmPosition.SAFE, m_arm)),
+                new WaitCommand(0.25),
+
+                VasiliWaypointTrajectory
+                        .newMoveFromStartingPoseToGamePiece(
+                                m_robotDrive,
+                                () -> new Rotation2d(Math.PI),
+                                m_gyro,
+                                "output/DS1ToCharge.wpilib.json"),
+                new AutoLevel(true, m_robotDrive, m_gyro)
+
+            );
+        } else {
+            addCommands(
+
+                new SetCubeMode(m_arm, m_robotDrive),
+                new ParallelDeadlineGroup(new WaitCommand(3), new ArmTrajectory(ArmPosition.HIGH, m_arm)),
+                new ParallelDeadlineGroup(new WaitCommand(2), new Close(m_manipulator)),
+                new ParallelDeadlineGroup(new WaitCommand(2), new ArmTrajectory(ArmPosition.SAFE, m_arm)),
+                new WaitCommand(0.25),
+
+                VasiliWaypointTrajectory
+                        .newMoveFromStartingPoseToGamePiece(
+                                m_robotDrive,
+                                () -> new Rotation2d(Math.PI),
+                                m_gyro,
+                                "output/DS3ToCharge.wpilib.json"),
+
+                new AutoLevel(true, m_robotDrive, m_gyro)
+
+            );
+        }
+      } else if(routine == 2){
+
+        if(isBlueAlliance){
+            addCommands(
+
+                new SetCubeMode(m_arm, m_robotDrive),
+                new ParallelDeadlineGroup(new WaitCommand(3), new ArmTrajectory(ArmPosition.HIGH, m_arm)),
+                new ParallelDeadlineGroup(new WaitCommand(2), new Close(m_manipulator)),
+                new ParallelDeadlineGroup(new WaitCommand(2), new ArmTrajectory(ArmPosition.SAFE, m_arm)),
+                new WaitCommand(0.25),
+
+                VasiliWaypointTrajectory
+                        .newMoveFromStartingPoseToGamePiece(
+                                m_robotDrive,
+                                () -> new Rotation2d(Math.PI),
+                                m_gyro,
+                                "output/DS2ToCharge.wpilib.json"),
+                new AutoLevel(true, m_robotDrive, m_gyro)
+
+            );
+        } else {
+            addCommands(
+
+                new SetCubeMode(m_arm, m_robotDrive),
+                new ParallelDeadlineGroup(new WaitCommand(3), new ArmTrajectory(ArmPosition.HIGH, m_arm)),
+                new ParallelDeadlineGroup(new WaitCommand(2), new Close(m_manipulator)),
+                new ParallelDeadlineGroup(new WaitCommand(2), new ArmTrajectory(ArmPosition.SAFE, m_arm)),
+                new WaitCommand(0.25),
+
+                VasiliWaypointTrajectory
+                        .newMoveFromStartingPoseToGamePiece(
+                                m_robotDrive,
+                                () -> new Rotation2d(Math.PI),
+                                m_gyro,
+                                "output/DS2ToCharge.wpilib.json"),
+
+                new AutoLevel(true, m_robotDrive, m_gyro)
+
+            );
+        }
+
+      } else if(routine == 3){
+
+        if(isBlueAlliance){
+            addCommands(
+
+                new SetCubeMode(m_arm, m_robotDrive),
+                new ParallelDeadlineGroup(new WaitCommand(3), new ArmTrajectory(ArmPosition.HIGH, m_arm)),
+                new ParallelDeadlineGroup(new WaitCommand(2), new Close(m_manipulator)),
+                new ParallelDeadlineGroup(new WaitCommand(2), new ArmTrajectory(ArmPosition.SAFE, m_arm)),
+                new WaitCommand(0.25),
+
+                VasiliWaypointTrajectory
+                        .newMoveFromStartingPoseToGamePiece(
+                                m_robotDrive,
+                                () -> new Rotation2d(Math.PI),
+                                m_gyro,
+                                "output/DS3ToCharge.wpilib.json"),
+                new AutoLevel(true, m_robotDrive, m_gyro)
+
+            );
+        } else {
+            addCommands(
+
+                new SetCubeMode(m_arm, m_robotDrive),
+                new ParallelDeadlineGroup(new WaitCommand(3), new ArmTrajectory(ArmPosition.HIGH, m_arm)),
+                new ParallelDeadlineGroup(new WaitCommand(2), new Close(m_manipulator)),
+                new ParallelDeadlineGroup(new WaitCommand(2), new ArmTrajectory(ArmPosition.SAFE, m_arm)),
+                new WaitCommand(0.25),
+
+                VasiliWaypointTrajectory
+                        .newMoveFromStartingPoseToGamePiece(
+                                m_robotDrive,
+                                () -> new Rotation2d(Math.PI),
+                                m_gyro,
+                                "output/DS1ToCharge.wpilib.json"),
+
+                new AutoLevel(true, m_robotDrive, m_gyro)
+
+            );
+        }
+
+      }
         
     
     

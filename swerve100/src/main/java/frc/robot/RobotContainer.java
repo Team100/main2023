@@ -352,7 +352,7 @@ public class RobotContainer implements Sendable {
         // new IshanAutonomous(m_robotDrive)
         // );
 
-        return new VasiliAutonomous(m_robotDrive, ahrsclass, armController, manipulator);
+        return new Autonomous(m_robotDrive, armController, manipulator, ahrsclass, routine, isBlueAlliance);
 
         // return new SanjanAutonomous(AutonSelect.BLUE1, m_robotDrive, armController, manipulator);
         // return new Autonomous(AutonSelect.BLUE2, AutonGamePiece.CONE, m_robotDrive, armController, manipulator);
