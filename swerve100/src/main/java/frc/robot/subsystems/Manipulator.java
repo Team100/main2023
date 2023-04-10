@@ -53,7 +53,7 @@ public class Manipulator extends SubsystemBase {
     
     gamepieceLocator = new GamepieceLocator();
   
-    position = new AnalogEncoder(6);
+    position = new AnalogEncoder(4);
 
     position.reset();
     

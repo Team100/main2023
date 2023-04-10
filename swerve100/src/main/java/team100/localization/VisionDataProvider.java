@@ -67,6 +67,7 @@ public class VisionDataProvider extends SubsystemBase implements TableEventListe
     SwerveDriveSubsystem m_robotDrive;
 
 
+
     Rotation3d tagRotation;
 
     Pose2d currentRobotinFieldCoords;
@@ -226,7 +227,7 @@ public class VisionDataProvider extends SubsystemBase implements TableEventListe
                         yComponent * yComponent <= kVisionChangeToleranceMeters
                                 * kVisionChangeToleranceMeters) {
                     // tell the vision indicator we have a fix.
-                    // indicator.go();
+                    indicator.go();
                     // tagFound = true;
                     rumbleOn();
 

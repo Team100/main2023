@@ -56,6 +56,8 @@ public class Close extends CommandBase {
 
     }
 
+    // m_manipulator.pinch(-0.8);
+
 
   }
 

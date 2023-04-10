@@ -19,13 +19,13 @@ public class FalconTurningMotor implements TurningMotor {
      */
     public FalconTurningMotor(String name, int canId) {
         m_motor = new WPI_TalonFX(canId);
-        require(m_motor.configFactoryDefault());
+        m_motor.configFactoryDefault();
         m_motor.setNeutralMode(NeutralMode.Brake);
         m_motor.setInverted(InvertType.InvertMotorOutput);
-        require(m_motor.configStatorCurrentLimit(
-                new StatorCurrentLimitConfiguration(true, kTurningCurrentLimit, kTurningCurrentLimit, 0)));
-        require(m_motor.configSupplyCurrentLimit(
-                new SupplyCurrentLimitConfiguration(true, kTurningCurrentLimit, kTurningCurrentLimit, 0)));
+        m_motor.configStatorCurrentLimit(
+                new StatorCurrentLimitConfiguration(true, kTurningCurrentLimit, kTurningCurrentLimit, 0));
+        m_motor.configSupplyCurrentLimit(
+                new SupplyCurrentLimitConfiguration(true, kTurningCurrentLimit, kTurningCurrentLimit, 0));
         SmartDashboard.putData(String.format("Falcon Turning Motor %s", name), this);
     }
 

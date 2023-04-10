@@ -73,7 +73,7 @@ public class AHRSClass implements Sendable {
               tmpInputs +=1;
             }
             if (!gyro2Connected && !gyro1Connected) {
-                System.out.println("GYROS BROKE");
+                // System.out.println("GYROS BROKE");
                 gyrosWorking = false;
             }
             return (redundYaw)/tmpInputs;
@@ -97,7 +97,7 @@ public class AHRSClass implements Sendable {
               tmpInputs +=1;
             }
             if (!gyro2Connected && !gyro1Connected) {
-                System.out.println("GYROS BROKE");
+                // System.out.println("GYROS BROKE");
                 gyrosWorking = false;
             }
             return (redundPitch)/tmpInputs;
@@ -121,7 +121,7 @@ public class AHRSClass implements Sendable {
               tmpInputs +=1;
             }
             if (!gyro2Connected && !gyro1Connected) {
-                System.out.println("GYROS BROKE");
+                // System.out.println("GYROS BROKE");
                 gyrosWorking = false;
             }
             return (redundRoll)/tmpInputs;
@@ -145,7 +145,7 @@ public class AHRSClass implements Sendable {
               tmpInputs +=1;
             }
             if (!gyro2Connected && !gyro1Connected) {
-                System.out.println("GYROS BROKE");
+                // System.out.println("GYROS BROKE");
                 gyrosWorking = false;
             }
             return (redundRate)/tmpInputs;
@@ -169,7 +169,7 @@ public class AHRSClass implements Sendable {
               tmpInputs +=1;
             }
             if (!gyro2Connected && !gyro1Connected) {
-                System.out.println("GYROS BROKE");
+                // System.out.println("GYROS BROKE");
                 gyrosWorking = false;
             }
             return (redundGyroZ)/tmpInputs;

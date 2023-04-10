@@ -52,6 +52,8 @@ public class ArmTrajectory extends CommandBase {
 
     private boolean isSafeWaypoint = false;
 
+    
+
     public ArmTrajectory(ArmPosition position, ArmController arm) {
         // Use addRequirements() here to declare subsystem dependencies.
         // m_goal = goal;
@@ -87,17 +89,17 @@ public class ArmTrajectory extends CommandBase {
     private Trajectory makeTrajectory() {
 
         // Cone
-        InverseKinematicsAngle highGoalCone = new InverseKinematicsAngle(1.141496, 0.533380); // tuned for our mock up
-        InverseKinematicsAngle midGoalCone = new InverseKinematicsAngle(1.545253, 0.275188); //not real
+        InverseKinematicsAngle highGoalCone = new InverseKinematicsAngle(1.167658, 0.489670); // tuned for our mock up
+        InverseKinematicsAngle midGoalCone = new InverseKinematicsAngle(1.505876, -0.071552); //not real
         InverseKinematicsAngle lowGoalCone = new InverseKinematicsAngle(2.21, 0); // not real
-        InverseKinematicsAngle subCone = new InverseKinematicsAngle(1.408241, -0.006084); // tuned for our mock up
+        InverseKinematicsAngle subCone = new InverseKinematicsAngle(m_arm.coneSubVal, -0.006084); // tuned for our mock up
 
         // Cube
-        InverseKinematicsAngle highGoalCube = new InverseKinematicsAngle(1.206391,0.526467); //not real
-        InverseKinematicsAngle midGoalCube = new InverseKinematicsAngle(1.687309, 0.150418); //not real
+        InverseKinematicsAngle highGoalCube = new InverseKinematicsAngle(1.147321,0.488715); //not real
+        InverseKinematicsAngle midGoalCube = new InverseKinematicsAngle(1.681915, 0.089803); //not real
         InverseKinematicsAngle lowGoalCube = new InverseKinematicsAngle(2.271662, -0.049849); //not real
-        InverseKinematicsAngle subCube = new InverseKinematicsAngle(1.480104   , -0.04);//not real
-        InverseKinematicsAngle subToCube = new InverseKinematicsAngle(1.100452, -0.734924);//not real
+        InverseKinematicsAngle subCube = new InverseKinematicsAngle(1.100452, -0.006084);//not real
+        InverseKinematicsAngle subToCube = new InverseKinematicsAngle(m_arm.coneSubVal, -0.006084);//not real
 
         //Auton
         InverseKinematicsAngle autonLow = new InverseKinematicsAngle(2.277,0.8108); //not real
@@ -109,7 +111,7 @@ public class ArmTrajectory extends CommandBase {
         InverseKinematicsAngle safeGoalCone = new InverseKinematicsAngle(1.838205, -0.639248); //not real
 
     
-        InverseKinematicsAngle safeGoalCube = new InverseKinematicsAngle(1.680436, -0.298320); //not real
+        InverseKinematicsAngle safeGoalCube = new InverseKinematicsAngle(1.838205,-0.639248); //not real
 
         
         InverseKinematicsAngle safeWaypoint = new InverseKinematicsAngle(1.226285, -0.394089); //not real
@@ -288,7 +290,13 @@ public class ArmTrajectory extends CommandBase {
 
     // Called every time the scheduler runs while the command is scheduled.
     public void execute() {
+
+        if(m_trajectory == null){
+            return;
+        }
         double curTime = m_timer.get();
+
+        
         var desiredState = m_trajectory.sample(curTime);
 
         double desiredUpper = desiredState.poseMeters.getX();

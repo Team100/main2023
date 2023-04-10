@@ -22,7 +22,7 @@ import frc.robot.commands.GoalOffset;
 import frc.robot.subsystems.AHRSClass;
 import frc.robot.subsystems.Manipulator;
 import frc.robot.subsystems.SwerveDriveSubsystem;
-
+    
 /**
  * This is a simpler way to drive to a waypoint. It's just like
  * SwerveControllerCommand except that it generates the trajectory at the time

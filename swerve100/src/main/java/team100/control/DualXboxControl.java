@@ -19,6 +19,7 @@ import frc.robot.commands.ResetPose;
 import frc.robot.commands.ResetRotation;
 import frc.robot.commands.RumbleOn;
 import frc.robot.commands.Arm.ArmTrajectory;
+import frc.robot.commands.Arm.Oscillate;
 import frc.robot.commands.Arm.SetConeMode;
 import frc.robot.commands.Arm.SetCubeMode;
 import frc.robot.commands.Manipulator.Close;
@@ -55,7 +56,7 @@ public class DualXboxControl implements Sendable {
     // DRIVER: manual driving and auto navigation controls
 
     public void driveToLeftGrid(DriveToWaypoint2 command) {
-        controller0.x().whileTrue(command);
+        // controller0.x().whileTrue(command);
     };
 
     public void autoLevel(AutoLevel command){
@@ -67,11 +68,11 @@ public class DualXboxControl implements Sendable {
     };
 
     public void driveToRightGrid(DriveToWaypoint2 command) {
-        controller0.b().whileTrue(command);
+        // controller0.b().whileTrue(command);
     };
 
     public void driveToSubstation(DriveToWaypoint2 command) {
-        controller0.y().whileTrue(command);
+        // controller0.y().whileTrue(command);
     };
 
     public void resetRotation0(ResetRotation command) {
@@ -138,8 +139,10 @@ public class DualXboxControl implements Sendable {
         return GoalOffset.center;
     }
 
+    
+
     public void defense(Defense defense) {
-        JoystickButton button = new JoystickButton(controller0.getHID(), 10);
+        JoystickButton button = new JoystickButton(controller0.getHID(), 2);
 
         button.whileTrue(defense);
     }
@@ -211,7 +214,7 @@ public class DualXboxControl implements Sendable {
 
     public void safeWaypoint(ArmTrajectory command) {
         // SequentialCommandGroup commandGroup = new SequentialCommandGroup(command, comman)
-        controller1.rightBumper().whileTrue(command);
+        // controller1.rightBumper().whileTrue(command);
     }
 
     public void armSafeSequential(ArmTrajectory command, ArmTrajectory command2) {
@@ -270,6 +273,10 @@ public class DualXboxControl implements Sendable {
 
     public void ledOn(LedOn command){
         // controller1.rightBumper().whileTrue(command);
+    }
+
+    public void oscillate(Oscillate command){
+        controller1.rightBumper().whileTrue(command);
     }
 
     public void tapeDetect(DriveToRetroReflectiveTape command){

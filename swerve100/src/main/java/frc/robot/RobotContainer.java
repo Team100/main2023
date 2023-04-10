@@ -27,6 +27,7 @@ import edu.wpi.first.wpilibj2.command.SwerveControllerCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.autonomous.Autonomous;
+import frc.robot.autonomous.AutonomousOverride;
 import frc.robot.autonomous.Circle;
 import frc.robot.autonomous.DriveToAprilTag;
 import frc.robot.autonomous.DriveToWaypoint2;
@@ -45,6 +46,7 @@ import frc.robot.commands.DriveMedium;
 import frc.robot.commands.Arm.ArmTrajectory;
 import frc.robot.commands.Arm.DriveToSetpoint;
 import frc.robot.commands.Arm.ManualArm;
+import frc.robot.commands.Arm.Oscillate;
 import frc.robot.commands.Arm.SetConeMode;
 import frc.robot.commands.Arm.SetCubeMode;
 import frc.robot.commands.Manipulator.Close;
@@ -73,7 +75,7 @@ public class RobotContainer implements Sendable {
     // CONFIG
 
     
-    private final DriverStation.Alliance m_alliance;
+    public DriverStation.Alliance m_alliance;
 
     // SUBSYSTEMS
     private final SwerveDriveSubsystem m_robotDrive;
@@ -111,6 +113,7 @@ public class RobotContainer implements Sendable {
     private final ArmTrajectory armToSub;
     private final ArmTrajectory armMid;
     private final ArmTrajectory armSafeWaypoint;
+    private final Oscillate oscillate;
     // private final ArmTrajectory armSafeWaypoint;
 
     private final Illuminator illuminator;
@@ -139,9 +142,11 @@ public class RobotContainer implements Sendable {
 
     public DriveMedium driveMediumCommand;
 
+    public double m_routine = -1;
 
 
-    public RobotContainer() throws IOException {
+
+    public RobotContainer(DriverStation.Alliance alliance) throws IOException {
         // THIS IS FROM BOB'S DELETED CODE
         final double kDriveCurrentLimit = 40;
         ahrsclass = new AHRSClass();
@@ -157,9 +162,9 @@ public class RobotContainer implements Sendable {
 
 
         // m_alliance = DriverStation.getAlliance();
-        m_alliance = DriverStation.Alliance.Red;
+        m_alliance = alliance;
 
-        m_robotDrive = new SwerveDriveSubsystem(m_alliance, kDriveCurrentLimit, ahrsclass, control);
+        m_robotDrive = new SwerveDriveSubsystem(DriverStation.Alliance.Red, kDriveCurrentLimit, ahrsclass, control);
 
         if (m_alliance == DriverStation.Alliance.Blue) {
             // driveToLeftGrid = DriveToAprilTag.newDriveToAprilTag(6, 0.95, .55, control::goalOffset, m_robotDrive, ahrsclass);
@@ -199,6 +204,8 @@ public class RobotContainer implements Sendable {
         armSafe = new ArmTrajectory(ArmPosition.SAFE, armController);
 
         armSubstation = new ArmTrajectory(ArmPosition.SUB, armController);
+
+        oscillate = new Oscillate(armController);
 
         ResetRotation resetRotation = new ResetRotation(m_robotDrive, new Rotation2d());
         autoLevel = new AutoLevel(false, m_robotDrive, ahrsclass);
@@ -265,7 +272,7 @@ public class RobotContainer implements Sendable {
         control.driveToCenterGrid(driveToCenterGrid);
         control.driveToRightGrid(driveToRightGrid);
         control.driveToSubstation(driveToSubstation);
-        // control.defense(defense);
+        control.defense(defense);
         
         control.resetRotation0(resetRotation0);
         control.resetRotation180(resetRotation180);
@@ -308,11 +315,12 @@ public class RobotContainer implements Sendable {
         control.driveMedium(driveMediumCommand);
 
         // control.armSubSafe(armSubSafe);
-
         control.armSafe(armSafe);
 
         control.safeWaypoint(armSafeWaypoint);
 
+        control.oscillate(oscillate);
+ 
         // control.armSafeSequential(armSafeWaypoint, armSafe);
 
 
@@ -352,10 +360,10 @@ public class RobotContainer implements Sendable {
         // new IshanAutonomous(m_robotDrive)
         // );
 
-        return new Autonomous(m_robotDrive, armController, manipulator, ahrsclass, routine, isBlueAlliance);
+        return new AutonomousOverride(m_robotDrive, armController, manipulator, ahrsclass, 1, true);
 
         // return new SanjanAutonomous(AutonSelect.BLUE1, m_robotDrive, armController, manipulator);
-        // return new Autonomous(AutonSelect.BLUE2, AutonGamePiece.CONE, m_robotDrive, armController, manipulator);
+        // return new Autonomous(Aut-onSelect.BLUE2, AutonGamePiece.CONE, m_robotDrive, armController, manipulator);
     }
 
     public void runTest() {
@@ -400,6 +408,8 @@ public class RobotContainer implements Sendable {
                 null);
         builder.addDoubleProperty("x controller error", () -> m_robotDrive.xController.getPositionError(), null);
         builder.addDoubleProperty("y controller error", () -> m_robotDrive.yController.getPositionError(), null);
+        builder.addBooleanProperty("Is Blue Alliance", () -> isBlueAlliance(), null);
+        builder.addDoubleProperty("Routine", () -> getRoutine(), null);
 
     }
 
@@ -413,5 +423,17 @@ public class RobotContainer implements Sendable {
 
     public static boolean isEnabled(){
         return enabled;
+    }
+
+    public boolean isBlueAlliance(){
+        if(m_alliance == DriverStation.Alliance.Blue){
+            return true;
+        } 
+        return false;
+        
+    }
+
+    public double getRoutine(){
+        return m_routine;
     }
 }

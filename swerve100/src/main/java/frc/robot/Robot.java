@@ -1,12 +1,16 @@
 package frc.robot;
 
 import java.io.IOException;
+import edu.wpi.first.wpilibj.DriverStation;
 
 import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.cscore.UsbCamera;
+import edu.wpi.first.util.datalog.DataLog;
+import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.TimedRobot;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.util.WPILibVersion;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
@@ -17,12 +21,12 @@ public class Robot extends TimedRobot {
     UsbCamera manipulatorCamera;
 
     private final DigitalInput auto1 = new DigitalInput(0);
-    private DigitalInput auto2 = new DigitalInput(1);
-    private DigitalInput auto4 = new DigitalInput(2);
-    private DigitalInput auto8 = new DigitalInput(3);
+    private final DigitalInput auto2 = new DigitalInput(1);
+    private final DigitalInput auto4 = new DigitalInput(2);
+    private final DigitalInput auto8 = new DigitalInput(3);
 
-    private DigitalInput alliance1 = new DigitalInput(4);
-    private DigitalInput alliance2 = new DigitalInput(5);
+    private final DigitalInput alliance1 = new DigitalInput(4);
+    private final DigitalInput alliance2 = new DigitalInput(5);
 
     private RobotContainer m_robotContainer;
 
@@ -31,12 +35,26 @@ public class Robot extends TimedRobot {
         System.out.printf("WPILib Version: %s\n", WPILibVersion.Version); // 2023.2.1
         System.out.printf("RoboRIO serial number: %s\n", RobotController.getSerialNumber());
         System.out.printf("Identity: %s\n", Identity.get().name());
+        
+        DriverStation.Alliance m_alliance;
+        DataLogManager.start();
+
+        if(getAlliance() == true){ //Aidan told me to do this blame him I wanted to use a ternary Sanjan
+           m_alliance = DriverStation.Alliance.Blue;
+        } else {
+            m_alliance = DriverStation.Alliance.Red;
+
+        }
+
+        
+        
 
         manipulatorCamera = CameraServer.startAutomaticCapture(0);
         manipulatorCamera.setResolution(240, 160);
         manipulatorCamera.setFPS(15);
         try {
-            m_robotContainer = new RobotContainer();
+            m_robotContainer = new RobotContainer(m_alliance);
+            
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -58,28 +76,43 @@ public class Robot extends TimedRobot {
 
     @Override
     public void disabledPeriodic() {
+        // System.out.println("SWITCH VALUE " +getAutoSwitchValue());
+        // System.out.println("ALLIANCE" + getAlliance());
+        SmartDashboard.putNumber("SWITCH VALUE", getAutoSwitchValue());
+        SmartDashboard.putBoolean("BLUE ALLIANCE", getAlliance());
+
+
+        m_robotContainer.m_routine = getAutoSwitchValue();
     }
 
     private int getAutoSwitchValue() {
         int val = 0;
-        for (DigitalInput s : new DigitalInput[]{auto8, auto4, auto2, auto1}) {
-            val <<= 1;
-            val += s.get() ? 1 : 0;
-        }
+        if (auto8.get()) val += 8;
+        if (auto4.get()) val += 4;
+        if (auto2.get()) val += 2;
+        if (auto1.get()) val += 1;
+        // for (DigitalInput s : new DigitalInput[]{auto8, auto4, auto2, auto1}) {
+        //     val <<= 1;
+        //     val += s.get() ? 1 : 0;
+        // }
 
-        return val;
+        return 15 - val;
     }
 
 
     private boolean getAlliance() {
         int val = 0;
-        for (DigitalInput s : new DigitalInput[]{alliance2, alliance1}) {
-            val <<= 1;
-            val += s.get() ? 1 : 0;
-        }
+        if (alliance2.get()) val += 2;
+        if (alliance1.get()) val += 1;
+        // val = 2 * alliance2;
+        // val += 
+        // for (DigitalInput s : new DigitalInput[]{alliance2, alliance1}) {
+        //     val <<= 1;
+        //     val += s.get() ? 1 : 0;
+        // }
 
         //0 is redAlliance
-        if(val == 0){
+        if(val == 3){
             return false;
         }
 

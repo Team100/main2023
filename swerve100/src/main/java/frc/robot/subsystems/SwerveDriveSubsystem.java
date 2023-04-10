@@ -181,28 +181,28 @@ public class SwerveDriveSubsystem extends SubsystemBase {
                         11, // drive CAN
                         30, // turn CAN
                         0, // turn encoder
-                        0.267276, // turn offset
+                        0.642472, // turn offset
                         currentLimit);
                 m_frontRight = SwerveModuleFactory.WCPModule(
                         "Front Right",
                         12, // drive CAN
                         32, // turn CAN
                         1, // turn encoder
-                        0.872793, // turn offset
+                        0.740540, // turn offset
                         currentLimit);
                 m_rearLeft = SwerveModuleFactory.WCPModule(
                         "Rear Left",
                         21, // drive CAN
                         31, // turn CAN
                         2, // turn encoder
-                        0.754087, // turn offset
+                        0.149713, // turn offset
                         currentLimit);
                 m_rearRight = SwerveModuleFactory.WCPModule(
                         "Rear Right",
                         22, // drive CAN
                         33, // turn CAN
                         3, // turn encoder
-                        0.477936, // turn offset
+                        0.296298, // turn offset
                         currentLimit);
                 break;
             case SWERVE_TWO:

@@ -26,7 +26,7 @@ public class ArmController extends SubsystemBase {
     // Lower arm objects
     public ArmSegment lowerArmSegment;
     private FRCNEO lowerArmMotor;
-    private final AnalogEncoder lowerArmEncoder = new AnalogEncoder(4);
+    private final AnalogEncoder lowerArmEncoder = new AnalogEncoder(6);
 
     // Upper arm objects
     public ArmSegment upperArmSegment;
@@ -35,6 +35,8 @@ public class ArmController extends SubsystemBase {
     private final AnalogEncoder upperArmEncoder = new AnalogEncoder(5);
 
     public double softStop = -0.594938;
+
+    public double coneSubVal = 1.416782;
 
     public ArmController() {
         // TrapezoidProfile.Constraints constraints = new TrapezoidProfile.Constraints(
@@ -178,7 +180,7 @@ public class ArmController extends SubsystemBase {
      * @return lower arm angle
      */
     public double getLowerArm() {
-        double x = (lowerArmEncoder.getAbsolutePosition() - 0.838144) * 360;
+        double x = (lowerArmEncoder.getAbsolutePosition() - 0.861143) * 360;
         double formatted = x;
         // * Math.PI / 180;
         return (-1.0 * formatted) * Math.PI / 180;
@@ -192,7 +194,7 @@ public class ArmController extends SubsystemBase {
      */
     public double getUpperArm() {
         // double x = (upperArmEncoder.getAbsolutePosition() - 0.53) * 350 + 3;
-        double x = (upperArmEncoder.getAbsolutePosition() - 0.265428) * 350;
+        double x = (upperArmEncoder.getAbsolutePosition() - 0.269291) * 350;
         double formatted = x;
 
         return formatted * Math.PI / 180;
@@ -230,7 +232,7 @@ public class ArmController extends SubsystemBase {
     }
 
     public double getUpperArmRel() {
-        return upperArmMotor.getSelectedSensorPosition();
+        return upperArmMotor.motor.getEncoder().getPosition();
     }
 
     public double getLowerArmRel() {

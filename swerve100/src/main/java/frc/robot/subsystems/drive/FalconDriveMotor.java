@@ -28,20 +28,20 @@ public class FalconDriveMotor implements DriveMotor {
      */
     public FalconDriveMotor(String name, int canId, double kDriveCurrentLimit) {
         m_motor = new WPI_TalonFX(canId);
-        require(m_motor.configFactoryDefault());
+        m_motor.configFactoryDefault();
         m_motor.setNeutralMode(NeutralMode.Brake);
-        require(m_motor.configStatorCurrentLimit(
-                new StatorCurrentLimitConfiguration(true, kDriveCurrentLimit, kDriveCurrentLimit, 0)));
-        require(m_motor.configSupplyCurrentLimit(
-                new SupplyCurrentLimitConfiguration(true, kDriveCurrentLimit, kDriveCurrentLimit, 0)));
+        m_motor.configStatorCurrentLimit(
+                new StatorCurrentLimitConfiguration(true, kDriveCurrentLimit, kDriveCurrentLimit, 0));
+        m_motor.configSupplyCurrentLimit(
+                new SupplyCurrentLimitConfiguration(true, kDriveCurrentLimit, kDriveCurrentLimit, 0));
 
         // default is 100 ms, i.e. lots of smoothing. robot loop is 20 ms, so this seems
         // like a good maximum.
-        require(m_motor.configVelocityMeasurementPeriod(SensorVelocityMeasPeriod.Period_1Ms));
+        m_motor.configVelocityMeasurementPeriod(SensorVelocityMeasPeriod.Period_1Ms);
 
         // default is 64 samples i.e. 64 ms worth of samples. try 16 to kinda match the
         // period?
-        require(m_motor.configVelocityMeasurementWindow(1));
+        m_motor.configVelocityMeasurementWindow(1);
 
         SmartDashboard.putData(String.format("Falcon Drive Motor %s", name), this);
     }
