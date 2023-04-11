@@ -36,7 +36,7 @@ public class ArmController extends SubsystemBase {
 
     public double softStop = -0.594938;
 
-    public double coneSubVal = 1.416782;
+    public double coneSubVal = 1.308745;
 
     public ArmController() {
         // TrapezoidProfile.Constraints constraints = new TrapezoidProfile.Constraints(
