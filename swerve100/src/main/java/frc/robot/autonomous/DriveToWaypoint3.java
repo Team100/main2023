@@ -1,6 +1,7 @@
 package frc.robot.autonomous;
 
 import java.util.List;
+import java.util.function.Supplier;
 
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
@@ -19,8 +20,9 @@ import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.commands.GoalOffset;
 import frc.robot.subsystems.AHRSClass;
+import frc.robot.subsystems.Manipulator;
 import frc.robot.subsystems.SwerveDriveSubsystem;
-
+    
 /**
  * This is a simpler way to drive to a waypoint. It's just like
  * SwerveControllerCommand except that it generates the trajectory at the time
@@ -29,7 +31,7 @@ import frc.robot.subsystems.SwerveDriveSubsystem;
  * Trigger.whileTrue().
  */
 public class DriveToWaypoint3 extends CommandBase {
-    private static final TrapezoidProfile.Constraints rotationConstraints = new TrapezoidProfile.Constraints(6, 12);
+    private static final TrapezoidProfile.Constraints rotationConstraints = new TrapezoidProfile.Constraints(8, 12);
     private final AHRSClass m_gyro;
     private double desiredX = 0;
     private double desiredY = 0;
@@ -39,18 +41,33 @@ public class DriveToWaypoint3 extends CommandBase {
 
     DoublePublisher desiredXPublisher = inst.getTable("Drive To Waypoint").getDoubleTopic("Desired X PUB").publish();
     DoublePublisher desiredYPublisher = inst.getTable("Drive To Waypoint").getDoubleTopic("Desired Y PUB").publish();
+   
     DoublePublisher poseXPublisher = inst.getTable("Drive To Waypoint").getDoubleTopic("Pose X PUB").publish();
     DoublePublisher poseYPublisher = inst.getTable("Drive To Waypoint").getDoubleTopic("Pose Y PUB").publish();
+    DoublePublisher poseRotPublisher = inst.getTable("Drive To Waypoint").getDoubleTopic("Pose Rot PUB").publish();
+    DoublePublisher desiredRotPublisher = inst.getTable("Drive To Waypoint").getDoubleTopic("Desired Rot PUB").publish();
+
+    DoublePublisher poseXErrorPublisher = inst.getTable("Drive To Waypoint").getDoubleTopic("Error X PUB").publish();
+    DoublePublisher poseYErrorPublisher = inst.getTable("Drive To Waypoint").getDoubleTopic("Error Y PUB").publish();
+
+    DoublePublisher rotSetpoint = inst.getTable("Drive To Waypoint").getDoubleTopic("Rot Setpoint").publish();
+
+    // DoublePublisher holonomicYSetpoint = inst.getTable("Drive To Waypoint").getDoubleTopic("Holonomic Y Setpoint").publish();
+    // DoublePublisher holonomicXSetpoint = inst.getTable("Drive To Waypoint").getDoubleTopic("Holonomic X Setpoint").publish();
+
+    // DoublePublisher holonomicYMeasurment = inst.getTable("Drive To Waypoint").getDoubleTopic("Holonomic Y Measurment").publish();
+    // DoublePublisher holonomicXMeasurment= inst.getTable("Drive To Waypoint").getDoubleTopic("Holonomic X Measurment").publish();
 
     private final Timer m_timer = new Timer();
 
     private final SwerveDriveSubsystem m_swerve;
     private final Pose2d goal;
-    private final double m_yOffset;
+    // private final Supplier<GoalOffset> goalOffsetSupplier;
+    // private final Supplier<Double> m_gamePieceOffsetSupplier;
+
+    // private final double m_yOffset;
     private GoalOffset previousOffset;
     private Transform2d goalTransform;
-
-    public Translation2d globalGoalTranslation;
 
     private final TrajectoryConfig translationConfig;
     private final ProfiledPIDController m_rotationController;
@@ -58,39 +75,54 @@ public class DriveToWaypoint3 extends CommandBase {
     private final PIDController yController;
     private final HolonomicDriveController2 m_controller;
 
+    // private final Manipulator m_manipulator;
+
+    // private Translation2d globalGoalTranslation;
+
     private Trajectory m_trajectory;
     private boolean isFinished = false;
 
     int count = 0;
 
+    // private State desiredStateGlobal;
 
-    public DriveToWaypoint3(Pose2d goal, double yOffset, SwerveDriveSubsystem m_swerve, AHRSClass gyro) {
+    public DriveToWaypoint3(Pose2d goal, SwerveDriveSubsystem m_swerve, AHRSClass gyro) {
         this.goal = goal;
         this.m_swerve = m_swerve;
         m_gyro = gyro;
-
         System.out.println("CONSTRUCTOR****************************************************");
 
-        m_yOffset = yOffset;
+        // goalOffsetSupplier = offsetSupplier;
+        // m_gamePieceOffsetSupplier = gamePieceOffsetSupplier;
 
-        m_rotationController = new ProfiledPIDController(1.3, 0, 0, rotationConstraints);
+        // previousOffset = goalOffsetSupplier.get();
+        // m_yOffset = yOffset;
+
+        m_rotationController = new ProfiledPIDController(6.5, 0, 1, rotationConstraints); //4.5
         m_rotationController.setTolerance(Math.PI / 180);
 
-        xController = new PIDController(1.1, 1, 0);
-        xController.setIntegratorRange(-0.6, 0.5);
-        // xController.setTolerance(0.05);
+        // xController = new PIDController(2, 0, 0);
 
-        yController = new PIDController(1.1, 1, 0);
-        yController.setIntegratorRange(-0.6, 0.5);
+        xController = new PIDController(2, 0, 0); //2.5
+        xController.setIntegratorRange(-0.3, 0.3);
+        xController.setTolerance(0.00000001);
+
+        yController = new PIDController(2, 0, 0); //2.5
+        yController.setIntegratorRange(-0.3, 0.3);
+        yController.setTolerance(0.00000001);
+
         // yController.setTolerance(0.05);
+
         m_controller = new HolonomicDriveController2(xController, yController, m_rotationController, m_gyro);
         
         translationConfig = new TrajectoryConfig(
                 5, // velocity m/s
-                1.25 // accel m/s/s
+                4.5 // accel m/s/s
         ).setKinematics(SwerveDriveSubsystem.kDriveKinematics);
 
-        globalGoalTranslation = new Translation2d();
+        // globalGoalTranslation = new Translation2d();
+
+        // m_manipulator = manipulator;
 
         addRequirements(m_swerve);
 
@@ -103,10 +135,17 @@ public class DriveToWaypoint3 extends CommandBase {
         Translation2d currentTranslation = currentPose.getTranslation();
         goalTransform = new Transform2d();
         // TODO: Change based on task
-       
-        Pose2d transformedGoal = goal.plus(goalTransform);
-        System.out.println(goalOffset);
+        // if (goalOffset == GoalOffset.left) {
 
+        //     goalTransform = new Transform2d(new Translation2d(0, -m_yOffset - m_gamePieceOffsetSupplier.get()), new Rotation2d());
+        //     System.out.println("lalallalalalalalalalalalalallalalalala");
+        // }
+        // if (goalOffset == GoalOffset.right) {
+        //     goalTransform = new Transform2d(new Translation2d(0, m_yOffset - m_gamePieceOffsetSupplier.get()), new Rotation2d());
+        //     System.out.println("fffffffffffffffffffffffffffffffffffffffffffff");
+        // }
+        Pose2d transformedGoal = goal.plus(goalTransform);
+        // System.out.println(goalOffset);
         Translation2d goalTranslation = transformedGoal.getTranslation();
         Translation2d translationToGoal = goalTranslation.minus(currentTranslation);
         Rotation2d angleToGoal = translationToGoal.getAngle();
@@ -114,7 +153,7 @@ public class DriveToWaypoint3 extends CommandBase {
                 .setKinematics(SwerveDriveSubsystem.kDriveKinematics);
         withStartVelocityConfig.setStartVelocity(startVelocity);
 
-        globalGoalTranslation = goalTranslation;
+        // globalGoalTranslation = goalTranslation;
         // TODO: Change starting waypoint to align with starting velocity
         try {
             return TrajectoryGenerator.generateTrajectory(
@@ -144,14 +183,6 @@ public class DriveToWaypoint3 extends CommandBase {
     @Override
     public void end(boolean interrupted) {
         // System.out.println("END");
-        m_swerve.m_frontLeft.setOutput(0, 0);
-        
-        m_swerve.m_frontRight.setOutput(0, 0);
-
-        m_swerve.m_rearLeft.setOutput(0, 0);
-
-        m_swerve.m_rearRight.setOutput(0, 0);
-
         m_timer.stop();
 
     }
@@ -160,7 +191,12 @@ public class DriveToWaypoint3 extends CommandBase {
         if (m_trajectory == null) {
             return;
         }
-        
+        // if (goalOffsetSupplier.get() != previousOffset) {
+        //     m_trajectory = makeTrajectory(goalOffsetSupplier.get(),
+        //             m_trajectory.sample(m_timer.get()).velocityMetersPerSecond);
+        //     previousOffset = goalOffsetSupplier.get();
+        //     m_timer.restart();
+        // }
         if (m_trajectory == null) {
             return;
         }
@@ -179,18 +215,31 @@ public class DriveToWaypoint3 extends CommandBase {
         desiredYPublisher.set(desiredY);
         poseXPublisher.set(m_swerve.getPose().getX());
         poseYPublisher.set(m_swerve.getPose().getY());
+        desiredRotPublisher.set(goal.getRotation().getRadians());
+
+        rotSetpoint.set(m_rotationController.getSetpoint().position);
+
+
+        poseRotPublisher.set(m_swerve.getPose().getRotation().getRadians());
+
+        poseXErrorPublisher.set(xController.getPositionError());
+        poseYErrorPublisher.set(yController.getPositionError());
+
+
+        // holonomicXSetpoint.set(m_controller.getSetpoint());
+
 
         m_swerve.setModuleStates(targetModuleStates);
 
-        if( Math.abs(globalGoalTranslation.getX() - m_swerve.getPose().getX()) < 0.15
-        && Math.abs(globalGoalTranslation.getY() - m_swerve.getPose().getY()) < 0.15
-        ){
-        count++;
-        }
+        // if( Math.abs(globalGoalTranslation.getX() - m_swerve.getPose().getX()) < 0.15
+        // && Math.abs(globalGoalTranslation.getY() - m_swerve.getPose().getY()) < 0.15
+        // ){
+        // count++;
+        // }
 
-        if(count >= 20){
-        isFinished = true;
-        }
+        // if(count >= 20){
+        // isFinished = true;
+        // }
 
         // if(count >= 60){
         //     isFinished = true;
@@ -202,4 +251,15 @@ public class DriveToWaypoint3 extends CommandBase {
     // return this.desiredX;
 
     // }
+
+
+    // @Override
+    // public void initSendable(SendableBuilder builder) {
+    //     super.initSendable(builder);
+    //     builder.addDoubleProperty("X Setpoint", () -> xController.getSetpoint(), null);
+    //     builder.addDoubleProperty("X Error", () -> xController.getPositionError(), null);
+    //     builder.addDoubleProperty("X Measurment", () -> xController.getPositionError(), null);
+
+    // }
+    
 }

@@ -77,9 +77,9 @@ public class DriveWithHeading extends CommandBase {
     // Called every time the scheduler runs while the command is scheduled.
     @Override
     public void execute() {
-        double xSwitch = MathUtil.applyDeadband(xSpeed.getAsDouble(), .1);
-        double ySwitch = MathUtil.applyDeadband(ySpeed.getAsDouble(), .1);
-        double rotSwitch = MathUtil.applyDeadband(rotSpeed.getAsDouble(), .1);
+        double xSwitch = MathUtil.applyDeadband(xSpeed.getAsDouble(), .05);
+        double ySwitch = MathUtil.applyDeadband(ySpeed.getAsDouble(), .05);
+        double rotSwitch = MathUtil.applyDeadband(rotSpeed.getAsDouble(), .05);
         // double xDBRemoved = (xSwitch - .1 * Math.signum(xSwitch)) / .9;
         // double yDBRemoved = (ySwitch - .1 * Math.signum(ySwitch)) / .9;
         // double rotDBRemoved = (rotSwitch - .1 * Math.signum(rotSwitch)) / .9;

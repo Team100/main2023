@@ -33,7 +33,7 @@ import frc.robot.autonomous.DriveToAprilTag;
 import frc.robot.autonomous.DriveToWaypoint2;
 import frc.robot.autonomous.MoveToAprilTag;
 import frc.robot.autonomous.Rotate;
-import frc.robot.autonomous.SanjanAutonomous;
+// import frc.robot.autonomous.SanjanAutonomous;
 import frc.robot.autonomous.VasiliAutonomous;
 import frc.robot.commands.DriveRotation;
 import frc.robot.commands.DriveSlow;
@@ -164,7 +164,7 @@ public class RobotContainer implements Sendable {
         // m_alliance = DriverStation.getAlliance();
         m_alliance = alliance;
 
-        m_robotDrive = new SwerveDriveSubsystem(DriverStation.Alliance.Red, kDriveCurrentLimit, ahrsclass, control);
+        m_robotDrive = new SwerveDriveSubsystem(DriverStation.Alliance.Blue, kDriveCurrentLimit, ahrsclass, control);
 
         if (m_alliance == DriverStation.Alliance.Blue) {
             // driveToLeftGrid = DriveToAprilTag.newDriveToAprilTag(6, 0.95, .55, control::goalOffset, m_robotDrive, ahrsclass);
