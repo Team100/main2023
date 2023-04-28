@@ -335,7 +335,7 @@ public class RobotContainer implements Sendable {
                 control::rotSpeed,
                 m_robotDrive);
 
-        m_robotDrive.setDefaultCommand(driveWithHeading);
+        m_robotDrive.setDefaultCommand(driveManually);
 
         // Controller 1 triggers => manipulator open/close
         gripManually = new GripManually(
