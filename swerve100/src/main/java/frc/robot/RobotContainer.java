@@ -148,7 +148,7 @@ public class RobotContainer implements Sendable {
 
     public RobotContainer(DriverStation.Alliance alliance) throws IOException {
         // THIS IS FROM BOB'S DELETED CODE
-        final double kDriveCurrentLimit = 40;
+        final double kDriveCurrentLimit = 20;
         ahrsclass = new AHRSClass();
         manipulator = new Manipulator();
         armController = new ArmController();
