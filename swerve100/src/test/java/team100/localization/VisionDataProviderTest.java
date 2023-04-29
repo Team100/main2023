@@ -111,8 +111,8 @@ public class VisionDataProviderTest {
     }
 
     @Test
-    public void testEstimateRobotPose(DualXboxControl control) throws IOException {
-        control = new DualXboxControl();
+    public void testEstimateRobotPose() throws IOException {
+        DualXboxControl control = new DualXboxControl();
         Supplier<Pose2d> robotPose = () -> new Pose2d(); // always at the origin
         VisionDataProvider vdp = new VisionDataProvider(DriverStation.Alliance.Red, null, robotPose, control);
 
@@ -163,8 +163,8 @@ public class VisionDataProviderTest {
     }
 
     @Test
-    public void testEstimateRobotPose2(DualXboxControl control) throws IOException {
-        control = new DualXboxControl();
+    public void testEstimateRobotPose2() throws IOException {
+        DualXboxControl control = new DualXboxControl();
         // robot is panned right 45
         Supplier<Pose2d> robotPose = () -> new Pose2d(0, 0, new Rotation2d(-Math.PI / 4)); // just for rotation
         VisionDataProvider vdp = new VisionDataProvider(DriverStation.Alliance.Red, null, robotPose, control);
