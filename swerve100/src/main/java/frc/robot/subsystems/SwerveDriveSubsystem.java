@@ -153,7 +153,7 @@ public class SwerveDriveSubsystem extends SubsystemBase {
                 
                 // Note very low heading tolerance.
                 headingController.setTolerance(0.01);
-                kMaxSpeedMetersPerSecond = 5; //2
+                kMaxSpeedMetersPerSecond = 3; //2
                 kMaxAccelerationMetersPerSecondSquared = 10; //3
                 kMaxAngularSpeedRadiansPerSecond = 5; //5
                 kMaxAngularSpeedRadiansPerSecondSquared = 5;
