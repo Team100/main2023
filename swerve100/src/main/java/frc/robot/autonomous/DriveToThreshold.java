@@ -4,9 +4,7 @@
 
 package frc.robot.autonomous;
 
-import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.wpilibj2.command.CommandBase;
-import edu.wpi.first.wpilibj2.command.SwerveControllerCommand;
 import frc.robot.subsystems.SwerveDriveSubsystem;
 
 public class DriveToThreshold extends CommandBase {

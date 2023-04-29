@@ -1,7 +1,5 @@
 package team100.localization;
 
-import java.util.Arrays;
-
 /**
  * Something the camera sees. This is 1:1 copy of the representation in the
  * AprilTag library.
