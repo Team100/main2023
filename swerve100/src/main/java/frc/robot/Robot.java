@@ -5,6 +5,8 @@ import edu.wpi.first.wpilibj.DriverStation;
 
 import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.cscore.UsbCamera;
+import edu.wpi.first.networktables.NetworkTable;
+import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.util.datalog.DataLog;
 import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.DigitalInput;
@@ -18,7 +20,8 @@ import team100.config.Identity;
 
 public class Robot extends TimedRobot {
     private Command m_autonomousCommand;
-    UsbCamera manipulatorCamera;
+    // UsbCamera manipulato
+    
 
     private final DigitalInput auto1 = new DigitalInput(0);
     private final DigitalInput auto2 = new DigitalInput(1);
@@ -49,9 +52,9 @@ public class Robot extends TimedRobot {
         
         
 
-        manipulatorCamera = CameraServer.startAutomaticCapture(0);
-        manipulatorCamera.setResolution(240, 160);
-        manipulatorCamera.setFPS(15);
+        // manipulatorCamera = CameraServer.startAutomaticCapture(0);
+        // manipulatorCamera.setResolution(240, 160);
+        // manipulatorCamera.setFPS(15);
         try {
             m_robotContainer = new RobotContainer(m_alliance);
             
@@ -65,6 +68,8 @@ public class Robot extends TimedRobot {
     @Override
     public void robotPeriodic() {
         CommandScheduler.getInstance().run();
+
+        
     }
 
     @Override
@@ -83,6 +88,16 @@ public class Robot extends TimedRobot {
 
 
         m_robotContainer.m_routine = getAutoSwitchValue();
+
+        double keyList = NetworkTableInstance.getDefault().getTable("Vision").getKeys().size();
+
+        SmartDashboard.putNumber("KEY LIST", keyList);
+
+        if(keyList == 0){
+            m_robotContainer.m_robotDrive.visionDataProvider.indicator.noVision();
+        }else{
+            m_robotContainer.m_robotDrive.visionDataProvider.indicator.vision();
+        }
     }
 
     private int getAutoSwitchValue() {

@@ -39,17 +39,17 @@ public class AutoLevel extends CommandBase {
 
     if(reversed){
         // if(m_robotDrive.getPose().getX() <= 4.354773){ //4.125
-            double Roll = m_gyro.getRedundantYaw();
+            double Roll = m_gyro.getRedundantRoll();    //
             double Pitch = m_gyro.getRedundantPitch();
                 // System.out.println(Roll);
                 double driveRollAmount = MathUtil.clamp(0.005 * Roll, -0.08, 0.08);
                 double drivePitchAmount = MathUtil.clamp(0.005   * Pitch, -0.08, 0.08);
                 System.out.println(drivePitchAmount);
         
-               if(Math.abs(Roll) > 2.5 || Math.abs(Pitch) > 2.5){   
+               if(Math.abs(Roll) > 2.5 || Math.abs(Pitch) > 2.5){   //
                 count = 0;
-                // m_robotDrive.driveSlow(drivePitchAmount, -driveRollAmount, 0, false);     
-                m_robotDrive.driveSlow(drivePitchAmount, 0, 0, false);   
+                // m_robotDrive.driveSlow(drivePitchAmount, driveRollAmount, 0, true);     
+                m_robotDrive.driveSlow(drivePitchAmount, driveRollAmount, 0, false);   //was false be
                 System.out.println(drivePitchAmount);
 
                } else{
@@ -99,7 +99,9 @@ public class AutoLevel extends CommandBase {
     }
   // Called once the command ends or is interrupted.
   @Override
-  public void end(boolean interrupted) {}
+  public void end(boolean interrupted) {
+    System.out.println("AUTO LEVEL ENDING");
+  }
 
   // Returns true when the command should end.
   @Override

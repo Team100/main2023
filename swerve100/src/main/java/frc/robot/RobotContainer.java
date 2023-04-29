@@ -31,6 +31,7 @@ import frc.robot.autonomous.AutonomousOverride;
 import frc.robot.autonomous.Circle;
 import frc.robot.autonomous.DriveToAprilTag;
 import frc.robot.autonomous.DriveToWaypoint2;
+import frc.robot.autonomous.MoveConeWidth;
 import frc.robot.autonomous.MoveToAprilTag;
 import frc.robot.autonomous.Rotate;
 // import frc.robot.autonomous.SanjanAutonomous;
@@ -78,7 +79,7 @@ public class RobotContainer implements Sendable {
     public DriverStation.Alliance m_alliance;
 
     // SUBSYSTEMS
-    private final SwerveDriveSubsystem m_robotDrive;
+    public final SwerveDriveSubsystem m_robotDrive;
     private final Manipulator manipulator;
     private final ArmController armController;
     private final AHRSClass 
@@ -132,6 +133,9 @@ public class RobotContainer implements Sendable {
 
     private final DriveSlow driveSlow;
 
+    private final MoveConeWidth moveConeWidthLeft;
+    private final MoveConeWidth moveConeWidthRight;
+
     public final static Field2d m_field = new Field2d();
 
     public final RumbleOn rumbleOn;
@@ -143,6 +147,8 @@ public class RobotContainer implements Sendable {
     public DriveMedium driveMediumCommand;
 
     public double m_routine = -1;
+
+    
 
 
 
@@ -164,7 +170,7 @@ public class RobotContainer implements Sendable {
         // m_alliance = DriverStation.getAlliance();
         m_alliance = alliance;
 
-        m_robotDrive = new SwerveDriveSubsystem(DriverStation.Alliance.Blue, kDriveCurrentLimit, ahrsclass, control);
+        m_robotDrive = new SwerveDriveSubsystem(m_alliance, kDriveCurrentLimit, ahrsclass, control);
 
         if (m_alliance == DriverStation.Alliance.Blue) {
             // driveToLeftGrid = DriveToAprilTag.newDriveToAprilTag(6, 0.95, .55, control::goalOffset, m_robotDrive, ahrsclass);
@@ -267,6 +273,10 @@ public class RobotContainer implements Sendable {
 
         driveMediumCommand = new DriveMedium(m_robotDrive, control);
 
+        moveConeWidthLeft = new MoveConeWidth(m_robotDrive, 1);
+        moveConeWidthRight = new MoveConeWidth(m_robotDrive, -1);
+
+
         // control.autoLevel(autoLevel);
         control.driveToLeftGrid(driveToLeftGrid);
         control.driveToCenterGrid(driveToCenterGrid);
@@ -323,6 +333,9 @@ public class RobotContainer implements Sendable {
  
         // control.armSafeSequential(armSafeWaypoint, armSafe);
 
+        control.moveConeWidthLeft(moveConeWidthLeft);
+        control.moveConeWidthRight(moveConeWidthRight);
+
 
 
 
@@ -360,7 +373,7 @@ public class RobotContainer implements Sendable {
         // new IshanAutonomous(m_robotDrive)
         // );
 
-        return new AutonomousOverride(m_robotDrive, armController, manipulator, ahrsclass, 1, true);
+        return new Autonomous(m_robotDrive, armController, manipulator, ahrsclass, routine, isBlueAlliance);
 
         // return new SanjanAutonomous(AutonSelect.BLUE1, m_robotDrive, armController, manipulator);
         // return new Autonomous(Aut-onSelect.BLUE2, AutonGamePiece.CONE, m_robotDrive, armController, manipulator);

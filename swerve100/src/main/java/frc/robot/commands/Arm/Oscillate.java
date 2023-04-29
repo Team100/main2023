@@ -32,11 +32,11 @@ public class Oscillate extends CommandBase {
   @Override
   public void execute() {
 
-    if(m_arm.getUpperArm() < m_arm.coneSubVal - 0.02 ){
+    if(m_arm.getUpperArm() < m_arm.coneSubVal - 0.025 ){
         movingUp = true;
     }
 
-    if(m_arm.getUpperArm() > m_arm.coneSubVal + 0.02){
+    if(m_arm.getUpperArm() > m_arm.coneSubVal + 0.025){
         movingUp = false;
     }
 

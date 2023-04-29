@@ -28,7 +28,7 @@ public class GoNoGoIndicator {
     private static enum State {
         OFF(Color.kBlack),
         NOGO(Color.kRed),
-        GO(Color.kGreen),
+        GO(new Color(0, 0, 255)),
         CUBE(new Color(254, 100, 0)),
         CONE(new Color(255, 0, 80)),
         ORANGE(new Color(255, 0, 30));
@@ -85,6 +85,16 @@ public class GoNoGoIndicator {
 
     public void cone() {
         active = State.CONE;
+        active.set(led);
+    }
+
+    public void noVision(){
+        active = State.NOGO;
+        active.set(led);
+    }
+
+    public void vision(){
+        active = State.GO;
         active.set(led);
     }
 

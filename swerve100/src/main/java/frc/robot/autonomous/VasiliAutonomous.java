@@ -105,7 +105,7 @@ public class VasiliAutonomous extends SequentialCommandGroup {
                                 m_robotDrive,
                                 () -> new Rotation2d(Math.PI),
                                 m_gyro,
-                                "output/Red1ToCharge.wpilib.json"),
+                                "output/BlueLeftExit.wpilib.json"),
 
                 new AutoLevel(true, m_robotDrive, m_gyro)
         );

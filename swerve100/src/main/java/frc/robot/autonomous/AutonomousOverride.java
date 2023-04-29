@@ -40,14 +40,7 @@ double armExtendDelay = 1.5;
         new ParallelDeadlineGroup(new WaitCommand(armSafeDelay), new ArmTrajectory(ArmPosition.SAFE, m_arm)),
         //     // new WaitCommand(0.25),
         new ResetRotation(m_robotDrive, Rotation2d.fromDegrees(180)),
-        // new AutoLevel(false, m_robotDrive, m_gyro)
 
-        // VasiliWaypointTrajectory
-        //                 .newMoveFromStartingPoseToGamePiece(
-        //                         m_robotDrive,
-        //                         () -> new Rotation2d(Math.PI),
-        //                         m_gyro,
-        //                         "output/BlueMiddleCharge.wpilib.json")
 
         new DriveMobility(m_robotDrive),
         new ParallelDeadlineGroup(new WaitCommand(1), new DriveStop(m_robotDrive)),
@@ -55,7 +48,6 @@ double armExtendDelay = 1.5;
         new AutoLevel(true, m_robotDrive, m_gyro)
 
 
-        // new DriveToWaypoint3( new Pose2d(5.688772, 2.754412, new Rotation2d(Math.PI)), m_robotDrive, m_gyro)
 
     );
   }

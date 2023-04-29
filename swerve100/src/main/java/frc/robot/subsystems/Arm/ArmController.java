@@ -39,7 +39,7 @@ public class ArmController extends SubsystemBase {
     public double coneSubVal = 1.308745;
 
     public ArmController() {
-        // TrapezoidProfile.Constraints constraints = new TrapezoidProfile.Constraints(
+        // TrapezoidProfile.Const   raints constraints = new TrapezoidProfile.Constraints(
         //         0.3, // velocity rad/s
         //         3.0 // accel rad/s^2
         // );
@@ -180,7 +180,7 @@ public class ArmController extends SubsystemBase {
      * @return lower arm angle
      */
     public double getLowerArm() {
-        double x = (lowerArmEncoder.getAbsolutePosition() - 0.861143) * 360;
+        double x = (lowerArmEncoder.getAbsolutePosition() - 0.861614) * 360;
         double formatted = x;
         // * Math.PI / 180;
         return (-1.0 * formatted) * Math.PI / 180;
@@ -194,7 +194,7 @@ public class ArmController extends SubsystemBase {
      */
     public double getUpperArm() {
         // double x = (upperArmEncoder.getAbsolutePosition() - 0.53) * 350 + 3;
-        double x = (upperArmEncoder.getAbsolutePosition() - 0.269291) * 350;
+        double x = (upperArmEncoder.getAbsolutePosition() - 0.266396) * 350;
         double formatted = x;
 
         return formatted * Math.PI / 180;

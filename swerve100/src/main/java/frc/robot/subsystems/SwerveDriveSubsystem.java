@@ -119,6 +119,10 @@ public class SwerveDriveSubsystem extends SubsystemBase {
 
     DualXboxControl m_control;
 
+    public double keyList = -1;
+
+    
+
     public SwerveDriveSubsystem(DriverStation.Alliance alliance, double currentLimit, AHRSClass gyro, DualXboxControl control) throws IOException {
         m_gyro = gyro;
         // Sets up Field2d pose tracking for glass.
@@ -153,8 +157,8 @@ public class SwerveDriveSubsystem extends SubsystemBase {
                 
                 // Note very low heading tolerance.
                 headingController.setTolerance(0.01);
-                kMaxSpeedMetersPerSecond = 5; //2
-                kMaxAccelerationMetersPerSecondSquared = 10; //3
+                kMaxSpeedMetersPerSecond = 10; //5
+                kMaxAccelerationMetersPerSecondSquared = 15; //10
                 kMaxAngularSpeedRadiansPerSecond = 5; //5
                 kMaxAngularSpeedRadiansPerSecondSquared = 5;
                 xController = new PIDController(
@@ -648,6 +652,14 @@ public class SwerveDriveSubsystem extends SubsystemBase {
         return moving;
     }
 
+    public void setKeyList(){
+        keyList = NetworkTableInstance.getDefault().getTable("Vision").getKeys().size();
+    }
+
+    public double getVisionSize(){
+        return keyList;
+    }
+
     /**
      * Method to drive the robot using joystick info.
      *
@@ -783,7 +795,7 @@ public class SwerveDriveSubsystem extends SubsystemBase {
         // TODO fix fieldRelative making this go crazy when it is off
         var swerveModuleStates = kDriveKinematics.toSwerveModuleStates(
                 fieldRelative
-                        ? desiredChassisSpeeds
+                        ? desiredChassisSpeeds  
                         : new ChassisSpeeds(kMaxSpeed * xSpeed, kMaxSpeed * ySpeed,
                                 kMaxRot * rot));
 

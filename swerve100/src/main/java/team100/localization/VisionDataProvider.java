@@ -112,6 +112,8 @@ public class VisionDataProvider extends SubsystemBase implements TableEventListe
         object_mapper = new ObjectMapper(new MessagePackFactory());
         NetworkTable vision_table = inst.getTable("Vision");
 
+        
+
         tagRotation = new Rotation3d();
         // Listen to ALL the updates in the vision table. :-)
         vision_table.addListener(EnumSet.of(NetworkTableEvent.Kind.kValueAll), this);
@@ -142,6 +144,11 @@ public class VisionDataProvider extends SubsystemBase implements TableEventListe
             // System.out.printf("DELAY (s): %f\n", blips.et);
             // System.out.printf("BLIP COUNT: %d\n", blips.tags.size());
             estimateRobotPose(this::cameraOffset, poseEstimator::addVisionMeasurement, key, blips);
+
+
+
+
+
         } catch (IOException e) {
             e.printStackTrace();
         }

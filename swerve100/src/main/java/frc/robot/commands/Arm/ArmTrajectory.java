@@ -2,6 +2,8 @@ package frc.robot.commands.Arm;
 
 import java.util.List;
 
+import org.opencv.core.Mat;
+
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -89,17 +91,17 @@ public class ArmTrajectory extends CommandBase {
     private Trajectory makeTrajectory() {
 
         // Cone
-        InverseKinematicsAngle highGoalCone = new InverseKinematicsAngle(1.182130, 0.386583); // tuned for our mock up
-        InverseKinematicsAngle midGoalCone = new InverseKinematicsAngle(1.505876, -0.071552); //not real
+        InverseKinematicsAngle highGoalCone = new InverseKinematicsAngle(1.178, 0.494); // tuned for our mock up
+        InverseKinematicsAngle midGoalCone = new InverseKinematicsAngle(1.609977, 0.138339); //not real
         InverseKinematicsAngle lowGoalCone = new InverseKinematicsAngle(2.21, 0); // not real
         InverseKinematicsAngle subCone = new InverseKinematicsAngle(m_arm.coneSubVal,-0.338940); // tuned for our mock up
 
         // Cube
-        InverseKinematicsAngle highGoalCube = new InverseKinematicsAngle(1.147321,0.488715); //not real
+        InverseKinematicsAngle highGoalCube = new InverseKinematicsAngle(1.147321,0.316365); //not real
         InverseKinematicsAngle midGoalCube = new InverseKinematicsAngle(1.681915, 0.089803); //not real
         InverseKinematicsAngle lowGoalCube = new InverseKinematicsAngle(2.271662, -0.049849); //not real
-        InverseKinematicsAngle subCube = new InverseKinematicsAngle(1.100452, -0.006084);//not real
-        InverseKinematicsAngle subToCube = new InverseKinematicsAngle(m_arm.coneSubVal, -0.006084);//not real
+        InverseKinematicsAngle subCube = new InverseKinematicsAngle(1.361939,-0.341841);//not real
+        InverseKinematicsAngle subToCube = new InverseKinematicsAngle(1.361939,-0.341841);//not real
 
         //Auton
         InverseKinematicsAngle autonLow = new InverseKinematicsAngle(2.277,0.8108); //not real
@@ -305,17 +307,24 @@ public class ArmTrajectory extends CommandBase {
         double upperSpeed = 0;
         double lowerSpeed = 0;
 
+        double upperFeed = 0;
+        double lowerFeed = 0;
+
         if(m_position == ArmPosition.SAFE){
             upperSpeed = upperDownController.calculate(m_arm.getUpperArm(), desiredUpper);
-            lowerSpeed = lowerDownController.calculate(m_arm.getLowerArm(), desiredLower);    
+            lowerSpeed = lowerDownController.calculate(m_arm.getLowerArm(), desiredLower);   
+            
         } else {
             upperSpeed = upperController.calculate(m_arm.getUpperArm(), desiredUpper);
             lowerSpeed = lowerController.calculate(m_arm.getLowerArm(), desiredLower);
+
+            // lowerFeed = 0.01 * Math.signum(lowerController.getPositionError());
         }
+
 
         
         m_arm.setUpperArm(upperSpeed);
-        m_arm.setLowerArm(lowerSpeed);
+        m_arm.setLowerArm(lowerSpeed + lowerFeed);
 
         measurmentX.set(m_arm.getUpperArm());
         measurmentY.set(m_arm.getLowerArm());
