@@ -156,7 +156,8 @@ public class SwerveDriveSubsystem extends SubsystemBase {
                 
                 // Note very low heading tolerance.
                 headingController.setTolerance(0.01);
-                kMaxSpeedMetersPerSecond = 3; //2
+                // THIS IS BABY MODE
+                kMaxSpeedMetersPerSecond = 1.5; //2
                 kMaxAccelerationMetersPerSecondSquared = 10; //3
                 kMaxAngularSpeedRadiansPerSecond = 5; //5
                 kMaxAngularSpeedRadiansPerSecondSquared = 5;

@@ -13,6 +13,7 @@ import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.RunCommand;
+import frc.robot.autonomous.Autonomous;
 import frc.robot.autonomous.AutonomousOverride;
 import frc.robot.autonomous.DriveToAprilTag;
 import frc.robot.autonomous.DriveToWaypoint2;
@@ -133,7 +134,7 @@ public class RobotContainer implements Sendable {
 
 
     public RobotContainer(DriverStation.Alliance alliance) throws IOException {
-        // THIS IS FROM BOB'S DELETED CODE
+        // THIS IS BABY MODE
         final double kDriveCurrentLimit = 20;
         ahrsclass = new AHRSClass();
         manipulator = new Manipulator();
