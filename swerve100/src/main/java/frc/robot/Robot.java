@@ -1,7 +1,6 @@
 package frc.robot;
 
 import java.io.IOException;
-import edu.wpi.first.wpilibj.DriverStation;
 
 import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.cscore.UsbCamera;
@@ -10,6 +9,7 @@ import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.util.datalog.DataLog;
 import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.DigitalInput;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -32,6 +32,17 @@ public class Robot extends TimedRobot {
     private final DigitalInput alliance2 = new DigitalInput(5);
 
     private RobotContainer m_robotContainer;
+
+    @Override
+    public void close() {
+        super.close();
+        auto1.close();
+        auto2.close();
+        auto4.close();
+        auto8.close();
+        alliance1.close();
+        alliance2.close();
+    }
 
     @Override
     public void robotInit() {

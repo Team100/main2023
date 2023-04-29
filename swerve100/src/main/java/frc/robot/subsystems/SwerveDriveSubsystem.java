@@ -1,6 +1,5 @@
 package frc.robot.subsystems;
 
-import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 
@@ -157,8 +156,8 @@ public class SwerveDriveSubsystem extends SubsystemBase {
                 
                 // Note very low heading tolerance.
                 headingController.setTolerance(0.01);
-                kMaxSpeedMetersPerSecond = 10; //5
-                kMaxAccelerationMetersPerSecondSquared = 15; //10
+                kMaxSpeedMetersPerSecond = 3; //2
+                kMaxAccelerationMetersPerSecondSquared = 10; //3
                 kMaxAngularSpeedRadiansPerSecond = 5; //5
                 kMaxAngularSpeedRadiansPerSecondSquared = 5;
                 xController = new PIDController(

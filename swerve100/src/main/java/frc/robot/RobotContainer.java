@@ -4,48 +4,32 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 
-import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Rotation3d;
-import edu.wpi.first.math.geometry.Translation2d;
-import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.util.sendable.Sendable;
 import edu.wpi.first.util.sendable.SendableBuilder;
-import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.ConditionalCommand;
-import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
-import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
-import edu.wpi.first.wpilibj2.command.SwerveControllerCommand;
-import edu.wpi.first.wpilibj2.command.button.JoystickButton;
-import edu.wpi.first.wpilibj2.command.button.Trigger;
-import frc.robot.autonomous.Autonomous;
 import frc.robot.autonomous.AutonomousOverride;
-import frc.robot.autonomous.Circle;
 import frc.robot.autonomous.DriveToAprilTag;
 import frc.robot.autonomous.DriveToWaypoint2;
 import frc.robot.autonomous.MoveConeWidth;
 import frc.robot.autonomous.MoveToAprilTag;
 import frc.robot.autonomous.Rotate;
-// import frc.robot.autonomous.SanjanAutonomous;
-import frc.robot.autonomous.VasiliAutonomous;
+import frc.robot.commands.AutoLevel;
+import frc.robot.commands.DriveMedium;
 import frc.robot.commands.DriveRotation;
 import frc.robot.commands.DriveSlow;
 import frc.robot.commands.DriveWithHeading;
 import frc.robot.commands.ResetPose;
 import frc.robot.commands.ResetRotation;
+import frc.robot.commands.Retro.DriveToRetroReflectiveTape;
+import frc.robot.commands.Retro.LedOn;
 import frc.robot.commands.RumbleOn;
-import frc.robot.commands.AutoLevel;
-import frc.robot.commands.DriveMedium;
 import frc.robot.commands.Arm.ArmTrajectory;
-import frc.robot.commands.Arm.DriveToSetpoint;
 import frc.robot.commands.Arm.ManualArm;
 import frc.robot.commands.Arm.Oscillate;
 import frc.robot.commands.Arm.SetConeMode;
@@ -54,11 +38,7 @@ import frc.robot.commands.Manipulator.Close;
 import frc.robot.commands.Manipulator.CloseSlow;
 import frc.robot.commands.Manipulator.Home;
 import frc.robot.commands.Manipulator.Open;
-import frc.robot.commands.Retro.DriveToRetroReflectiveTape;
-import frc.robot.commands.Retro.LedOn;
 import frc.robot.subsystems.AHRSClass;
-import frc.robot.subsystems.AutonGamePiece;
-import frc.robot.subsystems.AutonSelect;
 import frc.robot.subsystems.Manipulator;
 import frc.robot.subsystems.SwerveDriveSubsystem;
 import frc.robot.subsystems.Arm.ArmController;
@@ -154,7 +134,7 @@ public class RobotContainer implements Sendable {
 
     public RobotContainer(DriverStation.Alliance alliance) throws IOException {
         // THIS IS FROM BOB'S DELETED CODE
-        final double kDriveCurrentLimit = 40;
+        final double kDriveCurrentLimit = 20;
         ahrsclass = new AHRSClass();
         manipulator = new Manipulator();
         armController = new ArmController();
@@ -348,7 +328,7 @@ public class RobotContainer implements Sendable {
                 control::rotSpeed,
                 m_robotDrive);
 
-        m_robotDrive.setDefaultCommand(driveWithHeading);
+        m_robotDrive.setDefaultCommand(driveManually);
 
         // Controller 1 triggers => manipulator open/close
         gripManually = new GripManually(

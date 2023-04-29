@@ -4,24 +4,17 @@
 
 package frc.robot.autonomous;
 
-import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj2.command.ParallelDeadlineGroup;
-import edu.wpi.first.wpilibj2.command.ParallelRaceGroup;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.commands.AutoLevel;
 import frc.robot.commands.DriveMobility;
 import frc.robot.commands.ResetRotation;
-import frc.robot.commands.SelectGamePiece;
 import frc.robot.commands.Arm.ArmTrajectory;
 import frc.robot.commands.Arm.SetCubeMode;
 import frc.robot.commands.Manipulator.Close;
-import frc.robot.commands.Manipulator.Open;
-import frc.robot.commands.Manipulator.Release;
 import frc.robot.subsystems.AHRSClass;
-import frc.robot.subsystems.AutonGamePiece;
-import frc.robot.subsystems.AutonSelect;
 import frc.robot.subsystems.Manipulator;
 import frc.robot.subsystems.SwerveDriveSubsystem;
 import frc.robot.subsystems.Arm.ArmController;
