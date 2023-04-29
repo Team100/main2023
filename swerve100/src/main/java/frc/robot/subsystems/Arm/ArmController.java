@@ -26,13 +26,17 @@ public class ArmController extends SubsystemBase {
     // Lower arm objects
     public ArmSegment lowerArmSegment;
     private FRCNEO lowerArmMotor;
-    private final AnalogEncoder lowerArmEncoder = new AnalogEncoder(4);
+    private final AnalogEncoder lowerArmEncoder = new AnalogEncoder(6);
 
     // Upper arm objects
     public ArmSegment upperArmSegment;
     private FRCNEO upperArmMotor;
 
     private final AnalogEncoder upperArmEncoder = new AnalogEncoder(5);
+
+    public double softStop = -0.594938;
+
+    public double coneSubVal = 1.308745;
 
     public ArmController() {
         // TrapezoidProfile.Constraints constraints = new TrapezoidProfile.Constraints(
@@ -176,10 +180,10 @@ public class ArmController extends SubsystemBase {
      * @return lower arm angle
      */
     public double getLowerArm() {
-        double x = (lowerArmEncoder.getAbsolutePosition() - 0.510975) * 360;
+        double x = (lowerArmEncoder.getAbsolutePosition() - 0.861143) * 360;
         double formatted = x;
         // * Math.PI / 180;
-        return (-1 * formatted) * Math.PI / 180;
+        return (-1.0 * formatted) * Math.PI / 180;
     }
 
     /**
@@ -190,7 +194,7 @@ public class ArmController extends SubsystemBase {
      */
     public double getUpperArm() {
         // double x = (upperArmEncoder.getAbsolutePosition() - 0.53) * 350 + 3;
-        double x = (upperArmEncoder.getAbsolutePosition() - 0.26) * 350;
+        double x = (upperArmEncoder.getAbsolutePosition() - 0.269291) * 350;
         double formatted = x;
 
         return formatted * Math.PI / 180;
@@ -205,11 +209,34 @@ public class ArmController extends SubsystemBase {
     }
 
     public void setLowerArm(double x) {
+
+        if(getLowerArm() <= softStop && x < 0){
+            lowerArmMotor.motor.set(x);
+        } else {
+            lowerArmMotor.motor.set(0);
+
+        }
         lowerArmMotor.motor.set(x);
     }
 
     public void setUpperArm(double x) {
         upperArmMotor.motor.set(x);
+    }
+
+    public void driveLowerArm(double x) {
+        lowerArmMotor.motor.setVoltage(12* x);
+    }
+
+    public void driveUpperArm(double x) {
+        upperArmMotor.motor.set(12 * x);
+    }
+
+    public double getUpperArmRel() {
+        return upperArmMotor.motor.getEncoder().getPosition();
+    }
+
+    public double getLowerArmRel() {
+        return lowerArmMotor.getSelectedSensorPosition();
     }
 
 
@@ -233,13 +260,14 @@ public class ArmController extends SubsystemBase {
         builder.addDoubleProperty("Upper Angle Setpoint", () -> upperAngleSetpoint, null);
         builder.addDoubleProperty("Lower Angle Setpoint", () -> lowerAngleSetpoint, null);
         builder.addBooleanProperty("Cube Mode", () -> cubeMode, null);
+        builder.addDoubleProperty("Upper Arm Relative", () -> getUpperArmRel(), null);
 
     }
 
 }
 
 class ArmKinematics {
-    private static final double kUpperArmLength = 0.905;
+    private static final double kUpperArmLength = 0.92;
     private static final double kLowerArmLength = 0.93;
 
     /**

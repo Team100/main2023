@@ -30,7 +30,6 @@ public class VasiliWaypointTrajectory extends TrajectoryCommand {
     }
 
     public static VasiliWaypointTrajectory newMoveFromStartingPoseToGamePiece(SwerveDriveSubsystem m_robotDrive,
-            ControlVectorList controlVectors,
             Supplier<Rotation2d> desiredRotation,
             AHRSClass gyro,
             String path) {
@@ -69,13 +68,13 @@ public class VasiliWaypointTrajectory extends TrajectoryCommand {
 
 
         
-        Trajectory t = TrajectoryGenerator.generateTrajectory(
-                controlVectors, getConfig());
+        // Trajectory t = TrajectoryGenerator.generateTrajectory(
+        //         controlVectors, getConfig());
 
-        for (double time = 0; time < t.getTotalTimeSeconds(); time += 0.1) {
-            Trajectory.State s = t.sample(time);
-            System.out.printf("%5.3f %5.3f\n", s.poseMeters.getX(), s.poseMeters.getY());
-        }
+        // for (double time = 0; time < t.getTotalTimeSeconds(); time += 0.1) {
+        //     Trajectory.State s = t.sample(time);
+        //     System.out.printf("%5.3f %5.3f\n", s.poseMeters.getX(), s.poseMeters.getY());
+        // }
         // TrajectoryConfig trajectoryConfig = new TrajectoryConfig(
         // 5,
         // 5)

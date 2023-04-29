@@ -15,6 +15,7 @@ import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.SwerveDriveSubsystem;
+import frc.robot.subsystems.Arm.ArmController;
 import frc.robot.subsystems.AHRSClass;
 
 public class DriveWithHeading extends CommandBase {
@@ -39,13 +40,17 @@ public class DriveWithHeading extends CommandBase {
     double yOutput;
     double thetaControllerOutput;
 
+    ArmController m_arm;
+
     public DriveWithHeading(SwerveDriveSubsystem robotDrive, DoubleSupplier xSpeed, DoubleSupplier ySpeed,
-            Supplier<Rotation2d> desiredRotation, DoubleSupplier rotSpeed, String name, AHRSClass gyro) {
+            Supplier<Rotation2d> desiredRotation, DoubleSupplier rotSpeed, String name, AHRSClass gyro, ArmController arm) {
         // Use addRequirements() here to declare subsystem dependencies.
         m_gyro = gyro;
         m_robotDrive = robotDrive;
         m_headingController = m_robotDrive.headingController;
         m_desiredRotation = desiredRotation;
+
+        m_arm = arm;
 
         lastRotationSetpoint = new Rotation2d(0);
 
@@ -72,9 +77,9 @@ public class DriveWithHeading extends CommandBase {
     // Called every time the scheduler runs while the command is scheduled.
     @Override
     public void execute() {
-        double xSwitch = MathUtil.applyDeadband(xSpeed.getAsDouble(), .1);
-        double ySwitch = MathUtil.applyDeadband(ySpeed.getAsDouble(), .1);
-        double rotSwitch = MathUtil.applyDeadband(rotSpeed.getAsDouble(), .1);
+        double xSwitch = MathUtil.applyDeadband(xSpeed.getAsDouble(), .05);
+        double ySwitch = MathUtil.applyDeadband(ySpeed.getAsDouble(), .05);
+        double rotSwitch = MathUtil.applyDeadband(rotSpeed.getAsDouble(), .05);
         // double xDBRemoved = (xSwitch - .1 * Math.signum(xSwitch)) / .9;
         // double yDBRemoved = (ySwitch - .1 * Math.signum(ySwitch)) / .9;
         // double rotDBRemoved = (rotSwitch - .1 * Math.signum(rotSwitch)) / .9;
@@ -95,14 +100,22 @@ public class DriveWithHeading extends CommandBase {
 
         if (snapMode && Math.abs(rotSwitch) < 0.1 && m_gyro.getGyroWorking()) {
             thetaControllerOutput = m_headingController.calculate(currentRads, desiredRotation);
+            // System.out.println(thetaControllerOutput);
+            // thetaOuput = MathUtil.clamp(thetaControllerOutput*kSpeedModifier + m_headingController.getSetpoint().velocity, -kSpeedModifier, kSpeedModifier);
             thetaOuput = thetaControllerOutput*kSpeedModifier + m_headingController.getSetpoint().velocity;
+
         } else {
             snapMode = false;
-            thetaOuput = rotDBRemoved*kSpeedModifier;
+            thetaOuput = (rotDBRemoved/2)*kSpeedModifier;
             desiredRotation = currentRads;
         }
 
-        m_robotDrive.driveMetersPerSec(xDBRemoved * kSpeedModifier, yDBRemoved * kSpeedModifier, thetaOuput, true);
+        // if(m_arm.getLowerArm() >=0.2){
+            m_robotDrive.driveWithHeading(xDBRemoved * kSpeedModifier, yDBRemoved * kSpeedModifier, thetaOuput, true);
+        // } else {
+            // m_robotDrive.driveWithHeading(xDBRemoved * kSpeedModifier, yDBRemoved * kSpeedModifier, thetaOuput, true);
+
+        // }
 
         lastRotationSetpoint = new Rotation2d(desiredRotation);
     }
@@ -110,6 +123,7 @@ public class DriveWithHeading extends CommandBase {
     // Called once the command ends or is interrupted.
     @Override
     public void end(boolean interrupted) {
+        snapMode = false;
     }
 
     // Returns true when the command should end.
@@ -130,6 +144,7 @@ public class DriveWithHeading extends CommandBase {
         // builder.addDoubleProperty("ControllerOutput", () -> radiansPerSecond, null);
         // builder.addDoubleProperty("Chassis Speeds", () ->
         // targetChasisSpeeds.omegaRadiansPerSecond, null);
+        builder.addDoubleProperty("Theta Outpit", () -> thetaOuput, null);
 
     }
 }

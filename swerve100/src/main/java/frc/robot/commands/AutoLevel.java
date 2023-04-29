@@ -4,6 +4,8 @@
 
 package frc.robot.commands;
 
+import javax.swing.plaf.basic.BasicInternalFrameTitlePane.SystemMenuBar;
+
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.AHRSClass;
@@ -32,11 +34,11 @@ public class AutoLevel extends CommandBase {
     count = 0;
   }
 
-  // Called every time the scheduler runs while the command is scheduled.
+  // Called every time the scheduler runs while the command is scheduled
   public void execute() {
 
     if(reversed){
-        if(m_robotDrive.getPose().getX() <= 4.255){ //4.125
+        // if(m_robotDrive.getPose().getX() <= 4.354773){ //4.125
             double Roll = m_gyro.getRedundantYaw();
             double Pitch = m_gyro.getRedundantPitch();
                 // System.out.println(Roll);
@@ -46,13 +48,16 @@ public class AutoLevel extends CommandBase {
         
                if(Math.abs(Roll) > 2.5 || Math.abs(Pitch) > 2.5){   
                 count = 0;
-                m_robotDrive.driveSlow(drivePitchAmount, -driveRollAmount, 0, false);     
+                // m_robotDrive.driveSlow(drivePitchAmount, -driveRollAmount, 0, false);     
+                m_robotDrive.driveSlow(drivePitchAmount, 0, 0, false);   
+                System.out.println(drivePitchAmount);
+
                } else{
                 count++;
                }
-        } else {
-            m_robotDrive.drive(-0.3, 0, 0, true);
-        }
+        // } else {
+            // m_robotDrive.drive(-0.2, 0, 0, true);
+        // }
     } else {
         if(m_robotDrive.getPose().getX() >= 3.277){ //TODO real number needed TOTAL GUESS
             double Roll = m_gyro.getRedundantRoll();

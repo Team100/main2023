@@ -47,7 +47,7 @@ public class GoNoGoIndicator {
         }
     }
 
-    private static final int kPort = 4;
+    private static final int kPort = 0;
     private final AddressableLED led;
     // private final Notifier notifier;
     private State active;

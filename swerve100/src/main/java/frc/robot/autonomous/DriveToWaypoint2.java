@@ -20,8 +20,9 @@ import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.commands.GoalOffset;
 import frc.robot.subsystems.AHRSClass;
+import frc.robot.subsystems.Manipulator;
 import frc.robot.subsystems.SwerveDriveSubsystem;
-
+    
 /**
  * This is a simpler way to drive to a waypoint. It's just like
  * SwerveControllerCommand except that it generates the trajectory at the time
@@ -62,6 +63,8 @@ public class DriveToWaypoint2 extends CommandBase {
     private final SwerveDriveSubsystem m_swerve;
     private final Pose2d goal;
     private final Supplier<GoalOffset> goalOffsetSupplier;
+    private final Supplier<Double> m_gamePieceOffsetSupplier;
+
     private final double m_yOffset;
     private GoalOffset previousOffset;
     private Transform2d goalTransform;
@@ -71,6 +74,8 @@ public class DriveToWaypoint2 extends CommandBase {
     private final PIDController xController;
     private final PIDController yController;
     private final HolonomicDriveController2 m_controller;
+
+    // private final Manipulator m_manipulator;
 
     // private Translation2d globalGoalTranslation;
 
@@ -82,13 +87,15 @@ public class DriveToWaypoint2 extends CommandBase {
     // private State desiredStateGlobal;
 
     public DriveToWaypoint2(Pose2d goal, double yOffset, Supplier<GoalOffset> offsetSupplier,
-            SwerveDriveSubsystem m_swerve, AHRSClass gyro) {
+            SwerveDriveSubsystem m_swerve, AHRSClass gyro, Supplier<Double> gamePieceOffsetSupplier) {
         this.goal = goal;
         this.m_swerve = m_swerve;
         m_gyro = gyro;
         System.out.println("CONSTRUCTOR****************************************************");
 
         goalOffsetSupplier = offsetSupplier;
+        m_gamePieceOffsetSupplier = gamePieceOffsetSupplier;
+
         previousOffset = goalOffsetSupplier.get();
         m_yOffset = yOffset;
 
@@ -116,6 +123,8 @@ public class DriveToWaypoint2 extends CommandBase {
 
         // globalGoalTranslation = new Translation2d();
 
+        // m_manipulator = manipulator;
+
         addRequirements(m_swerve);
 
         // SmartDashboard.putData("Drive To Waypoint", this);
@@ -129,11 +138,11 @@ public class DriveToWaypoint2 extends CommandBase {
         // TODO: Change based on task
         if (goalOffset == GoalOffset.left) {
 
-            goalTransform = new Transform2d(new Translation2d(0, -m_yOffset), new Rotation2d());
+            goalTransform = new Transform2d(new Translation2d(0, -m_yOffset - m_gamePieceOffsetSupplier.get()), new Rotation2d());
             System.out.println("lalallalalalalalalalalalalallalalalala");
         }
         if (goalOffset == GoalOffset.right) {
-            goalTransform = new Transform2d(new Translation2d(0, m_yOffset), new Rotation2d());
+            goalTransform = new Transform2d(new Translation2d(0, m_yOffset - m_gamePieceOffsetSupplier.get()), new Rotation2d());
             System.out.println("fffffffffffffffffffffffffffffffffffffffffffff");
         }
         Pose2d transformedGoal = goal.plus(goalTransform);
@@ -161,12 +170,8 @@ public class DriveToWaypoint2 extends CommandBase {
 
     @Override
     public void initialize() {
-        // this.desiredX = 14;
-        // System.out.println("START TO WAYPOINT*************************" +
-        // this.desiredX);
         isFinished = false;
         m_timer.restart();
-        // m_timer.start();
         count = 0;
         m_trajectory = makeTrajectory(previousOffset, 0);
     }

@@ -44,9 +44,9 @@ public class SwerveModuleFactory {
 
         // TURNING PID
         ProfiledPIDController turningController = new ProfiledPIDController(
-                0.5, // kP: low P because not much reduction gearing.
-                0.0, // kI
-                0.0, // kD
+                1, // kP: low P because not much reduction gearing.
+                1, // kI
+                0, // kD
                 new TrapezoidProfile.Constraints( //
                         20 * Math.PI, // max angular speed radians/sec
                         20 * Math.PI)); // max accel radians/sec/sec
@@ -64,8 +64,14 @@ public class SwerveModuleFactory {
                 0.003,// kV: from experiment; higher than AM modules, less reduction gear
                 0); // kA: I have no idea what this value should be
 
+        SimpleMotorFeedforward headingDriveFeedForward = new SimpleMotorFeedforward( //
+                0.01, // kS: friction is unimportant
+                0.25,// kV: from experiment; higher than AM modules, less reduction gear
+                0); // kA: I have no idea what this value should be
+
+
         return new SwerveModule(name, driveMotor, turningMotor, driveEncoder, turningEncoder,
-                driveController, turningController, driveFeedforward, turningFeedforward);
+                driveController, turningController, driveFeedforward, turningFeedforward, headingDriveFeedForward);
     }
 
     // for 8048's config
@@ -113,9 +119,14 @@ public class SwerveModuleFactory {
                 0.1, // kS
                 0.005); // kV
 
-        return new SwerveModule(name, driveMotor, turningMotor, driveEncoder, turningEncoder,
-                driveController, turningController, driveFeedforward, turningFeedforward);
+        SimpleMotorFeedforward headingDriveFeedForward = new SimpleMotorFeedforward( //
+                0.05, // kS: friction is unimportant
+                0.35,// kV: from experiment; higher than AM modules, less reduction gear
+                0.08); // kA: I have no idea what this value should be
 
+
+        return new SwerveModule(name, driveMotor, turningMotor, driveEncoder, turningEncoder,
+                driveController, turningController, driveFeedforward, turningFeedforward, headingDriveFeedForward);
     }
 
     public static SwerveModule AMModule(
@@ -163,7 +174,13 @@ public class SwerveModuleFactory {
                 0.003, // kV
                 0); // kA
 
+        SimpleMotorFeedforward headingDriveFeedForward = new SimpleMotorFeedforward( //
+                0.06, // kS: friction is unimportant //0.06
+                0.25,// kV: from experiment; higher than AM modules, less reduction gear //0.25
+                0.02); // kA: I have no idea what this value should be //0.06
+
+
         return new SwerveModule(name, driveMotor, turningMotor, driveEncoder, turningEncoder,
-                driveController, turningController, driveFeedforward, turningFeedforward);
+                driveController, turningController, driveFeedforward, turningFeedforward, headingDriveFeedForward);
     }
 }

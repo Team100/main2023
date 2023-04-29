@@ -4,37 +4,28 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.util.sendable.Sendable;
 import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.XboxController;
-import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import frc.robot.autonomous.DriveToWaypoint2;
-import frc.robot.autonomous.Rotate;
 import frc.robot.commands.AutoLevel;
-import frc.robot.commands.DriveMedium;
 import frc.robot.commands.DriveSlow;
 import frc.robot.commands.GoalOffset;
 import frc.robot.commands.ResetPose;
 import frc.robot.commands.ResetRotation;
-import frc.robot.commands.RumbleOn;
 import frc.robot.commands.Arm.ArmTrajectory;
-import frc.robot.commands.Arm.Oscillate;
 import frc.robot.commands.Arm.SetConeMode;
 import frc.robot.commands.Arm.SetCubeMode;
 import frc.robot.commands.Manipulator.Close;
-import frc.robot.commands.Manipulator.CloseSlow;
 import frc.robot.commands.Manipulator.Home;
 import frc.robot.commands.Manipulator.Open;
-import frc.robot.commands.Retro.DriveToRetroReflectiveTape;
-import frc.robot.commands.Retro.LedOn;
 import team100.commands.Defense;
 
 /**
  * see
  * https://docs.google.com/document/d/1M89x_IiguQdY0VhQlOjqADMa6SYVp202TTuXZ1Ps280/edit#
  */
-public class DualXboxControl implements Sendable {
+public class TestControl implements Sendable {
     // private static final double kDtSeconds = 0.02;
     // private static final double kMaxRotationRateRadiansPerSecond = Math.PI;
     private static final double kTriggerThreshold = .5;
@@ -43,7 +34,7 @@ public class DualXboxControl implements Sendable {
     private final CommandXboxController controller1;
     Rotation2d previousRotation = new Rotation2d(0);
 
-    public DualXboxControl() {
+    public TestControl() {
         controller0 = new CommandXboxController(0);
         System.out.printf("Controller0: %s\n", controller0.getHID().getName());
         controller1 = new CommandXboxController(1);
@@ -56,7 +47,7 @@ public class DualXboxControl implements Sendable {
     // DRIVER: manual driving and auto navigation controls
 
     public void driveToLeftGrid(DriveToWaypoint2 command) {
-        // controller0.x().whileTrue(command);
+        controller0.x().whileTrue(command);
     };
 
     public void autoLevel(AutoLevel command){
@@ -64,15 +55,15 @@ public class DualXboxControl implements Sendable {
     }
 
     public void driveToCenterGrid(DriveToWaypoint2 command) {
-        // controller0.a().whileTrue(command);
+        controller0.a().whileTrue(command);
     };
 
     public void driveToRightGrid(DriveToWaypoint2 command) {
-        // controller0.b().whileTrue(command);
+        controller0.b().whileTrue(command);
     };
 
     public void driveToSubstation(DriveToWaypoint2 command) {
-        // controller0.y().whileTrue(command);
+        controller0.y().whileTrue(command);
     };
 
     public void resetRotation0(ResetRotation command) {
@@ -139,36 +130,8 @@ public class DualXboxControl implements Sendable {
         return GoalOffset.center;
     }
 
-    
-
     public void defense(Defense defense) {
-        JoystickButton button = new JoystickButton(controller0.getHID(), 2);
-
-        button.whileTrue(defense);
-    }
-
-    public void rumbleOn() {
-        controller0.getHID().setRumble(RumbleType.kLeftRumble, 0.0);
-        controller0.getHID().setRumble(RumbleType.kRightRumble, 0.0);
-    }
-    
-    public void rumbleTrigger(RumbleOn command){
-        controller0.a().whileTrue(command);
-    }
-
-    public void rumbleOff() {
-        controller0.getHID().setRumble(RumbleType.kLeftRumble, 0);
-        controller0.getHID().setRumble(RumbleType.kRightRumble, 0);
-
-    }
-
-    public void rotate0(Rotate command){
-        JoystickButton button = new JoystickButton(controller0.getHID(), 9);
-        button.whileTrue(command);
-    }
-
-    public void driveMedium(DriveMedium command){
-        controller0.rightBumper().whileTrue(command);
+        controller0.rightBumper().whileTrue(defense);
     }
 
     ///////////////////////////////
@@ -212,26 +175,7 @@ public class DualXboxControl implements Sendable {
         controller1.povDown().whileTrue(command);
     }
 
-    public void safeWaypoint(ArmTrajectory command) {
-        // SequentialCommandGroup commandGroup = new SequentialCommandGroup(command, comman)
-        // controller1.rightBumper().whileTrue(command);
-    }
-
-    public void armSafeSequential(ArmTrajectory command, ArmTrajectory command2) {
-        SequentialCommandGroup commandGroup = new SequentialCommandGroup(command, command2);
-        controller1.povDown().whileTrue(commandGroup);
-    }
-
     public void armSafeBack(ArmTrajectory command) {
-        // controller1.leftBumper().whileTrue(command);
-    }
-
-    public void closeSlow(CloseSlow command) {
-        // controller1.leftBumper().whileTrue(command);
-
-        // controller1.a().whileTrue(command);
-
-
         controller1.leftBumper().whileTrue(command);
     }
 
@@ -268,24 +212,10 @@ public class DualXboxControl implements Sendable {
         // JoystickButton button = new JoystickButton(controller1.getHID(), 7);
         // button.onTrue(command);
 
-        // controller1.rightBumper().whileTrue(command);
-    }
-
-    public void ledOn(LedOn command){
-        // controller1.rightBumper().whileTrue(command);
-    }
-
-    public void oscillate(Oscillate command){
         controller1.rightBumper().whileTrue(command);
     }
 
-    public void tapeDetect(DriveToRetroReflectiveTape command){
-        // controller1.leftBumper().whileTrue(command);
-    }
-
-    public void armSubSafe(ArmTrajectory command){
-        // controller1.rightBumper().whileTrue(command);
-    }
+    
 
     
 

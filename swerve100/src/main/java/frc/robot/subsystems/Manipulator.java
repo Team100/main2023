@@ -4,6 +4,8 @@
 
 package frc.robot.subsystems;
 
+import com.ctre.phoenix.motorcontrol.NeutralMode;
+
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.AnalogEncoder;
@@ -12,6 +14,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.FRCLib.Motors.FRCTalonSRX;
 import frc.robot.FRCLib.Motors.FRCTalonSRX.FRCTalonSRXBuilder;
+import frc.robot.subsystems.GamePieceDetection.GamepieceLocator;
 
 public class Manipulator extends SubsystemBase {
   /** Creates a new Manipulator. */
@@ -19,7 +22,7 @@ public class Manipulator extends SubsystemBase {
   public AnalogEncoder position;
   public PIDController pinchController;
   private double origin;
-//   private DigitalInput sensor = new DigitalInput(0);
+  GamepieceLocator gamepieceLocator;
 
   public Manipulator() {
     pinch = new FRCTalonSRXBuilder(10)
@@ -32,28 +35,28 @@ public class Manipulator extends SubsystemBase {
     // .withSensorPhase(Constants.DrivetrainConstants.DrivetrainMotors.LeftMaster.SENSOR_PHASE)
     .withPeakOutputForward(1)
     .withPeakOutputReverse(-1)
-    //.withNeutralMode(Constants.DrivetrainConstants.DrivetrainMotors.LeftMaster.NEUTRAL_MODE)
+    .withNeutralMode(NeutralMode.Brake)
     .withCurrentLimitEnabled(true)
     //.withCurrentLimit(7)
     .build();
 
-    pinch.motor.configPeakCurrentLimit(45);
+    pinch.motor.configPeakCurrentLimit(30);
     // pinch.motor.configContinuousCurrentLimit(1);
 
     // pinch.motor.configPeakCurrentDuration(0)
-    // pinch.motor.configPeakCurrentDuration(1000);
+    pinch.motor.configPeakCurrentDuration(1000);
 
     // pinch.motor.enableCurrentLimit(true);
     // pinch.motor.enableCont
     // pinch.motor.configCurrent
-
+    // mconfigPeakCurrentDuration
     
-
-    
-
-    position = new AnalogEncoder(6);
+    gamepieceLocator = new GamepieceLocator();
+  
+    position = new AnalogEncoder(4);
 
     position.reset();
+    
     pinchController = new PIDController(0.2, 0, 0);
 
     SmartDashboard.putData("Manipulator", this);
@@ -114,6 +117,14 @@ public class Manipulator extends SubsystemBase {
     }else{
       return false;
     }
+  }
+
+  public double getGamePieceOffset(){
+    return gamepieceLocator.getOffsetMeters();
+  }
+
+  public boolean hasGamepiece(){
+    return gamepieceLocator.hasGamepiece();
   }
 
   public void initSendable(SendableBuilder builder) {
