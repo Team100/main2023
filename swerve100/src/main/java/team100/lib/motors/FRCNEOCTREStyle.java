@@ -1,7 +1,7 @@
 package team100.lib.motors;
 
 import com.ctre.phoenix.motorcontrol.InvertType;
-import com.ctre.poenix.motorcontrol.NeutralMode;
+import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.sensors.SensorVelocityMeasPeriod;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.SparkMaxLimitSwitch;
