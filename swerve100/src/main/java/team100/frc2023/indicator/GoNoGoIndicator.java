@@ -51,7 +51,7 @@ public class GoNoGoIndicator {
     private final AddressableLED led;
     // private final Notifier notifier;
     private State active;
-    private boolean flashOn;
+    // private boolean flashOn;
 
     /**
      * @param freq Desired flashing frequency (Hz)

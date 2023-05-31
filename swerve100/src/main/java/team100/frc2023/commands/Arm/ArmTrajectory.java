@@ -2,8 +2,6 @@ package team100.frc2023.commands.Arm;
 
 import java.util.List;
 
-import org.opencv.core.Mat;
-
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -103,8 +101,8 @@ public class ArmTrajectory extends CommandBase {
         InverseKinematicsAngle subToCube = new InverseKinematicsAngle(1.361939,-0.341841);//not real
 
         //Auton
-        InverseKinematicsAngle autonLow = new InverseKinematicsAngle(2.277,0.8108); //not real
-        InverseKinematicsAngle autonGrab = new InverseKinematicsAngle(2.394, 0.787); //not real
+        // InverseKinematicsAngle autonLow = new InverseKinematicsAngle(2.277,0.8108); //not real
+        // InverseKinematicsAngle autonGrab = new InverseKinematicsAngle(2.394, 0.787); //not real
         // InverseKinematicsAngle lowGoalCube = new InverseKinematicsAngle(2.271662, -0.049849); //not real
 
         InverseKinematicsAngle safeBack = new InverseKinematicsAngle(1.97, -0.55);
@@ -119,7 +117,7 @@ public class ArmTrajectory extends CommandBase {
 
 
 
-        InverseKinematicsAngle subSafeWaypoint = m_arm.calculate(1.329387, -0.238770);
+        // InverseKinematicsAngle subSafeWaypoint = m_arm.calculate(1.329387, -0.238770);
 
         // boolean notSafe = true;
 
@@ -306,7 +304,7 @@ public class ArmTrajectory extends CommandBase {
         double upperSpeed = 0;
         double lowerSpeed = 0;
 
-        double upperFeed = 0;
+        // double upperFeed = 0;
         double lowerFeed = 0;
 
         if(m_position == ArmPosition.SAFE){

@@ -6,9 +6,7 @@ import java.util.function.Supplier;
 
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.trajectory.Trajectory;
-import edu.wpi.first.math.trajectory.TrajectoryConfig;
 import edu.wpi.first.math.trajectory.TrajectoryUtil;
-import edu.wpi.first.math.trajectory.constraint.CentripetalAccelerationConstraint;
 import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Filesystem;
@@ -106,13 +104,13 @@ public class VasiliWaypointTrajectory extends TrajectoryCommand {
         builder.addDoubleProperty("IsRunning", () -> IsRunning, null);
     }
 
-    private static TrajectoryConfig getConfig() {
-        TrajectoryConfig config = new TrajectoryConfig(
-                5, // max velocity 1 m/s
-                5); // max acceleration 1 m/s/s
-        config.setStartVelocity(0); // zero starting velocity
-        config.setEndVelocity(0); // zero ending velocity
-        config.addConstraint(new CentripetalAccelerationConstraint(1)); // max accel 1 m/s/s
-        return config;
-    }
+    // private static TrajectoryConfig getConfig() {
+    //     TrajectoryConfig config = new TrajectoryConfig(
+    //             5, // max velocity 1 m/s
+    //             5); // max acceleration 1 m/s/s
+    //     config.setStartVelocity(0); // zero starting velocity
+    //     config.setEndVelocity(0); // zero ending velocity
+    //     config.addConstraint(new CentripetalAccelerationConstraint(1)); // max accel 1 m/s/s
+    //     return config;
+    // }
 }
