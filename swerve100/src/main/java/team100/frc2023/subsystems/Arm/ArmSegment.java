@@ -5,7 +5,7 @@ import java.util.function.Supplier;
 import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import team100.frc2023.FRCLib.Motors.FRCNEO;
+import team100.lib.motors.FRCNEO;
 
 public class ArmSegment extends SubsystemBase{
    

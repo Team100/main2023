@@ -8,7 +8,7 @@ import edu.wpi.first.wpilibj.AnalogEncoder;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import team100.frc2023.FRCLib.Motors.FRCNEO;
+import team100.lib.motors.FRCNEO;
 
 public class ArmController extends SubsystemBase {
 

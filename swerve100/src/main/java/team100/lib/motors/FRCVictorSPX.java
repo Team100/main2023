@@ -1,4 +1,4 @@
-package team100.frc2023.FRCLib.Motors;
+package team100.lib.motors;
 
 import com.ctre.phoenix.motorcontrol.InvertType;
 import com.ctre.phoenix.motorcontrol.can.VictorSPX;

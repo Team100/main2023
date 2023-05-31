@@ -12,7 +12,7 @@ import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.AnalogEncoder;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import team100.frc2023.FRCLib.Motors.FRCNEO;
+import team100.lib.motors.FRCNEO;
 
 /** Add your docs here. */
 public class Arm extends SubsystemBase {
