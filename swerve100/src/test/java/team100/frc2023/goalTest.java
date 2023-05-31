@@ -1,0 +1,33 @@
+package team100.frc2023;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+import java.io.IOException;
+
+import org.junit.jupiter.api.Test;
+
+import edu.wpi.first.math.geometry.Pose2d;
+import team100.frc2023.autonomous.DriveToAprilTag;
+import team100.frc2023.localization.AprilTagFieldLayoutWithCorrectOrientation;
+
+public class goalTest {
+
+    @Test
+    public void testRedSubstation() throws IOException {
+        AprilTagFieldLayoutWithCorrectOrientation m_layout = AprilTagFieldLayoutWithCorrectOrientation.redLayout();
+        Pose2d m_goal = DriveToAprilTag.goal(5, 1, m_layout);
+        assertEquals(15.18, m_goal.getX(), .001);
+        assertEquals(1.264, m_goal.getY(), .005);
+        assertEquals(0, m_goal.getRotation().getRadians(), 0.001);
+    }
+
+    @Test
+    public void testBlueSubstation() throws IOException {
+        AprilTagFieldLayoutWithCorrectOrientation m_layout = AprilTagFieldLayoutWithCorrectOrientation.blueLayout();
+        Pose2d m_goal = DriveToAprilTag.goal(4, 1, m_layout);
+        assertEquals(15.18, m_goal.getX(), .01);
+        assertEquals(6.749, m_goal.getY(), .005);
+        assertEquals(0, m_goal.getRotation().getRadians(), 0.001);
+    }
+
+}
