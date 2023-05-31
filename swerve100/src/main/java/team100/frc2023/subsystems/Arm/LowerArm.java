@@ -7,7 +7,7 @@ package team100.frc2023.subsystems.Arm;
 import java.util.function.Supplier;
 
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import team100.frc2023.FRCLib.Motors.FRCNEO;
+import team100.lib.motors.FRCNEO;
 
 public class LowerArm extends SubsystemBase {
   /** Creates a new UpperArm. */
