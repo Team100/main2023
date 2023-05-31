@@ -52,8 +52,6 @@ public class AprilTagFieldLayoutWithCorrectOrientation {
     }
 
     /**
-     * TODO: get rid of Optional here.
-     * 
      * @return Tag pose with correct yaw (inverted compared to json file)
      */
     public Optional<Pose3d> getTagPose(int id) {

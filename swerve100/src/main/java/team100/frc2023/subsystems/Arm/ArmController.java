@@ -159,7 +159,6 @@ public class ArmController extends SubsystemBase {
 
     /**
      * Clamps the coordinates to the max values.
-     * TODO: Make sure the arm doesn't collide with itself or the robot
      * 
      * @param x
      * @param y

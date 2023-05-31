@@ -66,7 +66,6 @@ public class GamepieceLocator extends SubsystemBase {
         if (left < 0 || right < 0) {
             offset = 0;
             hasGamepiece = false;
-            // TODO add error state tracking
         }
 
         // If the sensors give us a distance larger than the manipulator, we can assume they are

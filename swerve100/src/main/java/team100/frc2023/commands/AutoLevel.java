@@ -57,7 +57,7 @@ public class AutoLevel extends CommandBase {
             // m_robotDrive.drive(-0.2, 0, 0, true);
         // }
     } else {
-        if(m_robotDrive.getPose().getX() >= 3.277){ //TODO real number needed TOTAL GUESS
+        if(m_robotDrive.getPose().getX() >= 3.277){
             double Roll = m_gyro.getRedundantRoll();
             double Pitch = m_gyro.getRedundantPitch();
                 // System.out.println(Roll);

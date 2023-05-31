@@ -32,7 +32,6 @@ import team100.frc2023.control.DualXboxControl;
 import team100.frc2023.localization.VisionDataProvider;
 
 public class SwerveDriveSubsystem extends SubsystemBase {
-    // TODO: make this an instance var
     public static final SwerveDriveKinematics kDriveKinematics;
     // public ChassisSpeeds robotStates = new ChassisSpeeds();
     // public double observedVelocity;
@@ -754,7 +753,6 @@ public class SwerveDriveSubsystem extends SubsystemBase {
         desiredChassisSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(6 * xSpeed,
                 6 * ySpeed, 5 * rot,
                 rotation2);
-        // TODO fix fieldRelative making this go crazy when it is off
         var swerveModuleStates = kDriveKinematics.toSwerveModuleStates(
                 fieldRelative
                         ? desiredChassisSpeeds
@@ -792,7 +790,6 @@ public class SwerveDriveSubsystem extends SubsystemBase {
         desiredChassisSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(kMaxSpeed * xSpeed,
                 kMaxSpeed * ySpeed, kMaxRot * rot,
                 rotation2);
-        // TODO fix fieldRelative making this go crazy when it is off
         var swerveModuleStates = kDriveKinematics.toSwerveModuleStates(
                 fieldRelative
                         ? desiredChassisSpeeds  
@@ -830,7 +827,6 @@ public class SwerveDriveSubsystem extends SubsystemBase {
         desiredChassisSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(kMaxSpeed * xSpeed,
                 kMaxSpeed * ySpeed, kMaxRot * rot,
                 rotation2);
-        // TODO fix fieldRelative making this go crazy when it is off
         var swerveModuleStates = kDriveKinematics.toSwerveModuleStates(
                 fieldRelative
                         ? desiredChassisSpeeds

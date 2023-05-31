@@ -77,7 +77,6 @@ public class SwerveModule implements Sendable {
         driveMotorControllerOutput = m_driveController.calculate(getDriveSpeedMS(), state.speedMetersPerSecond);
         turningMotorControllerOutput = m_turningController.calculate(getTurningAngleRad(), state.angle.getRadians());
         turningFeedForwardOutput = m_turningFeedforward.calculate(getTurnSetpointVelocityRadS(), 0);
-        // TODO: smooth out accel
         double accelMetersPerSecondPerSecond = (state.speedMetersPerSecond - previousSpeedMetersPerSecond) / 0.02;
         previousSpeedMetersPerSecond = state.speedMetersPerSecond;
         driveFeedForwardOutput = m_driveFeedforward.calculate(
@@ -107,7 +106,6 @@ public class SwerveModule implements Sendable {
         driveMotorControllerOutput = m_driveController.calculate(getDriveSpeedMS(), state.speedMetersPerSecond);
         turningMotorControllerOutput = m_turningController.calculate(getTurningAngleRad(), state.angle.getRadians());
         turningFeedForwardOutput = m_turningFeedforward.calculate(getTurnSetpointVelocityRadS(), 0);
-        // TODO: smooth out accel
         double accelMetersPerSecondPerSecond = (state.speedMetersPerSecond - previousSpeedMetersPerSecond) / 0.02;
         previousSpeedMetersPerSecond = state.speedMetersPerSecond;
         driveFeedForwardOutput = m_headingDriveFeedforward.calculate(
@@ -142,7 +140,6 @@ public class SwerveModule implements Sendable {
         driveMotorControllerOutput = m_driveController.calculate(getDriveSpeedMS(), state.speedMetersPerSecond);
         turningMotorControllerOutput = m_turningController.calculate(getTurningAngleRad(), state.angle.getRadians());
         turningFeedForwardOutput = m_turningFeedforward.calculate(getTurnSetpointVelocityRadS(), 0);
-        // TODO: smooth out accel
         double accelMetersPerSecondPerSecond = (state.speedMetersPerSecond - previousSpeedMetersPerSecond) / 0.02;
         previousSpeedMetersPerSecond = state.speedMetersPerSecond;
         driveFeedForwardOutput = m_driveFeedforward.calculate(

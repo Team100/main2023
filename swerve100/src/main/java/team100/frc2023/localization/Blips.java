@@ -10,7 +10,6 @@ import java.util.List;
 public class Blips {
     /**
      * Elapsed time of the analysis in python.
-     * TODO: calibrate this number so we can use it for Kalman filter updates.
      */
     public final double et;
 

@@ -8,7 +8,6 @@ public class ManualArm extends CommandBase {
     private final ArmController arm;
     private final XboxController m_controller;
 
-    // TODO: get rid of the controller argument, use x and y suppliers instead.
     public ManualArm(ArmController a, XboxController controller) {
         arm = a;
         m_controller = controller;

@@ -61,8 +61,6 @@ public class VasiliAutonomous extends SequentialCommandGroup {
         ));
 
         addCommands(
-                // TODO add place cone/cube command here
-                // TODO Create a new holonmoic drive controller with the rotation fix
                 // moveFromStartingPoseToGamePiece
                 // .newMoveFromStartingPoseToGamePiece(
                 // m_robotDrive,
@@ -109,9 +107,5 @@ public class VasiliAutonomous extends SequentialCommandGroup {
 
                 new AutoLevel(true, m_robotDrive, m_gyro)
         );
-
-        // TODO Make a pickup cone/cube from floor command here
-
-
     }
 }

@@ -134,7 +134,6 @@ public class DriveToWaypoint2 extends CommandBase {
         Pose2d currentPose = m_swerve.getPose();
         Translation2d currentTranslation = currentPose.getTranslation();
         goalTransform = new Transform2d();
-        // TODO: Change based on task
         if (goalOffset == GoalOffset.left) {
 
             goalTransform = new Transform2d(new Translation2d(0, -m_yOffset - m_gamePieceOffsetSupplier.get()), new Rotation2d());
@@ -154,7 +153,6 @@ public class DriveToWaypoint2 extends CommandBase {
         withStartVelocityConfig.setStartVelocity(startVelocity);
 
         // globalGoalTranslation = goalTranslation;
-        // TODO: Change starting waypoint to align with starting velocity
         try {
             return TrajectoryGenerator.generateTrajectory(
                     new Pose2d(currentTranslation, angleToGoal),
