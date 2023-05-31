@@ -1,10 +1,10 @@
-package team100.frc2023.subsystems.GamePieceDetection;
+package team100.frc2023.subsystems.game_piece_detection;
 
 import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import team100.frc2023.subsystems.GamePieceDetection.DistanceSensors.DistanceSensor;
-import team100.frc2023.subsystems.GamePieceDetection.DistanceSensors.NTDistanceSensor;
+import team100.frc2023.subsystems.game_piece_detection.distance_sensors.DistanceSensor;
+import team100.frc2023.subsystems.game_piece_detection.distance_sensors.NTDistanceSensor;
 
 public class GamepieceLocator extends SubsystemBase {
     private final double kSeparationWidth = 40;

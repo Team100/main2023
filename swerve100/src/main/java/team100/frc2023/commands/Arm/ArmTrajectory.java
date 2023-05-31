@@ -15,9 +15,9 @@ import edu.wpi.first.networktables.DoublePublisher;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.CommandBase;
-import team100.frc2023.subsystems.Arm.ArmController;
-import team100.frc2023.subsystems.Arm.ArmPosition;
-import team100.frc2023.subsystems.Arm.InverseKinematicsAngle;
+import team100.frc2023.subsystems.arm.ArmController;
+import team100.frc2023.subsystems.arm.ArmPosition;
+import team100.frc2023.subsystems.arm.InverseKinematicsAngle;
 
 public class ArmTrajectory extends CommandBase {
     NetworkTableInstance inst = NetworkTableInstance.getDefault();

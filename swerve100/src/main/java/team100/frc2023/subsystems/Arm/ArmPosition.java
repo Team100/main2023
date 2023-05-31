@@ -1,4 +1,4 @@
-package team100.frc2023.subsystems.Arm;
+package team100.frc2023.subsystems.arm;
 
 /** Add your docs here. */
 public enum ArmPosition {

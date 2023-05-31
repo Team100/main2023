@@ -2,7 +2,7 @@ package team100.frc2023.commands.Arm;
 
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import team100.frc2023.subsystems.SwerveDriveSubsystem;
-import team100.frc2023.subsystems.Arm.ArmController;
+import team100.frc2023.subsystems.arm.ArmController;
 
 public class SetCubeMode extends CommandBase {
     ArmController m_arm;

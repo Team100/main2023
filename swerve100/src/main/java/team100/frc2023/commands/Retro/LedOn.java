@@ -1,7 +1,7 @@
 package team100.frc2023.commands.Retro;
 
 import edu.wpi.first.wpilibj2.command.CommandBase;
-import team100.frc2023.Retro.Illuminator;
+import team100.frc2023.retro.Illuminator;
 
 public class LedOn extends CommandBase {
   /** Creates a new LedOn. */

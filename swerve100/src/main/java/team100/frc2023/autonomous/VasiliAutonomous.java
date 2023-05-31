@@ -13,8 +13,8 @@ import team100.frc2023.commands.Manipulator.Close;
 import team100.frc2023.subsystems.AHRSClass;
 import team100.frc2023.subsystems.Manipulator;
 import team100.frc2023.subsystems.SwerveDriveSubsystem;
-import team100.frc2023.subsystems.Arm.ArmController;
-import team100.frc2023.subsystems.Arm.ArmPosition;
+import team100.frc2023.subsystems.arm.ArmController;
+import team100.frc2023.subsystems.arm.ArmPosition;
 
 public class VasiliAutonomous extends SequentialCommandGroup {
 

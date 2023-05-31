@@ -13,8 +13,8 @@ import team100.frc2023.commands.Manipulator.Close;
 import team100.frc2023.subsystems.AHRSClass;
 import team100.frc2023.subsystems.Manipulator;
 import team100.frc2023.subsystems.SwerveDriveSubsystem;
-import team100.frc2023.subsystems.Arm.ArmController;
-import team100.frc2023.subsystems.Arm.ArmPosition;
+import team100.frc2023.subsystems.arm.ArmController;
+import team100.frc2023.subsystems.arm.ArmPosition;
 
 // NOTE:  Consider using this command inline, rather than writing a subclass.  For more
 // information, see:

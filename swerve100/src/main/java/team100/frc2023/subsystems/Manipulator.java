@@ -8,7 +8,7 @@ import edu.wpi.first.wpilibj.AnalogEncoder;
 // import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import team100.frc2023.subsystems.GamePieceDetection.GamepieceLocator;
+import team100.frc2023.subsystems.game_piece_detection.GamepieceLocator;
 import team100.lib.motors.FRCTalonSRX;
 import team100.lib.motors.FRCTalonSRX.FRCTalonSRXBuilder;
 

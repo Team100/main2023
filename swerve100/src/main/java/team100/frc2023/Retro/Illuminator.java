@@ -1,4 +1,4 @@
-package team100.frc2023.Retro;
+package team100.frc2023.retro;
 
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;

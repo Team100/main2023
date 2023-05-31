@@ -2,7 +2,7 @@ package team100.frc2023.commands;
 
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import team100.frc2023.subsystems.AutonGamePiece;
-import team100.frc2023.subsystems.Arm.ArmController;
+import team100.frc2023.subsystems.arm.ArmController;
 
 public class SelectGamePiece extends CommandBase {
   /** Creates a new SelectGamePiece. */
