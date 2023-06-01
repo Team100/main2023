@@ -790,7 +790,5 @@ public class PanTiltOffsetTest {
             assertEquals(0, robotInFieldCoords.getRotation().getY(), kDelta);
             assertEquals(0, robotInFieldCoords.getRotation().getZ(), kDelta);
         }
-
-        // TODO: write a test that composes pan and tilt.
     }
 }

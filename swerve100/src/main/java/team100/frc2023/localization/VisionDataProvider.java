@@ -61,7 +61,6 @@ public class VisionDataProvider extends SubsystemBase implements TableEventListe
     private final SwerveDrivePoseEstimator poseEstimator;
     private final double kVisionChangeToleranceMeters = .1;
 
-    // TODO Make this private
     public AprilTagFieldLayoutWithCorrectOrientation layout;
 
     SwerveDriveSubsystem m_robotDrive;

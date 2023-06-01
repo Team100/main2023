@@ -12,7 +12,7 @@ import edu.wpi.first.math.trajectory.TrapezoidProfile.State;
 import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.ProfiledPIDCommand;
-import team100.frc2023.subsystems.Arm.ArmController;
+import team100.frc2023.subsystems.arm.ArmController;
 
 // NOTE:  Consider using this command inline, rather than writing a subclass.  For more
 // information, see:

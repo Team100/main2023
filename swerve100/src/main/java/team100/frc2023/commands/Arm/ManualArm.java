@@ -2,13 +2,12 @@ package team100.frc2023.commands.Arm;
 
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.CommandBase;
-import team100.frc2023.subsystems.Arm.ArmController;
+import team100.frc2023.subsystems.arm.ArmController;
 
 public class ManualArm extends CommandBase {
     private final ArmController arm;
     private final XboxController m_controller;
 
-    // TODO: get rid of the controller argument, use x and y suppliers instead.
     public ManualArm(ArmController a, XboxController controller) {
         arm = a;
         m_controller = controller;

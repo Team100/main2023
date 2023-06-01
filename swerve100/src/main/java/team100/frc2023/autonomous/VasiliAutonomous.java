@@ -13,8 +13,8 @@ import team100.frc2023.commands.Manipulator.Close;
 import team100.frc2023.subsystems.AHRSClass;
 import team100.frc2023.subsystems.Manipulator;
 import team100.frc2023.subsystems.SwerveDriveSubsystem;
-import team100.frc2023.subsystems.Arm.ArmController;
-import team100.frc2023.subsystems.Arm.ArmPosition;
+import team100.frc2023.subsystems.arm.ArmController;
+import team100.frc2023.subsystems.arm.ArmPosition;
 
 public class VasiliAutonomous extends SequentialCommandGroup {
 
@@ -61,8 +61,6 @@ public class VasiliAutonomous extends SequentialCommandGroup {
         ));
 
         addCommands(
-                // TODO add place cone/cube command here
-                // TODO Create a new holonmoic drive controller with the rotation fix
                 // moveFromStartingPoseToGamePiece
                 // .newMoveFromStartingPoseToGamePiece(
                 // m_robotDrive,
@@ -109,9 +107,5 @@ public class VasiliAutonomous extends SequentialCommandGroup {
 
                 new AutoLevel(true, m_robotDrive, m_gyro)
         );
-
-        // TODO Make a pickup cone/cube from floor command here
-
-
     }
 }

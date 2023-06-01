@@ -29,10 +29,6 @@ package team100.frc2023.autonomous;
 //     // Add your commands in the addCommands() call, e.g.
 //     // addCommands(new FooCommand(), new BarCommand());
 
-//     //TODO make an isFinished for arm trajectory
-//     //TODO make the measurments irl
-//     //TODO make charge station measurments
-
 //     if(autonProcedure == AutonSelect.RED1){ //origin is at right 
 //         addCommands(
 //             new SetConeMode(arm, m_robotDrive),

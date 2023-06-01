@@ -1,4 +1,4 @@
-package team100.frc2023.subsystems.Arm;
+package team100.frc2023.subsystems.arm;
 
 import com.revrobotics.CANSparkMax.IdleMode;
 
@@ -159,7 +159,6 @@ public class ArmController extends SubsystemBase {
 
     /**
      * Clamps the coordinates to the max values.
-     * TODO: Make sure the arm doesn't collide with itself or the robot
      * 
      * @param x
      * @param y

@@ -28,9 +28,9 @@ public class OnboardIndicator {
     private static final int kStripLength = 60;
     private static final int kOffset = 30;
 
-    private static enum Face {
-        FRONT, BACK;
-    }
+    // private static enum Face {
+    //     FRONT, BACK;
+    // }
 
     private static enum State {
         OFF(Color.kBlack),

@@ -2,11 +2,7 @@ package team100.frc2023;
 
 import java.io.IOException;
 
-import edu.wpi.first.cameraserver.CameraServer;
-import edu.wpi.first.cscore.UsbCamera;
-import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
-import edu.wpi.first.util.datalog.DataLog;
 import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -87,7 +83,7 @@ public class Robot extends TimedRobot {
     public void disabledInit() {
         // m_robotContainer.ledStop();
         m_robotContainer.ledStart();
-        m_robotContainer.enabled = false;
+        RobotContainer.enabled = false;
     }
 
     @Override
@@ -171,7 +167,7 @@ public class Robot extends TimedRobot {
             m_autonomousCommand.cancel();
         }
 
-        m_robotContainer.enabled = true;
+        RobotContainer.enabled = true;
 
     }
 

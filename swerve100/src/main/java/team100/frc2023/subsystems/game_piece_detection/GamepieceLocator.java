@@ -1,14 +1,10 @@
-// Copyright (c) FIRST and other WPILib contributors.
-// Open Source Software; you can modify and/or share it under the terms of
-// the WPILib BSD license file in the root directory of this project.
-
-package team100.frc2023.subsystems.GamePieceDetection;
+package team100.frc2023.subsystems.game_piece_detection;
 
 import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import team100.frc2023.subsystems.GamePieceDetection.DistanceSensors.DistanceSensor;
-import team100.frc2023.subsystems.GamePieceDetection.DistanceSensors.NTDistanceSensor;
+import team100.frc2023.subsystems.game_piece_detection.distance_sensors.DistanceSensor;
+import team100.frc2023.subsystems.game_piece_detection.distance_sensors.NTDistanceSensor;
 
 public class GamepieceLocator extends SubsystemBase {
     private final double kSeparationWidth = 40;
@@ -66,7 +62,6 @@ public class GamepieceLocator extends SubsystemBase {
         if (left < 0 || right < 0) {
             offset = 0;
             hasGamepiece = false;
-            // TODO add error state tracking
         }
 
         // If the sensors give us a distance larger than the manipulator, we can assume they are

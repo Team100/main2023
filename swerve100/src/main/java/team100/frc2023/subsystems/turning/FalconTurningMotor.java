@@ -1,6 +1,5 @@
 package team100.frc2023.subsystems.turning;
 
-import com.ctre.phoenix.ErrorCode;
 import com.ctre.phoenix.motorcontrol.InvertType;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.StatorCurrentLimitConfiguration;
@@ -29,10 +28,10 @@ public class FalconTurningMotor implements TurningMotor {
         SmartDashboard.putData(String.format("Falcon Turning Motor %s", name), this);
     }
 
-    private void require(ErrorCode errorCode) {
-        if (errorCode != ErrorCode.OK)
-            throw new IllegalArgumentException("motor configuration error: " + errorCode.name());
-    }
+    // private void require(ErrorCode errorCode) {
+    //     if (errorCode != ErrorCode.OK)
+    //         throw new IllegalArgumentException("motor configuration error: " + errorCode.name());
+    // }
 
     @Override
     public double get() {

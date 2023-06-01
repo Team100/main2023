@@ -78,12 +78,12 @@ public class DualXboxControl implements Sendable {
 
     public void resetRotation0(ResetRotation command) {
         JoystickButton startButton = new JoystickButton(controller0.getHID(), 7);
-        startButton.onTrue(command); //TODO change these vals to middle buttons 
+        startButton.onTrue(command);
     }
 
     public void resetRotation180(ResetRotation command) {
             JoystickButton startButton = new JoystickButton(controller0.getHID(), 8);
-            startButton.onTrue(command); //TODO change these vals to middle buttons 
+            startButton.onTrue(command);
         }
 
         /** @return [-1,1] */
@@ -106,7 +106,6 @@ public class DualXboxControl implements Sendable {
         controller0.leftBumper().whileTrue(command);
     }
 
-    // TODO: remove this
     public XboxController getController0() {
         return controller0.getHID();
     }
@@ -204,7 +203,6 @@ public class DualXboxControl implements Sendable {
         return controller1.getLeftY();
     }
 
-    // TODO: remove this
     public XboxController getController() {
         return controller1.getHID();
     }
