@@ -131,4 +131,9 @@ task proguard(type: proguard.gradle.ProGuardTask) {
     configuration 'proguard.txt'
 }
 
+task proguardshrink(type: proguard.gradle.ProGuardTask) {
+    configuration 'proguard-shrink.txt'
+}
+
 test.finalizedBy proguard
+test.finalizedBy proguardshrink
