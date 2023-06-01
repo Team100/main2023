@@ -1,0 +1,40 @@
+-injars build/libs/swerve100.jar
+
+# Include java runtime classes
+-libraryjars  <java.home>/jmods/java.base.jmod(!**.jar;!module-info.class)
+
+-dontoptimize
+-dontobfuscate
+-dontpreverify
+-printusage unused.txt
+
+-keep public class team100.frc2023.Main {
+    public static void main(java.lang.String[]);
+}
+
+# don't worry about unused stuff in library classes
+
+-keep class com.ctre.** { *; }
+-keep class com.fasterxml.** { *; }
+-keep class edu.wpi.** { *; }
+-keep class org.ejml.** { *; }
+-keep class com.kauailabs.** { *; }
+-keep class com.revrobotics.** { *; }
+-keep class org.msgpack.** { *; }
+-keep class org.opencv.** { *; }
+-keep class pabeles.** { *; }
+
+# don't worry about stuff that the linker can't find, since we don't use it:
+
+-dontwarn java.awt.**
+-dontwarn java.beans.**
+-dontwarn java.sql.**
+-dontwarn java.util.logging.**
+-dontwarn javax.swing.**
+-dontwarn javax.xml.**
+-dontwarn org.ejml.dense.row.**
+-dontwarn org.jetbrains.**
+-dontwarn org.w3c.**
+-dontwarn org.xml.**
+-dontwarn sun.misc.Unsafe
+-dontwarn us.hebi.matlab.mat.**
