@@ -1,0 +1,28 @@
+-injars build/libs/swerve100.jar
+-outjars build/libs/swerve100_out.jar
+
+# Include java runtime classes
+-libraryjars  <java.home>/jmods/java.base.jmod(!**.jar;!module-info.class)
+
+-optimizationpasses 8
+-dontobfuscate
+-dontpreverify
+
+-keep public class team100.frc2023.Main {
+    public static void main(java.lang.String[]);
+}
+
+# don't worry about stuff that the linker can't find, since we don't use it:
+
+-dontwarn java.awt.**
+-dontwarn java.beans.**
+-dontwarn java.sql.**
+-dontwarn java.util.logging.**
+-dontwarn javax.swing.**
+-dontwarn javax.xml.**
+-dontwarn org.ejml.dense.row.**
+-dontwarn org.jetbrains.**
+-dontwarn org.w3c.**
+-dontwarn org.xml.**
+-dontwarn sun.misc.Unsafe
+-dontwarn us.hebi.matlab.mat.**
