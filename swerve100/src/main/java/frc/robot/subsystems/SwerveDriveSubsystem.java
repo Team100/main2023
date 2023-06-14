@@ -120,6 +120,8 @@ public class SwerveDriveSubsystem extends SubsystemBase {
 
     public double keyList = -1;
 
+    public double m_xVelocity = 0;
+
     
 
     public SwerveDriveSubsystem(DriverStation.Alliance alliance, double currentLimit, AHRSClass gyro, DualXboxControl control) throws IOException {
@@ -889,12 +891,17 @@ public class SwerveDriveSubsystem extends SubsystemBase {
         yVelocity = chassisSpeeds.vyMetersPerSecond;
         thetaVelociy = chassisSpeeds.omegaRadiansPerSecond;
 
+        m_xVelocity = xVelocity;
+
         if (xVelocity >= 0.1 || yVelocity >= 0.1 || thetaVelociy >= 0.1) {
             moving = true;
         } else {
             moving = false;
         }
     }
+
+        
+    
 
     public void test(double[][] desiredOutputs, FileWriter writer) {
         m_frontLeft.setOutput(desiredOutputs[0][0], desiredOutputs[0][1]);
