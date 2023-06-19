@@ -2,12 +2,20 @@ package frc.robot.autonomous;
 
 import java.util.List;
 
+import edu.wpi.first.math.Nat;
+import edu.wpi.first.math.VecBuilder;
+import edu.wpi.first.math.controller.LinearQuadraticRegulator;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
+import edu.wpi.first.math.estimator.KalmanFilter;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.numbers.N1;
+import edu.wpi.first.math.numbers.N2;
+import edu.wpi.first.math.system.LinearSystem;
+import edu.wpi.first.math.system.plant.LinearSystemId;
 import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.math.trajectory.TrajectoryConfig;
 import edu.wpi.first.math.trajectory.TrajectoryGenerator;
@@ -17,6 +25,7 @@ import edu.wpi.first.networktables.DoublePublisher;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.CommandBase;
+import frc.robot.LQRManager;
 import frc.robot.commands.GoalOffset;
 import frc.robot.subsystems.AHRSClass;
 import frc.robot.subsystems.SwerveDriveSubsystem;
@@ -69,9 +78,9 @@ public class DriveToWaypoint3 extends CommandBase {
 
     private final TrajectoryConfig translationConfig;
     private final ProfiledPIDController m_rotationController;
-    private final PIDController xController;
-    private final PIDController yController;
-    private final HolonomicDriveController2 m_controller;
+    private final LQRManager xManager;
+    private final LQRManager yManager;
+    private final HolonomicLQR m_controller;
 
     // private final Manipulator m_manipulator;
 
@@ -90,32 +99,44 @@ public class DriveToWaypoint3 extends CommandBase {
         m_gyro = gyro;
         System.out.println("CONSTRUCTOR****************************************************");
 
-        // goalOffsetSupplier = offsetSupplier;
-        // m_gamePieceOffsetSupplier = gamePieceOffsetSupplier;
-
-        // previousOffset = goalOffsetSupplier.get();
-        // m_yOffset = yOffset;
 
         m_rotationController = new ProfiledPIDController(6.5, 0, 1, rotationConstraints); //4.5
         m_rotationController.setTolerance(Math.PI / 180);
 
-        // xController = new PIDController(2, 0, 0);
+        TrapezoidProfile.Constraints m_constraints = new TrapezoidProfile.Constraints(
+          5,
+          5);
+          
+        LinearSystem<N2, N1, N1> m_translationPlant = LinearSystemId.identifyPositionSystem(1.3 
+        ,0.06);
 
-        xController = new PIDController(2, 0, 0); //2.5
-        xController.setIntegratorRange(-0.3, 0.3);
-        xController.setTolerance(0.00000001);
+        KalmanFilter<N2, N1, N1> m_translationObserver = new KalmanFilter<>(
+            Nat.N2(),
+            Nat.N1(),
+            m_translationPlant,
+            VecBuilder.fill(0.015, 0.17), // How accurate we
+            // think our model is, in radians and radians/sec
+            VecBuilder.fill(0.01), // How accurate we think our encoder position
+            // data is. In this case we very highly trust our encoder position reading.
+            0.020);
 
-        yController = new PIDController(2, 0, 0); //2.5
-        yController.setIntegratorRange(-0.3, 0.3);
-        yController.setTolerance(0.00000001);
+        LinearQuadraticRegulator<N2, N1, N1> m_translationController =
+          new LinearQuadraticRegulator<>(
+            m_translationPlant,
+            VecBuilder.fill(0.05, 1), // qelms.
+            VecBuilder.fill(10), // relms. Control effort (voltage) tolerance. Decrease this to more
+            0.020); // Nominal time between loops. 0.020 for TimedRobot, but can be
 
-        // yController.setTolerance(0.05);
-
-        m_controller = new HolonomicDriveController2(xController, yController, m_rotationController, m_gyro);
+        
+        xManager = new LQRManager(m_translationPlant, m_translationObserver, m_translationController, m_constraints);
+        yManager = new LQRManager(m_translationPlant, m_translationObserver, m_translationController, m_constraints);
+        
+        m_controller = new HolonomicLQR(m_swerve, xManager, yManager, m_rotationController, gyro);
+        // m_controller = new HolonomicDriveController2(xController, yController, m_rotationController, m_gyro);
         
         translationConfig = new TrajectoryConfig(
                 5, // velocity m/s
-                4.5 // accel m/s/s
+                5 // accel m/s/s
         ).setKinematics(SwerveDriveSubsystem.kDriveKinematics);
 
         // globalGoalTranslation = new Translation2d();
@@ -132,16 +153,7 @@ public class DriveToWaypoint3 extends CommandBase {
         Pose2d currentPose = m_swerve.getPose();
         Translation2d currentTranslation = currentPose.getTranslation();
         goalTransform = new Transform2d();
-        // TODO: Change based on task
-        // if (goalOffset == GoalOffset.left) {
 
-        //     goalTransform = new Transform2d(new Translation2d(0, -m_yOffset - m_gamePieceOffsetSupplier.get()), new Rotation2d());
-        //     System.out.println("lalallalalalalalalalalalalallalalalala");
-        // }
-        // if (goalOffset == GoalOffset.right) {
-        //     goalTransform = new Transform2d(new Translation2d(0, m_yOffset - m_gamePieceOffsetSupplier.get()), new Rotation2d());
-        //     System.out.println("fffffffffffffffffffffffffffffffffffffffffffff");
-        // }
         Pose2d transformedGoal = goal.plus(goalTransform);
         // System.out.println(goalOffset);
         Translation2d goalTranslation = transformedGoal.getTranslation();
@@ -170,6 +182,7 @@ public class DriveToWaypoint3 extends CommandBase {
         isFinished = false;
         m_timer.restart();
         count = 0;
+        m_controller.reset(m_swerve.getPose());
         m_trajectory = makeTrajectory(previousOffset, 0);
     }
 
@@ -200,64 +213,10 @@ public class DriveToWaypoint3 extends CommandBase {
         }
         double curTime = m_timer.get();
         var desiredState = m_trajectory.sample(curTime);
-
-        this.desiredX = desiredState.poseMeters.getX();
-
-        this.desiredY = desiredState.poseMeters.getY();
-
-        // System.out.println("*****************"+goal);
         var targetChassisSpeeds = m_controller.calculate(m_swerve.getPose(), desiredState, goal.getRotation());
         var targetModuleStates = SwerveDriveSubsystem.kDriveKinematics.toSwerveModuleStates(targetChassisSpeeds);
-
-        desiredXPublisher.set(desiredX);
-        desiredYPublisher.set(desiredY);
-        poseXPublisher.set(m_swerve.getPose().getX());
-        poseYPublisher.set(m_swerve.getPose().getY());
-        desiredRotPublisher.set(goal.getRotation().getRadians());
-
-        rotSetpoint.set(m_rotationController.getSetpoint().position);
-
-
-        poseRotPublisher.set(m_swerve.getPose().getRotation().getRadians());
-
-        poseXErrorPublisher.set(xController.getPositionError());
-        poseYErrorPublisher.set(yController.getPositionError());
-
-
-        // holonomicXSetpoint.set(m_controller.getSetpoint());
-
-
         m_swerve.setModuleStates(targetModuleStates);
 
-        // if( Math.abs(globalGoalTranslation.getX() - m_swerve.getPose().getX()) < 0.15
-        // && Math.abs(globalGoalTranslation.getY() - m_swerve.getPose().getY()) < 0.15
-        // ){
-        // count++;
-        // }
-
-        // if(count >= 20){
-        // isFinished = true;
-        // }
-
-        // if(count >= 60){
-        //     isFinished = true;
-        // }
     }
-
-    // public double getDesiredX() {
-    // // System.out.println("GLAAAAAAAAAAAAAAAAAA: "+ this.desiredX);
-    // return this.desiredX;
-
-    // }
-
-
-    // @Override
-    // public void initSendable(SendableBuilder builder) {
-    //     super.initSendable(builder);
-    //     builder.addDoubleProperty("X Setpoint", () -> xController.getSetpoint(), null);
-    //     builder.addDoubleProperty("X Error", () -> xController.getPositionError(), null);
-    //     builder.addDoubleProperty("X Measurment", () -> xController.getPositionError(), null);
-
-    // }
     
 }

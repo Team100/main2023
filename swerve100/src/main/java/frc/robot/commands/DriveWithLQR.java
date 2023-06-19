@@ -25,13 +25,15 @@ public class DriveWithLQR extends CommandBase {
 
   TrapezoidProfile.State goal;
 
+  boolean done = false;
+
   private final TrapezoidProfile.Constraints m_constraints =
       new TrapezoidProfile.Constraints(
           5,
           5); 
   private TrapezoidProfile.State m_lastProfiledReference = new TrapezoidProfile.State();
 
-  private final LinearSystem<N2, N1, N1> m_drivePlant = LinearSystemId.identifyPositionSystem(.3, 0.025);
+  private final LinearSystem<N2, N1, N1> m_drivePlant = LinearSystemId.identifyPositionSystem(.5, 0.025);
 
   private final KalmanFilter<N2, N1, N1> m_observer =
     new KalmanFilter<>(
@@ -47,18 +49,18 @@ public class DriveWithLQR extends CommandBase {
   private final LinearQuadraticRegulator<N2, N1, N1> m_controller =
     new LinearQuadraticRegulator<>(
       m_drivePlant,
-      VecBuilder.fill(1.0, 10.0), // qelms.
-      VecBuilder.fill(5), // relms. Control effort (voltage) tolerance. Decrease this to more
+      VecBuilder.fill(0.5, 10.0), // qelms.
+      VecBuilder.fill(12), // relms. Control effort (voltage) tolerance. Decrease this to more
       0.020); // Nominal time between loops. 0.020 for TimedRobot, but can be
 
   private final LinearSystemLoop<N2, N1, N1> m_loop =
-      new LinearSystemLoop<>(m_drivePlant, m_controller, m_observer, 5.0, 0.020);
+      new LinearSystemLoop<>(m_drivePlant, m_controller, m_observer, 12.0, 0.020);
       
   public DriveWithLQR(SwerveDriveSubsystem robotDrive) {
     // Use addRequirements() here to declare subsystem dependencies.
 
     m_robotDrive = robotDrive;
-
+    done = false;
     addRequirements(m_robotDrive);
   }
 
@@ -66,8 +68,9 @@ public class DriveWithLQR extends CommandBase {
   @Override
   public void initialize() {
     m_loop.reset(VecBuilder.fill(m_robotDrive.getPose().getX(), 0));
-    goal = new TrapezoidProfile.State(m_robotDrive.getPose().getX() + 1, 0.0);
 
+    goal = new TrapezoidProfile.State(m_robotDrive.getPose().getX() + 1, 0.0);
+    
     m_lastProfiledReference =
         new TrapezoidProfile.State(m_robotDrive.getPose().getX(), 0);
 
@@ -78,6 +81,9 @@ public class DriveWithLQR extends CommandBase {
   public void execute() {
     m_lastProfiledReference = (new TrapezoidProfile(m_constraints, goal, m_lastProfiledReference)).calculate(0.020);
 
+    if(m_lastProfiledReference.position == goal.position){
+        done = true;
+    }
     m_loop.setNextR(m_lastProfiledReference.position, m_lastProfiledReference.velocity);
     
     m_loop.correct(VecBuilder.fill(m_robotDrive.getPose().getX()));
@@ -94,11 +100,13 @@ public class DriveWithLQR extends CommandBase {
 
   // Called once the command ends or is interrupted.
   @Override
-  public void end(boolean interrupted) {}
+  public void end(boolean interrupted) {
+    done = false;
+  }
 
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    return false;
+    return done;
   }
 }

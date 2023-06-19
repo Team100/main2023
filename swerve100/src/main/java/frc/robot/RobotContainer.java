@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.util.sendable.Sendable;
 import edu.wpi.first.util.sendable.SendableBuilder;
@@ -17,6 +18,7 @@ import frc.robot.autonomous.Autonomous;
 import frc.robot.autonomous.AutonomousOverride;
 import frc.robot.autonomous.DriveToAprilTag;
 import frc.robot.autonomous.DriveToWaypoint2;
+import frc.robot.autonomous.DriveToWaypoint3;
 import frc.robot.autonomous.MoveConeWidth;
 import frc.robot.autonomous.MoveToAprilTag;
 import frc.robot.autonomous.Rotate;
@@ -25,6 +27,7 @@ import frc.robot.commands.DriveMedium;
 import frc.robot.commands.DriveRotation;
 import frc.robot.commands.DriveSlow;
 import frc.robot.commands.DriveWithHeading;
+import frc.robot.commands.DriveWithLQR;
 import frc.robot.commands.ResetPose;
 import frc.robot.commands.ResetRotation;
 import frc.robot.commands.Retro.DriveToRetroReflectiveTape;
@@ -113,6 +116,8 @@ public class RobotContainer implements Sendable {
     private final CloseSlow closeSlowCommand;
 
     private final DriveSlow driveSlow;
+    private final DriveWithLQR driveWithLQR;
+    
 
     private final MoveConeWidth moveConeWidthLeft;
     private final MoveConeWidth moveConeWidthRight;
@@ -129,6 +134,7 @@ public class RobotContainer implements Sendable {
 
     public double m_routine = -1;
 
+    private final DriveToWaypoint3 driveToPoint;
     
 
 
@@ -152,6 +158,7 @@ public class RobotContainer implements Sendable {
         m_alliance = alliance;
 
         m_robotDrive = new SwerveDriveSubsystem(m_alliance, kDriveCurrentLimit, ahrsclass, control);
+
 
         if (m_alliance == DriverStation.Alliance.Blue) {
             // driveToLeftGrid = DriveToAprilTag.newDriveToAprilTag(6, 0.95, .55, control::goalOffset, m_robotDrive, ahrsclass);
@@ -229,6 +236,7 @@ public class RobotContainer implements Sendable {
 
         armSafeWaypoint = new ArmTrajectory(ArmPosition.SAFEWAYPOINT, armController);
 
+        driveWithLQR = new DriveWithLQR(m_robotDrive);
 
         driveWithHeading = new DriveWithHeading(
                 m_robotDrive,
@@ -257,6 +265,7 @@ public class RobotContainer implements Sendable {
         moveConeWidthLeft = new MoveConeWidth(m_robotDrive, 1);
         moveConeWidthRight = new MoveConeWidth(m_robotDrive, -1);
 
+        driveToPoint = new DriveToWaypoint3(new Pose2d(1, 1, new Rotation2d()), m_robotDrive, ahrsclass);
 
         // control.autoLevel(autoLevel);
         control.driveToLeftGrid(driveToLeftGrid);
@@ -311,11 +320,19 @@ public class RobotContainer implements Sendable {
         control.safeWaypoint(armSafeWaypoint);
 
         control.oscillate(oscillate);
+
+        control.resetPose(resetPose);
  
         // control.armSafeSequential(armSafeWaypoint, armSafe);
 
-        control.moveConeWidthLeft(moveConeWidthLeft);
-        control.moveConeWidthRight(moveConeWidthRight);
+        // control.moveConeWidthLeft(moveConeWidthLeft);
+        // control.moveConeWidthRight(moveConeWidthRight);
+
+        control.driveWithLQR(m_robotDrive);
+
+        control.driveToPoint(driveToPoint);
+
+        
 
 
 

@@ -10,11 +10,13 @@ import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import frc.robot.autonomous.DriveToWaypoint2;
+import frc.robot.autonomous.DriveToWaypoint3;
 import frc.robot.autonomous.MoveConeWidth;
 import frc.robot.autonomous.Rotate;
 import frc.robot.commands.AutoLevel;
 import frc.robot.commands.DriveMedium;
 import frc.robot.commands.DriveSlow;
+import frc.robot.commands.DriveWithLQR;
 import frc.robot.commands.GoalOffset;
 import frc.robot.commands.ResetPose;
 import frc.robot.commands.ResetRotation;
@@ -29,6 +31,7 @@ import frc.robot.commands.Manipulator.Home;
 import frc.robot.commands.Manipulator.Open;
 import frc.robot.commands.Retro.DriveToRetroReflectiveTape;
 import frc.robot.commands.Retro.LedOn;
+import frc.robot.subsystems.SwerveDriveSubsystem;
 import team100.commands.Defense;
 
 /**
@@ -76,6 +79,10 @@ public class DualXboxControl implements Sendable {
         // controller0.y().whileTrue(command);
     };
 
+    public void driveToPoint(DriveToWaypoint3 command) {
+        controller0.y().whileTrue(command);
+    };
+
     public void resetRotation0(ResetRotation command) {
         JoystickButton startButton = new JoystickButton(controller0.getHID(), 7);
         startButton.onTrue(command); //TODO change these vals to middle buttons 
@@ -103,7 +110,7 @@ public class DualXboxControl implements Sendable {
     }
 
     public void driveSlow(DriveSlow command) {
-        controller0.leftBumper().whileTrue(command);
+        // controller0.leftBumper().whileTrue(command);
     }
 
     // TODO: remove this
@@ -112,7 +119,11 @@ public class DualXboxControl implements Sendable {
     }
 
     public void resetPose(ResetPose command){
-        // controller0.leftBumper().onTrue(command);
+        controller0.leftBumper().onTrue(command);
+    }
+
+    public void driveWithLQR(SwerveDriveSubsystem subsystem){
+        controller0.a().onTrue(new DriveWithLQR(subsystem));
     }
 
     public Rotation2d desiredRotation() {
@@ -154,7 +165,7 @@ public class DualXboxControl implements Sendable {
     }
     
     public void rumbleTrigger(RumbleOn command){
-        controller0.a().whileTrue(command);
+        // controller0.a().whileTrue(command);
     }
 
     public void rumbleOff() {
@@ -173,11 +184,11 @@ public class DualXboxControl implements Sendable {
     }
 
     public void moveConeWidthLeft(MoveConeWidth command){
-        controller0.y().whileTrue(command);
+        // controller0.y().whileTrue(command);
     }
 
     public void moveConeWidthRight(MoveConeWidth command){
-        controller0.a().whileTrue(command);
+        // controller0.a().whileTrue(command);
     }
 
     ///////////////////////////////
