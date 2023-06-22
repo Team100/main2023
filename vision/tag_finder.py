@@ -252,7 +252,8 @@ class TagFinder:
         inst.setServer("10.1.0.2")
         # try faster flushing to minimize vision latency; update rate will be limited by frame rate.
         # be careful that this doesn't flood the rio with too many updates.
-        inst.setUpdateRate(0.01)
+        # hmm... 6/22/23, seems like setUpdateRate doesn't exist.
+        # inst.setUpdateRate(0.01)
         # Table for vision output information
         self.vision_nt = inst.getTable("Vision")
         self.vision_nt_msgpack = self.vision_nt.getRawTopic(self.topic_name).publish(
