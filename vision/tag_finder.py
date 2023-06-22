@@ -9,9 +9,11 @@ import cv2
 import libcamera
 import msgpack
 import numpy as np
+import ntcore
+import os
 
 from cscore import CameraServer
-from ntcore import NetworkTableInstance
+# from ntcore import NetworkTableInstance
 from picamera2 import Picamera2
 from pupil_apriltags import Detector
 
@@ -31,6 +33,7 @@ class Camera(Enum):
 
 
 class TagFinder:
+    IMAGE_DIR = 'images'
     def __init__(self, topic_name, width, height):
         self.frame_time = time.time()
         # each camera has its own topic
@@ -66,6 +69,12 @@ class TagFinder:
             width / 2,
             height / 2,
         ]
+
+        # make a place to put example images
+        if not os.path.exists(TagFinder.IMAGE_DIR):
+            os.mkdir(TagFinder.IMAGE_DIR)
+        # to keep track of images to write
+        self.img_ts_sec = 0
 
     def analyze(self, request):
         buffer = request.make_buffer("lores")
@@ -148,10 +157,27 @@ class TagFinder:
         #self.draw_text(img, f"fps {fps:.1f}", (5, 105))
         self.draw_text(img, f"fps {fps:.1f}", (5, 65))
 
+        # write the current timestamp on the image
+        # this timestamp is attached to the NT payloads, see getAtomic()
+        now_us = ntcore._now() #pylint:disable=W0212
+        self.draw_text(img, f"time(us) {now_us}", (5, 105))
+
         # shrink the driver view to avoid overloading the radio
         driver_img = cv2.resize(img, (self.view_width, self.view_height))
         self.output_stream.putFrame(driver_img)
         # self.output_stream.putFrame(img)
+
+        # Write some of the files for later analysis
+        # To retrieve these files, use:
+        # scp pi@10.1.0.11:images/* .
+        # These will accumulate forever so remember to clean it out:
+        # ssh pi@10.1.0.11 "rm images/img*"
+        now_s = now_us // 1000000 # once per second
+        if now_s > self.img_ts_sec:
+            self.img_ts_sec = now_s
+            filename = TagFinder.IMAGE_DIR + "/img" + str(now_s) + ".png"
+            cv2.imwrite(filename, img)
+
 
     def draw_result(self, image, result):
         for result_item in result:
@@ -245,7 +271,7 @@ class TagFinder:
 
     def initialize_nt(self):
         """Start NetworkTables with Rio as server, set up publisher."""
-        inst = NetworkTableInstance.getDefault()
+        inst = ntcore.NetworkTableInstance.getDefault()
         inst.startClient4("tag-finder")
         # this is always the RIO IP address; set a matching static IP on your
         # laptop if you're using this in simulation.
@@ -265,7 +291,7 @@ class TagFinder:
     #     recognize them, so this blindly stops and starts the client.  This is
     #     disruptive, causing flashing in Glass for example ... but better than
     #     zombie mode?"""
-    #     inst = NetworkTableInstance.getDefault()
+    #     inst = ntcore.NetworkTableInstance.getDefault()
     #     inst.stopClient()  # without this, reconnecting doesn't work
     #     inst.startClient4("tag-finder")
 
