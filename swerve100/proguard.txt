@@ -8,7 +8,7 @@
 -dontpreverify
 -printusage unused.txt
 
--keep public class team100.frc2023.Main {
+-keep public class org.team100.frc2023.Main {
     public static void main(java.lang.String[]);
 }
 
