@@ -26,3 +26,7 @@
 -dontwarn org.xml.**
 -dontwarn sun.misc.Unsafe
 -dontwarn us.hebi.matlab.mat.**
+
+# reduce unnecessary output
+
+-dontnote **
