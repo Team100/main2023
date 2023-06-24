@@ -26,6 +26,7 @@
 -dontwarn org.xml.**
 -dontwarn sun.misc.Unsafe
 -dontwarn us.hebi.matlab.mat.**
+-dontwarn kotlin.time.**
 
 # reduce unnecessary output
 
