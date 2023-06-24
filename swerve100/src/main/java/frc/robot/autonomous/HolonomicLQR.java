@@ -4,6 +4,10 @@
 
 package frc.robot.autonomous;
 
+import com.acmerobotics.roadrunner.profile.MotionProfile;
+import com.acmerobotics.roadrunner.profile.MotionProfileGenerator;
+import com.acmerobotics.roadrunner.profile.MotionState;
+
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.controller.LinearQuadraticRegulator;
 import edu.wpi.first.math.controller.PIDController;
@@ -19,6 +23,7 @@ import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.networktables.DoublePublisher;
 import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.wpilibj.Timer;
 import frc.robot.LQRManager;
 import frc.robot.subsystems.AHRSClass;
 import frc.robot.subsystems.SwerveDriveSubsystem;
@@ -44,8 +49,12 @@ public class HolonomicLQR {
   private final LQRManager m_xManager;
   private final LQRManager m_yManager;
 
-  TrapezoidProfile.State goalX;
-  TrapezoidProfile.State goalY;
+  MotionState goalX;
+  MotionState goalY;
+  private MotionProfile profileX = new MotionProfile(null);
+  private MotionProfile profileY = new MotionProfile(null);
+  
+  Timer m_timer = new Timer();
 
 
   private final ProfiledPIDController m_thetaController;
@@ -54,8 +63,8 @@ public class HolonomicLQR {
 
   SwerveDriveSubsystem m_robotDrive;
 
-  private TrapezoidProfile.State m_lastXRef = new TrapezoidProfile.State();
-  private TrapezoidProfile.State m_lastYRef = new TrapezoidProfile.State();
+  private MotionState m_lastXRef = new MotionState(0, 0);
+  private MotionState m_lastYRef = new MotionState(0, 0);
   
   NetworkTableInstance inst = NetworkTableInstance.getDefault();
 
@@ -143,17 +152,25 @@ public class HolonomicLQR {
 
     // Calculate feedback velocities (based on position error).
 
-    goalX = new TrapezoidProfile.State(trajectoryPose.getX(), 0.0);
-    goalY = new TrapezoidProfile.State(trajectoryPose.getY(), 0.0);
+    // goalX = new TrapezoidProfile.State(trajectoryPose.getX(), 0.0);
+    // goalY = new TrapezoidProfile.State(trajectoryPose.getY(), 0.0);
 
-    m_lastXRef = (new TrapezoidProfile(m_xManager.m_constraints, goalX, m_lastXRef)).calculate(0.020);
-    m_lastYRef = (new TrapezoidProfile(m_yManager.m_constraints, goalY, m_lastYRef)).calculate(0.020);
+    // goalX = new MotionState(trajectoryPose.getX(), 0);
+    // goalY = new MotionState(trajectoryPose.getY(), 0);
 
-    xDesired.set(m_lastXRef.position);
-    yDesired.set(m_lastYRef.position);
+    
+    m_lastXRef = profileX.get(m_timer.get());
+    m_lastYRef = profileY.get(m_timer.get());
 
-    m_xManager.m_loop.setNextR(m_lastXRef.position, m_lastXRef.velocity);
-    m_yManager.m_loop.setNextR(m_lastYRef.position, m_lastYRef.velocity);
+    // m_lastXRef = (new TrapezoidProfile(m_xManager.m_constraints, goalX, m_lastXRef)).calculate(0.020);
+    // m_lastYRef = (new TrapezoidProfile(m_yManager.m_constraints, goalY, m_lastYRef)).calculate(0.020);
+
+
+    xDesired.set(m_lastXRef.getX());
+    yDesired.set(m_lastYRef.getX());
+
+    m_xManager.m_loop.setNextR(m_lastXRef.getX(), m_lastXRef.getV());
+    m_yManager.m_loop.setNextR(m_lastYRef.getX(), m_lastYRef.getV());
 
     m_xManager.m_loop.correct(VecBuilder.fill(m_robotDrive.getPose().getX()));
     m_yManager.m_loop.correct(VecBuilder.fill(m_robotDrive.getPose().getY()));
@@ -194,10 +211,31 @@ public class HolonomicLQR {
     m_yManager.m_loop.reset(VecBuilder.fill(m_robotDrive.getPose().getY(), 0));
     
     m_lastXRef =
-      new TrapezoidProfile.State(m_robotDrive.getPose().getX(), 0);
+      new MotionState(m_robotDrive.getPose().getX(), 0);
 
     m_lastYRef =
-      new TrapezoidProfile.State(m_robotDrive.getPose().getY(), 0);
+      new MotionState(m_robotDrive.getPose().getY(), 0);
+
+  }
+
+  public void start(){
+    m_timer.restart();
+  }
+
+  public void updateProfile(double goalX, double endY, double maxVel, double maxAccel, double maxJerk ){
+    profileX = MotionProfileGenerator.generateSimpleMotionProfile(
+        new MotionState(m_robotDrive.getPose().getX(), 0),
+        new MotionState(goalX, 0),
+        maxVel,
+        maxAccel,
+        maxJerk);
+
+    profileY = MotionProfileGenerator.generateSimpleMotionProfile(
+        new MotionState(m_robotDrive.getPose().getY(), 0),
+        new MotionState(endY, 0),
+        maxVel,
+        maxAccel,
+        maxJerk);
 
   }
 

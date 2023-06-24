@@ -183,6 +183,9 @@ public class DriveToWaypoint3 extends CommandBase {
         m_timer.restart();
         count = 0;
         m_controller.reset(m_swerve.getPose());
+        m_controller.start();
+
+        m_controller.updateProfile(goal.getX(), goal.getY(), 5, 5, 2);
         m_trajectory = makeTrajectory(previousOffset, 0);
     }
 
