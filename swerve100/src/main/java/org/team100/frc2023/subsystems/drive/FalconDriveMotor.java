@@ -70,7 +70,7 @@ public class FalconDriveMotor implements DriveMotor {
     }
 
     public void setPID(ControlMode control, double output) {
-        m_motor.set(control, output*110);
+        m_motor.set(control, output*110/6.6);
     }
 
     @Override
