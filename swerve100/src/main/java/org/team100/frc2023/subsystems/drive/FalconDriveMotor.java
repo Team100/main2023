@@ -1,6 +1,7 @@
 package org.team100.frc2023.subsystems.drive;
 
 import com.ctre.phoenix.ErrorCode;
+import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.StatorCurrentLimitConfiguration;
 import com.ctre.phoenix.motorcontrol.SupplyCurrentLimitConfiguration;
@@ -34,7 +35,14 @@ public class FalconDriveMotor implements DriveMotor {
                 new StatorCurrentLimitConfiguration(true, kDriveCurrentLimit, kDriveCurrentLimit, 0));
         m_motor.configSupplyCurrentLimit(
                 new SupplyCurrentLimitConfiguration(true, kDriveCurrentLimit, kDriveCurrentLimit, 0));
-
+                m_motor.configNominalOutputForward(0);
+                m_motor.configNominalOutputReverse(0);
+                m_motor.configPeakOutputForward(1);
+                m_motor.configPeakOutputReverse(-1);
+        m_motor.config_kF(0, 0.05);
+        m_motor.config_kP(0, 0.05);
+        m_motor.config_kI(0, 0);
+        m_motor.config_kD(0, 0);
         // default is 100 ms, i.e. lots of smoothing. robot loop is 20 ms, so this seems
         // like a good maximum.
         m_motor.configVelocityMeasurementPeriod(SensorVelocityMeasPeriod.Period_1Ms);
@@ -59,6 +67,10 @@ public class FalconDriveMotor implements DriveMotor {
     @Override
     public void set(double output) {
         m_motor.setVoltage(10 * MathUtil.clamp(output, -1.3, 1.3));
+    }
+
+    public void setPID(ControlMode control, double output) {
+        m_motor.set(control, output*110);
     }
 
     @Override

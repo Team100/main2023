@@ -6,6 +6,7 @@ import org.team100.frc2023.subsystems.turning.AnalogTurningEncoder;
 import org.team100.frc2023.subsystems.turning.CANTurningMotor;
 import org.team100.frc2023.subsystems.turning.FalconTurningMotor;
 import org.team100.frc2023.subsystems.turning.PWMTurningMotor;
+import org.team100.frc2023.subsystems.turning.TalonSRXTurningEncoder;
 
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
@@ -75,7 +76,7 @@ public class SwerveModuleFactory {
                 driveController, turningController, driveFeedforward, turningFeedforward, headingDriveFeedForward);
     }
 
-    // for 8048's config
+    // for 8048's config and new Offloaded PID
     public static SwerveModule AMCANModule(
             String name,
             int driveMotorCanId,
@@ -90,9 +91,10 @@ public class SwerveModuleFactory {
 
         FalconDriveMotor driveMotor = new FalconDriveMotor(name, driveMotorCanId, currentLimit);
         FalconDriveEncoder driveEncoder = new FalconDriveEncoder(name, driveMotor, driveEncoderDistancePerTurn);
-        CANTurningMotor turningMotor = new CANTurningMotor(name, turningMotorCanId);
         AnalogTurningEncoder turningEncoder = new AnalogTurningEncoder(name, turningEncoderChannel, turningOffset,
-                turningGearRatio);
+        turningGearRatio);
+        CANTurningMotor turningMotor = new CANTurningMotor(name, turningMotorCanId, turningEncoder);
+        TalonSRXTurningEncoder turningEncoder2 = new TalonSRXTurningEncoder(name, turningMotor);
 
         // DRIVE PID
         PIDController driveController = new PIDController( //
@@ -126,7 +128,7 @@ public class SwerveModuleFactory {
                 0.08); // kA: I have no idea what this value should be
 
 
-        return new SwerveModule(name, driveMotor, turningMotor, driveEncoder, turningEncoder,
+        return new SwerveModule(name, driveMotor, turningMotor, driveEncoder, turningEncoder2,
                 driveController, turningController, driveFeedforward, turningFeedforward, headingDriveFeedForward);
     }
 

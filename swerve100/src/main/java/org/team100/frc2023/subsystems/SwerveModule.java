@@ -5,6 +5,8 @@ import org.team100.frc2023.subsystems.drive.DriveMotor;
 import org.team100.frc2023.subsystems.turning.TurningEncoder;
 import org.team100.frc2023.subsystems.turning.TurningMotor;
 
+import com.ctre.phoenix.motorcontrol.ControlMode;
+
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
@@ -16,7 +18,6 @@ import edu.wpi.first.math.util.Units;
 import edu.wpi.first.util.sendable.Sendable;
 import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-
 public class SwerveModule implements Sendable {
     private final String m_name;
     private final DriveMotor m_driveMotor;
@@ -76,8 +77,9 @@ public class SwerveModule implements Sendable {
     public void setDesiredState(SwerveModuleState desiredState) {
         SwerveModuleState state = SwerveModuleState.optimize(desiredState, getTurningRotation());
         driveMotorControllerOutput = m_driveController.calculate(getDriveSpeedMS(), state.speedMetersPerSecond);
-        turningMotorControllerOutput = m_turningController.calculate(getTurningAngleRad(), state.angle.getRadians());
-        turningFeedForwardOutput = m_turningFeedforward.calculate(getTurnSetpointVelocityRadS(), 0);
+        // turningMotorControllerOutput = m_turningController.calculate(getTurningAngleRad(), state.angle.getRadians());
+        // turningFeedForwardOutput = m_turningFeedforward.calculate(getTurnSetpointVelocityRadS(), 0);
+        // TODO: smooth out accel
         double accelMetersPerSecondPerSecond = (state.speedMetersPerSecond - previousSpeedMetersPerSecond) / 0.02;
         previousSpeedMetersPerSecond = state.speedMetersPerSecond;
         driveFeedForwardOutput = m_driveFeedforward.calculate(
@@ -99,14 +101,16 @@ public class SwerveModule implements Sendable {
         double turnOutput = MathUtil.applyDeadband(turningMotorControllerOutput + turningFeedForwardOutput, 0.03);
 
         setOutput(driveOutput,
-                turnOutput);
+                // turnOutput);
+                state.angle.getRotations());
     }
 
     public void setDesiredDriveState(SwerveModuleState desiredState) {
         SwerveModuleState state = SwerveModuleState.optimize(desiredState, getTurningRotation());
         driveMotorControllerOutput = m_driveController.calculate(getDriveSpeedMS(), state.speedMetersPerSecond);
-        turningMotorControllerOutput = m_turningController.calculate(getTurningAngleRad(), state.angle.getRadians());
-        turningFeedForwardOutput = m_turningFeedforward.calculate(getTurnSetpointVelocityRadS(), 0);
+        // turningMotorControllerOutput = m_turningController.calculate(getTurningAngleRad(), state.angle.getRadians());
+        // turningFeedForwardOutput = m_turningFeedforward.calculate(getTurnSetpointVelocityRadS(), 0);
+        // TODO: smooth out accel
         double accelMetersPerSecondPerSecond = (state.speedMetersPerSecond - previousSpeedMetersPerSecond) / 0.02;
         previousSpeedMetersPerSecond = state.speedMetersPerSecond;
         driveFeedForwardOutput = m_headingDriveFeedforward.calculate(
@@ -131,16 +135,18 @@ public class SwerveModule implements Sendable {
 
         double driveOutput = MathUtil.applyDeadband(driveMotorControllerOutput + driveFeedForwardOutput, 0.03);
         double turnOutput = MathUtil.applyDeadband(turningMotorControllerOutput + turningFeedForwardOutput, 0.03);
-
+        
         setOutput(driveOutput,
-                turnOutput);
+                // turnOutput);
+                state.angle.getRotations());
     }
 
     public void setDesiredStateNoFF(SwerveModuleState desiredState) {
         SwerveModuleState state = SwerveModuleState.optimize(desiredState, getTurningRotation());
         driveMotorControllerOutput = m_driveController.calculate(getDriveSpeedMS(), state.speedMetersPerSecond);
-        turningMotorControllerOutput = m_turningController.calculate(getTurningAngleRad(), state.angle.getRadians());
-        turningFeedForwardOutput = m_turningFeedforward.calculate(getTurnSetpointVelocityRadS(), 0);
+        // turningMotorControllerOutput = m_turningController.calculate(getTurningAngleRad(), state.angle.getRadians());
+        // turningFeedForwardOutput = m_turningFeedforward.calculate(getTurnSetpointVelocityRadS(), 0);
+        // TODO: smooth out accel
         double accelMetersPerSecondPerSecond = (state.speedMetersPerSecond - previousSpeedMetersPerSecond) / 0.02;
         previousSpeedMetersPerSecond = state.speedMetersPerSecond;
         driveFeedForwardOutput = m_driveFeedforward.calculate(
@@ -148,7 +154,8 @@ public class SwerveModule implements Sendable {
                 accelMetersPerSecondPerSecond);
 
         setOutput(driveMotorControllerOutput,
-                turningMotorControllerOutput + turningFeedForwardOutput);
+        state.angle.getRotations());
+        //         turningMotorControllerOutput + turningFeedForwardOutput);
     }
 
     /**
@@ -156,8 +163,8 @@ public class SwerveModule implements Sendable {
      * @param turnOutput  in range [-1, 1]
      */
     public void setOutput(double driveOutput, double turnOutput) {
-        m_driveMotor.set(driveOutput);
-        m_turningMotor.set(turnOutput);
+        m_driveMotor.setPID(ControlMode.Velocity, driveOutput * 1351.68);
+        m_turningMotor.setPID(ControlMode.Position, turnOutput);
     }
 
     /** Reset distance and angle to zero. */
