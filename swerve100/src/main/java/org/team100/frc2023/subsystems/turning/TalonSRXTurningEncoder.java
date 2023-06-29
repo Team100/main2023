@@ -2,6 +2,7 @@ package org.team100.frc2023.subsystems.turning;
 
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
@@ -15,7 +16,7 @@ public class TalonSRXTurningEncoder implements TurningEncoder{
 
     @Override
     public double getAngle() {
-        return m_motor.getSelectedSensorPosition()/1666*2*Math.PI;
+        return MathUtil.angleModulus(m_motor.getSelectedSensorPosition()/1666*2*Math.PI);
     }
 
     @Override

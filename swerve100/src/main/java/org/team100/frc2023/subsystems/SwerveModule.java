@@ -19,6 +19,8 @@ import edu.wpi.first.util.sendable.Sendable;
 import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 public class SwerveModule implements Sendable {
+    private double m_driveOutput;
+    private double m_turnOutput;
     private final String m_name;
     private final DriveMotor m_driveMotor;
     private final TurningMotor m_turningMotor;
@@ -163,6 +165,8 @@ public class SwerveModule implements Sendable {
      * @param turnOutput  in range [-1, 1]
      */
     public void setOutput(double driveOutput, double turnOutput) {
+        m_driveOutput = driveOutput * 1351.68/6.6;
+        m_turnOutput = turnOutput;
         m_driveMotor.setPID(ControlMode.Velocity, driveOutput * 1351.68);
         m_turningMotor.setPID(ControlMode.Position, turnOutput);
     }
@@ -204,6 +208,7 @@ public class SwerveModule implements Sendable {
         builder.addDoubleProperty("Turning Angle (deg)", () -> Units.radiansToDegrees(getTurningAngleRad()), null);
 
         // Turning
+        builder.addDoubleProperty("m_turnOutput", () -> m_turnOutput, null);
         builder.addDoubleProperty("Turning Goal (rad)", () -> m_turningController.getGoal().position, null);
         builder.addDoubleProperty("Turning Setpoint (rad)", () -> m_turningController.getSetpoint().position, null);
         builder.addDoubleProperty("Turning Setpoint Velocity (rad/s)", this::getTurnSetpointVelocityRadS, null);
@@ -214,6 +219,7 @@ public class SwerveModule implements Sendable {
         builder.addDoubleProperty("Turning Motor Output [-1, 1]", () -> m_turningMotor.get(), null);
 
         // Drive
+        builder.addDoubleProperty("m_driveOutput", () -> m_driveOutput, null);
         builder.addDoubleProperty("Drive Setpoint (m/s)", () -> m_driveController.getSetpoint(), null);
         builder.addDoubleProperty("Drive Speed Error (m/s)", () -> m_driveController.getPositionError(), null);
         builder.addDoubleProperty("Drive Accel Error (m/s/s)", () -> m_driveController.getVelocityError(), null);

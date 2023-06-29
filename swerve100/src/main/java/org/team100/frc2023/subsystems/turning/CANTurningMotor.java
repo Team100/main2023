@@ -37,7 +37,12 @@ public class CANTurningMotor implements TurningMotor {
         m_motor.config_kP(0, 10);
         m_motor.config_kI(0, 0);
         m_motor.config_kD(0, 0);
-        double absolutePosition = m_encoder.get()*1666;
+        double absolutePosition = 0;
+        if (channel == 5) {
+            absolutePosition = m_encoder.get()*1666;
+        } else {
+            absolutePosition = -1.0 * m_encoder.get()*1666;
+        }
         m_motor.setSelectedSensorPosition(absolutePosition);
         SmartDashboard.putData(String.format("CAN Turning Motor %s", name), this);
     }
