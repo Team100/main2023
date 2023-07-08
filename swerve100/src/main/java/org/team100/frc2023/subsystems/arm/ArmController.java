@@ -137,16 +137,16 @@ public class ArmController extends SubsystemBase {
         ySetpoint = current.getY();
     }
 
-    public void driveManually(double x, double y) {
-        if (Math.abs(x) <= 0.15) {
-            x = 0;
+    public void driveManually(double upperSpeed, double lowerSpeed) {
+        if (Math.abs(upperSpeed) <= 0.15) {
+            upperSpeed = 0;
         }
-        if (Math.abs(y) <= 0.15) {
-            y = 0;
+        if (Math.abs(lowerSpeed) <= 0.15) {
+            lowerSpeed = 0;
         }
 
-        upperArmMotor.drivePercentOutput(x);
-        lowerArmMotor.drivePercentOutput(y);
+        upperArmMotor.drivePercentOutput(upperSpeed);
+        lowerArmMotor.drivePercentOutput(lowerSpeed);
     }
 
     public Translation2d getPose() {
