@@ -32,19 +32,20 @@ import edu.wpi.first.wpilibj2.command.button.CommandJoystick;
  * Experiment for driving swerve with the big joystick.
  * X, Y, and twist should work.
  * POV rotation should work.
+ * Only one joystick is required.
  * Operator features are not implemented.
  * Command buttons are not implemented.
  */
 public class JoystickControl implements Control, Sendable {
     private final CommandJoystick controller0;
-    private final CommandJoystick controller1;
+    // private final CommandJoystick controller1;
     private Rotation2d previousRotation = new Rotation2d(0);
 
     public JoystickControl() {
         controller0 = new CommandJoystick(0);
         System.out.printf("Controller0: %s\n", controller0.getHID().getName());
-        controller1 = new CommandJoystick(1);
-        System.out.printf("Controller1: %s\n", controller1.getHID().getName());
+        // controller1 = new CommandJoystick(1);
+        // System.out.printf("Controller1: %s\n", controller1.getHID().getName());
         SmartDashboard.putData("Robot Container", this);
     }
 
