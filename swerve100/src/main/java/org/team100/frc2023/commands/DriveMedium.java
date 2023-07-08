@@ -1,6 +1,6 @@
 package org.team100.frc2023.commands;
 
-import org.team100.frc2023.control.DualXboxControl;
+import org.team100.frc2023.control.Control;
 import org.team100.frc2023.subsystems.SwerveDriveSubsystem;
 
 import edu.wpi.first.math.MathUtil;
@@ -10,9 +10,9 @@ public class DriveMedium extends CommandBase {
   /** Creates a new DriveMedium. */
 
   private final SwerveDriveSubsystem m_robotDrive;
-  private final DualXboxControl m_control;
+  private final Control m_control;
 
-  public DriveMedium(SwerveDriveSubsystem robotDrive, DualXboxControl control) {
+  public DriveMedium(SwerveDriveSubsystem robotDrive, Control control) {
     // Use addRequirements() here to declare subsystem dependencies.
     m_robotDrive = robotDrive;
     m_control = control;

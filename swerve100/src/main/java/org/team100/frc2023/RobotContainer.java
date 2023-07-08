@@ -30,7 +30,9 @@ import org.team100.frc2023.commands.Manipulator.Home;
 import org.team100.frc2023.commands.Manipulator.Open;
 import org.team100.frc2023.commands.Retro.DriveToRetroReflectiveTape;
 import org.team100.frc2023.commands.Retro.LedOn;
+import org.team100.frc2023.control.Control;
 import org.team100.frc2023.control.DualXboxControl;
+import org.team100.frc2023.control.JoystickControl;
 import org.team100.frc2023.retro.Illuminator;
 import org.team100.frc2023.subsystems.AHRSClass;
 import org.team100.frc2023.subsystems.Manipulator;
@@ -65,7 +67,7 @@ public class RobotContainer implements Sendable {
     ahrsclass;
 
     // CONTROL
-    private final DualXboxControl control;
+    private final Control control;
 
     // COMMANDS
     private final AutoLevel autoLevel;
@@ -133,14 +135,17 @@ public class RobotContainer implements Sendable {
 
     public RobotContainer(DriverStation.Alliance alliance) throws IOException {
         // THIS IS BABY MODE
-        final double kDriveCurrentLimit = 20;
+        // final double kDriveCurrentLimit = 20;
+        // 60 amps is the maximum maximum
+        final double kDriveCurrentLimit = 60;
         ahrsclass = new AHRSClass();
         manipulator = new Manipulator();
         armController = new ArmController();
         illuminator = new Illuminator();
 
         // // NEW CONTROL
-        control = new DualXboxControl();
+      //  control = new DualXboxControl();
+        control = new JoystickControl();
 
         myObj = new File("/home/lvuser/logs.txt");
         myWriter = new FileWriter("/home/lvuser/logs.txt", true);

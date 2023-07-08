@@ -10,7 +10,7 @@ import java.util.function.Supplier;
 import org.msgpack.jackson.dataformat.MessagePackFactory;
 import org.team100.frc2023.RobotContainer;
 import org.team100.frc2023.config.Camera;
-import org.team100.frc2023.control.DualXboxControl;
+import org.team100.frc2023.control.Control;
 import org.team100.frc2023.indicator.GoNoGoIndicator;
 import org.team100.frc2023.subsystems.SwerveDriveSubsystem;
 
@@ -74,7 +74,7 @@ public class VisionDataProvider extends SubsystemBase implements TableEventListe
     public final GoNoGoIndicator indicator;
     private Pose2d lastRobotInFieldCoords;
 
-    DualXboxControl m_control;
+    Control m_control;
 
     boolean tagFound = false;
 
@@ -85,7 +85,7 @@ public class VisionDataProvider extends SubsystemBase implements TableEventListe
             DriverStation.Alliance alliance,
             SwerveDrivePoseEstimator poseEstimator,
             Supplier<Pose2d> getPose,
-            DualXboxControl control)
+            Control control)
             throws IOException {
 
         // load the JNI (used by PoseEstimationHelper)

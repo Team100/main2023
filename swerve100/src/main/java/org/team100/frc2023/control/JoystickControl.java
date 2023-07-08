@@ -27,6 +27,7 @@ import edu.wpi.first.util.sendable.Sendable;
 import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.button.CommandJoystick;
+import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 
 /**
  * Experiment for driving swerve with the big joystick.
@@ -71,10 +72,14 @@ public class JoystickControl implements Control, Sendable {
 
     @Override
     public void resetRotation0(ResetRotation command) {
+        JoystickButton startButton = new JoystickButton(controller0.getHID(), 2);
+        startButton.onTrue(command);
     }
 
     @Override
     public void resetRotation180(ResetRotation command) {
+        JoystickButton startButton = new JoystickButton(controller0.getHID(), 3);
+        startButton.onTrue(command);
     }
 
     @Override
@@ -89,7 +94,7 @@ public class JoystickControl implements Control, Sendable {
 
     @Override
     public double rotSpeed() {
-        return controller0.getTwist();
+        return -controller0.getTwist();
     }
 
     @Override

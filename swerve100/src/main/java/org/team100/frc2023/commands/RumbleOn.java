@@ -1,14 +1,14 @@
 package org.team100.frc2023.commands;
 
-import org.team100.frc2023.control.DualXboxControl;
+import org.team100.frc2023.control.Control;
 
 import edu.wpi.first.wpilibj2.command.CommandBase;
 
 public class RumbleOn extends CommandBase {
   /** Creates a new RumbleOn. */
 
-  DualXboxControl m_control;
-  public RumbleOn(DualXboxControl control) {
+  Control m_control;
+  public RumbleOn(Control control) {
     // Use addRequirements() here to declare subsystem dependencies.
 
     m_control = control;

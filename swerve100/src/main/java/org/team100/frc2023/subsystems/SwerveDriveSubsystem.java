@@ -5,7 +5,7 @@ import java.io.IOException;
 
 import org.team100.frc2023.RobotContainer;
 import org.team100.frc2023.config.Identity;
-import org.team100.frc2023.control.DualXboxControl;
+import org.team100.frc2023.control.Control;
 import org.team100.frc2023.localization.VisionDataProvider;
 
 import edu.wpi.first.math.MathUtil;
@@ -116,7 +116,7 @@ public class SwerveDriveSubsystem extends SubsystemBase {
     private final DoubleArrayPublisher robotPosePub;
     private final StringPublisher fieldTypePub;
 
-    DualXboxControl m_control;
+    Control m_control;
 
     public double keyList = -1;
 
@@ -124,7 +124,7 @@ public class SwerveDriveSubsystem extends SubsystemBase {
 
     
 
-    public SwerveDriveSubsystem(DriverStation.Alliance alliance, double currentLimit, AHRSClass gyro, DualXboxControl control) throws IOException {
+    public SwerveDriveSubsystem(DriverStation.Alliance alliance, double currentLimit, AHRSClass gyro, Control control) throws IOException {
         m_gyro = gyro;
         // Sets up Field2d pose tracking for glass.
         NetworkTableInstance inst = NetworkTableInstance.getDefault();
@@ -159,7 +159,10 @@ public class SwerveDriveSubsystem extends SubsystemBase {
                 // Note very low heading tolerance.
                 headingController.setTolerance(0.01);
                 // THIS IS BABY MODE
-                kMaxSpeedMetersPerSecond = 1.5; //2
+                // kMaxSpeedMetersPerSecond = 1.5; //2
+                // this is maximum maximum
+                kMaxSpeedMetersPerSecond = 5;
+                
                 kMaxAccelerationMetersPerSecondSquared = 10; //3
                 kMaxAngularSpeedRadiansPerSecond = 5; //5
                 kMaxAngularSpeedRadiansPerSecondSquared = 5;
