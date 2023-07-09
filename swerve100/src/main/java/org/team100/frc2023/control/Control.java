@@ -44,13 +44,13 @@ public interface Control {
 
     void resetRotation180(ResetRotation command);
 
-    /** @return [-1,1] */
+    /** Forward is positive. @return [-1,1] */
     double xSpeed();
 
-    /** @return [-1,1] */
+    /** Forward is positive. @return [-1,1] */
     double ySpeed();
 
-    /** @return [-1,1] */
+    /** Counterclockwise is positive. @return [-1,1] */
     double rotSpeed();
 
     void driveSlow(DriveSlow command);

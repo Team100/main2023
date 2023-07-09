@@ -93,19 +93,16 @@ public class DualXboxControl implements Control, Sendable {
         startButton.onTrue(command);
     }
 
-    /** @return [-1,1] */
     @Override
     public double xSpeed() {
         return -1.0 * controller0.getRightY();
     }
 
-    /** @return [-1,1] */
     @Override
     public double ySpeed() {
         return -1.0 * controller0.getRightX();
     }
 
-    /** @return [-1,1] */
     @Override
     public double rotSpeed() {
         return -1.0 * controller0.getLeftX();
