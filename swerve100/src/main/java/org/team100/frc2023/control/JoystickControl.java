@@ -84,17 +84,17 @@ public class JoystickControl implements Control, Sendable {
 
     @Override
     public double xSpeed() {
-        return controller0.getY();
+        return -1.0 * controller0.getY();
     }
 
     @Override
     public double ySpeed() {
-        return controller0.getX();
+        return -1.0 * controller0.getX();
     }
 
     @Override
     public double rotSpeed() {
-        return -controller0.getTwist();
+        return -1.0 * controller0.getTwist();
     }
 
     @Override
