@@ -240,8 +240,7 @@ public class RobotContainer implements Sendable {
                 control::desiredRotation,
                 control::rotSpeed,
                 "",
-                ahrsclass,
-                armController);
+                ahrsclass);
 
         driveRotation = new DriveRotation(m_robotDrive, control::rotSpeed);
 
@@ -332,7 +331,10 @@ public class RobotContainer implements Sendable {
                 control::rotSpeed,
                 m_robotDrive);
 
-        m_robotDrive.setDefaultCommand(driveManually);
+        // show mode 
+        // m_robotDrive.setDefaultCommand(driveManually);
+        // normal mode
+        m_robotDrive.setDefaultCommand(driveWithHeading);
 
         // Controller 1 triggers => manipulator open/close
         gripManually = new GripManually(

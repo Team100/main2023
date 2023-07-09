@@ -5,7 +5,6 @@ import java.util.function.Supplier;
 
 import org.team100.frc2023.subsystems.AHRSClass;
 import org.team100.frc2023.subsystems.SwerveDriveSubsystem;
-import org.team100.frc2023.subsystems.arm.ArmController;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.ProfiledPIDController;
@@ -37,17 +36,13 @@ public class DriveWithHeading extends CommandBase {
     double yOutput;
     double thetaControllerOutput;
 
-    ArmController m_arm;
-
     public DriveWithHeading(SwerveDriveSubsystem robotDrive, DoubleSupplier xSpeed, DoubleSupplier ySpeed,
-            Supplier<Rotation2d> desiredRotation, DoubleSupplier rotSpeed, String name, AHRSClass gyro, ArmController arm) {
+            Supplier<Rotation2d> desiredRotation, DoubleSupplier rotSpeed, String name, AHRSClass gyro) {
         // Use addRequirements() here to declare subsystem dependencies.
         m_gyro = gyro;
         m_robotDrive = robotDrive;
         m_headingController = m_robotDrive.headingController;
         m_desiredRotation = desiredRotation;
-
-        m_arm = arm;
 
         lastRotationSetpoint = new Rotation2d(0);
 
