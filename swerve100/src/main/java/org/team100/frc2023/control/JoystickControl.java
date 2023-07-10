@@ -28,6 +28,7 @@ import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.button.CommandJoystick;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 
 /**
  * Experiment for driving swerve with the big joystick.
@@ -95,6 +96,16 @@ public class JoystickControl implements Control, Sendable {
     @Override
     public double rotSpeed() {
         return -1.0 * controller0.getTwist();
+    }
+
+    @Override
+    public Trigger trigger() {
+        return controller0.trigger();
+    }
+
+    @Override
+    public Trigger thumb() {
+        return controller0.top();
     }
 
     @Override

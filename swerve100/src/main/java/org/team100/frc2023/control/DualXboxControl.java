@@ -30,6 +30,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 
 /**
  * see
@@ -106,6 +107,16 @@ public class DualXboxControl implements Control, Sendable {
     @Override
     public double rotSpeed() {
         return -1.0 * controller0.getLeftX();
+    }
+    
+    @Override
+    public Trigger trigger() {
+        return controller0.rightBumper();
+    }
+
+    @Override
+    public Trigger thumb() {
+        return controller0.leftBumper();
     }
 
     @Override

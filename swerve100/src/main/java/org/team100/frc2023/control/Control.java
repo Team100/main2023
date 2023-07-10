@@ -23,6 +23,7 @@ import org.team100.frc2023.commands.Retro.DriveToRetroReflectiveTape;
 import org.team100.frc2023.commands.Retro.LedOn;
 
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 
 public interface Control {
 
@@ -52,6 +53,11 @@ public interface Control {
 
     /** Counterclockwise is positive. @return [-1,1] */
     double rotSpeed();
+
+    // used for position control
+    Trigger trigger();
+
+    Trigger thumb();
 
     void driveSlow(DriveSlow command);
 
