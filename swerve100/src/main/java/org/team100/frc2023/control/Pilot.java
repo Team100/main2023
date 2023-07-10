@@ -25,29 +25,29 @@ import org.team100.frc2023.commands.Retro.LedOn;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.util.sendable.Sendable;
 import edu.wpi.first.util.sendable.SendableBuilder;
+import edu.wpi.first.wpilibj.event.BooleanEvent;
+import edu.wpi.first.wpilibj.event.EventLoop;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj2.command.button.CommandJoystick;
+import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import edu.wpi.first.wpilibj2.command.button.CommandGenericHID;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 
 /**
- * Experiment for driving swerve with the big joystick.
+ * The RC joystick thing joel made.
  * X, Y, and twist should work.
  * POV rotation should work.
  * Only one joystick is required.
  * Operator features are not implemented.
  * Command buttons are not implemented.
  */
-public class JoystickControl implements Control, Sendable {
-    private final CommandJoystick controller0;
-    // private final CommandJoystick controller1;
+public class Pilot implements Control, Sendable {
+    private final CommandGenericHID m_controller;
     private Rotation2d previousRotation = new Rotation2d(0);
 
-    public JoystickControl() {
-        controller0 = new CommandJoystick(0);
-        System.out.printf("Controller0: %s\n", controller0.getHID().getName());
-        // controller1 = new CommandJoystick(1);
-        // System.out.printf("Controller1: %s\n", controller1.getHID().getName());
+    public Pilot() {
+        m_controller = new CommandGenericHID(0);
+        System.out.printf("Controller0: %s\n", m_controller.getHID().getName());
         SmartDashboard.putData("Robot Container", this);
     }
 
@@ -73,39 +73,44 @@ public class JoystickControl implements Control, Sendable {
 
     @Override
     public void resetRotation0(ResetRotation command) {
-        JoystickButton startButton = new JoystickButton(controller0.getHID(), 2);
+        JoystickButton startButton = new JoystickButton(m_controller.getHID(), 2);
         startButton.onTrue(command);
     }
 
     @Override
     public void resetRotation180(ResetRotation command) {
-        JoystickButton startButton = new JoystickButton(controller0.getHID(), 3);
+        JoystickButton startButton = new JoystickButton(m_controller.getHID(), 3);
         startButton.onTrue(command);
     }
 
     @Override
-    public double xSpeed() {
-        return -1.0 * controller0.getY();
+    public double rotSpeed() {
+        // there is no rotational velocity control.
+        return 0.0;
     }
 
     @Override
     public double ySpeed() {
-        return -1.0 * controller0.getX();
+        return -1.0 * m_controller.getHID().getRawAxis(0);
     }
 
     @Override
-    public double rotSpeed() {
-        return -1.0 * controller0.getTwist();
+    public double xSpeed() {
+        return -1.0 * m_controller.getHID().getRawAxis(1);
     }
 
     @Override
     public Trigger trigger() {
-        return controller0.trigger();
+        EventLoop loop = CommandScheduler.getInstance().getDefaultButtonLoop();
+        BooleanEvent event = new BooleanEvent(loop, () -> m_controller.getHID().getRawButton(1));
+        return event.castTo(Trigger::new);
     }
 
     @Override
     public Trigger thumb() {
-        return controller0.top();
+        EventLoop loop = CommandScheduler.getInstance().getDefaultButtonLoop();
+        BooleanEvent event = new BooleanEvent(loop, () -> m_controller.getHID().getRawButton(2));
+        return event.castTo(Trigger::new);
     }
 
     @Override
@@ -118,12 +123,9 @@ public class JoystickControl implements Control, Sendable {
 
     @Override
     public Rotation2d desiredRotation() {
-        double desiredAngleDegrees = controller0.getHID().getPOV();
-
-        if (desiredAngleDegrees < 0) {
-            return null;
-        }
-        previousRotation = Rotation2d.fromDegrees(-1.0 * desiredAngleDegrees);
+        // the control goes from -1 to 1 in one turn
+        double rotControl = m_controller.getHID().getRawAxis(5);
+        previousRotation = Rotation2d.fromRotations(rotControl / 2);
         return previousRotation;
     }
 
