@@ -1,4 +1,4 @@
-package org.team100.frc2023.sensors;
+package org.team100.lib.sensors;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;

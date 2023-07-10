@@ -1,4 +1,4 @@
-package org.team100.frc2023.sensors;
+package org.team100.lib.sensors;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 

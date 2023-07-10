@@ -1,5 +1,7 @@
 package org.team100.frc2023.subsystems.turning;
 
+import org.team100.lib.subsystems.turning.TurningMotor;
+
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 

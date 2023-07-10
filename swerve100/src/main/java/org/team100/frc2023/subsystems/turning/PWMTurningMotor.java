@@ -1,5 +1,7 @@
 package org.team100.frc2023.subsystems.turning;
 
+import org.team100.lib.subsystems.turning.TurningMotor;
+
 import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.motorcontrol.PWMMotorController;
 import edu.wpi.first.wpilibj.motorcontrol.VictorSP;

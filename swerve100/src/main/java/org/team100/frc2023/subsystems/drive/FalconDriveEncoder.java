@@ -1,5 +1,7 @@
 package org.team100.frc2023.subsystems.drive;
 
+import org.team100.lib.subsystems.drive.DriveEncoder;
+
 import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 

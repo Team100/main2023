@@ -1,8 +1,8 @@
-package org.team100.frc2023.sensors;
+package org.team100.lib.sensors;
 
 import java.util.function.Supplier;
 
-import org.team100.frc2023.util.Unroller;
+import org.team100.lib.util.Unroller;
 
 import edu.wpi.first.hal.DriverStationJNI;
 import edu.wpi.first.math.MathUtil;
@@ -25,6 +25,9 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
  * 
  * Measurements are *unrolled* because I couldn't find a way to make the KF
  * understand wrapping.
+ * 
+ * NOTE: it is probably not possible to use this on a robot, because of the
+ * effect of motor currents.
  */
 public class FusedHeading implements Supplier<Rotation2d>, Sendable {
     private static final double kDtSec = 0.02;
@@ -53,7 +56,7 @@ public class FusedHeading implements Supplier<Rotation2d>, Sendable {
     private static final Matrix<N1, N1> kControlInput = Matrix.mat(Nat.N1(), Nat.N1()).fill(0);
 
     private final Unroller m_mag;
-    private final LSM6DSOX_I2C m_gyro; 
+    private final LSM6DSOX_I2C m_gyro;
     // 2 states, 1 input, 2 outputs
     private final LinearSystem<N2, N1, N2> m_system;
     private final KalmanFilter<N2, N1, N2> m_filter;
