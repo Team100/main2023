@@ -1,9 +1,9 @@
 package org.team100.frc2023.subsystems;
 
-import org.team100.frc2023.subsystems.drive.DriveEncoder;
-import org.team100.frc2023.subsystems.drive.DriveMotor;
-import org.team100.frc2023.subsystems.turning.TurningEncoder;
-import org.team100.frc2023.subsystems.turning.TurningMotor;
+import org.team100.lib.subsystems.drive.DriveEncoder;
+import org.team100.lib.subsystems.turning.TurningMotor;
+import org.team100.lib.subsystems.drive.DriveMotor;
+import org.team100.lib.subsystems.turning.TurningEncoder;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;

@@ -1,5 +1,7 @@
 package org.team100.frc2023.subsystems.turning;
 
+import org.team100.lib.subsystems.turning.TurningMotor;
+
 import com.ctre.phoenix.motorcontrol.can.WPI_VictorSPX;
 
 import edu.wpi.first.util.sendable.SendableBuilder;

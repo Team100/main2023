@@ -1,4 +1,4 @@
-package org.team100.frc2023.subsystems.turning;
+package org.team100.lib.subsystems.turning;
 
 import edu.wpi.first.util.sendable.Sendable;
 

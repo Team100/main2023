@@ -1,5 +1,7 @@
 package org.team100.frc2023.subsystems.drive;
 
+import org.team100.lib.subsystems.drive.DriveMotor;
+
 import com.ctre.phoenix.ErrorCode;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.StatorCurrentLimitConfiguration;
