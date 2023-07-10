@@ -1,4 +1,4 @@
-package org.team100.frc2023.util;
+package org.team100.lib.util;
 
 /**
  * Observe an analog signal: count up on negative edges, count down

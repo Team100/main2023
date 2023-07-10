@@ -1,4 +1,4 @@
-package org.team100.frc2023.sensors;
+package org.team100.lib.sensors;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -15,6 +15,9 @@ import edu.wpi.first.wpilibj.I2C;
  * It uses NED coordinates, clockwise-positive, like a compass.
  * 
  * Constants come from github.com/stm32duino/LIS3MDL/LIS3MDL_MAG_Driver.h
+ * 
+ * NOTE: it is probably not possible to use this on a robot, because of the
+ * effect of motor currents.
  */
 public class LIS3MDL_I2C implements Supplier<Rotation2d>, Sendable {
     // 8-bit addr is 0x38 so 7-bit is shifted, 0x1C
