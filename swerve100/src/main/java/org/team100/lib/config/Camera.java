@@ -8,11 +8,11 @@ import java.util.Map;
  */
 public enum Camera {
     // these are in serial-number order
-    // keep these synchronized with python tag_finder.py.
-    FRONT("1000000013c9c96c"),
-    // REAR("100000004e0a1fb9"),
-    LEFT("10000000a7c673d9"),
-    RIGHT("10000000a7a892c0"),
+    // keep this synchronized with python tag_finder.py.
+    A("1000000013c9c96c"),
+    // B("100000004e0a1fb9"),
+    C("10000000a7c673d9"),
+    D("10000000a7a892c0"),
     UNKNOWN(null);
 
     private static Map<String, Camera> cameras = new HashMap<String, Camera>();

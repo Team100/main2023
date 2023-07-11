@@ -1,4 +1,4 @@
-package org.team100.frc2023.localization;
+package org.team100.lib.localization;
 
 import org.opencv.calib3d.Calib3d;
 import org.opencv.core.CvType;

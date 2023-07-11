@@ -1,4 +1,4 @@
-package org.team100.frc2023.localization;
+package org.team100.lib.localization;
 
 import java.io.IOException;
 import java.nio.file.Path;
@@ -32,6 +32,7 @@ public class AprilTagFieldLayoutWithCorrectOrientation {
 
     // this is private because i don't want the red/blue enum in our code.
     private AprilTagFieldLayoutWithCorrectOrientation(OriginPosition origin) throws IOException {
+        // TODO: extract this filename
         Path path = Filesystem.getDeployDirectory().toPath().resolve("2023-chargedup.json");
         layout = new AprilTagFieldLayout(path);
         layout.setOrigin(origin);

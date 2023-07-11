@@ -5,8 +5,9 @@ import java.io.IOException;
 
 import org.team100.frc2023.RobotContainer;
 import org.team100.frc2023.control.Control;
-import org.team100.frc2023.localization.VisionDataProvider;
+import org.team100.frc2023.indicator.GoNoGoIndicator;
 import org.team100.lib.config.Identity;
+import org.team100.lib.localization.VisionDataProvider;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.VecBuilder;
@@ -102,6 +103,7 @@ public class SwerveDriveSubsystem extends SubsystemBase {
     private double thetaVelociy = 0;
 
     public VisionDataProvider visionDataProvider;
+    public final GoNoGoIndicator indicator;
 
     private final AHRSClass m_gyro;
 
@@ -592,7 +594,8 @@ public class SwerveDriveSubsystem extends SubsystemBase {
                 VecBuilder.fill(0.5, 0.5, 0.5),
                 VecBuilder.fill(0.4, 0.4, 0.4)); // note tight rotation variance here, used to be MAX_VALUE
         // VecBuilder.fill(0.01, 0.01, Integer.MAX_VALUE));
-        visionDataProvider = new VisionDataProvider(alliance, m_poseEstimator, () -> getPose(), control);
+        visionDataProvider = new VisionDataProvider(alliance, m_poseEstimator, () -> getPose());
+        indicator = new GoNoGoIndicator(1);
 
         SmartDashboard.putData("Drive Subsystem", this);
     }
@@ -957,6 +960,11 @@ public class SwerveDriveSubsystem extends SubsystemBase {
 
     public Rotation2d getHeading() {
         return Rotation2d.fromDegrees(-m_gyro.getRedundantYaw());
+    }
+
+    // for tests, to keep from conflicting when the indicator is created.
+    public void close() {
+        indicator.close();
     }
 
     @Override

@@ -19,7 +19,7 @@ public class SetCubeMode extends CommandBase {
     @Override
     public void initialize() {
         m_arm.cubeMode = true;
-        m_robotDrive.visionDataProvider.indicator.cube();
+        m_robotDrive.indicator.cube();
         done = true;
     }
 

@@ -1,15 +1,10 @@
-package org.team100.frc2023.localization;
+package org.team100.lib.localization;
 
 import java.util.ArrayList;
 import java.util.List;
 
 
 public class Tapes {
-    /**
-     * Elapsed time of the analysis in python.
-     */
-    // public final double et;
-
     /**
      * The set of targets seen by the camera.
      */

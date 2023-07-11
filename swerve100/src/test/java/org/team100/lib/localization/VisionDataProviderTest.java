@@ -1,4 +1,4 @@
-package org.team100.frc2023.localization;
+package org.team100.lib.localization;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -8,7 +8,6 @@ import java.util.List;
 import java.util.function.Supplier;
 
 import org.junit.jupiter.api.Test;
-import org.team100.frc2023.control.DualXboxControl;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
@@ -112,9 +111,8 @@ public class VisionDataProviderTest {
 
     @Test
     public void testEstimateRobotPose() throws IOException {
-        DualXboxControl control = new DualXboxControl();
         Supplier<Pose2d> robotPose = () -> new Pose2d(); // always at the origin
-        VisionDataProvider vdp = new VisionDataProvider(DriverStation.Alliance.Red, null, robotPose, control);
+        VisionDataProvider vdp = new VisionDataProvider(DriverStation.Alliance.Red, null, robotPose);
 
         String key = "foo";
         // in red layout blip 5 is on the other side of the field
@@ -159,15 +157,13 @@ public class VisionDataProviderTest {
         assertEquals(15.18, result.getX(), kDelta); // target is one meter in front
         assertEquals(1.26, result.getY(), kDelta); // same y as target
         assertEquals(0, result.getRotation().getRadians(), kDelta); // facing along x
-        vdp.close();
     }
 
     @Test
     public void testEstimateRobotPose2() throws IOException {
-        DualXboxControl control = new DualXboxControl();
         // robot is panned right 45
         Supplier<Pose2d> robotPose = () -> new Pose2d(0, 0, new Rotation2d(-Math.PI / 4)); // just for rotation
-        VisionDataProvider vdp = new VisionDataProvider(DriverStation.Alliance.Red, null, robotPose, control);
+        VisionDataProvider vdp = new VisionDataProvider(DriverStation.Alliance.Red, null, robotPose);
 
         String key = "foo";
         // in red layout blip 5 is on the other side of the field
@@ -214,6 +210,5 @@ public class VisionDataProviderTest {
         assertEquals(15.18, result.getX(), kDelta); // target is one meter in front
         assertEquals(2.26, result.getY(), kDelta); // one meter to the left
         assertEquals(-Math.PI / 4, result.getRotation().getRadians(), kDelta); // facing diagonal
-        vdp.close();
     }
 }

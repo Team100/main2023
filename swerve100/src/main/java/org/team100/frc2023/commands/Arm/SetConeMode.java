@@ -25,7 +25,7 @@ public class SetConeMode extends CommandBase {
   @Override
   public void initialize() {
     m_arm.cubeMode = false;
-    m_robotDrive.visionDataProvider.indicator.cone();
+    m_robotDrive.indicator.cone();
 
     done = true;
   }

@@ -439,11 +439,11 @@ public class RobotContainer implements Sendable {
     }
 
     public void ledStart() {
-        m_robotDrive.visionDataProvider.indicator.orange();
+        m_robotDrive.indicator.orange();
     }
 
     public void ledStop() {
-        m_robotDrive.visionDataProvider.indicator.close();
+        m_robotDrive.indicator.close();
     }
 
     public static boolean isEnabled() {

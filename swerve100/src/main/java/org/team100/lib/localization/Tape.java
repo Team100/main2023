@@ -1,4 +1,4 @@
-package org.team100.frc2023.localization;
+package org.team100.lib.localization;
 
 /**
  * Something the camera sees. This is 1:1 copy of the representation in the
