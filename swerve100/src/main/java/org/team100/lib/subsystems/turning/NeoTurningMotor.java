@@ -1,6 +1,4 @@
-package org.team100.frc2023.subsystems.turning;
-
-import org.team100.lib.subsystems.turning.TurningMotor;
+package org.team100.lib.subsystems.turning;
 
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
@@ -10,12 +8,12 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class NeoTurningMotor implements TurningMotor {
     private final CANSparkMax m_motor;
-    public static final int kTurningCurrentLimit = 40;
+    public static final int kCurrentLimit = 40;
 
     public NeoTurningMotor(String name, int canId) {
         m_motor = new CANSparkMax(canId, MotorType.kBrushless);
         m_motor.setInverted(true);
-        m_motor.setSmartCurrentLimit(kTurningCurrentLimit);
+        m_motor.setSmartCurrentLimit(kCurrentLimit);
         SmartDashboard.putData(String.format("Neo Turning Motor %s", name), this);
     }
 

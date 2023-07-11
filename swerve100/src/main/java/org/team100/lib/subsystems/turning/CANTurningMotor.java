@@ -1,6 +1,4 @@
-package org.team100.frc2023.subsystems.turning;
-
-import org.team100.lib.subsystems.turning.TurningMotor;
+package org.team100.lib.subsystems.turning;
 
 import com.ctre.phoenix.motorcontrol.can.WPI_VictorSPX;
 
@@ -10,7 +8,6 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 public class CANTurningMotor implements TurningMotor {
     private final WPI_VictorSPX m_motor;
     private final int channel;
-    public static final double kTurningCurrentLimit = 10;
 
     public CANTurningMotor(String name, int channel) {
         m_motor = new WPI_VictorSPX(channel);

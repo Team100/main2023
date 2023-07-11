@@ -1,6 +1,4 @@
-package org.team100.frc2023.subsystems.turning;
-
-import org.team100.lib.subsystems.turning.TurningMotor;
+package org.team100.lib.subsystems.turning;
 
 import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.motorcontrol.PWMMotorController;
@@ -9,7 +7,6 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class PWMTurningMotor implements TurningMotor {
     private final PWMMotorController m_motor;
-    public static final double kTurningCurrentLimit = 10;
 
     public PWMTurningMotor(String name, int channel) {
         m_motor = new VictorSP(channel);

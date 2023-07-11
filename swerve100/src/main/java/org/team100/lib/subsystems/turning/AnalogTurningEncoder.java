@@ -1,6 +1,4 @@
-package org.team100.frc2023.subsystems.turning;
-
-import org.team100.lib.subsystems.turning.TurningEncoder;
+package org.team100.lib.subsystems.turning;
 
 import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.AnalogEncoder;

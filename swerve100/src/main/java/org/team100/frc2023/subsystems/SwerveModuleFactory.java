@@ -1,11 +1,11 @@
 package org.team100.frc2023.subsystems;
 
-import org.team100.frc2023.subsystems.turning.AnalogTurningEncoder;
-import org.team100.frc2023.subsystems.turning.CANTurningMotor;
-import org.team100.frc2023.subsystems.turning.FalconTurningMotor;
-import org.team100.frc2023.subsystems.turning.PWMTurningMotor;
 import org.team100.lib.subsystems.drive.FalconDriveEncoder;
 import org.team100.lib.subsystems.drive.FalconDriveMotor;
+import org.team100.lib.subsystems.turning.AnalogTurningEncoder;
+import org.team100.lib.subsystems.turning.CANTurningMotor;
+import org.team100.lib.subsystems.turning.FalconTurningMotor;
+import org.team100.lib.subsystems.turning.PWMTurningMotor;
 
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
