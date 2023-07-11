@@ -81,7 +81,7 @@ public class RobotContainer implements Sendable {
     private final ResetRotation resetRotation180;
 
     File myObj;
-    FileWriter myWriter;
+    private final FileWriter myWriter;
 
     private final DriveToAprilTag driveToSubstation, driveToLeftGrid, driveToCenterGrid, driveToRightGrid;
 
@@ -141,7 +141,13 @@ public class RobotContainer implements Sendable {
         control = new JoystickControl();
 
         myObj = new File("/home/lvuser/logs.txt");
-        myWriter = new FileWriter("/home/lvuser/logs.txt", true);
+        FileWriter fileWriter = null;
+        try {
+            fileWriter = new FileWriter("/home/lvuser/logs.txt", true);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        myWriter = fileWriter;
 
         // m_alliance = DriverStation.getAlliance();
         m_alliance = alliance;

@@ -122,7 +122,7 @@ public class SwerveDriveSubsystem extends SubsystemBase {
 
     public double m_xVelocity = 0;
 
-    
+
 
     public SwerveDriveSubsystem(DriverStation.Alliance alliance, double currentLimit, AHRSClass gyro, Control control) throws IOException {
         m_gyro = gyro;
@@ -155,16 +155,16 @@ public class SwerveDriveSubsystem extends SubsystemBase {
                 headingController.setIntegratorRange(-0.1, 0.1);
                 rotateController.setIntegratorRange(-0.2, 0.2);
 
-                
+
                 // Note very low heading tolerance.
                 headingController.setTolerance(0.01);
                 // THIS IS BABY MODE
                 // kMaxSpeedMetersPerSecond = 1.5; //2
                 // this is maximum maximum
                 kMaxSpeedMetersPerSecond = 5;
-                
-                kMaxAccelerationMetersPerSecondSquared = 10; //3
-                kMaxAngularSpeedRadiansPerSecond = 5; //5
+
+                kMaxAccelerationMetersPerSecondSquared = 10; // 3
+                kMaxAngularSpeedRadiansPerSecond = 5; // 5
                 kMaxAngularSpeedRadiansPerSecondSquared = 5;
                 xController = new PIDController(
                         0.15, // kP
@@ -506,7 +506,7 @@ public class SwerveDriveSubsystem extends SubsystemBase {
                         currentLimit);
                 break;
             case CAMERA_DOLLY:
-            headingController = new ProfiledPIDController( //
+                headingController = new ProfiledPIDController( //
                         1, // kP
                         0, // kI
                         0, // kD
@@ -575,7 +575,7 @@ public class SwerveDriveSubsystem extends SubsystemBase {
                         3, // turn encoder
                         0.477917, // turn offset
                         currentLimit);
-            break;
+                break;
             default:
                 throw new IllegalStateException("Identity is not swerve: " + Identity.get().name());
         }
@@ -589,7 +589,7 @@ public class SwerveDriveSubsystem extends SubsystemBase {
                         m_rearRight.getPosition()
                 },
                 new Pose2d(),
-                VecBuilder.fill(0.5,0.5, 0.5),
+                VecBuilder.fill(0.5, 0.5, 0.5),
                 VecBuilder.fill(0.4, 0.4, 0.4)); // note tight rotation variance here, used to be MAX_VALUE
         // VecBuilder.fill(0.01, 0.01, Integer.MAX_VALUE));
         visionDataProvider = new VisionDataProvider(alliance, m_poseEstimator, () -> getPose(), control);
@@ -657,11 +657,11 @@ public class SwerveDriveSubsystem extends SubsystemBase {
         return moving;
     }
 
-    public void setKeyList(){
+    public void setKeyList() {
         keyList = NetworkTableInstance.getDefault().getTable("Vision").getKeys().size();
     }
 
-    public double getVisionSize(){
+    public double getVisionSize() {
         return keyList;
     }
 
@@ -679,8 +679,9 @@ public class SwerveDriveSubsystem extends SubsystemBase {
     @SuppressWarnings("ParameterName")
     public void drive(final double xSpeed, final double ySpeed, final double rot, boolean fieldRelative) {
         double xSpeedMetersPerSec = kMaxSpeedMetersPerSecond * MathUtil.clamp(xSpeed, -1, 1);
-        double ySpeedMetersPerSec = kMaxSpeedMetersPerSecond * MathUtil.clamp(ySpeed, -1 ,1);
-        double rotRadiansPerSec = kMaxAngularSpeedRadiansPerSecond * MathUtil.applyDeadband(MathUtil.clamp(rot, -1, 1), 0.01);
+        double ySpeedMetersPerSec = kMaxSpeedMetersPerSecond * MathUtil.clamp(ySpeed, -1, 1);
+        double rotRadiansPerSec = kMaxAngularSpeedRadiansPerSecond
+                * MathUtil.applyDeadband(MathUtil.clamp(rot, -1, 1), 0.01);
         // if (Math.abs(xSpeed) < .01)
         // xSpeed = 100 * xSpeed * xSpeed * Math.signum(xSpeed);
         // if (Math.abs(ySpeed) < .01)
@@ -689,18 +690,23 @@ public class SwerveDriveSubsystem extends SubsystemBase {
     }
 
     public void driveTape(final double xSpeed, final double ySpeed, final double rot, boolean fieldRelative) {
-        // double xSpeedMetersPerSec = kMaxSpeedMetersPerSecond * MathUtil.clamp(xSpeed, -1, 1);
-        // double ySpeedMetersPerSec = kMaxSpeedMetersPerSecond * MathUtil.clamp(ySpeed, -1 ,1);
-        // double rotRadiansPerSec = kMaxAngularSpeedRadiansPerSecond * MathUtil.applyDeadband(MathUtil.clamp(rot, -1, 1), 0.01);
-        
-        driveMetersPerSec(xSpeed, ySpeed, rot, fieldRelative);
-    }    
+        // double xSpeedMetersPerSec = kMaxSpeedMetersPerSecond * MathUtil.clamp(xSpeed,
+        // -1, 1);
+        // double ySpeedMetersPerSec = kMaxSpeedMetersPerSecond * MathUtil.clamp(ySpeed,
+        // -1 ,1);
+        // double rotRadiansPerSec = kMaxAngularSpeedRadiansPerSecond *
+        // MathUtil.applyDeadband(MathUtil.clamp(rot, -1, 1), 0.01);
 
-    public void driveMetersPerSec(double xSpeedMetersPerSec, double ySpeedMetersPerSec, double rotRadiansPerSec, boolean fieldRelative) {
+        driveMetersPerSec(xSpeed, ySpeed, rot, fieldRelative);
+    }
+
+    public void driveMetersPerSec(double xSpeedMetersPerSec, double ySpeedMetersPerSec, double rotRadiansPerSec,
+            boolean fieldRelative) {
         double gyroRate = m_gyro.getRedundantGyroRate() * 0.15;
         // System.out.println(gyroRate);
         Rotation2d rotation2 = getPose().getRotation().minus(new Rotation2d(gyroRate));
-        desiredChassisSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(xSpeedMetersPerSec, ySpeedMetersPerSec, rotRadiansPerSec,
+        desiredChassisSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(xSpeedMetersPerSec, ySpeedMetersPerSec,
+                rotRadiansPerSec,
                 rotation2);
         ChassisSpeeds startChassisSpeeds = new ChassisSpeeds(xSpeedMetersPerSec, ySpeedMetersPerSec, rotRadiansPerSec);
         var swerveModuleStates = kDriveKinematics.toSwerveModuleStates(
@@ -718,14 +724,18 @@ public class SwerveDriveSubsystem extends SubsystemBase {
         m_rearRight.setDesiredState(swerveModuleStates[3]);
     }
 
-    public void driveWithHeading(double xSpeedMetersPerSec, double ySpeedMetersPerSec, double rotRadiansPerSec, boolean fieldRelative) {
+    public void driveWithHeading(double xSpeedMetersPerSec, double ySpeedMetersPerSec, double rotRadiansPerSec,
+            boolean fieldRelative) {
         double gyroRate = m_gyro.getRedundantGyroRate() * 0.15;
         double rotConstant = 0;
         // System.out.println(gyroRate);
         Rotation2d rotation2 = getPose().getRotation().minus(new Rotation2d(gyroRate));
-        xSpeedMetersPerSec = xSpeedMetersPerSec * (Math.abs(Math.abs(rotConstant*rotRadiansPerSec/kMaxSpeedMetersPerSecond)-1));
-        ySpeedMetersPerSec = ySpeedMetersPerSec * (Math.abs(Math.abs(rotConstant*rotRadiansPerSec/kMaxSpeedMetersPerSecond)-1));
-        desiredChassisSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(xSpeedMetersPerSec, ySpeedMetersPerSec, rotRadiansPerSec,
+        xSpeedMetersPerSec = xSpeedMetersPerSec
+                * (Math.abs(Math.abs(rotConstant * rotRadiansPerSec / kMaxSpeedMetersPerSecond) - 1));
+        ySpeedMetersPerSec = ySpeedMetersPerSec
+                * (Math.abs(Math.abs(rotConstant * rotRadiansPerSec / kMaxSpeedMetersPerSecond) - 1));
+        desiredChassisSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(xSpeedMetersPerSec, ySpeedMetersPerSec,
+                rotRadiansPerSec,
                 rotation2);
         ChassisSpeeds startChassisSpeeds = new ChassisSpeeds(xSpeedMetersPerSec, ySpeedMetersPerSec, rotRadiansPerSec);
         var swerveModuleStates = kDriveKinematics.toSwerveModuleStates(
@@ -749,7 +759,7 @@ public class SwerveDriveSubsystem extends SubsystemBase {
         rot = MathUtil.clamp(rot, -1, 1);
         // if (Math.abs(xSpeed) < .01)
         // xSpeed = 100 * xSpeed * xSpeed * Math.signum(xSpeed);
-         
+
         // if (Math.abs(ySpeed) < .01)
         // ySpeed = 100 * ySpeed * ySpeed * Math.signum(ySpeed);
         if (Math.abs(rot) < .01)
@@ -786,7 +796,7 @@ public class SwerveDriveSubsystem extends SubsystemBase {
         rot = MathUtil.clamp(rot, -1, 1);
         // if (Math.abs(xSpeed) < .01)
         // xSpeed = 100 * xSpeed * xSpeed * Math.signum(xSpeed);
-         
+
         // if (Math.abs(ySpeed) < .01)
         // ySpeed = 100 * ySpeed * ySpeed * Math.signum(ySpeed);
         if (Math.abs(rot) < .01)
@@ -798,7 +808,7 @@ public class SwerveDriveSubsystem extends SubsystemBase {
                 rotation2);
         var swerveModuleStates = kDriveKinematics.toSwerveModuleStates(
                 fieldRelative
-                        ? desiredChassisSpeeds  
+                        ? desiredChassisSpeeds
                         : new ChassisSpeeds(kMaxSpeed * xSpeed, kMaxSpeed * ySpeed,
                                 kMaxRot * rot));
 
@@ -823,7 +833,7 @@ public class SwerveDriveSubsystem extends SubsystemBase {
         rot = MathUtil.clamp(rot, -1, 1);
         // if (Math.abs(xSpeed) < .01)
         // xSpeed = 100 * xSpeed * xSpeed * Math.signum(xSpeed);
-         
+
         // if (Math.abs(ySpeed) < .01)
         // ySpeed = 100 * ySpeed * ySpeed * Math.signum(ySpeed);
         if (Math.abs(rot) < .01)
@@ -900,9 +910,6 @@ public class SwerveDriveSubsystem extends SubsystemBase {
         }
     }
 
-        
-    
-
     public void test(double[][] desiredOutputs, FileWriter writer) {
         m_frontLeft.setOutput(desiredOutputs[0][0], desiredOutputs[0][1]);
         m_frontRight.setOutput(desiredOutputs[1][0], desiredOutputs[1][1]);
@@ -910,31 +917,34 @@ public class SwerveDriveSubsystem extends SubsystemBase {
         m_rearRight.setOutput(desiredOutputs[3][0], desiredOutputs[3][1]);
 
         // full-speed printing to see the signal without networktables
-        // System.out.printf("T %5.3f FL(p%5.3f v%5.3f) FR(p%5.3f v%5.3f) RL(p%5.3f v%5.3f) RR(p%5.3f v%5.3f)\n",
+        // System.out.printf("T %5.3f FL(p%5.3f v%5.3f) FR(p%5.3f v%5.3f) RL(p%5.3f
+        // v%5.3f) RR(p%5.3f v%5.3f)\n",
         // System.out.printf("T %5.3f FL(p%5.3f v%5.3f)",
 
         try {
-            writer.write("Timestamp: " + Timer.getFPGATimestamp() + ", P" + m_frontLeft.getPosition().distanceMeters + ", " + m_frontLeft.getState().speedMetersPerSecond + "\n" );
-            // writer.write("Deez");
+            if (writer != null) {
+                writer.write("Timestamp: " + Timer.getFPGATimestamp() + ", P" + m_frontLeft.getPosition().distanceMeters
+                        + ", " + m_frontLeft.getState().speedMetersPerSecond + "\n");
+                // writer.write("Deez");
 
-            writer.flush();
-            // System.out.println("Successfully wrote to the file.");
-          } catch (IOException e) {
+                writer.flush();
+                // System.out.println("Successfully wrote to the file.");
+            }
+        } catch (IOException e) {
             System.out.println("An error occurred.");
             e.printStackTrace();
-          }
+        }
 
-        
         // Timer.getFPGATimestamp(),
-        //  m_frontLeft.getPosition().distanceMeters,
-        //  m_frontLeft.getState().speedMetersPerSecond
-        //  m_frontRight.getPosition().distanceMeters,
-        //  m_frontRight.getState().speedMetersPerSecond,
-        //  m_rearLeft.getPosition().distanceMeters,
-        //  m_rearLeft.getState().speedMetersPerSecond,
-        //  m_rearRight.getPosition().distanceMeters,
-        //  m_rearRight.getState().speedMetersPerSecond
-        
+        // m_frontLeft.getPosition().distanceMeters,
+        // m_frontLeft.getState().speedMetersPerSecond
+        // m_frontRight.getPosition().distanceMeters,
+        // m_frontRight.getState().speedMetersPerSecond,
+        // m_rearLeft.getPosition().distanceMeters,
+        // m_rearLeft.getState().speedMetersPerSecond,
+        // m_rearRight.getPosition().distanceMeters,
+        // m_rearRight.getState().speedMetersPerSecond
+
     }
 
     /** Resets the drive encoders to currently read a position of 0. */
