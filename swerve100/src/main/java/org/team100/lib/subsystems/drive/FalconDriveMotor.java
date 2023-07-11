@@ -1,6 +1,4 @@
-package org.team100.frc2023.subsystems.drive;
-
-import org.team100.lib.subsystems.drive.DriveMotor;
+package org.team100.lib.subsystems.drive;
 
 import com.ctre.phoenix.ErrorCode;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
@@ -16,11 +14,27 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 /**
  * Uses default position/velocity sensor which is the integrated one.
  * 
- * Configures the velocity reporting period to 20ms (default 100) and sampling
- * to 16 (default 64).
- * 
  * See details on velocity averaging and sampling.
  * https://v5.docs.ctr-electronics.com/en/stable/ch14_MCSensor.html#velocity-measurement-filter
+ * 
+ * Summarized:
+ * 
+ * * every 1ms, the velocity is measured as (x(t) - x(t-p)) / p
+ * * N such measurements are averaged
+ * 
+ * Default p is 100 ms, default N is 64, so, if the velocity measurement is
+ * perfect, it represents the actual velocity 82 ms ago, which is a long time.
+ * 
+ * For awhile we had p set to 0.001 and N set to 1. It's kind of amazing that it
+ * worked at all. Full speed is roughly 6k rpm or 100 rev/s or 0.1 rev per
+ * sample or 200 ticks per sample, so that's fine. But moving slowly, say 0.1
+ * m/s, that's 2 ticks per sample, which means that the velocity controller is
+ * going to see a lot of quantization noise in the measurement.
+ * 
+ * A better setting would use a window that's about the width of the control
+ * period, 20ms, so try 10ms and 8 samples. Note, this delay will be noticeable.
+ * 
+ * TODO: deal with delay in velocity measurement.
  */
 public class FalconDriveMotor implements DriveMotor {
     private final WPI_TalonFX m_motor;
@@ -28,23 +42,14 @@ public class FalconDriveMotor implements DriveMotor {
     /**
      * Throws if any of the configurations fail.
      */
-    public FalconDriveMotor(String name, int canId, double kDriveCurrentLimit) {
+    public FalconDriveMotor(String name, int canId, double currentLimit) {
         m_motor = new WPI_TalonFX(canId);
         m_motor.configFactoryDefault();
         m_motor.setNeutralMode(NeutralMode.Brake);
-        m_motor.configStatorCurrentLimit(
-                new StatorCurrentLimitConfiguration(true, kDriveCurrentLimit, kDriveCurrentLimit, 0));
-        m_motor.configSupplyCurrentLimit(
-                new SupplyCurrentLimitConfiguration(true, kDriveCurrentLimit, kDriveCurrentLimit, 0));
-
-        // default is 100 ms, i.e. lots of smoothing. robot loop is 20 ms, so this seems
-        // like a good maximum.
-        m_motor.configVelocityMeasurementPeriod(SensorVelocityMeasPeriod.Period_1Ms);
-
-        // default is 64 samples i.e. 64 ms worth of samples. try 16 to kinda match the
-        // period?
-        m_motor.configVelocityMeasurementWindow(1);
-
+        m_motor.configStatorCurrentLimit(new StatorCurrentLimitConfiguration(true, currentLimit, currentLimit, 0));
+        m_motor.configSupplyCurrentLimit(new SupplyCurrentLimitConfiguration(true, currentLimit, currentLimit, 0));
+        m_motor.configVelocityMeasurementPeriod(SensorVelocityMeasPeriod.Period_10Ms);
+        m_motor.configVelocityMeasurementWindow(8);
         SmartDashboard.putData(String.format("Falcon Drive Motor %s", name), this);
     }
 
