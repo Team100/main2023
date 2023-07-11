@@ -12,7 +12,6 @@ import org.team100.frc2023.commands.AutoLevel;
 import org.team100.frc2023.commands.Defense;
 import org.team100.frc2023.commands.DriveManually;
 import org.team100.frc2023.commands.DriveMedium;
-import org.team100.frc2023.commands.DrivePositional;
 import org.team100.frc2023.commands.DriveRotation;
 import org.team100.frc2023.commands.DriveSlow;
 import org.team100.frc2023.commands.DriveWithHeading;
@@ -74,7 +73,6 @@ public class RobotContainer implements Sendable {
     private final ManualArm manualArm;
 
     private final DriveWithHeading driveWithHeading;
-    private final DrivePositional drivePositional;
     private final DriveRotation driveRotation;
     private final Defense defense;
     private final ResetRotation resetRotation0;
@@ -266,12 +264,6 @@ public class RobotContainer implements Sendable {
                 "",
                 ahrsclass);
 
-        drivePositional = new DrivePositional(
-                m_robotDrive,
-                control::xSpeed,
-                control::ySpeed,
-                control::desiredRotation);
-
         driveRotation = new DriveRotation(m_robotDrive, control::rotSpeed);
 
         defense = new Defense(m_robotDrive);
@@ -363,15 +355,8 @@ public class RobotContainer implements Sendable {
         // m_robotDrive.setDefaultCommand(driveManually);
 
         // NORMAL mode
-        // m_robotDrive.setDefaultCommand(driveWithHeading);
+        m_robotDrive.setDefaultCommand(driveWithHeading);
 
-        // POSITION mode
-        // drive normally if the trigger is down but not the thumb
-        control.trigger().and(control.thumb().negate()).whileTrue(driveWithHeading);
-        // drive positional if the thumb is down
-        control.thumb().whileTrue(drivePositional);
-        // default is nothing
-        m_robotDrive.removeDefaultCommand();
 
         /////////////////////////
         // MANIPULATOR
