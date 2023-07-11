@@ -9,7 +9,7 @@ import java.util.function.Supplier;
 
 import org.msgpack.jackson.dataformat.MessagePackFactory;
 import org.team100.frc2023.RobotContainer;
-import org.team100.frc2023.config.Camera;
+import org.team100.lib.config.Camera;
 import org.team100.frc2023.control.Control;
 import org.team100.frc2023.indicator.GoNoGoIndicator;
 import org.team100.frc2023.subsystems.SwerveDriveSubsystem;

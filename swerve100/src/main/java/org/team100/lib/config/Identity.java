@@ -1,4 +1,4 @@
-package org.team100.frc2023.config;
+package org.team100.lib.config;
 
 import java.util.HashMap;
 import java.util.Map;

@@ -4,9 +4,9 @@ import java.io.FileWriter;
 import java.io.IOException;
 
 import org.team100.frc2023.RobotContainer;
-import org.team100.frc2023.config.Identity;
 import org.team100.frc2023.control.Control;
 import org.team100.frc2023.localization.VisionDataProvider;
+import org.team100.lib.config.Identity;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.VecBuilder;

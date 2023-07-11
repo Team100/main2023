@@ -2,7 +2,7 @@ package org.team100.frc2023;
 
 import java.io.IOException;
 
-import org.team100.frc2023.config.Identity;
+import org.team100.lib.config.Identity;
 
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.DataLogManager;
