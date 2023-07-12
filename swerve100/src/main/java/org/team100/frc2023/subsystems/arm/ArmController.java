@@ -36,7 +36,6 @@ public class ArmController extends SubsystemBase {
     private final FRCNEO upperArmMotor;
     private final AnalogEncoder upperArmEncoder = new AnalogEncoder(5);
 
- 
     public ArmController() {
         // TrapezoidProfile.Const raints constraints = new TrapezoidProfile.Constraints(
         // 0.3, // velocity rad/s
@@ -88,7 +87,7 @@ public class ArmController extends SubsystemBase {
      * @param x vertical axis coordinate
      * @param y horizontal axis coordinate
      */
-    public InverseKinematicsAngle manualSetpoint(XboxController m_driverController) {
+    public ArmAngles manualSetpoint(XboxController m_driverController) {
 
         double dx = -m_driverController.getLeftY();
         double dy = m_driverController.getRightX();
@@ -118,7 +117,7 @@ public class ArmController extends SubsystemBase {
         double[] angles = ArmKinematics.algorithm2RIKS(coords[0], coords[1]);
 
         if (angles == null) {
-            return new InverseKinematicsAngle();
+            return new ArmAngles();
         }
 
         upperAngleSetpoint = angles[0];
@@ -126,7 +125,7 @@ public class ArmController extends SubsystemBase {
 
         xSetpoint = coords[0];
         ySetpoint = coords[1];
-        return new InverseKinematicsAngle(angles[0], angles[1]); // upper theta, lower theta
+        return new ArmAngles(angles[0], angles[1]); // upper theta, lower theta
     }
 
     public void resetSetpoint() {
@@ -151,11 +150,10 @@ public class ArmController extends SubsystemBase {
         return ArmKinematics.getArmPosition(getLowerArm(), getUpperArm());
     }
 
-    public InverseKinematicsAngle calculate(double x, double y) {
+    public ArmAngles calculate(double x, double y) {
         double[] angles = ArmKinematics.algorithm2RIKS(x, y);
-        return new InverseKinematicsAngle(angles[0], angles[1]); // upper theta, lower theta
+        return new ArmAngles(angles[0], angles[1]); // upper theta, lower theta
     }
-
 
     /**
      * The angle the lower arm is at (in radians)
@@ -183,6 +181,10 @@ public class ArmController extends SubsystemBase {
         double formatted = x;
 
         return formatted * Math.PI / 180;
+    }
+
+    public ArmAngles getArmAngles() {
+        return new ArmAngles(getUpperArm(), getLowerArm());
     }
 
     public double getLowerArmDegrees() {
