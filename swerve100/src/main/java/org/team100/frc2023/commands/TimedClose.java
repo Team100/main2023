@@ -29,7 +29,7 @@ public class TimedClose extends CommandBase {
 
     @Override
     public void execute() {
-        manip.pinch(force);
+        manip.set(force, 30);
         if (loopCount-- <= 0) {
             finishedFlag = true;
         }
@@ -38,7 +38,7 @@ public class TimedClose extends CommandBase {
 
     @Override
     public void end(boolean interrupted) {
-        manip.pinch(0);
+        manip.set(0, 30);
     }
 
     @Override

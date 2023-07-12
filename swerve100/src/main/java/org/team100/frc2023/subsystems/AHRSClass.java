@@ -71,6 +71,11 @@ public class AHRSClass implements Sendable {
         return (redundYaw) / tmpInputs;
     }
 
+    /**
+     * TODO: is this really degrees?
+     * 
+     * @returns pitch in degrees [-180,180]
+     */
     public float getRedundantPitch() {
         if (!m_gyro1.isConnected()) {
             gyro1Connected = false;
@@ -94,6 +99,11 @@ public class AHRSClass implements Sendable {
         return (redundPitch) / tmpInputs;
     }
 
+    /**
+     * TODO: is this really degrees?
+     * 
+     * @returns roll in degrees [-180,180]
+     */
     public float getRedundantRoll() {
         if (!m_gyro1.isConnected()) {
             gyro1Connected = false;

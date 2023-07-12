@@ -23,6 +23,7 @@ public class Robot extends TimedRobot {
     private final DigitalInput auto4 = new DigitalInput(2);
     private final DigitalInput auto8 = new DigitalInput(3);
 
+    // TODO: why two switches to represent one bit?
     private final DigitalInput alliance1 = new DigitalInput(4);
     private final DigitalInput alliance2 = new DigitalInput(5);
 
@@ -87,9 +88,9 @@ public class Robot extends TimedRobot {
         SmartDashboard.putNumber("KEY LIST", keyList);
 
         if (keyList == 0) {
-            m_robotContainer.m_robotDrive.indicator.red();
+            m_robotContainer.red();
         } else {
-            m_robotContainer.m_robotDrive.indicator.green();
+            m_robotContainer.green();
         }
     }
 
@@ -106,6 +107,7 @@ public class Robot extends TimedRobot {
         return 15 - val;
     }
 
+    // TODO: use RED and BLUE here
     private boolean getAlliance() {
         int val = 0;
         if (alliance2.get())
@@ -122,8 +124,7 @@ public class Robot extends TimedRobot {
     @Override
     public void autonomousInit() {
         int routine = getAutoSwitchValue();
-        boolean isBlueAlliance = getAlliance();
-        m_autonomousCommand = m_robotContainer.getAutonomousCommand2(routine, isBlueAlliance);
+        m_autonomousCommand = m_robotContainer.getAutonomousCommand2(routine);
 
         if (m_autonomousCommand != null) {
             m_autonomousCommand.schedule();

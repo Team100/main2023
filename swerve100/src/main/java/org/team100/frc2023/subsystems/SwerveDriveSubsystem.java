@@ -51,7 +51,7 @@ public class SwerveDriveSubsystem extends SubsystemBase {
     private ChassisSpeeds desiredChassisSpeeds = new ChassisSpeeds();
 
     public VisionDataProvider visionDataProvider;
-    public final LEDIndicator indicator;
+    public final LEDIndicator m_indicator;
 
     // for observers
     private final DoubleArrayPublisher robotPosePub;
@@ -67,9 +67,11 @@ public class SwerveDriveSubsystem extends SubsystemBase {
     public SwerveDriveSubsystem(
             DriverStation.Alliance alliance,
             double currentLimit,
-            AHRSClass gyro)
+            AHRSClass gyro,
+            LEDIndicator indicator)
             throws IOException {
         m_gyro = gyro;
+        m_indicator = indicator;
 
         // Sets up Field2d pose tracking for glass.
         NetworkTableInstance inst = NetworkTableInstance.getDefault();
@@ -91,7 +93,6 @@ public class SwerveDriveSubsystem extends SubsystemBase {
                 VecBuilder.fill(0.4, 0.4, 0.4)); // note tight rotation variance here, used to be MAX_VALUE
         // VecBuilder.fill(0.01, 0.01, Integer.MAX_VALUE));
         visionDataProvider = new VisionDataProvider(alliance, m_poseEstimator, () -> getPose());
-        indicator = new LEDIndicator(8);
         SmartDashboard.putData("Drive Subsystem", this);
     }
 
@@ -268,7 +269,7 @@ public class SwerveDriveSubsystem extends SubsystemBase {
 
     // for tests, to keep from conflicting when the indicator is created.
     public void close() {
-        indicator.close();
+        m_indicator.close();
     }
 
     @Override

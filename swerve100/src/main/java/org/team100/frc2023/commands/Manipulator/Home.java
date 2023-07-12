@@ -14,14 +14,10 @@ public class Home extends CommandBase {
 
     @Override
     public void initialize() {
-        m_manipulator.pinch(0.8);
+        m_manipulator.set(0.8, 30);
     }
 
     @Override
     public void execute() {
-        if (m_manipulator.getForwardLimitSwitch() == true) {
-            m_manipulator.pinch(0);
-            m_manipulator.position.reset();
-        }
     }
 }

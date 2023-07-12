@@ -17,10 +17,9 @@ public class LowerArmToGoal extends ProfiledPIDCommand {
     private final ArmController arm;
 
     public static LowerArmToGoal factory(double position, ArmController arm) {
-
         Supplier<State> goalSource = () -> new State(position, 0);
-
         DoubleSupplier positionRad = () -> arm.getLowerArm();
+
         // double outputPID;
         // measurement = positionRad;
         // final ArmFeedforward armFeedforward = new ArmFeedforward(
@@ -40,7 +39,7 @@ public class LowerArmToGoal extends ProfiledPIDCommand {
                 3 // accel rad/s^2
         );
         ProfiledPIDController controller = new ProfiledPIDController(1.2, 0, 0, constraints);
-        controller.setTolerance(0.1); // radians\
+        controller.setTolerance(0.1); // radians
         return new LowerArmToGoal(controller, positionRad, goalSource, useOutput, arm);
     }
 
@@ -50,13 +49,9 @@ public class LowerArmToGoal extends ProfiledPIDCommand {
             Supplier<State> goalSource,
             BiConsumer<Double, State> useOutput,
             ArmController arm) {
-
-        super(controller, measurementSource,
-                goalSource, useOutput, arm.lowerArmSegment);
-
+        super(controller, measurementSource, goalSource, useOutput, arm.lowerArmSegment);
         this.arm = arm;
         SmartDashboard.putData("Lower Arm To Goal", this);
-
     }
 
     public void initSendable(SendableBuilder builder) {
@@ -65,7 +60,6 @@ public class LowerArmToGoal extends ProfiledPIDCommand {
         builder.addDoubleProperty("Error", () -> getController().getPositionError(), null);
         builder.addDoubleProperty("Goal", () -> getController().getGoal().position, null);
         builder.addDoubleProperty("Measurement", () -> arm.getUpperArm(), null);
-
     }
 
     @Override

@@ -14,7 +14,7 @@ public class Oscillate extends CommandBase {
 
     @Override
     public void initialize() {
-        if (m_arm.getUpperArm() < m_arm.coneSubVal) {
+        if (m_arm.getUpperArm() < ArmController.coneSubVal) {
             movingUp = false;
         } else {
             movingUp = true;
@@ -23,11 +23,11 @@ public class Oscillate extends CommandBase {
 
     @Override
     public void execute() {
-        if (m_arm.getUpperArm() < m_arm.coneSubVal - 0.025) {
+        if (m_arm.getUpperArm() < ArmController.coneSubVal - 0.025) {
             movingUp = true;
         }
 
-        if (m_arm.getUpperArm() > m_arm.coneSubVal + 0.025) {
+        if (m_arm.getUpperArm() > ArmController.coneSubVal + 0.025) {
             movingUp = false;
         }
 
