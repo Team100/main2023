@@ -5,9 +5,10 @@ import java.io.IOException;
 
 import org.team100.frc2023.RobotContainer;
 import org.team100.frc2023.control.Control;
-import org.team100.lib.indicator.LEDIndicator;
 import org.team100.lib.config.Identity;
+import org.team100.lib.indicator.LEDIndicator;
 import org.team100.lib.localization.VisionDataProvider;
+import org.team100.lib.subsystems.SwerveDriveKinematicsFactory;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.VecBuilder;
@@ -16,7 +17,6 @@ import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
@@ -34,53 +34,10 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class SwerveDriveSubsystem extends SubsystemBase {
-    public static final SwerveDriveKinematics kDriveKinematics;
+    public static final SwerveDriveKinematics kDriveKinematics = SwerveDriveKinematicsFactory.get(Identity.get());
     // public ChassisSpeeds robotStates = new ChassisSpeeds();
     // public double observedVelocity;
     public ChassisSpeeds desiredChassisSpeeds = new ChassisSpeeds();
-
-    static {
-        final double kTrackWidth;
-        final double kWheelBase;
-        switch (Identity.get()) {
-            case COMP_BOT:
-                kTrackWidth = 0.491;
-                kWheelBase = 0.765;
-                break;
-            case SWERVE_TWO:
-                kTrackWidth = 0.380;
-                kWheelBase = 0.445;
-                break;
-            case SWERVE_ONE:
-                kTrackWidth = 0.449;
-                kWheelBase = 0.464;
-                break;
-            case FROM_8048:
-                kTrackWidth = 0.46;
-                kWheelBase = 0.55; // approximate
-                break;
-            case BLANK: // for simulation
-                kTrackWidth = 0.5;
-                kWheelBase = 0.5;
-                break;
-            case TEST_BOARD_6B: // for testing
-                kTrackWidth = 0.5;
-                kWheelBase = 0.5;
-                break;
-            case CAMERA_DOLLY:
-                kTrackWidth = 1;
-                kWheelBase = 1;
-                break;
-            default:
-                throw new IllegalStateException("Identity is not swerve: " + Identity.get().name());
-        }
-
-        kDriveKinematics = new SwerveDriveKinematics(
-                new Translation2d(kWheelBase / 2, kTrackWidth / 2),
-                new Translation2d(kWheelBase / 2, -kTrackWidth / 2),
-                new Translation2d(-kWheelBase / 2, kTrackWidth / 2),
-                new Translation2d(-kWheelBase / 2, -kTrackWidth / 2));
-    }
 
     public final double kMaxSpeedMetersPerSecond;
     public final double kMaxAccelerationMetersPerSecondSquared;
@@ -124,9 +81,8 @@ public class SwerveDriveSubsystem extends SubsystemBase {
 
     public double m_xVelocity = 0;
 
-
-
-    public SwerveDriveSubsystem(DriverStation.Alliance alliance, double currentLimit, AHRSClass gyro, Control control) throws IOException {
+    public SwerveDriveSubsystem(DriverStation.Alliance alliance, double currentLimit, AHRSClass gyro, Control control)
+            throws IOException {
         m_gyro = gyro;
         // Sets up Field2d pose tracking for glass.
         NetworkTableInstance inst = NetworkTableInstance.getDefault();
@@ -156,7 +112,6 @@ public class SwerveDriveSubsystem extends SubsystemBase {
                                 4 * Math.PI)); // accel rad/s/s
                 headingController.setIntegratorRange(-0.1, 0.1);
                 rotateController.setIntegratorRange(-0.2, 0.2);
-
 
                 // Note very low heading tolerance.
                 headingController.setTolerance(0.01);
@@ -821,7 +776,6 @@ public class SwerveDriveSubsystem extends SubsystemBase {
         getRobotVelocity(swerveModuleStates);
 
         m_frontLeft.setDesiredState(swerveModuleStates[0]);
-        // System.out.println(desiredChassisSpeeds);
         m_frontRight.setDesiredState(swerveModuleStates[1]);
         m_rearLeft.setDesiredState(swerveModuleStates[2]);
         m_rearRight.setDesiredState(swerveModuleStates[3]);
