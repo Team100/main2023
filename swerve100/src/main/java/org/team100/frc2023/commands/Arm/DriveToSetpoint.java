@@ -9,7 +9,6 @@ public class DriveToSetpoint extends ParallelCommandGroup {
         addCommands(
                 UpperArmToGoal.factory(arm.calculate(x, y).upperTheta, arm, upperVelocity),
                 LowerArmToGoal.factory(arm.calculate(x, y).lowerTheta, arm)
-
         );
     }
 }

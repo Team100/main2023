@@ -27,8 +27,6 @@ public class SwerveModule implements Sendable {
     private final ProfiledPIDController m_turningController;
     private final SimpleMotorFeedforward m_turningFeedforward;
     private final SimpleMotorFeedforward m_driveFeedforward;
-
-    // private final SimpleMotorFeedforward m_headingTurnFeedforward;
     private final SimpleMotorFeedforward m_headingDriveFeedforward;
 
     public double turningFeedForwardOutput;
@@ -49,8 +47,7 @@ public class SwerveModule implements Sendable {
             ProfiledPIDController turningController,
             SimpleMotorFeedforward driveFeedforward,
             SimpleMotorFeedforward turningFeedforward,
-            SimpleMotorFeedforward headingDriveFeedforward
-            ) {
+            SimpleMotorFeedforward headingDriveFeedforward) {
         m_name = name;
         m_driveMotor = driveMotor;
         m_turningMotor = turningMotor;
@@ -61,7 +58,6 @@ public class SwerveModule implements Sendable {
         m_driveFeedforward = driveFeedforward;
         m_turningFeedforward = turningFeedforward;
         m_headingDriveFeedforward = headingDriveFeedforward;
-        // m_headingTurnFeedforward = headingTurnFeedforward;
         SmartDashboard.putData(String.format("Swerve Module %s", m_name), this);
     }
 
@@ -84,17 +80,6 @@ public class SwerveModule implements Sendable {
                 state.speedMetersPerSecond,
                 accelMetersPerSecondPerSecond);
 
-        // if(MathUtil.applyDeadband(driveMotorControllerOutput, .01) == 0){
-        //     driveMotorControllerOutput = 0;
-        //     driveFeedForwardOutput = 0;
-        // }
-
-        // if(MathUtil.applyDeadband(turningMotorControllerOutput, .01) == 0){
-        //     turningMotorControllerOutput = 0;
-        //     turningFeedForwardOutput = 0;
-        // }
-
-
         double driveOutput = MathUtil.applyDeadband(driveMotorControllerOutput + driveFeedForwardOutput, 0.03);
         double turnOutput = MathUtil.applyDeadband(turningMotorControllerOutput + turningFeedForwardOutput, 0.03);
 
@@ -113,27 +98,10 @@ public class SwerveModule implements Sendable {
                 state.speedMetersPerSecond,
                 accelMetersPerSecondPerSecond);
 
-        // if(MathUtil.applyDeadband(driveMotorControllerOutput, .01) == 0){
-        //     driveMotorControllerOutput = 0;
-        //     driveFeedForwardOutput = 0;
-        // }
-
-        // if(MathUtil.applyDeadband(turningMotorControllerOutput, .01) == 0){
-        //     turningMotorControllerOutput = 0;
-        //     turningFeedForwardOutput = 0;
-        // }
-        
-
-        // System.out.println(driveMotorControllerOutput); 
-        // System.out.println(driveFeedForwardOutput);
-        // System.out.println(turningMotorControllerOutput);
-        // System.out.println(turningFeedForwardOutput);
-
         double driveOutput = MathUtil.applyDeadband(driveMotorControllerOutput + driveFeedForwardOutput, 0.03);
         double turnOutput = MathUtil.applyDeadband(turningMotorControllerOutput + turningFeedForwardOutput, 0.03);
 
-        setOutput(driveOutput,
-                turnOutput);
+        setOutput(driveOutput, turnOutput);
     }
 
     // TODO: do we need this?
@@ -144,12 +112,10 @@ public class SwerveModule implements Sendable {
         turningFeedForwardOutput = m_turningFeedforward.calculate(getTurnSetpointVelocityRadS(), 0);
         double accelMetersPerSecondPerSecond = (state.speedMetersPerSecond - previousSpeedMetersPerSecond) / 0.02;
         previousSpeedMetersPerSecond = state.speedMetersPerSecond;
-        driveFeedForwardOutput = m_driveFeedforward.calculate(
-                state.speedMetersPerSecond,
+        driveFeedForwardOutput = m_driveFeedforward.calculate(state.speedMetersPerSecond,
                 accelMetersPerSecondPerSecond);
 
-        setOutput(driveMotorControllerOutput,
-                turningMotorControllerOutput + turningFeedForwardOutput);
+        setOutput(driveMotorControllerOutput, turningMotorControllerOutput + turningFeedForwardOutput);
     }
 
     /**

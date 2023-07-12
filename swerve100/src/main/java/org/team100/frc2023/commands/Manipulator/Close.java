@@ -5,66 +5,38 @@ import org.team100.frc2023.subsystems.Manipulator;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 
+// TODO: obsolete?
 public class Close extends CommandBase {
-  /** Creates a new Close. */
-  Manipulator m_manipulator;
-  boolean first = true;
-  Timer m_timer;
-  public Close(Manipulator manipulator) {
-    // Use addRequirements() here to declare subsystem dependencies.
-    m_manipulator = manipulator;
-    m_timer = new Timer();
-    addRequirements(m_manipulator);
-  }
+    Manipulator m_manipulator;
+    boolean first = true;
+    Timer m_timer;
 
-  // Called when the command is initially scheduled.
-  @Override
-  public void initialize() {
-    m_manipulator.pinch.motor.configPeakCurrentLimit(45);
-
-    m_timer.restart();
-    first = true;
-  }
-
-  // Called every time the scheduler runs while the command is scheduled.
-  @Override
-  public void execute() {
-
-    // if(m_manipulator.getStatorCurrent() <= -11){
-    //   // first = false;
-
-    //   if(m_timer.get() >= 1){
-
-    //     m_manipulator.pinch.motor.configPeakCurrentLimit(5);
-    //     System.out.println("DEEZ");
-    //   }
-      
-
-    // }
-
-    // System.out.println("YOOOOO");
-
-    if(m_manipulator.hasGamepiece() == false){
-        m_manipulator.pinch(-0.8);
-    } else {
-        System.out.println("YESSS");
-        m_manipulator.pinch.motor.configPeakCurrentLimit(7);
-        m_manipulator.pinch(-0.2);
-
+    public Close(Manipulator manipulator) {
+        m_manipulator = manipulator;
+        m_timer = new Timer();
+        addRequirements(m_manipulator);
     }
 
-    // m_manipulator.pinch(-0.8);
+    @Override
+    public void initialize() {
+        m_manipulator.pinch.motor.configPeakCurrentLimit(45);
+        m_timer.restart();
+        first = true;
+    }
 
+    @Override
+    public void execute() {
+        if (m_manipulator.hasGamepiece() == false) {
+            m_manipulator.pinch(-0.8);
+        } else {
+            m_manipulator.pinch.motor.configPeakCurrentLimit(7);
+            m_manipulator.pinch(-0.2);
+        }
+    }
 
-  }
-
-  // Called once the command ends or is interrupted.
-  @Override
-  public void end(boolean interrupted) {
-    m_manipulator.pinch(0);
-
-    m_manipulator.pinch.motor.configPeakCurrentLimit(30);
-  }
-
-
+    @Override
+    public void end(boolean interrupted) {
+        m_manipulator.pinch(0);
+        m_manipulator.pinch.motor.configPeakCurrentLimit(30);
+    }
 }

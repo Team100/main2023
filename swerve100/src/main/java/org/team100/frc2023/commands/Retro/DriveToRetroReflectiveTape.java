@@ -12,169 +12,98 @@ import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.filter.LinearFilter;
 import edu.wpi.first.math.trajectory.TrapezoidProfile.Constraints;
 import edu.wpi.first.networktables.DoublePublisher;
-import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.RawSubscriber;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 
 public class DriveToRetroReflectiveTape extends CommandBase {
-  /** Creates a new DriveToRetroReflectiveTape. */
+    private static final LinearFilter xFilter = LinearFilter.singlePoleIIR(0.06, 0.02);
+    private static final LinearFilter yFilter = LinearFilter.singlePoleIIR(0.06, 0.02);
 
+    private final SwerveDriveSubsystem m_robotDrive;
+    private final ObjectMapper object_mapper;
 
-  private final ObjectMapper object_mapper;
-  private final RawSubscriber tapeSubscriber;
-  
-  Tapes tapes;
-  private final ProfiledPIDController yController;
-  private final ProfiledPIDController xController;
+    private final NetworkTableInstance inst;
+    private final DoublePublisher setpointX;
+    private final DoublePublisher setpointY;
+    private final DoublePublisher measurmentX;
+    private final DoublePublisher measurmentY;
+    private final DoublePublisher errorX;
+    private final DoublePublisher errorY;
+    private final DoublePublisher tagView;
+    private final DoublePublisher xOutputPub;
+    private final DoublePublisher yOutputPub;
+    private final RawSubscriber tapeSubscriber;
 
-  SwerveDriveSubsystem m_robotDrive;
-  boolean done = false;
-  boolean firstRun = false;
+    private final ProfiledPIDController yController;
+    private final ProfiledPIDController xController;
 
-  double xMeasurment = 0;
-  double yMeasurment = 0;
+    boolean firstRun = false;
 
-  LinearFilter xFilter = LinearFilter.singlePoleIIR(0.06, 0.02); 
-  LinearFilter yFilter = LinearFilter.singlePoleIIR(0.06, 0.02); 
-
-
-  NetworkTableInstance inst = NetworkTableInstance.getDefault();
-
-  DoublePublisher setpointX = inst.getTable("Retro Tape").getDoubleTopic("Setpoint X").publish();
-  DoublePublisher setpointY = inst.getTable("Retro Tape").getDoubleTopic("Setpoint Y").publish();
-  
-  DoublePublisher measurmentX = inst.getTable("Retro Tape").getDoubleTopic("Measurment X").publish();
-  DoublePublisher measurmentY = inst.getTable("Retro Tape").getDoubleTopic("Measurment Y").publish();
-
-  DoublePublisher errorX = inst.getTable("Retro Tape").getDoubleTopic("Error X").publish();
-  DoublePublisher errorY = inst.getTable("Retro Tape").getDoubleTopic("Error Y").publish();
-
-
-  DoublePublisher tagView = inst.getTable("Retro Tape").getDoubleTopic("Tag View").publish();
-
-
-  DoublePublisher xOutputPub = inst.getTable("Retro Tape").getDoubleTopic("X Ouput View").publish();
-  DoublePublisher yOutputPub = inst.getTable("Retro Tape").getDoubleTopic("Y Output View").publish();
-
-  public DriveToRetroReflectiveTape(SwerveDriveSubsystem robotDrive) {
-    // Use addRequirements() here to declare subsystem dependencies.
-
-    NetworkTableInstance inst = NetworkTableInstance.getDefault();
-    NetworkTable tapeTable = inst.getTable("RetroVision");
-
-    m_robotDrive = robotDrive;
-
-    
-
-    yController = new ProfiledPIDController(1, 0, 0, new Constraints(0.25, 0.5) );
-    xController = new ProfiledPIDController(1.2, 0, 0, new Constraints(0.25, 0.5) );
-
-    xController.setTolerance(0.03);
-    yController.setTolerance(0.03);
-
-    tapeSubscriber = tapeTable.getRawTopic("tapes").subscribe("raw", new byte[0]);
-    object_mapper = new ObjectMapper(new MessagePackFactory());
-    // tapes = new Tapes();
-
-
-
-
-  }
-
-  // Called when the command is initially scheduled.
-  @Override
-  public void initialize() {
-    done = false;
-    firstRun = true;
-  }
-
-  // Called every time the scheduler runs while the command is scheduled.
-  @Override
-  public void execute() {
-    // Tapes tape = object_mapper.readValue(event.valueData.value.getRaw(), Blips.class);
-    
-
-    try {
-      byte[] data = tapeSubscriber.get();
-      tapes = object_mapper.readValue(data, Tapes.class);
-
-      System.out.println(data.length);
-      
-      
-      
-      if(tapes.tapes.size() > 0){
-
-        yMeasurment = yFilter.calculate(-tapes.tapes.get(0).pose_t[1]);
-        xMeasurment = xFilter.calculate(-tapes.tapes.get(0).pose_t[0]);
-
-        // yMeasurment = -tapes.tapes.get(0).pose_t[1];
-        // xMeasurment = -tapes.tapes.get(0).pose_t[0];
-
-        if(firstRun == true){
-          yController.reset(yMeasurment);
-          xController.reset(xMeasurment);
-          firstRun = false;
-        }
-        double yOutput = yController.calculate(yMeasurment, 0);
-        double xOutput = xController.calculate(xMeasurment, -0.6);
-
-        // xOutput = MathUtil.clamp(xOutput, -0.15, 0.15);
-        // yOutput = MathUtil.clamp(yOutput, -0.15, 0.15);
-
-        measurmentX.set(xMeasurment);
-        measurmentY.set(yMeasurment);
-
-        tagView.set(0);
-
-        System.out.println("*************************************************************" + xOutput);
-        System.out.println("*************************************************************" + yOutput);
-
-        yOutputPub.set(yOutput);
-        xOutputPub.set(xOutput);
-
-        // xOutput = MathUtil.applyDeadband(xOutput, 0.01);
-        // yOutput = MathUtil.applyDeadband(yOutput, 0.01);
-
-
-        errorX.set(xController.getPositionError());
-        errorY.set(yController.getPositionError());
-        m_robotDrive.driveMetersPerSec(xOutput, yOutput, 0, false);
-      } else {
-        m_robotDrive.driveMetersPerSec(0, 0, 0, false);
-        tagView.set(2);
-      
-      }
-
-      setpointX.set(xController.getSetpoint().position);
-      setpointY.set(yController.getSetpoint().position);
-
-      
-
-    } catch (IOException e) {
-      e.printStackTrace();
+    public DriveToRetroReflectiveTape(SwerveDriveSubsystem robotDrive) {
+        m_robotDrive = robotDrive;
+        object_mapper = new ObjectMapper(new MessagePackFactory());
+        inst = NetworkTableInstance.getDefault();
+        setpointX = inst.getTable("Retro Tape").getDoubleTopic("Setpoint X").publish();
+        setpointY = inst.getTable("Retro Tape").getDoubleTopic("Setpoint Y").publish();
+        measurmentX = inst.getTable("Retro Tape").getDoubleTopic("Measurment X").publish();
+        measurmentY = inst.getTable("Retro Tape").getDoubleTopic("Measurment Y").publish();
+        errorX = inst.getTable("Retro Tape").getDoubleTopic("Error X").publish();
+        errorY = inst.getTable("Retro Tape").getDoubleTopic("Error Y").publish();
+        tagView = inst.getTable("Retro Tape").getDoubleTopic("Tag View").publish();
+        xOutputPub = inst.getTable("Retro Tape").getDoubleTopic("X Ouput View").publish();
+        yOutputPub = inst.getTable("Retro Tape").getDoubleTopic("Y Output View").publish();
+        tapeSubscriber = inst.getTable("RetroVision").getRawTopic("tapes").subscribe("raw", new byte[0]);
+        yController = new ProfiledPIDController(1, 0, 0, new Constraints(0.25, 0.5));
+        xController = new ProfiledPIDController(1.2, 0, 0, new Constraints(0.25, 0.5));
+        xController.setTolerance(0.03);
+        yController.setTolerance(0.03);
     }
 
-    // byte[] data = tapeSubscriber.get();
+    @Override
+    public void initialize() {
+        firstRun = true;
+    }
 
-    // System.out.println("**************************************************************************************************************" + data.length);
-    
+    @Override
+    public void execute() {
+        try {
+            byte[] data = tapeSubscriber.get();
+            Tapes tapes = object_mapper.readValue(data, Tapes.class);
 
-    
+            if (tapes.tapes.size() > 0) {
+                double yMeasurment = yFilter.calculate(-tapes.tapes.get(0).pose_t[1]);
+                double xMeasurment = xFilter.calculate(-tapes.tapes.get(0).pose_t[0]);
 
+                if (firstRun == true) {
+                    yController.reset(yMeasurment);
+                    xController.reset(xMeasurment);
+                    firstRun = false;
+                }
+                double yOutput = yController.calculate(yMeasurment, 0);
+                double xOutput = xController.calculate(xMeasurment, -0.6);
 
+                measurmentX.set(xMeasurment);
+                measurmentY.set(yMeasurment);
 
+                tagView.set(0);
 
+                yOutputPub.set(yOutput);
+                xOutputPub.set(xOutput);
 
-  }
+                errorX.set(xController.getPositionError());
+                errorY.set(yController.getPositionError());
+                m_robotDrive.driveMetersPerSec(xOutput, yOutput, 0, false);
+            } else {
+                m_robotDrive.driveMetersPerSec(0, 0, 0, false);
+                tagView.set(2);
+            }
 
-  // Called once the command ends or is interrupted.
-  @Override
-  public void end(boolean interrupted) {}
+            setpointX.set(xController.getSetpoint().position);
+            setpointY.set(yController.getSetpoint().position);
 
-  // Returns true when the command should end.
-  @Override
-  public boolean isFinished() {
-    return done;
-  }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 }

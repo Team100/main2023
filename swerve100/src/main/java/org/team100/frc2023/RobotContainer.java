@@ -122,7 +122,7 @@ public class RobotContainer implements Sendable {
     public double m_routine = -1;
 
     public RobotContainer(DriverStation.Alliance alliance) throws IOException {
-        // THIS IS BABY MODE
+        // THIS IS SHOW MODE
         // final double kDriveCurrentLimit = 20;
         // 60 amps is the maximum maximum
         final double kDriveCurrentLimit = 60;
@@ -144,6 +144,7 @@ public class RobotContainer implements Sendable {
         }
         myWriter = fileWriter;
 
+        // TODO: why don't we trust the FMS?
         // m_alliance = DriverStation.getAlliance();
         m_alliance = alliance;
 
