@@ -6,6 +6,7 @@ import org.team100.frc2023.subsystems.SwerveDriveSubsystem;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 
+// TODO: do we need this?
 public class DriveSlow extends CommandBase {
     private final SwerveDriveSubsystem m_robotDrive;
     private final Control m_control;
@@ -18,7 +19,6 @@ public class DriveSlow extends CommandBase {
 
     @Override
     public void execute() {
-
         m_robotDrive.driveFine(
                 MathUtil.applyDeadband(m_control.xSpeed()/2, .02),
                 MathUtil.applyDeadband(m_control.ySpeed()/2, .02),
