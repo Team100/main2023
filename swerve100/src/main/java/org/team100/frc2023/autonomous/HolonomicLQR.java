@@ -54,7 +54,7 @@ public class HolonomicLQR {
 
   private final ProfiledPIDController m_thetaController;
 
-  private boolean m_firstRun = true;
+//   private boolean m_firstRun = true;
 
   SwerveDriveSubsystem m_robotDrive;
 
@@ -128,9 +128,9 @@ public class HolonomicLQR {
     // Calculate feedforward velocities (field-relative).
     
     
-    double xFF = desiredLinearVelocityMetersPerSecond * trajectoryPose.getRotation().getCos();
+    // double xFF = desiredLinearVelocityMetersPerSecond * trajectoryPose.getRotation().getCos();
 
-    double yFF = desiredLinearVelocityMetersPerSecond * trajectoryPose.getRotation().getSin();
+    // double yFF = desiredLinearVelocityMetersPerSecond * trajectoryPose.getRotation().getSin();
     
     double thetaFF =
         m_thetaController.calculate(

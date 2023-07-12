@@ -6,41 +6,23 @@ import org.team100.frc2023.subsystems.arm.ArmController;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 
 public class SetConeMode extends CommandBase {
-  /** Creates a new SetConeMode. */
-  ArmController m_arm;
-  SwerveDriveSubsystem m_robotDrive;
+    private final ArmController m_arm;
+    private final SwerveDriveSubsystem m_robotDrive;
 
-  boolean done;
-  
-  public SetConeMode(ArmController arm, SwerveDriveSubsystem robotDrive) {
-    // Use addRequirements() here to declare subsystem dependencies.
+    public SetConeMode(ArmController arm, SwerveDriveSubsystem robotDrive) {
+        m_arm = arm;
+        m_robotDrive = robotDrive;
+        addRequirements(m_arm);
+    }
 
-    m_arm = arm;
-    m_robotDrive = robotDrive;
+    @Override
+    public void initialize() {
+        m_arm.cubeMode = false;
+        m_robotDrive.indicator.yellow();
+    }
 
-    addRequirements(m_arm);
-  }
-
-  // Called when the command is initially scheduled.
-  @Override
-  public void initialize() {
-    m_arm.cubeMode = false;
-    m_robotDrive.visionDataProvider.indicator.cone();
-
-    done = true;
-  }
-
-  // Called every time the scheduler runs while the command is scheduled.
-  @Override
-  public void execute() {}
-
-  // Called once the command ends or is interrupted.
-  @Override
-  public void end(boolean interrupted) {}
-
-  // Returns true when the command should end.
-  @Override
-  public boolean isFinished() {
-    return done;
-  }
+    @Override
+    public boolean isFinished() {
+        return true;
+    }
 }

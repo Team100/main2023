@@ -92,11 +92,7 @@ public class AutoLevel extends CommandBase {
 
     
     }
-  // Called once the command ends or is interrupted.
-  @Override
-  public void end(boolean interrupted) {
-    System.out.println("AUTO LEVEL ENDING");
-  }
+
 
   // Returns true when the command should end.
   @Override

@@ -12,13 +12,9 @@ import org.team100.frc2023.commands.AutoLevel;
 import org.team100.frc2023.commands.Defense;
 import org.team100.frc2023.commands.DriveManually;
 import org.team100.frc2023.commands.DriveMedium;
-import org.team100.frc2023.commands.DrivePositional;
 import org.team100.frc2023.commands.DriveRotation;
 import org.team100.frc2023.commands.DriveSlow;
 import org.team100.frc2023.commands.DriveWithHeading;
-import org.team100.frc2023.commands.GripManually;
-import org.team100.frc2023.commands.ResetPose;
-import org.team100.frc2023.commands.ResetRotation;
 import org.team100.frc2023.commands.RumbleOn;
 import org.team100.frc2023.commands.Arm.ArmTrajectory;
 import org.team100.frc2023.commands.Arm.ManualArm;
@@ -30,16 +26,17 @@ import org.team100.frc2023.commands.Manipulator.CloseSlow;
 import org.team100.frc2023.commands.Manipulator.Home;
 import org.team100.frc2023.commands.Manipulator.Open;
 import org.team100.frc2023.commands.Retro.DriveToRetroReflectiveTape;
-import org.team100.frc2023.commands.Retro.LedOn;
+import org.team100.lib.commands.ResetPose;
+import org.team100.lib.commands.ResetRotation;
+import org.team100.lib.commands.Retro.LedOn;
 import org.team100.frc2023.control.Control;
-import org.team100.frc2023.control.DualXboxControl;
 import org.team100.frc2023.control.JoystickControl;
-import org.team100.frc2023.retro.Illuminator;
 import org.team100.frc2023.subsystems.AHRSClass;
 import org.team100.frc2023.subsystems.Manipulator;
 import org.team100.frc2023.subsystems.SwerveDriveSubsystem;
 import org.team100.frc2023.subsystems.arm.ArmController;
 import org.team100.frc2023.subsystems.arm.ArmPosition;
+import org.team100.lib.retro.Illuminator;
 
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.util.sendable.Sendable;
@@ -70,18 +67,16 @@ public class RobotContainer implements Sendable {
     // COMMANDS
     private final AutoLevel autoLevel;
     private final DriveManually driveManually;
-    private final GripManually gripManually;
     private final ManualArm manualArm;
 
     private final DriveWithHeading driveWithHeading;
-    private final DrivePositional drivePositional;
     private final DriveRotation driveRotation;
     private final Defense defense;
     private final ResetRotation resetRotation0;
     private final ResetRotation resetRotation180;
 
     File myObj;
-    FileWriter myWriter;
+    private final FileWriter myWriter;
 
     private final DriveToAprilTag driveToSubstation, driveToLeftGrid, driveToCenterGrid, driveToRightGrid;
 
@@ -127,26 +122,33 @@ public class RobotContainer implements Sendable {
     public double m_routine = -1;
 
     public RobotContainer(DriverStation.Alliance alliance) throws IOException {
-        // THIS IS BABY MODE
+        // THIS IS SHOW MODE
         // final double kDriveCurrentLimit = 20;
         // 60 amps is the maximum maximum
         final double kDriveCurrentLimit = 60;
         ahrsclass = new AHRSClass();
         manipulator = new Manipulator();
         armController = new ArmController();
-        illuminator = new Illuminator();
+        illuminator = new Illuminator(25);
 
         // // NEW CONTROL
         // control = new DualXboxControl();
         control = new JoystickControl();
 
         myObj = new File("/home/lvuser/logs.txt");
-        myWriter = new FileWriter("/home/lvuser/logs.txt", true);
+        FileWriter fileWriter = null;
+        try {
+            fileWriter = new FileWriter("/home/lvuser/logs.txt", true);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        myWriter = fileWriter;
 
+        // TODO: why don't we trust the FMS?
         // m_alliance = DriverStation.getAlliance();
         m_alliance = alliance;
 
-        m_robotDrive = new SwerveDriveSubsystem(m_alliance, kDriveCurrentLimit, ahrsclass, control);
+        m_robotDrive = new SwerveDriveSubsystem(m_alliance, kDriveCurrentLimit, ahrsclass);
 
         if (m_alliance == DriverStation.Alliance.Blue) {
             // driveToLeftGrid = DriveToAprilTag.newDriveToAprilTag(6, 0.95, .55,
@@ -247,6 +249,7 @@ public class RobotContainer implements Sendable {
 
         closeSlowCommand = new CloseSlow(manipulator);
 
+        // TODO: do we need this?
         rotateCommand = new Rotate(m_robotDrive, 0);
 
         armSafeWaypoint = new ArmTrajectory(ArmPosition.SAFEWAYPOINT, armController);
@@ -259,12 +262,6 @@ public class RobotContainer implements Sendable {
                 control::rotSpeed,
                 "",
                 ahrsclass);
-
-        drivePositional = new DrivePositional(
-                m_robotDrive,
-                control::xSpeed,
-                control::ySpeed,
-                control::desiredRotation);
 
         driveRotation = new DriveRotation(m_robotDrive, control::rotSpeed);
 
@@ -355,28 +352,12 @@ public class RobotContainer implements Sendable {
         //
         // SHOW mode
         // m_robotDrive.setDefaultCommand(driveManually);
-
+        //
         // NORMAL mode
-        // m_robotDrive.setDefaultCommand(driveWithHeading);
-
-        // POSITION mode
-        // drive normally if the trigger is down but not the thumb
-        control.trigger().and(control.thumb().negate()).whileTrue(driveWithHeading);
-        // drive positional if the thumb is down
-        control.thumb().whileTrue(drivePositional);
-        // default is nothing
-        m_robotDrive.removeDefaultCommand();
+        m_robotDrive.setDefaultCommand(driveWithHeading);
 
         /////////////////////////
         // MANIPULATOR
-
-        // Controller 1 triggers => manipulator open/close
-        gripManually = new GripManually(
-                control::openSpeed,
-                control::closeSpeed,
-                manipulator);
-
-        // manipulator.setDefaultCommand(gripManually);
 
         manipulator.setDefaultCommand(new RunCommand(() -> {
             manipulator.pinch(0);
@@ -438,21 +419,23 @@ public class RobotContainer implements Sendable {
     @Override
     public void initSendable(SendableBuilder builder) {
         builder.setSmartDashboardType("container");
-        builder.addDoubleProperty("theta controller error", () -> m_robotDrive.thetaController.getPositionError(),
-                null);
-        builder.addDoubleProperty("x controller error", () -> m_robotDrive.xController.getPositionError(), null);
-        builder.addDoubleProperty("y controller error", () -> m_robotDrive.yController.getPositionError(), null);
+        builder.addDoubleProperty("theta controller error",
+                () -> m_robotDrive.controllers.thetaController.getPositionError(), null);
+        builder.addDoubleProperty("x controller error",
+                () -> m_robotDrive.controllers.xController.getPositionError(), null);
+        builder.addDoubleProperty("y controller error",
+                () -> m_robotDrive.controllers.yController.getPositionError(), null);
         builder.addBooleanProperty("Is Blue Alliance", () -> isBlueAlliance(), null);
         builder.addDoubleProperty("Routine", () -> getRoutine(), null);
 
     }
 
     public void ledStart() {
-        m_robotDrive.visionDataProvider.indicator.orange();
+        m_robotDrive.indicator.orange();
     }
 
     public void ledStop() {
-        m_robotDrive.visionDataProvider.indicator.close();
+        m_robotDrive.indicator.close();
     }
 
     public static boolean isEnabled() {

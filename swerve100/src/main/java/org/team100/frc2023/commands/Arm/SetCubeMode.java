@@ -6,9 +6,8 @@ import org.team100.frc2023.subsystems.arm.ArmController;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 
 public class SetCubeMode extends CommandBase {
-    ArmController m_arm;
-    SwerveDriveSubsystem m_robotDrive;
-    boolean done;
+    private final ArmController m_arm;
+    private final SwerveDriveSubsystem m_robotDrive;
 
     public SetCubeMode(ArmController arm, SwerveDriveSubsystem robotDrive) {
         m_arm = arm;
@@ -19,12 +18,11 @@ public class SetCubeMode extends CommandBase {
     @Override
     public void initialize() {
         m_arm.cubeMode = true;
-        m_robotDrive.visionDataProvider.indicator.cube();
-        done = true;
+        m_robotDrive.indicator.purple();
     }
 
     @Override
     public boolean isFinished() {
-        return done;
+        return true;
     }
 }
