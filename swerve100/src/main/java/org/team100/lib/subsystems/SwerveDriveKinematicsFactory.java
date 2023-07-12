@@ -22,10 +22,6 @@ public class SwerveDriveKinematicsFactory {
                 kTrackWidth = 0.449;
                 kWheelBase = 0.464;
                 break;
-            case FROM_8048:
-                kTrackWidth = 0.46;
-                kWheelBase = 0.55; // approximate
-                break;
             case BLANK: // for simulation
                 kTrackWidth = 0.5;
                 kWheelBase = 0.5;
