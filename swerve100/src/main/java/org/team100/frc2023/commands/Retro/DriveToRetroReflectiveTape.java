@@ -139,9 +139,9 @@ public class DriveToRetroReflectiveTape extends CommandBase {
 
         errorX.set(xController.getPositionError());
         errorY.set(yController.getPositionError());
-        m_robotDrive.driveTape(xOutput, yOutput, 0, false);
+        m_robotDrive.driveMetersPerSec(xOutput, yOutput, 0, false);
       } else {
-        m_robotDrive.driveTape(0, 0, 0, false);
+        m_robotDrive.driveMetersPerSec(0, 0, 0, false);
         tagView.set(2);
       
       }

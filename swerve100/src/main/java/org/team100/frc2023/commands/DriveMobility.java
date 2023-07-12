@@ -12,7 +12,7 @@ public class DriveMobility extends CommandBase {
     ProfiledPIDController m_headingController;
 
     public DriveMobility(SwerveDriveSubsystem driveSubsystem) {
-        m_headingController = driveSubsystem.headingController;
+        m_headingController = driveSubsystem.controllers.headingController;
         m_headingController.enableContinuousInput(-Math.PI, Math.PI);
         m_robotDrive = driveSubsystem;
         addRequirements(m_robotDrive);

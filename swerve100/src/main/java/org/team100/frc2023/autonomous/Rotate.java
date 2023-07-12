@@ -12,14 +12,13 @@ public class Rotate extends ProfiledPIDCommand {
 
     public Rotate(SwerveDriveSubsystem drivetrain, double targetAngleRadians) {
         super(
-                drivetrain.rotateController,
+                drivetrain.controllers.rotateController,
                 () -> drivetrain.getPose().getRotation().getRadians(),
                 targetAngleRadians,
                 (output, state) -> drivetrain.drive(0, 0, output, false),
                 drivetrain);
         getController().enableContinuousInput(-Math.PI, Math.PI);
         getController().setTolerance(0.001);
-        drivetrain.thetaController.atSetpoint();
         m_robotDrive = drivetrain;
         SmartDashboard.putData("ROTATE COMMAND", this);
     }
@@ -31,10 +30,7 @@ public class Rotate extends ProfiledPIDCommand {
 
     @Override
     public void end(boolean isInterupted) {
-        m_robotDrive.m_frontLeft.setOutput(0, 0);
-        m_robotDrive.m_frontRight.setOutput(0, 0);
-        m_robotDrive.m_rearLeft.setOutput(0, 0);
-        m_robotDrive.m_rearRight.setOutput(0, 0);
+        m_robotDrive.stop();
     }
 
     @Override

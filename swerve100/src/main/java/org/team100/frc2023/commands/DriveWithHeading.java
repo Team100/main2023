@@ -41,7 +41,7 @@ public class DriveWithHeading extends CommandBase {
         // Use addRequirements() here to declare subsystem dependencies.
         m_gyro = gyro;
         m_robotDrive = robotDrive;
-        m_headingController = m_robotDrive.headingController;
+        m_headingController = m_robotDrive.controllers.headingController;
         m_desiredRotation = desiredRotation;
 
         lastRotationSetpoint = new Rotation2d(0);
@@ -103,7 +103,7 @@ public class DriveWithHeading extends CommandBase {
         }
 
         // if(m_arm.getLowerArm() >=0.2){
-            m_robotDrive.driveWithHeading(xDBRemoved * kSpeedModifier, yDBRemoved * kSpeedModifier, thetaOuput, true);
+            m_robotDrive.driveMetersPerSec(xDBRemoved * kSpeedModifier, yDBRemoved * kSpeedModifier, thetaOuput, true);
         // } else {
             // m_robotDrive.driveWithHeading(xDBRemoved * kSpeedModifier, yDBRemoved * kSpeedModifier, thetaOuput, true);
 

@@ -136,6 +136,7 @@ public class SwerveModule implements Sendable {
                 turnOutput);
     }
 
+    // TODO: do we need this?
     public void setDesiredStateNoFF(SwerveModuleState desiredState) {
         SwerveModuleState state = SwerveModuleState.optimize(desiredState, getTurningRotation());
         driveMotorControllerOutput = m_driveController.calculate(getDriveSpeedMS(), state.speedMetersPerSecond);

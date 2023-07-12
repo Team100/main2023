@@ -89,7 +89,6 @@ public class DriveToWaypoint3 extends CommandBase {
         this.goal = goal;
         this.m_swerve = m_swerve;
         m_gyro = gyro;
-        System.out.println("CONSTRUCTOR****************************************************");
 
         // goalOffsetSupplier = offsetSupplier;
         // m_gamePieceOffsetSupplier = gamePieceOffsetSupplier;

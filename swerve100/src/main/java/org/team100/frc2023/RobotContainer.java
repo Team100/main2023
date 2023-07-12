@@ -147,7 +147,7 @@ public class RobotContainer implements Sendable {
         // m_alliance = DriverStation.getAlliance();
         m_alliance = alliance;
 
-        m_robotDrive = new SwerveDriveSubsystem(m_alliance, kDriveCurrentLimit, ahrsclass, control);
+        m_robotDrive = new SwerveDriveSubsystem(m_alliance, kDriveCurrentLimit, ahrsclass);
 
         if (m_alliance == DriverStation.Alliance.Blue) {
             // driveToLeftGrid = DriveToAprilTag.newDriveToAprilTag(6, 0.95, .55,
@@ -418,10 +418,12 @@ public class RobotContainer implements Sendable {
     @Override
     public void initSendable(SendableBuilder builder) {
         builder.setSmartDashboardType("container");
-        builder.addDoubleProperty("theta controller error", () -> m_robotDrive.thetaController.getPositionError(),
-                null);
-        builder.addDoubleProperty("x controller error", () -> m_robotDrive.xController.getPositionError(), null);
-        builder.addDoubleProperty("y controller error", () -> m_robotDrive.yController.getPositionError(), null);
+        builder.addDoubleProperty("theta controller error",
+                () -> m_robotDrive.controllers.thetaController.getPositionError(), null);
+        builder.addDoubleProperty("x controller error",
+                () -> m_robotDrive.controllers.xController.getPositionError(), null);
+        builder.addDoubleProperty("y controller error",
+                () -> m_robotDrive.controllers.yController.getPositionError(), null);
         builder.addBooleanProperty("Is Blue Alliance", () -> isBlueAlliance(), null);
         builder.addDoubleProperty("Routine", () -> getRoutine(), null);
 
