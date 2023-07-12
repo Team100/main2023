@@ -5,21 +5,29 @@ import org.team100.frc2023.subsystems.SwerveDriveSubsystem;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 
 public class DriveToThreshold extends CommandBase {
+    private static final double kEdgeOfRampMeters = 4.1;
+    private static final double kXSpeed_1_1 = -0.4;
+
     private final SwerveDriveSubsystem m_robotDrive;
+    
     private boolean done;
 
+    /** Drive back to the edge of the charge station. */
     public DriveToThreshold(SwerveDriveSubsystem robotDrive) {
         m_robotDrive = robotDrive;
         addRequirements(m_robotDrive);
     }
 
     @Override
+    public void initialize() {
+        done = false;
+    }
+
+    @Override
     public void execute() {
-        // TODO: replace this with a waypoint
-        if (m_robotDrive.getPose().getX() > 4.1) {
-            m_robotDrive.drive(-0.4, 0, 0, true);
+        if (m_robotDrive.getPose().getX() > kEdgeOfRampMeters) {
+            m_robotDrive.drive(kXSpeed_1_1, 0, 0, true);
         } else {
-            m_robotDrive.drive(0, 0, 0, true);
             done = true;
         }
     }
@@ -28,4 +36,10 @@ public class DriveToThreshold extends CommandBase {
     public boolean isFinished() {
         return done;
     }
+
+    @Override
+    public void end(boolean interrupted) {
+        m_robotDrive.drive(0, 0, 0, false);
+    }
+
 }

@@ -3,12 +3,13 @@ package org.team100.frc2023.autonomous;
 import org.team100.frc2023.commands.AutoLevel;
 import org.team100.frc2023.commands.Arm.ArmTrajectory;
 import org.team100.frc2023.commands.Arm.SetCubeMode;
-import org.team100.frc2023.commands.Manipulator.Close;
+import org.team100.frc2023.commands.Manipulator.Eject;
 import org.team100.frc2023.subsystems.AHRSClass;
 import org.team100.frc2023.subsystems.Manipulator;
 import org.team100.frc2023.subsystems.SwerveDriveSubsystem;
 import org.team100.frc2023.subsystems.arm.ArmController;
 import org.team100.frc2023.subsystems.arm.ArmPosition;
+import org.team100.lib.indicator.LEDIndicator;
 
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.spline.Spline;
@@ -20,10 +21,13 @@ import edu.wpi.first.wpilibj2.command.WaitCommand;
 public class VasiliAutonomous extends SequentialCommandGroup {
     ControlVectorList controlVectors = new ControlVectorList();
 
-    public VasiliAutonomous(SwerveDriveSubsystem m_robotDrive, AHRSClass m_gyro, ArmController m_arm,
-            Manipulator m_manipulator) {
-        // Add your commands in the addCommands() call, e.g.
-        // addCommands(new FooCommand(), new BarCommand());
+    public VasiliAutonomous(
+            SwerveDriveSubsystem m_robotDrive,
+            AHRSClass m_gyro,
+            ArmController m_arm,
+            Manipulator m_manipulator,
+            LEDIndicator indicator) {
+
         // Rotation2d desiredRots = new Rotation2d(Math.PI);
         // SwerveModuleState[] desiredStates = new SwerveModuleState[] {
         // new SwerveModuleState(0, desiredRots),
@@ -36,7 +40,6 @@ public class VasiliAutonomous extends SequentialCommandGroup {
         // public void initialize() {
         // m_robotDrive.setModuleStates(desiredStates);
         // };
-
 
         // };
         // command.addRequirements(m_robotDrive);
@@ -54,6 +57,8 @@ public class VasiliAutonomous extends SequentialCommandGroup {
                 new double[] { 2.656, 0, 0 }));
 
         addCommands(
+                // TODO: do we need this?
+
                 // moveFromStartingPoseToGamePiece
                 // .newMoveFromStartingPoseToGamePiece(
                 // m_robotDrive,
@@ -86,10 +91,16 @@ public class VasiliAutonomous extends SequentialCommandGroup {
                 // "output/GoBackToStation(x).wpilib.json")
                 // new Rotate(m_robotDrive, 0)
 
-                new SetCubeMode(m_arm, m_robotDrive),
-                new ParallelDeadlineGroup(new WaitCommand(3), new ArmTrajectory(ArmPosition.HIGH, m_arm)),
-                new ParallelDeadlineGroup(new WaitCommand(2), new Close(m_manipulator)),
-                new ParallelDeadlineGroup(new WaitCommand(2), new ArmTrajectory(ArmPosition.SAFE, m_arm)),
+                new SetCubeMode(m_arm, indicator),
+                new ParallelDeadlineGroup(
+                        new WaitCommand(3),
+                        new ArmTrajectory(ArmPosition.HIGH, m_arm)),
+                new ParallelDeadlineGroup(
+                        new WaitCommand(2),
+                        new Eject(m_manipulator)),
+                new ParallelDeadlineGroup(
+                        new WaitCommand(2),
+                        new ArmTrajectory(ArmPosition.SAFE, m_arm)),
 
                 new VasiliWaypointTrajectory(
                         m_robotDrive,

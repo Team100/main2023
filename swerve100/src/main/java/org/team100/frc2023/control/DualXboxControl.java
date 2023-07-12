@@ -13,7 +13,7 @@ import org.team100.frc2023.commands.Arm.ArmTrajectory;
 import org.team100.frc2023.commands.Arm.Oscillate;
 import org.team100.frc2023.commands.Arm.SetConeMode;
 import org.team100.frc2023.commands.Arm.SetCubeMode;
-import org.team100.frc2023.commands.Manipulator.Close;
+import org.team100.frc2023.commands.Manipulator.Eject;
 import org.team100.frc2023.commands.Manipulator.CloseSlow;
 import org.team100.frc2023.commands.Manipulator.Home;
 import org.team100.frc2023.commands.Manipulator.Open;
@@ -294,7 +294,7 @@ public class DualXboxControl implements Control, Sendable {
     }
 
     @Override
-    public void close(Close command) {
+    public void close(Eject command) {
         controller1.x().whileTrue(command);
     }
 

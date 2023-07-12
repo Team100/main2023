@@ -12,6 +12,8 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class ArmController extends SubsystemBase {
+    public static final double coneSubVal = 1.308745;
+    public static final double softStop = -0.594938;
 
     // private static final double kArmMaxXCoordinate = 1.4;
     // private static final double kArmMaxYCoordinate = 1.4;
@@ -25,24 +27,20 @@ public class ArmController extends SubsystemBase {
     private double lowerAngleSetpoint = 0;
 
     // Lower arm objects
-    public ArmSegment lowerArmSegment;
-    private FRCNEO lowerArmMotor;
+    public final ArmSegment lowerArmSegment;
+    private final FRCNEO lowerArmMotor;
     private final AnalogEncoder lowerArmEncoder = new AnalogEncoder(6);
 
     // Upper arm objects
-    public ArmSegment upperArmSegment;
-    private FRCNEO upperArmMotor;
-
+    public final ArmSegment upperArmSegment;
+    private final FRCNEO upperArmMotor;
     private final AnalogEncoder upperArmEncoder = new AnalogEncoder(5);
 
-    public double softStop = -0.594938;
-
-    public double coneSubVal = 1.308745;
-
+ 
     public ArmController() {
-        // TrapezoidProfile.Const   raints constraints = new TrapezoidProfile.Constraints(
-        //         0.3, // velocity rad/s
-        //         3.0 // accel rad/s^2
+        // TrapezoidProfile.Const raints constraints = new TrapezoidProfile.Constraints(
+        // 0.3, // velocity rad/s
+        // 3.0 // accel rad/s^2
         // );
         lowerArmMotor = new FRCNEO.FRCNEOBuilder(43)
                 .withInverted(false)
@@ -158,19 +156,6 @@ public class ArmController extends SubsystemBase {
         return new InverseKinematicsAngle(angles[0], angles[1]); // upper theta, lower theta
     }
 
-    /**
-     * Clamps the coordinates to the max values.
-     * 
-     * @param x
-     * @param y
-     * @return clamped coordinates
-     */
-    // private double[] clampCoords(double x, double y) {
-    //     double[] coords = new double[2];
-    //     coords[0] = MathUtil.clamp(x, 0, kArmMaxXCoordinate);
-    //     coords[1] = MathUtil.clamp(y, 0, kArmMaxYCoordinate);
-    //     return coords;
-    // }
 
     /**
      * The angle the lower arm is at (in radians)
@@ -210,7 +195,7 @@ public class ArmController extends SubsystemBase {
 
     public void setLowerArm(double x) {
 
-        if(getLowerArm() <= softStop && x < 0){
+        if (getLowerArm() <= softStop && x < 0) {
             lowerArmMotor.motor.set(x);
         } else {
             lowerArmMotor.motor.set(0);
@@ -224,7 +209,7 @@ public class ArmController extends SubsystemBase {
     }
 
     public void driveLowerArm(double x) {
-        lowerArmMotor.motor.setVoltage(12* x);
+        lowerArmMotor.motor.setVoltage(12 * x);
     }
 
     public void driveUpperArm(double x) {
@@ -238,8 +223,6 @@ public class ArmController extends SubsystemBase {
     public double getLowerArmRel() {
         return lowerArmMotor.getSelectedSensorPosition();
     }
-
-
 
     @Override
     public void initSendable(SendableBuilder builder) {
@@ -263,79 +246,4 @@ public class ArmController extends SubsystemBase {
         builder.addDoubleProperty("Upper Arm Relative", () -> getUpperArmRel(), null);
 
     }
-
-}
-
-class ArmKinematics {
-    private static final double kUpperArmLength = 0.92;
-    private static final double kLowerArmLength = 0.93;
-
-    /**
-     * Calculates the position of the arm based on the angles of the segments
-     * 
-     * @param lowerArmAngle
-     * @param upperArmAngle
-     * @return Translation2d object containing the position of the arm
-     */
-    public static Translation2d getArmPosition(double lowerArmAngle, double upperArmAngle) {
-        // upperArmAngle += lowerArmAngle;
-        double upperArmX = kUpperArmLength * Math.cos(upperArmAngle);
-        double upperArmY = kUpperArmLength * Math.sin(upperArmAngle);
-
-        double lowerArmX = kLowerArmLength * Math.cos(lowerArmAngle);
-        double lowerArmY = kLowerArmLength * Math.sin(lowerArmAngle);
-
-        return new Translation2d(upperArmX + lowerArmX, upperArmY + lowerArmY);
-    }
-
-    /**
-     * Calculates the angles the arm should be at to reach the setpoint.
-     * Accounts for the fact that our segment angles are independent.
-     * 
-     * @param x
-     * @param y
-     * @return array containing the angles [lowerArmAngle, upperArmAngle]
-     */
-    static double[] algorithm2RIK(double x, double y) {
-        double[] angles = new double[2];
-
-        double c2 = (x * x + y * y - kUpperArmLength * kUpperArmLength - kLowerArmLength * kLowerArmLength)
-                / (2 * kUpperArmLength * kLowerArmLength);
-        double s2 = Math.sqrt(1 - c2 * c2);
-        angles[1] = Math.atan2(s2, c2);
-
-        double k1 = kUpperArmLength + kLowerArmLength * c2;
-        double k2 = kLowerArmLength * s2;
-        angles[0] = Math.atan2(y, x) - Math.atan2(k2, k1);
-
-        return angles;
-    }
-
-    static double[] algorithm2RIKS(double x, double y) {
-        // https://www.youtube.com/watch?v=RH3iAmMsolo&t=7s
-
-        double[] angles = new double[2];
-        double xSquared = Math.pow(x, 2);
-        double ySquared = Math.pow(y, 2);
-
-        if (Math.sqrt(ySquared + xSquared) + 0.05 >= kLowerArmLength + kUpperArmLength) {
-            return null;
-        }
-
-        double upperLengthSquare = Math.pow(kUpperArmLength, 2);
-        double lowerLengthSquare = Math.pow(kLowerArmLength, 2);
-        double lengthSquared = upperLengthSquare + lowerLengthSquare;
-        double q2 = Math.PI
-                - Math.acos((lengthSquared - xSquared - ySquared) / (2 * kUpperArmLength * kLowerArmLength));
-        // maybe x/y try if it dosent work
-        double q1 = Math.atan(y / x)
-                - Math.atan((kUpperArmLength * Math.sin(q2)) / (kLowerArmLength + kUpperArmLength * Math.cos(q2)));
-
-        angles[0] = q1 + q2; // upper theta
-        angles[1] = q1; // lower theta
-
-        return angles;
-
-    }
-
 }
