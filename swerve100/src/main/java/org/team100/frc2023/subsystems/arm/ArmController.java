@@ -64,8 +64,8 @@ public class ArmController extends SubsystemBase {
                 .withForwardSoftLimitEnabled(false)
                 .build();
 
-        lowerArmSegment = new ArmSegment(this::getLowerArm, lowerArmMotor, "Lower Motor");
-        upperArmSegment = new ArmSegment(this::getUpperArm, upperArmMotor, "Upper Motor");
+        lowerArmSegment = new ArmSegment(lowerArmMotor, "Lower Motor");
+        upperArmSegment = new ArmSegment(upperArmMotor, "Upper Motor");
 
         Translation2d initial = ArmKinematics.getArmPosition(getLowerArm(), getUpperArm());
 

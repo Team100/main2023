@@ -13,6 +13,7 @@ import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.ProfiledPIDCommand;
 
+// TODO: remove use of ProfiledPIDCommand
 public class LowerArmToGoal extends ProfiledPIDCommand {
     private final ArmController arm;
 
