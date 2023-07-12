@@ -102,9 +102,9 @@ public class Robot extends TimedRobot {
         SmartDashboard.putNumber("KEY LIST", keyList);
 
         if(keyList == 0){
-            m_robotContainer.m_robotDrive.indicator.noVision();
+            m_robotContainer.m_robotDrive.indicator.red();
         }else{
-            m_robotContainer.m_robotDrive.indicator.vision();
+            m_robotContainer.m_robotDrive.indicator.green();
         }
     }
 

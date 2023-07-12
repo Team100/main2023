@@ -6,13 +6,13 @@ import org.team100.frc2023.commands.Defense;
 import org.team100.frc2023.commands.DriveSlow;
 import org.team100.frc2023.commands.GoalOffset;
 import org.team100.frc2023.commands.ResetPose;
-import org.team100.frc2023.commands.ResetRotation;
 import org.team100.frc2023.commands.Arm.ArmTrajectory;
 import org.team100.frc2023.commands.Arm.SetConeMode;
 import org.team100.frc2023.commands.Arm.SetCubeMode;
 import org.team100.frc2023.commands.Manipulator.Close;
 import org.team100.frc2023.commands.Manipulator.Home;
 import org.team100.frc2023.commands.Manipulator.Open;
+import org.team100.lib.commands.ResetRotation;
 
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.util.sendable.Sendable;

@@ -15,9 +15,7 @@ import org.team100.frc2023.commands.DriveMedium;
 import org.team100.frc2023.commands.DriveRotation;
 import org.team100.frc2023.commands.DriveSlow;
 import org.team100.frc2023.commands.DriveWithHeading;
-import org.team100.frc2023.commands.GripManually;
 import org.team100.frc2023.commands.ResetPose;
-import org.team100.frc2023.commands.ResetRotation;
 import org.team100.frc2023.commands.RumbleOn;
 import org.team100.frc2023.commands.Arm.ArmTrajectory;
 import org.team100.frc2023.commands.Arm.ManualArm;
@@ -29,16 +27,16 @@ import org.team100.frc2023.commands.Manipulator.CloseSlow;
 import org.team100.frc2023.commands.Manipulator.Home;
 import org.team100.frc2023.commands.Manipulator.Open;
 import org.team100.frc2023.commands.Retro.DriveToRetroReflectiveTape;
-import org.team100.frc2023.commands.Retro.LedOn;
+import org.team100.lib.commands.ResetRotation;
+import org.team100.lib.commands.Retro.LedOn;
 import org.team100.frc2023.control.Control;
-import org.team100.frc2023.control.DualXboxControl;
 import org.team100.frc2023.control.JoystickControl;
-import org.team100.frc2023.retro.Illuminator;
 import org.team100.frc2023.subsystems.AHRSClass;
 import org.team100.frc2023.subsystems.Manipulator;
 import org.team100.frc2023.subsystems.SwerveDriveSubsystem;
 import org.team100.frc2023.subsystems.arm.ArmController;
 import org.team100.frc2023.subsystems.arm.ArmPosition;
+import org.team100.lib.retro.Illuminator;
 
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.util.sendable.Sendable;
@@ -69,7 +67,6 @@ public class RobotContainer implements Sendable {
     // COMMANDS
     private final AutoLevel autoLevel;
     private final DriveManually driveManually;
-    private final GripManually gripManually;
     private final ManualArm manualArm;
 
     private final DriveWithHeading driveWithHeading;
@@ -132,7 +129,7 @@ public class RobotContainer implements Sendable {
         ahrsclass = new AHRSClass();
         manipulator = new Manipulator();
         armController = new ArmController();
-        illuminator = new Illuminator();
+        illuminator = new Illuminator(25);
 
         // // NEW CONTROL
         // control = new DualXboxControl();
@@ -251,6 +248,7 @@ public class RobotContainer implements Sendable {
 
         closeSlowCommand = new CloseSlow(manipulator);
 
+        // TODO: do we need this?
         rotateCommand = new Rotate(m_robotDrive, 0);
 
         armSafeWaypoint = new ArmTrajectory(ArmPosition.SAFEWAYPOINT, armController);
@@ -353,21 +351,12 @@ public class RobotContainer implements Sendable {
         //
         // SHOW mode
         // m_robotDrive.setDefaultCommand(driveManually);
-
+        //
         // NORMAL mode
         m_robotDrive.setDefaultCommand(driveWithHeading);
 
-
         /////////////////////////
         // MANIPULATOR
-
-        // Controller 1 triggers => manipulator open/close
-        gripManually = new GripManually(
-                control::openSpeed,
-                control::closeSpeed,
-                manipulator);
-
-        // manipulator.setDefaultCommand(gripManually);
 
         manipulator.setDefaultCommand(new RunCommand(() -> {
             manipulator.pinch(0);

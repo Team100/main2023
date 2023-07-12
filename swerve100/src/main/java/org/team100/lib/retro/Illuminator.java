@@ -1,4 +1,4 @@
-package org.team100.frc2023.retro;
+package org.team100.lib.retro;
 
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
@@ -23,11 +23,11 @@ public class Illuminator {
     private static final double kMaxVoltage = 12.0;
     private final CANSparkMax led;
 
-    public Illuminator() {
+    public Illuminator(int deviceId) {
         // note that "smart" current limiting appears to be for brushless motors only,
         // and "secondary" current limiting appears not to work (it produces an error in
         // the log, and happily outputs max current), so we don't use either one.
-        led = new CANSparkMax(25, MotorType.kBrushed);
+        led = new CANSparkMax(deviceId, MotorType.kBrushed);
         led.setInverted(true);
     }
 

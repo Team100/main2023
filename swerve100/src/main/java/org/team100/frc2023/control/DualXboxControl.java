@@ -9,7 +9,6 @@ import org.team100.frc2023.commands.DriveMedium;
 import org.team100.frc2023.commands.DriveSlow;
 import org.team100.frc2023.commands.GoalOffset;
 import org.team100.frc2023.commands.ResetPose;
-import org.team100.frc2023.commands.ResetRotation;
 import org.team100.frc2023.commands.RumbleOn;
 import org.team100.frc2023.commands.Arm.ArmTrajectory;
 import org.team100.frc2023.commands.Arm.Oscillate;
@@ -20,7 +19,8 @@ import org.team100.frc2023.commands.Manipulator.CloseSlow;
 import org.team100.frc2023.commands.Manipulator.Home;
 import org.team100.frc2023.commands.Manipulator.Open;
 import org.team100.frc2023.commands.Retro.DriveToRetroReflectiveTape;
-import org.team100.frc2023.commands.Retro.LedOn;
+import org.team100.lib.commands.ResetRotation;
+import org.team100.lib.commands.Retro.LedOn;
 
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.util.sendable.Sendable;
@@ -108,7 +108,7 @@ public class DualXboxControl implements Control, Sendable {
     public double rotSpeed() {
         return -1.0 * controller0.getLeftX();
     }
-    
+
     @Override
     public Trigger trigger() {
         return controller0.rightBumper();

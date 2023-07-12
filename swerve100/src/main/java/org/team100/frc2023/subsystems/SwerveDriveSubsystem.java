@@ -5,7 +5,7 @@ import java.io.IOException;
 
 import org.team100.frc2023.RobotContainer;
 import org.team100.frc2023.control.Control;
-import org.team100.frc2023.indicator.GoNoGoIndicator;
+import org.team100.lib.indicator.LEDIndicator;
 import org.team100.lib.config.Identity;
 import org.team100.lib.localization.VisionDataProvider;
 
@@ -103,7 +103,7 @@ public class SwerveDriveSubsystem extends SubsystemBase {
     private double thetaVelociy = 0;
 
     public VisionDataProvider visionDataProvider;
-    public final GoNoGoIndicator indicator;
+    public final LEDIndicator indicator;
 
     private final AHRSClass m_gyro;
 
@@ -595,7 +595,7 @@ public class SwerveDriveSubsystem extends SubsystemBase {
                 VecBuilder.fill(0.4, 0.4, 0.4)); // note tight rotation variance here, used to be MAX_VALUE
         // VecBuilder.fill(0.01, 0.01, Integer.MAX_VALUE));
         visionDataProvider = new VisionDataProvider(alliance, m_poseEstimator, () -> getPose());
-        indicator = new GoNoGoIndicator(1);
+        indicator = new LEDIndicator(8);
 
         SmartDashboard.putData("Drive Subsystem", this);
     }
