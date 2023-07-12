@@ -66,9 +66,5 @@ public class Close extends CommandBase {
     m_manipulator.pinch.motor.configPeakCurrentLimit(30);
   }
 
-  // Returns true when the command should end.
-  @Override
-  public boolean isFinished() {
-    return false;
-  }
+
 }

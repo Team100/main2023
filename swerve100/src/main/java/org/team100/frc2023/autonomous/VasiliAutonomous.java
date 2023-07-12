@@ -37,10 +37,7 @@ public class VasiliAutonomous extends SequentialCommandGroup {
         // m_robotDrive.setModuleStates(desiredStates);
         // };
 
-        // @Override
-        // public boolean isFinished() {
-        // return false;
-        // }
+
         // };
         // command.addRequirements(m_robotDrive);
 

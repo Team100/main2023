@@ -46,9 +46,5 @@ public class DriveRotation extends CommandBase {
     m_robotDrive.resetPose(endPose);
   }
 
-  // Returns true when the command should end.
-  @Override
-  public boolean isFinished() {
-    return false;
-  }
+
 }

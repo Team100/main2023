@@ -32,9 +32,5 @@ public class Release extends CommandBase {
     m_manipulator.pinch(0);
   }
 
-  // Returns true when the command should end.
-  @Override
-  public boolean isFinished() {
-    return false;
-  }
+
 }
