@@ -4,7 +4,6 @@ import java.io.FileWriter;
 import java.io.IOException;
 
 import org.team100.frc2023.RobotContainer;
-import org.team100.frc2023.commands.DriveUtil;
 import org.team100.lib.config.Identity;
 import org.team100.lib.indicator.LEDIndicator;
 import org.team100.lib.localization.VisionDataProvider;

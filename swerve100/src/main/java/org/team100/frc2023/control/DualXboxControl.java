@@ -1,5 +1,9 @@
 package org.team100.frc2023.control;
 
+import static org.team100.frc2023.control.ControlUtil.clamp;
+import static org.team100.frc2023.control.ControlUtil.deadband;
+import static org.team100.frc2023.control.ControlUtil.expo;
+
 import org.team100.frc2023.autonomous.DriveToWaypoint2;
 import org.team100.frc2023.autonomous.MoveConeWidth;
 import org.team100.frc2023.autonomous.Rotate;
@@ -21,7 +25,6 @@ import org.team100.lib.commands.ResetPose;
 import org.team100.lib.commands.ResetRotation;
 import org.team100.lib.commands.Retro.LedOn;
 
-import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Twist2d;
 import edu.wpi.first.util.sendable.Sendable;
@@ -39,6 +42,8 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
  */
 public class DualXboxControl implements Control, Sendable {
     private static final double kDeadband = 0.02;
+    private static final double kExpo = 0.5;
+
     // private static final double kDtSeconds = 0.02;
     // private static final double kMaxRotationRateRadiansPerSecond = Math.PI;
     private static final double kTriggerThreshold = .5;
@@ -98,9 +103,9 @@ public class DualXboxControl implements Control, Sendable {
 
     @Override
     public Twist2d twist() {
-        double dx = MathUtil.applyDeadband(-1.0 * controller0.getRightY(), kDeadband);
-        double dy = MathUtil.applyDeadband(-1.0 * controller0.getRightX(), kDeadband);
-        double dtheta = MathUtil.applyDeadband(-1.0 * controller0.getLeftX(), kDeadband);
+        double dx = expo(deadband(-1.0 * clamp(controller0.getRightY(), 1), kDeadband, 1), kExpo);
+        double dy = expo(deadband(-1.0 * clamp(controller0.getRightX(), 1), kDeadband, 1), kExpo);
+        double dtheta = expo(deadband(-1.0 * clamp(controller0.getLeftX(), 1), kDeadband, 1), kExpo);
         return new Twist2d(dx, dy, dtheta);
     }
 
