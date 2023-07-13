@@ -1,6 +1,5 @@
 package org.team100.frc2023;
 
-import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 
@@ -8,12 +7,9 @@ import org.team100.frc2023.autonomous.Autonomous;
 import org.team100.frc2023.autonomous.DriveToAprilTag;
 import org.team100.frc2023.autonomous.MoveConeWidth;
 import org.team100.frc2023.autonomous.Rotate;
-import org.team100.frc2023.commands.AutoLevel;
 import org.team100.frc2023.commands.Defense;
 import org.team100.frc2023.commands.DriveManually;
-import org.team100.frc2023.commands.DriveMedium;
-import org.team100.frc2023.commands.DriveRotation;
-import org.team100.frc2023.commands.DriveSlow;
+import org.team100.frc2023.commands.DriveScaled;
 import org.team100.frc2023.commands.DriveWithHeading;
 import org.team100.frc2023.commands.RumbleOn;
 import org.team100.frc2023.commands.Arm.ArmTrajectory;
@@ -21,15 +17,10 @@ import org.team100.frc2023.commands.Arm.ManualArm;
 import org.team100.frc2023.commands.Arm.Oscillate;
 import org.team100.frc2023.commands.Arm.SetConeMode;
 import org.team100.frc2023.commands.Arm.SetCubeMode;
-import org.team100.frc2023.commands.Manipulator.Eject;
 import org.team100.frc2023.commands.Manipulator.CloseSlow;
+import org.team100.frc2023.commands.Manipulator.Eject;
 import org.team100.frc2023.commands.Manipulator.Home;
-import org.team100.frc2023.commands.Manipulator.Open;
 import org.team100.frc2023.commands.Retro.DriveToRetroReflectiveTape;
-import org.team100.lib.commands.ResetPose;
-import org.team100.lib.commands.ResetRotation;
-import org.team100.lib.commands.Retro.LedOn;
-import org.team100.lib.indicator.LEDIndicator;
 import org.team100.frc2023.control.Control;
 import org.team100.frc2023.control.JoystickControl;
 import org.team100.frc2023.subsystems.AHRSClass;
@@ -37,6 +28,10 @@ import org.team100.frc2023.subsystems.Manipulator;
 import org.team100.frc2023.subsystems.SwerveDriveSubsystem;
 import org.team100.frc2023.subsystems.arm.ArmController;
 import org.team100.frc2023.subsystems.arm.ArmPosition;
+import org.team100.lib.commands.ResetPose;
+import org.team100.lib.commands.ResetRotation;
+import org.team100.lib.commands.Retro.LedOn;
+import org.team100.lib.indicator.LEDIndicator;
 import org.team100.lib.retro.Illuminator;
 
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -49,14 +44,13 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 
-@SuppressWarnings("unused")
 public class RobotContainer implements Sendable {
     //////////////////////////////////////
-    // DRIVETRAIN CURRENT LIMIT
     // SHOW MODE
-    // private static final double kDriveCurrentLimit = 20;
-    // NORMAL MODE
-    private static final double kDriveCurrentLimit = 60;
+    private static final boolean SHOW_MODE = false;
+    //////////////////////////////////////
+
+    private static final double kDriveCurrentLimit = SHOW_MODE ? 20 : 60;
 
     // CONFIG
     private final DriverStation.Alliance m_alliance;
@@ -112,14 +106,28 @@ public class RobotContainer implements Sendable {
         control.defense(new Defense(m_robotDrive));
         control.resetRotation0(new ResetRotation(m_robotDrive, new Rotation2d(0)));
         control.resetRotation180(new ResetRotation(m_robotDrive, Rotation2d.fromDegrees(180)));
-        control.driveSlow(new DriveSlow(m_robotDrive, control));
+        control.driveSlow(
+                new DriveScaled(
+                        control::xSpeed,
+                        control::ySpeed,
+                        control::rotSpeed,
+                        m_robotDrive,
+                        0.4,
+                        0.5));
+        control.driveMedium(
+                new DriveScaled(
+                        control::xSpeed,
+                        control::ySpeed,
+                        control::rotSpeed,
+                        m_robotDrive,
+                        2.0,
+                        0.5));
         control.resetPose(new ResetPose(m_robotDrive, 0, 0, 0));
         control.tapeDetect(new DriveToRetroReflectiveTape(m_robotDrive));
         control.rotate0(new Rotate(m_robotDrive, 0));
-        control.driveMedium(new DriveMedium(m_robotDrive, control));
+
         control.moveConeWidthLeft(new MoveConeWidth(m_robotDrive, 1));
         control.moveConeWidthRight(new MoveConeWidth(m_robotDrive, -1));
-
 
         ///////////////////////////
         // MANIPULATOR COMMANDS
@@ -150,24 +158,25 @@ public class RobotContainer implements Sendable {
 
         ///////////////////////////
         // DRIVE
-        //
-        // SHOW mode
-        // m_robotDrive.setDefaultCommand(
-        // new DriveManually(
-        // control::xSpeed,
-        // control::ySpeed,
-        // control::rotSpeed,
-        // m_robotDrive));
-        //
-        // NORMAL mode
-        m_robotDrive.setDefaultCommand(new DriveWithHeading(
-                m_robotDrive,
-                control::xSpeed,
-                control::ySpeed,
-                control::desiredRotation,
-                control::rotSpeed,
-                "",
-                ahrsclass));
+
+        if (SHOW_MODE) {
+            m_robotDrive.setDefaultCommand(
+                    new DriveManually(
+                            control::xSpeed,
+                            control::ySpeed,
+                            control::rotSpeed,
+                            m_robotDrive));
+        } else {
+            m_robotDrive.setDefaultCommand(
+                    new DriveWithHeading(
+                            m_robotDrive,
+                            control::xSpeed,
+                            control::ySpeed,
+                            control::desiredRotation,
+                            control::rotSpeed,
+                            "",
+                            ahrsclass));
+        }
 
         /////////////////////////
         // MANIPULATOR

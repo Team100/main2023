@@ -18,6 +18,9 @@ import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class SwerveModule implements Sendable {
+    private static final double kSteeringDeadband = 0.03;
+    private static final double kDriveDeadband = 0.03;
+
     private final String m_name;
     private final DriveMotor m_driveMotor;
     private final TurningMotor m_turningMotor;
@@ -80,11 +83,8 @@ public class SwerveModule implements Sendable {
                 state.speedMetersPerSecond,
                 accelMetersPerSecondPerSecond);
 
-        double driveOutput = MathUtil.applyDeadband(driveMotorControllerOutput + driveFeedForwardOutput, 0.03);
-        double turnOutput = MathUtil.applyDeadband(turningMotorControllerOutput + turningFeedForwardOutput, 0.03);
-
-        setOutput(driveOutput,
-                turnOutput);
+        setOutput(driveMotorControllerOutput + driveFeedForwardOutput,
+                turningMotorControllerOutput + turningFeedForwardOutput);
     }
 
     public void setDesiredDriveState(SwerveModuleState desiredState) {
@@ -98,10 +98,8 @@ public class SwerveModule implements Sendable {
                 state.speedMetersPerSecond,
                 accelMetersPerSecondPerSecond);
 
-        double driveOutput = MathUtil.applyDeadband(driveMotorControllerOutput + driveFeedForwardOutput, 0.03);
-        double turnOutput = MathUtil.applyDeadband(turningMotorControllerOutput + turningFeedForwardOutput, 0.03);
-
-        setOutput(driveOutput, turnOutput);
+        setOutput(driveMotorControllerOutput + driveFeedForwardOutput,
+                turningMotorControllerOutput + turningFeedForwardOutput);
     }
 
     // TODO: do we need this?
@@ -119,12 +117,14 @@ public class SwerveModule implements Sendable {
     }
 
     /**
+     * Applies a 3% deadband to prevent shivering.
+     * 
      * @param driveOutput in range [-1, 1]
      * @param turnOutput  in range [-1, 1]
      */
     public void setOutput(double driveOutput, double turnOutput) {
-        m_driveMotor.set(driveOutput);
-        m_turningMotor.set(turnOutput);
+        m_driveMotor.set(MathUtil.applyDeadband(driveOutput, kDriveDeadband));
+        m_turningMotor.set(MathUtil.applyDeadband(turnOutput, kSteeringDeadband));
     }
 
     /** Reset distance and angle to zero. */

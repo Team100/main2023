@@ -57,9 +57,9 @@ public class DriveWithHeading extends CommandBase {
 
     @Override
     public void execute() {
-        double xSpeed = MathUtil.applyDeadband(m_xSpeed1_1.getAsDouble(), .05);
-        double ySpeed = MathUtil.applyDeadband(m_ySpeed1_1.getAsDouble(), .05);
-        double rotSpeed = MathUtil.applyDeadband(m_rotSpeed1_1.getAsDouble(), .05);
+        double xSpeed = m_xSpeed1_1.getAsDouble();
+        double ySpeed = m_ySpeed1_1.getAsDouble();
+        double rotSpeed = m_rotSpeed1_1.getAsDouble();
 
         // Set desired rotation to POV (if pressed) or else last setpoint
         double desiredRotation = lastRotationSetpoint.getRadians();
