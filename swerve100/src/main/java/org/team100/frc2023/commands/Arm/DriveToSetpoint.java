@@ -7,7 +7,7 @@ import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 public class DriveToSetpoint extends ParallelCommandGroup {
     public DriveToSetpoint(ArmController arm, double x, double y, double upperVelocity, double lowerVelocity) {
         addCommands(
-                UpperArmToGoal.factory(arm.calculate(x, y).upperTheta, arm, upperVelocity),
-                LowerArmToGoal.factory(arm.calculate(x, y).lowerTheta, arm));
+                new UpperArmToGoal(arm.calculate(x, y).upperTheta, arm, upperVelocity),
+                new LowerArmToGoal(arm.calculate(x, y).lowerTheta, arm));
     }
 }
