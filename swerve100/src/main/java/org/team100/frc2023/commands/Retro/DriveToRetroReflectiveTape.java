@@ -10,6 +10,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.filter.LinearFilter;
+import edu.wpi.first.math.geometry.Twist2d;
 import edu.wpi.first.math.trajectory.TrapezoidProfile.Constraints;
 import edu.wpi.first.networktables.DoublePublisher;
 import edu.wpi.first.networktables.NetworkTableInstance;
@@ -93,9 +94,9 @@ public class DriveToRetroReflectiveTape extends CommandBase {
 
                 errorX.set(xController.getPositionError());
                 errorY.set(yController.getPositionError());
-                m_robotDrive.driveMetersPerSec(xOutput, yOutput, 0, false);
+                m_robotDrive.driveMetersPerSec(new Twist2d(xOutput, yOutput, 0), false);
             } else {
-                m_robotDrive.driveMetersPerSec(0, 0, 0, false);
+                m_robotDrive.driveMetersPerSec(new Twist2d(0, 0, 0), false);
                 tagView.set(2);
             }
 

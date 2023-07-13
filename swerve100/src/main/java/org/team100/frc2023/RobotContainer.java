@@ -8,7 +8,6 @@ import org.team100.frc2023.autonomous.DriveToAprilTag;
 import org.team100.frc2023.autonomous.MoveConeWidth;
 import org.team100.frc2023.autonomous.Rotate;
 import org.team100.frc2023.commands.Defense;
-import org.team100.frc2023.commands.DriveManually;
 import org.team100.frc2023.commands.DriveScaled;
 import org.team100.frc2023.commands.DriveWithHeading;
 import org.team100.frc2023.commands.RumbleOn;
@@ -31,8 +30,11 @@ import org.team100.frc2023.subsystems.arm.ArmPosition;
 import org.team100.lib.commands.ResetPose;
 import org.team100.lib.commands.ResetRotation;
 import org.team100.lib.commands.Retro.LedOn;
+import org.team100.lib.config.Identity;
 import org.team100.lib.indicator.LEDIndicator;
 import org.team100.lib.retro.Illuminator;
+import org.team100.lib.subsystems.SpeedLimits;
+import org.team100.lib.subsystems.SpeedLimitsFactory;
 
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.util.sendable.Sendable;
@@ -47,7 +49,12 @@ import edu.wpi.first.wpilibj2.command.RunCommand;
 public class RobotContainer implements Sendable {
     //////////////////////////////////////
     // SHOW MODE
+    //
+    // Show mode is for younger drivers to drive the robot slowly.
+    //
+    // TODO: make a physical show mode switch.
     private static final boolean SHOW_MODE = false;
+    //
     //////////////////////////////////////
 
     private static final double kDriveCurrentLimit = SHOW_MODE ? 20 : 60;
@@ -72,13 +79,13 @@ public class RobotContainer implements Sendable {
     public double m_routine = -1;
 
     public RobotContainer(DriverStation.Alliance alliance) throws IOException {
-        // TODO: why don't we trust the FMS?
         // m_alliance = DriverStation.getAlliance();
         m_alliance = alliance;
 
         m_indicator = new LEDIndicator(8);
         ahrsclass = new AHRSClass();
-        m_robotDrive = new SwerveDriveSubsystem(m_alliance, kDriveCurrentLimit, ahrsclass, m_indicator);
+        SpeedLimits speedLimits = SpeedLimitsFactory.get(Identity.get(), SHOW_MODE);
+        m_robotDrive = new SwerveDriveSubsystem(speedLimits, m_alliance, kDriveCurrentLimit, ahrsclass, m_indicator);
         manipulator = new Manipulator();
         armController = new ArmController();
         illuminator = new Illuminator(25);
@@ -106,22 +113,8 @@ public class RobotContainer implements Sendable {
         control.defense(new Defense(m_robotDrive));
         control.resetRotation0(new ResetRotation(m_robotDrive, new Rotation2d(0)));
         control.resetRotation180(new ResetRotation(m_robotDrive, Rotation2d.fromDegrees(180)));
-        control.driveSlow(
-                new DriveScaled(
-                        control::xSpeed,
-                        control::ySpeed,
-                        control::rotSpeed,
-                        m_robotDrive,
-                        0.4,
-                        0.5));
-        control.driveMedium(
-                new DriveScaled(
-                        control::xSpeed,
-                        control::ySpeed,
-                        control::rotSpeed,
-                        m_robotDrive,
-                        2.0,
-                        0.5));
+        control.driveSlow(new DriveScaled(control::twist, m_robotDrive, 0.4, 0.5));
+        control.driveMedium(new DriveScaled(control::twist, m_robotDrive, 2.0, 0.5));
         control.resetPose(new ResetPose(m_robotDrive, 0, 0, 0));
         control.tapeDetect(new DriveToRetroReflectiveTape(m_robotDrive));
         control.rotate0(new Rotate(m_robotDrive, 0));
@@ -161,20 +154,19 @@ public class RobotContainer implements Sendable {
 
         if (SHOW_MODE) {
             m_robotDrive.setDefaultCommand(
-                    new DriveManually(
-                            control::xSpeed,
-                            control::ySpeed,
-                            control::rotSpeed,
-                            m_robotDrive));
+                    new DriveScaled(
+                            control::twist,
+                            m_robotDrive,
+                            speedLimits.kMaxSpeedMetersPerSecond,
+                            speedLimits.kMaxAngularSpeedRadiansPerSecond));
         } else {
             m_robotDrive.setDefaultCommand(
                     new DriveWithHeading(
+                            control::twist,
                             m_robotDrive,
-                            control::xSpeed,
-                            control::ySpeed,
+                            speedLimits.kMaxSpeedMetersPerSecond,
+                            speedLimits.kMaxAngularSpeedRadiansPerSecond,
                             control::desiredRotation,
-                            control::rotSpeed,
-                            "",
                             ahrsclass));
         }
 

@@ -10,6 +10,7 @@ import edu.wpi.first.math.Nat;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.controller.LinearQuadraticRegulator;
 import edu.wpi.first.math.estimator.KalmanFilter;
+import edu.wpi.first.math.geometry.Twist2d;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N2;
 import edu.wpi.first.math.system.LinearSystem;
@@ -80,9 +81,9 @@ public class DriveWithLQR extends CommandBase {
 
         m_loop.predict(0.020);
 
-        double nextVoltage = m_loop.getU(0);
+        double u = m_loop.getU(0);
 
-        m_robotDrive.drive(nextVoltage, 0, 0, true);
+        m_robotDrive.driveMetersPerSec(new Twist2d(u, 0, 0), true);
 
     }
 

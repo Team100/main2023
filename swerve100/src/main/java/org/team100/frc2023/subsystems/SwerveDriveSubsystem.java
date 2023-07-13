@@ -10,16 +10,15 @@ import org.team100.lib.localization.VisionDataProvider;
 import org.team100.lib.subsystems.DriveControllers;
 import org.team100.lib.subsystems.DriveControllersFactory;
 import org.team100.lib.subsystems.SpeedLimits;
-import org.team100.lib.subsystems.SpeedLimitsFactory;
 import org.team100.lib.subsystems.SwerveDriveKinematicsFactory;
 import org.team100.lib.subsystems.SwerveModuleCollection;
 import org.team100.lib.subsystems.SwerveModuleCollectionFactory;
 
-import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Twist2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
@@ -36,9 +35,6 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 public class SwerveDriveSubsystem extends SubsystemBase {
     // TODO: calibrate this number.
     private static final double kVeeringCorrection = 0.15;
-
-    /** Show mode is for younger drivers to drive the robot slowly. */
-    private static final boolean kShowMode = false;
 
     public static final SwerveDriveKinematics kDriveKinematics = SwerveDriveKinematicsFactory.get(Identity.get());
 
@@ -65,6 +61,7 @@ public class SwerveDriveSubsystem extends SubsystemBase {
     public double keyList = -1;
 
     public SwerveDriveSubsystem(
+            SpeedLimits speedLimits,
             DriverStation.Alliance alliance,
             double currentLimit,
             AHRSClass gyro,
@@ -80,7 +77,7 @@ public class SwerveDriveSubsystem extends SubsystemBase {
         fieldTypePub = fieldTable.getStringTopic(".type").publish();
         fieldTypePub.set("Field2d");
 
-        speedLimits = SpeedLimitsFactory.get(Identity.get(), kShowMode);
+        this.speedLimits = speedLimits;
         controllers = DriveControllersFactory.get(Identity.get(), speedLimits);
         m_modules = SwerveModuleCollectionFactory.get(Identity.get(), currentLimit);
 
@@ -153,38 +150,20 @@ public class SwerveDriveSubsystem extends SubsystemBase {
     }
 
     /**
-     * Calibrated inputs.
+     * Calibrated inputs
+     * 
+     * @param twist meters and radians per second
      */
-    public void driveMetersPerSec(double xSpeedM_S, double ySpeedM_S, double rotSpeedRad_S, boolean fieldRelative) {
+    public void driveMetersPerSec(Twist2d twist, boolean fieldRelative) {
         double gyroRate = m_gyro.getRedundantGyroRate() * kVeeringCorrection;
         Rotation2d rotation2 = getPose().getRotation().minus(new Rotation2d(gyroRate));
-        desiredChassisSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(xSpeedM_S, ySpeedM_S,
-                rotSpeedRad_S, rotation2);
-        var swerveModuleStates = kDriveKinematics.toSwerveModuleStates(fieldRelative
+        desiredChassisSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(twist.dx, twist.dy, twist.dtheta, rotation2);
+        SwerveModuleState[] swerveModuleStates = kDriveKinematics.toSwerveModuleStates(fieldRelative
                 ? desiredChassisSpeeds
-                : new ChassisSpeeds(xSpeedM_S, ySpeedM_S, rotSpeedRad_S));
+                : new ChassisSpeeds(twist.dx, twist.dy, twist.dtheta));
         SwerveDriveKinematics.desaturateWheelSpeeds(swerveModuleStates, speedLimits.kMaxSpeedMetersPerSecond);
         getRobotVelocity(swerveModuleStates);
         m_modules.setDesiredStates(swerveModuleStates);
-    }
-
-    /**
-     * Inputs from -1 to 1.
-     */
-    public void drive(final double xSpeed1_1, final double ySpeed1_1, final double rotSpeed1_1, boolean fieldRelative) {
-        driveScaled(xSpeed1_1, ySpeed1_1, rotSpeed1_1, fieldRelative,
-                speedLimits.kMaxSpeedMetersPerSecond, speedLimits.kMaxAngularSpeedRadiansPerSecond);
-    }
-
-    /**
-     * Inputs from -1 to 1, scaled by max speeds
-     */
-    public void driveScaled(double xSpeed1_1, double ySpeed1_1, double rotSpeed1_1, boolean fieldRelative,
-            double maxSpeed, double maxRot) {
-        double xSpeedMetersPerSec = maxSpeed * MathUtil.clamp(xSpeed1_1, -1, 1);
-        double ySpeedMetersPerSec = maxSpeed * MathUtil.clamp(ySpeed1_1, -1, 1);
-        double rotRadiansPerSec = maxRot * MathUtil.clamp(rotSpeed1_1, -1, 1);
-        driveMetersPerSec(xSpeedMetersPerSec, ySpeedMetersPerSec, rotRadiansPerSec, fieldRelative);
     }
 
     public void setModuleStates(SwerveModuleState[] desiredStates) {

@@ -4,11 +4,13 @@ import org.team100.frc2023.subsystems.AHRSClass;
 import org.team100.frc2023.subsystems.SwerveDriveSubsystem;
 
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.geometry.Twist2d;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 
 public class AutoLevel extends CommandBase {
     private static final double kMaxSpeed = 4.5;
     private static final double kMaxRot = 5;
+    private static final double kCruiseSpeed = 1.5;
     /** max speed as a fraction */
     private static final double kSpeedClamp1_1 = 0.08;
     // TODO: is this unit correct?
@@ -41,7 +43,9 @@ public class AutoLevel extends CommandBase {
             if (Math.abs(Roll) > 2.5 || Math.abs(Pitch) > 2.5) {
                 count = 0;
 
-                m_robotDrive.driveScaled(xSpeed, ySpeed, 0, false, kMaxSpeed, kMaxRot);
+                Twist2d twist = new Twist2d(xSpeed, ySpeed, 0);
+                Twist2d twistM_S = DriveUtil.scale(twist, kMaxSpeed, kMaxRot);
+                m_robotDrive.driveMetersPerSec(twistM_S, false);
             } else {
                 count++;
             }
@@ -50,12 +54,15 @@ public class AutoLevel extends CommandBase {
                 if (Math.abs(Roll) > 2.5 || Math.abs(Pitch) > 2.5) {
                     count = 0;
 
-                    m_robotDrive.driveScaled(xSpeed, -ySpeed, 0, false, kMaxSpeed, kMaxRot);
+                    Twist2d twist = new Twist2d(xSpeed, -ySpeed, 0);
+                    Twist2d twistM_S = DriveUtil.scale(twist, kMaxSpeed, kMaxRot);
+                    m_robotDrive.driveMetersPerSec(twistM_S, false);
                 } else {
                     count++;
                 }
             } else {
-                m_robotDrive.drive(0.3, 0, 0, true);
+                Twist2d twistM_S = new Twist2d(kCruiseSpeed, 0, 0);
+                m_robotDrive.driveMetersPerSec(twistM_S, true);
             }
         }
     }

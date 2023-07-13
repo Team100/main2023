@@ -1,6 +1,5 @@
 package org.team100.frc2023.commands;
 
-import java.util.function.DoubleSupplier;
 import java.util.function.Supplier;
 
 import org.team100.frc2023.subsystems.AHRSClass;
@@ -10,17 +9,16 @@ import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Twist2d;
 import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 
 public class DriveWithHeading extends CommandBase {
-    private static final double kMaxSpeedM_S = 5;
-
+    private final Supplier<Twist2d> twistSupplier;
     private final SwerveDriveSubsystem m_robotDrive;
-    private final DoubleSupplier m_xSpeed1_1;
-    private final DoubleSupplier m_ySpeed1_1;
-    private final DoubleSupplier m_rotSpeed1_1;
+    private final double maxSpeedM_S;
+    private final double maxRotSpeedRad_S;
     private final AHRSClass m_gyro;
     private final ProfiledPIDController m_headingController;
     private final Supplier<Rotation2d> m_desiredRotation;
@@ -31,18 +29,20 @@ public class DriveWithHeading extends CommandBase {
     private double thetaOuput = 0;
     private double thetaControllerOutput;
 
+    /**
+     * @param twistSupplier [-1,1]
+     */
     public DriveWithHeading(
+            Supplier<Twist2d> twistSupplier,
             SwerveDriveSubsystem robotDrive,
-            DoubleSupplier xSpeed,
-            DoubleSupplier ySpeed,
+            double maxSpeedM_S,
+            double maxRotSpeedRad_S,
             Supplier<Rotation2d> desiredRotation,
-            DoubleSupplier rotSpeed,
-            String name,
             AHRSClass gyro) {
+        this.twistSupplier = twistSupplier;
         m_robotDrive = robotDrive;
-        m_xSpeed1_1 = xSpeed;
-        m_ySpeed1_1 = ySpeed;
-        m_rotSpeed1_1 = rotSpeed;
+        this.maxSpeedM_S = maxSpeedM_S;
+        this.maxRotSpeedRad_S = maxRotSpeedRad_S;
         m_gyro = gyro;
         m_headingController = m_robotDrive.controllers.headingController;
         m_desiredRotation = desiredRotation;
@@ -57,10 +57,6 @@ public class DriveWithHeading extends CommandBase {
 
     @Override
     public void execute() {
-        double xSpeed = m_xSpeed1_1.getAsDouble();
-        double ySpeed = m_ySpeed1_1.getAsDouble();
-        double rotSpeed = m_rotSpeed1_1.getAsDouble();
-
         // Set desired rotation to POV (if pressed) or else last setpoint
         double desiredRotation = lastRotationSetpoint.getRadians();
         Rotation2d pov = m_desiredRotation.get();
@@ -70,17 +66,18 @@ public class DriveWithHeading extends CommandBase {
         }
         currentPose = m_robotDrive.getPose();
         double currentRads = MathUtil.angleModulus(currentPose.getRotation().getRadians());
+        Twist2d twist = twistSupplier.get();
 
-        if (snapMode && Math.abs(rotSpeed) < 0.1 && m_gyro.getGyroWorking()) {
+        if (snapMode && Math.abs(twist.dtheta) < 0.1 && m_gyro.getGyroWorking()) {
             thetaControllerOutput = m_headingController.calculate(currentRads, desiredRotation);
-            thetaOuput = thetaControllerOutput * kMaxSpeedM_S + m_headingController.getSetpoint().velocity;
+            thetaOuput = thetaControllerOutput * maxRotSpeedRad_S + m_headingController.getSetpoint().velocity;
         } else {
             snapMode = false;
-            thetaOuput = (rotSpeed / 2) * kMaxSpeedM_S;
+            thetaOuput = twist.dtheta * maxRotSpeedRad_S;
             desiredRotation = currentRads;
         }
-
-        m_robotDrive.driveMetersPerSec(xSpeed * kMaxSpeedM_S, ySpeed * kMaxSpeedM_S, thetaOuput, true);
+        Twist2d twistM_S = new Twist2d(twist.dx * maxSpeedM_S, twist.dy * maxSpeedM_S, thetaOuput);
+        m_robotDrive.driveMetersPerSec(twistM_S, true);
         lastRotationSetpoint = new Rotation2d(desiredRotation);
     }
 

@@ -1,5 +1,9 @@
 package org.team100.frc2023.control;
 
+import static org.team100.frc2023.control.ControlUtil.clamp;
+import static org.team100.frc2023.control.ControlUtil.deadband;
+import static org.team100.frc2023.control.ControlUtil.expo;
+
 import org.team100.frc2023.autonomous.DriveToWaypoint2;
 import org.team100.frc2023.autonomous.MoveConeWidth;
 import org.team100.frc2023.autonomous.Rotate;
@@ -21,8 +25,8 @@ import org.team100.lib.commands.ResetPose;
 import org.team100.lib.commands.ResetRotation;
 import org.team100.lib.commands.Retro.LedOn;
 
-import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Twist2d;
 import edu.wpi.first.util.sendable.Sendable;
 import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.event.BooleanEvent;
@@ -43,6 +47,7 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
  */
 public class Pilot implements Control, Sendable {
     private static final double kDeadband = 0.02;
+    private static final double kExpo = 0.5;
 
     private final CommandGenericHID m_controller;
     private Rotation2d previousRotation = new Rotation2d(0);
@@ -86,19 +91,11 @@ public class Pilot implements Control, Sendable {
     }
 
     @Override
-    public double rotSpeed() {
-        // there is no rotational velocity control.
-        return 0.0;
-    }
-
-    @Override
-    public double ySpeed() {
-        return MathUtil.applyDeadband(-1.0 * m_controller.getHID().getRawAxis(0), kDeadband);
-    }
-
-    @Override
-    public double xSpeed() {
-        return MathUtil.applyDeadband(-1.0 * m_controller.getHID().getRawAxis(1), kDeadband);
+    public Twist2d twist() {
+        double dx = expo(deadband(-1.0 * clamp(m_controller.getHID().getRawAxis(1), 1), kDeadband, 1), kExpo);
+        double dy = expo(deadband(-1.0 * clamp(m_controller.getHID().getRawAxis(0), 1), kDeadband, 1), kExpo);
+        double dtheta = 0; // there is no rotational velocity control.
+        return new Twist2d(dx, dy, dtheta);
     }
 
     @Override

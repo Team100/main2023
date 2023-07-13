@@ -2,6 +2,7 @@ package org.team100.frc2023.autonomous;
 
 import org.team100.frc2023.subsystems.SwerveDriveSubsystem;
 
+import edu.wpi.first.math.geometry.Twist2d;
 import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.ProfiledPIDCommand;
@@ -15,7 +16,7 @@ public class Rotate extends ProfiledPIDCommand {
                 drivetrain.controllers.rotateController,
                 () -> drivetrain.getPose().getRotation().getRadians(),
                 targetAngleRadians,
-                (output, state) -> drivetrain.drive(0, 0, output, false),
+                (output, state) -> drivetrain.driveMetersPerSec(new Twist2d(0, 0, output), false),
                 drivetrain);
         getController().enableContinuousInput(-Math.PI, Math.PI);
         getController().setTolerance(0.001);
