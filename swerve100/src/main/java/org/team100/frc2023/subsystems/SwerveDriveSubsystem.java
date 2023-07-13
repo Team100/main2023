@@ -172,41 +172,19 @@ public class SwerveDriveSubsystem extends SubsystemBase {
      * Inputs from -1 to 1.
      */
     public void drive(final double xSpeed1_1, final double ySpeed1_1, final double rotSpeed1_1, boolean fieldRelative) {
-        driveWithMaxima(xSpeed1_1, ySpeed1_1, rotSpeed1_1, fieldRelative, speedLimits.kMaxSpeedMetersPerSecond,
-                speedLimits.kMaxAngularSpeedRadiansPerSecond);
-    }
-
-    /** Inputs from -1 to 1, scaled by max speeds */
-    public void driveWithMaxima(double xSpeed_1, double ySpeed1_1, double rotSpeed1_1, boolean fieldRelative,
-            double maxSpeed, double maxRot) {
-        double xSpeedMetersPerSec = MathUtil.applyDeadband(maxSpeed * MathUtil.clamp(xSpeed_1, -1, 1), 0.01);
-        double ySpeedMetersPerSec = MathUtil.applyDeadband(maxSpeed * MathUtil.clamp(ySpeed1_1, -1, 1), 0.01);
-        double rotRadiansPerSec = MathUtil.applyDeadband(maxRot * MathUtil.clamp(rotSpeed1_1, -1, 1), 0.01);
-        driveMetersPerSec(xSpeedMetersPerSec, ySpeedMetersPerSec, rotRadiansPerSec, fieldRelative);
+        driveScaled(xSpeed1_1, ySpeed1_1, rotSpeed1_1, fieldRelative,
+                speedLimits.kMaxSpeedMetersPerSecond, speedLimits.kMaxAngularSpeedRadiansPerSecond);
     }
 
     /**
-     * Drive slowly, input -1 to 1
-     * TODO: this does not look slow to me.
+     * Inputs from -1 to 1, scaled by max speeds
      */
-    public void driveSlow(double xSpeed, double ySpeed, double rot, boolean fieldRelative) {
-        double kMaxSpeed = 4.5;
-        double kMaxRot = 5;
-        driveWithMaxima(xSpeed, ySpeed, rot, fieldRelative, kMaxSpeed, kMaxRot);
-    }
-
-    /** Drive with medium speed, input -1 to 1 */
-    public void driveMedium(double xSpeed, double ySpeed, double rot, boolean fieldRelative) {
-        double kMaxSpeed = 3.5;
-        double kMaxRot = 0.5;
-        driveWithMaxima(xSpeed, ySpeed, rot, fieldRelative, kMaxSpeed, kMaxRot);
-    }
-
-    /** Drive very slowly, , input -1 to 1 */
-    public void driveFine(double xSpeed, double ySpeed, double rot, boolean fieldRelative) {
-        double kMaxSpeed = 0.8;
-        double kMaxRot = 0.5;
-        driveWithMaxima(xSpeed, ySpeed, rot, fieldRelative, kMaxSpeed, kMaxRot);
+    public void driveScaled(double xSpeed1_1, double ySpeed1_1, double rotSpeed1_1, boolean fieldRelative,
+            double maxSpeed, double maxRot) {
+        double xSpeedMetersPerSec = maxSpeed * MathUtil.clamp(xSpeed1_1, -1, 1);
+        double ySpeedMetersPerSec = maxSpeed * MathUtil.clamp(ySpeed1_1, -1, 1);
+        double rotRadiansPerSec = maxRot * MathUtil.clamp(rotSpeed1_1, -1, 1);
+        driveMetersPerSec(xSpeedMetersPerSec, ySpeedMetersPerSec, rotRadiansPerSec, fieldRelative);
     }
 
     public void setModuleStates(SwerveModuleState[] desiredStates) {

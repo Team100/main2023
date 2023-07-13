@@ -5,16 +5,15 @@ import org.team100.frc2023.autonomous.MoveConeWidth;
 import org.team100.frc2023.autonomous.Rotate;
 import org.team100.frc2023.commands.AutoLevel;
 import org.team100.frc2023.commands.Defense;
-import org.team100.frc2023.commands.DriveMedium;
-import org.team100.frc2023.commands.DriveSlow;
+import org.team100.frc2023.commands.DriveScaled;
 import org.team100.frc2023.commands.GoalOffset;
 import org.team100.frc2023.commands.RumbleOn;
 import org.team100.frc2023.commands.Arm.ArmTrajectory;
 import org.team100.frc2023.commands.Arm.Oscillate;
 import org.team100.frc2023.commands.Arm.SetConeMode;
 import org.team100.frc2023.commands.Arm.SetCubeMode;
-import org.team100.frc2023.commands.Manipulator.Eject;
 import org.team100.frc2023.commands.Manipulator.CloseSlow;
+import org.team100.frc2023.commands.Manipulator.Eject;
 import org.team100.frc2023.commands.Manipulator.Home;
 import org.team100.frc2023.commands.Manipulator.Open;
 import org.team100.frc2023.commands.Retro.DriveToRetroReflectiveTape;
@@ -22,6 +21,7 @@ import org.team100.lib.commands.ResetPose;
 import org.team100.lib.commands.ResetRotation;
 import org.team100.lib.commands.Retro.LedOn;
 
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.util.sendable.Sendable;
 import edu.wpi.first.util.sendable.SendableBuilder;
@@ -37,6 +37,7 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
  * https://docs.google.com/document/d/1M89x_IiguQdY0VhQlOjqADMa6SYVp202TTuXZ1Ps280/edit#
  */
 public class DualXboxControl implements Control, Sendable {
+    private static final double kDeadband = 0.02;
     // private static final double kDtSeconds = 0.02;
     // private static final double kMaxRotationRateRadiansPerSecond = Math.PI;
     private static final double kTriggerThreshold = .5;
@@ -96,17 +97,17 @@ public class DualXboxControl implements Control, Sendable {
 
     @Override
     public double xSpeed() {
-        return -1.0 * controller0.getRightY();
+        return MathUtil.applyDeadband(-1.0 * controller0.getRightY(), kDeadband);
     }
 
     @Override
     public double ySpeed() {
-        return -1.0 * controller0.getRightX();
+        return MathUtil.applyDeadband(-1.0 * controller0.getRightX(), kDeadband);
     }
 
     @Override
     public double rotSpeed() {
-        return -1.0 * controller0.getLeftX();
+        return MathUtil.applyDeadband(-1.0 * controller0.getLeftX(), kDeadband);
     }
 
     @Override
@@ -120,7 +121,7 @@ public class DualXboxControl implements Control, Sendable {
     }
 
     @Override
-    public void driveSlow(DriveSlow command) {
+    public void driveSlow(DriveScaled command) {
         controller0.leftBumper().whileTrue(command);
     }
 
@@ -188,7 +189,7 @@ public class DualXboxControl implements Control, Sendable {
     }
 
     @Override
-    public void driveMedium(DriveMedium command) {
+    public void driveMedium(DriveScaled command) {
         controller0.rightBumper().whileTrue(command);
     }
 

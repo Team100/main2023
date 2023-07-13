@@ -5,16 +5,15 @@ import org.team100.frc2023.autonomous.MoveConeWidth;
 import org.team100.frc2023.autonomous.Rotate;
 import org.team100.frc2023.commands.AutoLevel;
 import org.team100.frc2023.commands.Defense;
-import org.team100.frc2023.commands.DriveMedium;
-import org.team100.frc2023.commands.DriveSlow;
+import org.team100.frc2023.commands.DriveScaled;
 import org.team100.frc2023.commands.GoalOffset;
 import org.team100.frc2023.commands.RumbleOn;
 import org.team100.frc2023.commands.Arm.ArmTrajectory;
 import org.team100.frc2023.commands.Arm.Oscillate;
 import org.team100.frc2023.commands.Arm.SetConeMode;
 import org.team100.frc2023.commands.Arm.SetCubeMode;
-import org.team100.frc2023.commands.Manipulator.Eject;
 import org.team100.frc2023.commands.Manipulator.CloseSlow;
+import org.team100.frc2023.commands.Manipulator.Eject;
 import org.team100.frc2023.commands.Manipulator.Home;
 import org.team100.frc2023.commands.Manipulator.Open;
 import org.team100.frc2023.commands.Retro.DriveToRetroReflectiveTape;
@@ -22,6 +21,7 @@ import org.team100.lib.commands.ResetPose;
 import org.team100.lib.commands.ResetRotation;
 import org.team100.lib.commands.Retro.LedOn;
 
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.util.sendable.Sendable;
 import edu.wpi.first.util.sendable.SendableBuilder;
@@ -42,6 +42,8 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
  * Command buttons are not implemented.
  */
 public class Pilot implements Control, Sendable {
+    private static final double kDeadband = 0.02;
+
     private final CommandGenericHID m_controller;
     private Rotation2d previousRotation = new Rotation2d(0);
 
@@ -91,12 +93,12 @@ public class Pilot implements Control, Sendable {
 
     @Override
     public double ySpeed() {
-        return -1.0 * m_controller.getHID().getRawAxis(0);
+        return MathUtil.applyDeadband(-1.0 * m_controller.getHID().getRawAxis(0), kDeadband);
     }
 
     @Override
     public double xSpeed() {
-        return -1.0 * m_controller.getHID().getRawAxis(1);
+        return MathUtil.applyDeadband(-1.0 * m_controller.getHID().getRawAxis(1), kDeadband);
     }
 
     @Override
@@ -114,7 +116,7 @@ public class Pilot implements Control, Sendable {
     }
 
     @Override
-    public void driveSlow(DriveSlow command) {
+    public void driveSlow(DriveScaled command) {
     }
 
     @Override
@@ -155,7 +157,7 @@ public class Pilot implements Control, Sendable {
     }
 
     @Override
-    public void driveMedium(DriveMedium command) {
+    public void driveMedium(DriveScaled command) {
     }
 
     @Override
