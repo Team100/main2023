@@ -2,11 +2,12 @@ package org.team100.frc2023.autonomous;
 
 import org.team100.frc2023.subsystems.SwerveDriveSubsystem;
 
+import edu.wpi.first.math.geometry.Twist2d;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 
 public class DriveToThreshold extends CommandBase {
     private static final double kEdgeOfRampMeters = 4.1;
-    private static final double kXSpeed_1_1 = -0.4;
+    private static final double kXSpeedM_S = -2.0;
 
     private final SwerveDriveSubsystem m_robotDrive;
     
@@ -26,7 +27,7 @@ public class DriveToThreshold extends CommandBase {
     @Override
     public void execute() {
         if (m_robotDrive.getPose().getX() > kEdgeOfRampMeters) {
-            m_robotDrive.drive(kXSpeed_1_1, 0, 0, true);
+            m_robotDrive.driveMetersPerSec(new Twist2d(kXSpeedM_S, 0, 0), true);
         } else {
             done = true;
         }
@@ -39,7 +40,7 @@ public class DriveToThreshold extends CommandBase {
 
     @Override
     public void end(boolean interrupted) {
-        m_robotDrive.drive(0, 0, 0, false);
+        m_robotDrive.driveMetersPerSec(new Twist2d(0, 0, 0), false);
     }
 
 }

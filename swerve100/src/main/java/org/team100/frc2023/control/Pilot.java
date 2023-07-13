@@ -23,6 +23,7 @@ import org.team100.lib.commands.Retro.LedOn;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Twist2d;
 import edu.wpi.first.util.sendable.Sendable;
 import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.event.BooleanEvent;
@@ -86,19 +87,11 @@ public class Pilot implements Control, Sendable {
     }
 
     @Override
-    public double rotSpeed() {
-        // there is no rotational velocity control.
-        return 0.0;
-    }
-
-    @Override
-    public double ySpeed() {
-        return MathUtil.applyDeadband(-1.0 * m_controller.getHID().getRawAxis(0), kDeadband);
-    }
-
-    @Override
-    public double xSpeed() {
-        return MathUtil.applyDeadband(-1.0 * m_controller.getHID().getRawAxis(1), kDeadband);
+    public Twist2d twist() {
+        double dx = MathUtil.applyDeadband(-1.0 * m_controller.getHID().getRawAxis(1), kDeadband);
+        double dy = MathUtil.applyDeadband(-1.0 * m_controller.getHID().getRawAxis(0), kDeadband);
+        double dtheta = 0; // there is no rotational velocity control.
+        return new Twist2d(dx, dy, dtheta);
     }
 
     @Override

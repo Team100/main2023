@@ -7,6 +7,7 @@ import org.team100.frc2023.subsystems.SwerveDriveSubsystem;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.geometry.Twist2d;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 
 public class DriveRotation extends CommandBase {
@@ -25,7 +26,7 @@ public class DriveRotation extends CommandBase {
         if (Math.abs(rot) <= 0.15) {
             rot = 0;
         }
-        m_robotDrive.drive(0, 0, rot, true);
+        m_robotDrive.driveMetersPerSec(new Twist2d(0, 0, rot), true);
     }
 
     @Override

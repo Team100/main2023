@@ -108,6 +108,7 @@ public class Robot extends TimedRobot {
     }
 
     // TODO: use RED and BLUE here
+    // TODO: important, make this complain if neither bit is set
     private boolean getAlliance() {
         int val = 0;
         if (alliance2.get())

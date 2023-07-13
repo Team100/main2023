@@ -23,6 +23,7 @@ import org.team100.lib.commands.Retro.LedOn;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Twist2d;
 import edu.wpi.first.util.sendable.Sendable;
 import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.GenericHID.RumbleType;
@@ -96,18 +97,11 @@ public class DualXboxControl implements Control, Sendable {
     }
 
     @Override
-    public double xSpeed() {
-        return MathUtil.applyDeadband(-1.0 * controller0.getRightY(), kDeadband);
-    }
-
-    @Override
-    public double ySpeed() {
-        return MathUtil.applyDeadband(-1.0 * controller0.getRightX(), kDeadband);
-    }
-
-    @Override
-    public double rotSpeed() {
-        return MathUtil.applyDeadband(-1.0 * controller0.getLeftX(), kDeadband);
+    public Twist2d twist() {
+        double dx = MathUtil.applyDeadband(-1.0 * controller0.getRightY(), kDeadband);
+        double dy = MathUtil.applyDeadband(-1.0 * controller0.getRightX(), kDeadband);
+        double dtheta = MathUtil.applyDeadband(-1.0 * controller0.getLeftX(), kDeadband);
+        return new Twist2d(dx, dy, dtheta);
     }
 
     @Override
