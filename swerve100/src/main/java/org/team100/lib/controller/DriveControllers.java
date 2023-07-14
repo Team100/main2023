@@ -7,9 +7,9 @@ public class DriveControllers {
     public final PIDController xController;
     public final PIDController yController;
     // TODO i suspect there are duplicate controllers here
-    public final ProfiledPIDController headingController;
-    public final ProfiledPIDController thetaController;
-    public final ProfiledPIDController rotateController;
+    public final ProfiledPIDController headingController; // only used by DriveWithHeading.
+    public final ProfiledPIDController thetaController; // used by several commands
+    public final ProfiledPIDController rotateController; // only used by Rotate.
 
     public DriveControllers(
             PIDController xController,
