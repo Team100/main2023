@@ -1,4 +1,4 @@
-package org.team100.lib.subsystems;
+package org.team100.lib.controller;
 
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
