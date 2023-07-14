@@ -174,8 +174,8 @@ public class SwerveDriveSubsystem extends SubsystemBase {
         try {
             if (writer != null) {
                 writer.write("Timestamp: " + Timer.getFPGATimestamp() +
-                        ", P" + m_modules.m_frontLeft.getPosition().distanceMeters
-                        + ", " + m_modules.m_frontLeft.getState().speedMetersPerSecond + "\n");
+                        ", P" + m_modules.positions()[0].distanceMeters
+                        + ", " + m_modules.states()[0].speedMetersPerSecond + "\n");
                 writer.flush();
             }
         } catch (IOException e) {

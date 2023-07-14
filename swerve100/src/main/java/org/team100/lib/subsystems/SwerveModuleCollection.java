@@ -5,10 +5,10 @@ import edu.wpi.first.math.kinematics.SwerveModuleState;
 
 /** Represents the modules in the drivetrain. */
 public class SwerveModuleCollection {
-    public final SwerveModule m_frontLeft;
-    public final SwerveModule m_frontRight;
-    public final SwerveModule m_rearLeft;
-    public final SwerveModule m_rearRight;
+    private final SwerveModule m_frontLeft;
+    private final SwerveModule m_frontRight;
+    private final SwerveModule m_rearLeft;
+    private final SwerveModule m_rearRight;
 
     public SwerveModuleCollection(
             SwerveModule frontLeft,
@@ -27,6 +27,15 @@ public class SwerveModuleCollection {
                 m_frontRight.getPosition(),
                 m_rearLeft.getPosition(),
                 m_rearRight.getPosition()
+        };
+    }
+
+    public SwerveModuleState[] states() {
+        return new SwerveModuleState[] {
+                m_frontLeft.getState(),
+                m_frontRight.getState(),
+                m_rearLeft.getState(),
+                m_rearRight.getState()
         };
     }
 
