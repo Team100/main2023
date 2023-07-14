@@ -1,4 +1,4 @@
-package org.team100.frc2023.subsystems;
+package org.team100.lib.subsystems;
 
 import java.io.FileWriter;
 import java.io.IOException;
@@ -6,14 +6,6 @@ import java.io.IOException;
 import org.team100.lib.config.Identity;
 import org.team100.lib.indicator.LEDIndicator;
 import org.team100.lib.localization.VisionDataProvider;
-import org.team100.lib.subsystems.RedundantGyro;
-import org.team100.lib.subsystems.DriveControllers;
-import org.team100.lib.subsystems.DriveControllersFactory;
-import org.team100.lib.subsystems.SpeedLimits;
-import org.team100.lib.subsystems.SwerveDriveKinematicsFactory;
-import org.team100.lib.subsystems.SwerveModuleCollection;
-import org.team100.lib.subsystems.SwerveModuleCollectionFactory;
-import org.team100.lib.subsystems.VeeringCorrection;
 
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;

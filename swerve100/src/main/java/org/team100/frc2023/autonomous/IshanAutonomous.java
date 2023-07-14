@@ -3,8 +3,8 @@ package org.team100.frc2023.autonomous;
 import java.util.List;
 
 import org.team100.frc2023.commands.SwerveControllerCommand;
-import org.team100.frc2023.subsystems.SwerveDriveSubsystem;
 import org.team100.lib.subsystems.RedundantGyro;
+import org.team100.lib.subsystems.SwerveDriveSubsystem;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
