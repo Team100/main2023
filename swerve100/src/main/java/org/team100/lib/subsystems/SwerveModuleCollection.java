@@ -1,9 +1,5 @@
 package org.team100.lib.subsystems;
 
-import org.team100.frc2023.subsystems.SwerveModule;
-
-import edu.wpi.first.math.kinematics.ChassisSpeeds;
-import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 
@@ -39,14 +35,6 @@ public class SwerveModuleCollection {
         m_frontRight.setDesiredState(swerveModuleStates[1]);
         m_rearLeft.setDesiredState(swerveModuleStates[2]);
         m_rearRight.setDesiredState(swerveModuleStates[3]);
-    }
-
-    public ChassisSpeeds toChassisSpeeds(SwerveDriveKinematics kinematics) {
-        return kinematics.toChassisSpeeds(
-                m_frontLeft.getState(),
-                m_frontRight.getState(),
-                m_rearLeft.getState(),
-                m_rearRight.getState());
     }
 
     public void stop() {

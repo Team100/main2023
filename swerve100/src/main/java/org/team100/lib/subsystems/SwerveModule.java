@@ -1,4 +1,4 @@
-package org.team100.frc2023.subsystems;
+package org.team100.lib.subsystems;
 
 import org.team100.lib.subsystems.drive.DriveEncoder;
 import org.team100.lib.subsystems.turning.TurningMotor;
@@ -79,7 +79,6 @@ public class SwerveModule implements Sendable {
         driveFeedForwardOutput = m_driveFeedforward.calculate(
                 state.speedMetersPerSecond,
                 accelMetersPerSecondPerSecond);
-
         setOutput(driveMotorControllerOutput + driveFeedForwardOutput,
                 turningMotorControllerOutput + turningFeedForwardOutput);
     }

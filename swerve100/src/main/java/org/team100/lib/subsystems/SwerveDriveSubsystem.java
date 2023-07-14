@@ -27,29 +27,24 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class SwerveDriveSubsystem extends SubsystemBase {
-
     public static final SwerveDriveKinematics kDriveKinematics = SwerveDriveKinematicsFactory.get(Identity.get());
 
     private final RedundantGyro m_gyro;
     private final Field2d m_field;
     private final SpeedLimits speedLimits;
-    public final DriveControllers controllers;
     private final SwerveModuleCollection m_modules;
     private final SwerveDrivePoseEstimator m_poseEstimator;
     private final VeeringCorrection m_veering;
+    public final LEDIndicator m_indicator;
 
-    private ChassisSpeeds desiredChassisSpeeds = new ChassisSpeeds();
 
     public VisionDataProvider visionDataProvider;
-    public final LEDIndicator m_indicator;
 
     // for observers
     private final DoubleArrayPublisher robotPosePub;
     private final StringPublisher fieldTypePub;
-    private double xVelocity = 0;
-    private double yVelocity = 0;
-    private double thetaVelociy = 0;
-    private boolean moving = false;
+    private ChassisSpeeds desiredChassisSpeeds = new ChassisSpeeds();
+    private ChassisSpeeds actualChassisSpeeds= new ChassisSpeeds();
 
     // TODO: this looks broken
     public double keyList = -1;
@@ -75,7 +70,6 @@ public class SwerveDriveSubsystem extends SubsystemBase {
         fieldTypePub.set("Field2d");
 
         this.speedLimits = speedLimits;
-        controllers = DriveControllersFactory.get(Identity.get(), speedLimits);
         m_modules = SwerveModuleCollectionFactory.get(Identity.get(), currentLimit);
 
         m_poseEstimator = new SwerveDrivePoseEstimator(
@@ -132,10 +126,6 @@ public class SwerveDriveSubsystem extends SubsystemBase {
         m_poseEstimator.resetPosition(getHeading(), m_modules.positions(), robotPose);
     }
 
-    public boolean getMoving() {
-        return moving;
-    }
-
     // TODO: this looks broken
     public void setKeyList() {
         keyList = NetworkTableInstance.getDefault().getTable("Vision").getKeys().size();
@@ -168,22 +158,15 @@ public class SwerveDriveSubsystem extends SubsystemBase {
         m_modules.setDesiredStates(desiredStates);
     }
 
-    public ChassisSpeeds getRobotStates() {
-        return m_modules.toChassisSpeeds(kDriveKinematics);
+    public void getRobotVelocity(SwerveModuleState[] desiredStates) {
+        actualChassisSpeeds = kDriveKinematics.toChassisSpeeds(desiredStates[0], desiredStates[1],
+                desiredStates[2], desiredStates[3]);
     }
 
-    public void getRobotVelocity(SwerveModuleState[] desiredStates) {
-        ChassisSpeeds chassisSpeeds = kDriveKinematics.toChassisSpeeds(desiredStates[0], desiredStates[1],
-                desiredStates[2], desiredStates[3]);
-        xVelocity = chassisSpeeds.vxMetersPerSecond;
-        yVelocity = chassisSpeeds.vyMetersPerSecond;
-        thetaVelociy = chassisSpeeds.omegaRadiansPerSecond;
-
-        if (xVelocity >= 0.1 || yVelocity >= 0.1 || thetaVelociy >= 0.1) {
-            moving = true;
-        } else {
-            moving = false;
-        }
+    private boolean isMoving() {
+        return (actualChassisSpeeds.vxMetersPerSecond >= 0.1
+                || actualChassisSpeeds.vyMetersPerSecond >= 0.1
+                || actualChassisSpeeds.omegaRadiansPerSecond >= 0.1);
     }
 
     public void test(double[][] desiredOutputs, FileWriter writer) {
@@ -223,44 +206,19 @@ public class SwerveDriveSubsystem extends SubsystemBase {
     public void initSendable(SendableBuilder builder) {
         super.initSendable(builder);
 
-        // Pose
-        builder.addDoubleProperty("translationalx", () -> getPose().getX(), null);
-        builder.addDoubleProperty("translationaly", () -> getPose().getY(), null);
-        builder.addDoubleProperty("theta", () -> getPose().getRotation().getRadians(), null);
+        builder.addDoubleProperty("Pose X", () -> getPose().getX(), null);
+        builder.addDoubleProperty("Pose Y", () -> getPose().getY(), null);
+        builder.addDoubleProperty("Pose Theta", () -> getPose().getRotation().getRadians(), null);
 
-        builder.addDoubleProperty("Theta Controller Error", () -> controllers.thetaController.getPositionError(), null);
-        builder.addDoubleProperty("Theta Controller Measurment", () -> getPose().getRotation().getRadians(), null);
-        builder.addDoubleProperty("Theta Controller Setpoint", () -> controllers.thetaController.getSetpoint().position,
-                null);
-
-        builder.addDoubleProperty("X controller Error (m)", () -> controllers.xController.getPositionError(), null);
-        builder.addDoubleProperty("X controller Setpoint", () -> controllers.xController.getSetpoint(), null);
-        builder.addDoubleProperty("X controller Measurment", () -> getPose().getX(), null);
-
-        builder.addDoubleProperty("Y controller Error (m)", () -> controllers.yController.getPositionError(), null);
-        builder.addDoubleProperty("Y controller Setpoint", () -> controllers.yController.getSetpoint(), null);
-        builder.addDoubleProperty("Y controller Measurment", () -> getPose().getY(), null);
-
-        builder.addBooleanProperty("Moving", () -> getMoving(), null);
-
-        builder.addDoubleProperty("X controller Velocity (m/s)", () -> xVelocity, null);
-        builder.addDoubleProperty("Y controller Velocity (m/s)", () -> yVelocity, null);
-        builder.addDoubleProperty("Theta controller Velocity (rad/s)", () -> thetaVelociy, null);
+        builder.addDoubleProperty("Actual Speed X", () -> actualChassisSpeeds.vxMetersPerSecond, null);
+        builder.addDoubleProperty("Actual Speed Y", () -> actualChassisSpeeds.vyMetersPerSecond, null);
+        builder.addDoubleProperty("Actual Speed Theta", () -> actualChassisSpeeds.omegaRadiansPerSecond, null);
+        builder.addBooleanProperty("Actually Moving", () -> isMoving(), null);
 
         builder.addDoubleProperty("Heading Degrees", () -> getHeading().getDegrees(), null);
         builder.addDoubleProperty("Heading Radians", () -> getHeading().getRadians(), null);
 
-        builder.addDoubleProperty("ChassisSpeedDesired Odometry X (m/s)", () -> desiredChassisSpeeds.vxMetersPerSecond,
-                null);
-        builder.addDoubleProperty("ChassisSpeedDesired Odometry Y (m/s)", () -> desiredChassisSpeeds.vyMetersPerSecond,
-                null);
-
-        builder.addDoubleProperty("Heading Controller Setpoint (rad)",
-                () -> controllers.headingController.getSetpoint().position,
-                null);
-        builder.addDoubleProperty("Heading Controller Measurment (rad)", () -> getPose().getRotation().getRadians(),
-                null);
-        builder.addDoubleProperty("Heading Controller Goal (rad)",
-                () -> controllers.headingController.getGoal().position, null);
+        builder.addDoubleProperty("Desired Speed X", () -> desiredChassisSpeeds.vxMetersPerSecond, null);
+        builder.addDoubleProperty("Desired Speed Y", () -> desiredChassisSpeeds.vyMetersPerSecond, null);
     }
 }

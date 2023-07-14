@@ -3,6 +3,7 @@ package org.team100.frc2023.autonomous;
 import java.util.List;
 
 import org.team100.frc2023.commands.SwerveControllerCommand;
+import org.team100.lib.subsystems.DriveControllers;
 import org.team100.lib.subsystems.RedundantGyro;
 import org.team100.lib.subsystems.SwerveDriveSubsystem;
 
@@ -22,13 +23,13 @@ public class IshanAutonomous extends SwerveControllerCommand {
             accelerationMetersPerSecondSquared)
             .setKinematics(SwerveDriveSubsystem.kDriveKinematics);
 
-    public IshanAutonomous(SwerveDriveSubsystem m_robotDrive, RedundantGyro gyro) {
+    public IshanAutonomous(SwerveDriveSubsystem m_robotDrive, DriveControllers controllers, RedundantGyro gyro) {
         super(genTrajectory(m_robotDrive),
                 m_robotDrive::getPose,
                 SwerveDriveSubsystem.kDriveKinematics,
-                m_robotDrive.controllers.xController,
-                m_robotDrive.controllers.yController,
-                m_robotDrive.controllers.thetaController,
+                controllers.xController,
+                controllers.yController,
+                controllers.thetaController,
                 () -> new Rotation2d(),
                 m_robotDrive::setModuleStates,
                 gyro,

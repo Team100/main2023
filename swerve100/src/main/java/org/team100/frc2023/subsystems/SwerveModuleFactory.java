@@ -1,5 +1,6 @@
 package org.team100.frc2023.subsystems;
 
+import org.team100.lib.subsystems.SwerveModule;
 import org.team100.lib.subsystems.drive.FalconDriveEncoder;
 import org.team100.lib.subsystems.drive.FalconDriveMotor;
 import org.team100.lib.subsystems.turning.AnalogTurningEncoder;

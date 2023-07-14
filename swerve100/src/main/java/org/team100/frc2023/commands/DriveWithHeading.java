@@ -2,6 +2,7 @@ package org.team100.frc2023.commands;
 
 import java.util.function.Supplier;
 
+import org.team100.lib.subsystems.DriveControllers;
 import org.team100.lib.subsystems.RedundantGyro;
 import org.team100.lib.subsystems.SwerveDriveSubsystem;
 
@@ -35,6 +36,7 @@ public class DriveWithHeading extends CommandBase {
     public DriveWithHeading(
             Supplier<Twist2d> twistSupplier,
             SwerveDriveSubsystem robotDrive,
+            DriveControllers controllers,
             double maxSpeedM_S,
             double maxRotSpeedRad_S,
             Supplier<Rotation2d> desiredRotation,
@@ -44,7 +46,7 @@ public class DriveWithHeading extends CommandBase {
         this.maxSpeedM_S = maxSpeedM_S;
         this.maxRotSpeedRad_S = maxRotSpeedRad_S;
         m_gyro = gyro;
-        m_headingController = m_robotDrive.controllers.headingController;
+        m_headingController = controllers.headingController;
         m_desiredRotation = desiredRotation;
 
         lastRotationSetpoint = new Rotation2d(0);

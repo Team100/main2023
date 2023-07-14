@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.function.Supplier;
 
 import org.team100.frc2023.commands.SwerveControllerCommand;
+import org.team100.lib.subsystems.DriveControllers;
 import org.team100.lib.subsystems.RedundantGyro;
 import org.team100.lib.subsystems.SwerveDriveSubsystem;
 
@@ -23,6 +24,7 @@ public class MoveToAprilTag extends SwerveControllerCommand {
 
     public MoveToAprilTag(
             SwerveDriveSubsystem m_robotDrive,
+            DriveControllers controllers,
             Supplier<Pose2d> getPose,
             int tagID,
             RedundantGyro gyro) {
@@ -30,9 +32,9 @@ public class MoveToAprilTag extends SwerveControllerCommand {
                 genTrajectory(m_robotDrive, getPose, tagID),
                 m_robotDrive::getPose,
                 SwerveDriveSubsystem.kDriveKinematics,
-                m_robotDrive.controllers.xController,
-                m_robotDrive.controllers.yController,
-                m_robotDrive.controllers.thetaController,
+                controllers.xController,
+                controllers.yController,
+                controllers.thetaController,
                 () -> new Rotation2d(),
                 m_robotDrive::setModuleStates,
                 gyro,
