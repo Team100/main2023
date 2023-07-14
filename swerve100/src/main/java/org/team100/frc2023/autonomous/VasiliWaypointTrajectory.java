@@ -5,8 +5,9 @@ import java.nio.file.Path;
 import java.util.function.Supplier;
 
 import org.team100.frc2023.commands.SwerveControllerCommand;
-import org.team100.frc2023.subsystems.SwerveDriveSubsystem;
+import org.team100.lib.subsystems.DriveControllers;
 import org.team100.lib.subsystems.RedundantGyro;
+import org.team100.lib.subsystems.SwerveDriveSubsystem;
 
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.trajectory.Trajectory;
@@ -21,6 +22,7 @@ public class VasiliWaypointTrajectory extends SwerveControllerCommand {
 
     public VasiliWaypointTrajectory(
             SwerveDriveSubsystem m_robotDrive,
+            DriveControllers controllers,
             Supplier<Rotation2d> desiredRotation,
             RedundantGyro gyro,
             String path) {
@@ -28,9 +30,9 @@ public class VasiliWaypointTrajectory extends SwerveControllerCommand {
                 genTrajectory(path),
                 m_robotDrive::getPose,
                 SwerveDriveSubsystem.kDriveKinematics,
-                m_robotDrive.controllers.xController,
-                m_robotDrive.controllers.yController,
-                m_robotDrive.controllers.thetaController,
+                controllers.xController,
+                controllers.yController,
+                controllers.thetaController,
                 desiredRotation,
                 m_robotDrive::setModuleStates,
                 gyro,

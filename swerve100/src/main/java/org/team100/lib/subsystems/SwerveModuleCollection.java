@@ -1,18 +1,14 @@
 package org.team100.lib.subsystems;
 
-import org.team100.frc2023.subsystems.SwerveModule;
-
-import edu.wpi.first.math.kinematics.ChassisSpeeds;
-import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 
 /** Represents the modules in the drivetrain. */
 public class SwerveModuleCollection {
-    public final SwerveModule m_frontLeft;
-    public final SwerveModule m_frontRight;
-    public final SwerveModule m_rearLeft;
-    public final SwerveModule m_rearRight;
+    private final SwerveModule m_frontLeft;
+    private final SwerveModule m_frontRight;
+    private final SwerveModule m_rearLeft;
+    private final SwerveModule m_rearRight;
 
     public SwerveModuleCollection(
             SwerveModule frontLeft,
@@ -34,34 +30,20 @@ public class SwerveModuleCollection {
         };
     }
 
+    public SwerveModuleState[] states() {
+        return new SwerveModuleState[] {
+                m_frontLeft.getState(),
+                m_frontRight.getState(),
+                m_rearLeft.getState(),
+                m_rearRight.getState()
+        };
+    }
+
     public void setDesiredStates(SwerveModuleState[] swerveModuleStates) {
         m_frontLeft.setDesiredState(swerveModuleStates[0]);
         m_frontRight.setDesiredState(swerveModuleStates[1]);
         m_rearLeft.setDesiredState(swerveModuleStates[2]);
         m_rearRight.setDesiredState(swerveModuleStates[3]);
-    }
-
-    public void setDesiredDriveStates(SwerveModuleState[] swerveModuleStates) {
-        m_frontLeft.setDesiredDriveState(swerveModuleStates[0]);
-        m_frontRight.setDesiredDriveState(swerveModuleStates[1]);
-        m_rearLeft.setDesiredDriveState(swerveModuleStates[2]);
-        m_rearRight.setDesiredDriveState(swerveModuleStates[3]);
-    }
-
-    // TODO: do we need this?
-    public void setDesiredStatesNoFF(SwerveModuleState[] swerveModuleStates) {
-        m_frontLeft.setDesiredStateNoFF(swerveModuleStates[0]);
-        m_frontRight.setDesiredStateNoFF(swerveModuleStates[1]);
-        m_rearLeft.setDesiredStateNoFF(swerveModuleStates[2]);
-        m_rearRight.setDesiredStateNoFF(swerveModuleStates[3]);
-    }
-
-    public ChassisSpeeds toChassisSpeeds(SwerveDriveKinematics kinematics) {
-        return kinematics.toChassisSpeeds(
-                m_frontLeft.getState(),
-                m_frontRight.getState(),
-                m_rearLeft.getState(),
-                m_rearRight.getState());
     }
 
     public void stop() {

@@ -27,7 +27,6 @@ import edu.wpi.first.networktables.NetworkTable.TableEventListener;
 import edu.wpi.first.networktables.NetworkTableEvent;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.util.sendable.SendableBuilder;
-import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -55,7 +54,7 @@ public class VisionDataProvider extends SubsystemBase implements TableEventListe
     private final SwerveDrivePoseEstimator poseEstimator;
     /** Discard results further than this from the previous one. */
     private final double kVisionChangeToleranceMeters = 0.1;
-    public AprilTagFieldLayoutWithCorrectOrientation layout;
+    private final AprilTagFieldLayoutWithCorrectOrientation layout;
     // for Sendable observation
     private Rotation3d tagRotation;
     // for Sendable observation
@@ -64,16 +63,12 @@ public class VisionDataProvider extends SubsystemBase implements TableEventListe
     private Pose2d lastRobotInFieldCoords;
 
     public VisionDataProvider(
-            DriverStation.Alliance alliance,
+            AprilTagFieldLayoutWithCorrectOrientation layout,
             SwerveDrivePoseEstimator poseEstimator,
             Supplier<Pose2d> poseSupplier) throws IOException {
         // load the JNI (used by PoseEstimationHelper)
         CameraServerCvJNI.forceLoad();
-        if (alliance == DriverStation.Alliance.Blue) {
-            layout = AprilTagFieldLayoutWithCorrectOrientation.blueLayout();
-        } else { // red
-            layout = AprilTagFieldLayoutWithCorrectOrientation.redLayout();
-        }
+        this.layout = layout;
         this.poseEstimator = poseEstimator;
         this.poseSupplier = poseSupplier;
         tagRotation = new Rotation3d();

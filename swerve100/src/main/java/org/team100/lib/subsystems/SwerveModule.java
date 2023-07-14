@@ -1,4 +1,4 @@
-package org.team100.frc2023.subsystems;
+package org.team100.lib.subsystems;
 
 import org.team100.lib.subsystems.drive.DriveEncoder;
 import org.team100.lib.subsystems.turning.TurningMotor;
@@ -30,7 +30,6 @@ public class SwerveModule implements Sendable {
     private final ProfiledPIDController m_turningController;
     private final SimpleMotorFeedforward m_turningFeedforward;
     private final SimpleMotorFeedforward m_driveFeedforward;
-    private final SimpleMotorFeedforward m_headingDriveFeedforward;
 
     public double turningFeedForwardOutput;
     public double driveFeedForwardOutput;
@@ -49,8 +48,7 @@ public class SwerveModule implements Sendable {
             PIDController driveController,
             ProfiledPIDController turningController,
             SimpleMotorFeedforward driveFeedforward,
-            SimpleMotorFeedforward turningFeedforward,
-            SimpleMotorFeedforward headingDriveFeedforward) {
+            SimpleMotorFeedforward turningFeedforward) {
         m_name = name;
         m_driveMotor = driveMotor;
         m_turningMotor = turningMotor;
@@ -60,7 +58,6 @@ public class SwerveModule implements Sendable {
         m_turningController = turningController;
         m_driveFeedforward = driveFeedforward;
         m_turningFeedforward = turningFeedforward;
-        m_headingDriveFeedforward = headingDriveFeedforward;
         SmartDashboard.putData(String.format("Swerve Module %s", m_name), this);
     }
 
@@ -82,38 +79,8 @@ public class SwerveModule implements Sendable {
         driveFeedForwardOutput = m_driveFeedforward.calculate(
                 state.speedMetersPerSecond,
                 accelMetersPerSecondPerSecond);
-
         setOutput(driveMotorControllerOutput + driveFeedForwardOutput,
                 turningMotorControllerOutput + turningFeedForwardOutput);
-    }
-
-    public void setDesiredDriveState(SwerveModuleState desiredState) {
-        SwerveModuleState state = SwerveModuleState.optimize(desiredState, getTurningRotation());
-        driveMotorControllerOutput = m_driveController.calculate(getDriveSpeedMS(), state.speedMetersPerSecond);
-        turningMotorControllerOutput = m_turningController.calculate(getTurningAngleRad(), state.angle.getRadians());
-        turningFeedForwardOutput = m_turningFeedforward.calculate(getTurnSetpointVelocityRadS(), 0);
-        double accelMetersPerSecondPerSecond = (state.speedMetersPerSecond - previousSpeedMetersPerSecond) / 0.02;
-        previousSpeedMetersPerSecond = state.speedMetersPerSecond;
-        driveFeedForwardOutput = m_headingDriveFeedforward.calculate(
-                state.speedMetersPerSecond,
-                accelMetersPerSecondPerSecond);
-
-        setOutput(driveMotorControllerOutput + driveFeedForwardOutput,
-                turningMotorControllerOutput + turningFeedForwardOutput);
-    }
-
-    // TODO: do we need this?
-    public void setDesiredStateNoFF(SwerveModuleState desiredState) {
-        SwerveModuleState state = SwerveModuleState.optimize(desiredState, getTurningRotation());
-        driveMotorControllerOutput = m_driveController.calculate(getDriveSpeedMS(), state.speedMetersPerSecond);
-        turningMotorControllerOutput = m_turningController.calculate(getTurningAngleRad(), state.angle.getRadians());
-        turningFeedForwardOutput = m_turningFeedforward.calculate(getTurnSetpointVelocityRadS(), 0);
-        double accelMetersPerSecondPerSecond = (state.speedMetersPerSecond - previousSpeedMetersPerSecond) / 0.02;
-        previousSpeedMetersPerSecond = state.speedMetersPerSecond;
-        driveFeedForwardOutput = m_driveFeedforward.calculate(state.speedMetersPerSecond,
-                accelMetersPerSecondPerSecond);
-
-        setOutput(driveMotorControllerOutput, turningMotorControllerOutput + turningFeedForwardOutput);
     }
 
     /**

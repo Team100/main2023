@@ -5,11 +5,12 @@ import org.team100.frc2023.commands.Arm.ArmTrajectory;
 import org.team100.frc2023.commands.Arm.SetCubeMode;
 import org.team100.frc2023.commands.Manipulator.Eject;
 import org.team100.frc2023.subsystems.Manipulator;
-import org.team100.frc2023.subsystems.SwerveDriveSubsystem;
 import org.team100.frc2023.subsystems.arm.ArmController;
 import org.team100.frc2023.subsystems.arm.ArmPosition;
 import org.team100.lib.indicator.LEDIndicator;
+import org.team100.lib.subsystems.DriveControllers;
 import org.team100.lib.subsystems.RedundantGyro;
+import org.team100.lib.subsystems.SwerveDriveSubsystem;
 
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.spline.Spline;
@@ -23,6 +24,7 @@ public class VasiliAutonomous extends SequentialCommandGroup {
 
     public VasiliAutonomous(
             SwerveDriveSubsystem m_robotDrive,
+            DriveControllers controllers,
             RedundantGyro m_gyro,
             ArmController m_arm,
             Manipulator m_manipulator,
@@ -104,6 +106,7 @@ public class VasiliAutonomous extends SequentialCommandGroup {
 
                 new VasiliWaypointTrajectory(
                         m_robotDrive,
+                        controllers,
                         () -> new Rotation2d(Math.PI),
                         m_gyro,
                         "output/BlueLeftExit.wpilib.json"),

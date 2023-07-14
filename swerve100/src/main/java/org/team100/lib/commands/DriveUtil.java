@@ -1,4 +1,4 @@
-package org.team100.frc2023.commands;
+package org.team100.lib.commands;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Twist2d;
@@ -6,6 +6,8 @@ import edu.wpi.first.math.geometry.Twist2d;
 public class DriveUtil {
     /**
      * @param twist [-1,1]
+     * @param maxSpeed meters per second
+     * @param maxRot radians per second
      * @return meters and rad per second as specified by speed limits
      */
     public static Twist2d scale(Twist2d twist, double maxSpeed, double maxRot) {

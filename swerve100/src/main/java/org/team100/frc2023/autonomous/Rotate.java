@@ -1,6 +1,7 @@
 package org.team100.frc2023.autonomous;
 
-import org.team100.frc2023.subsystems.SwerveDriveSubsystem;
+import org.team100.lib.subsystems.DriveControllers;
+import org.team100.lib.subsystems.SwerveDriveSubsystem;
 
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Twist2d;
@@ -14,9 +15,9 @@ public class Rotate extends CommandBase {
     private final ProfiledPIDController m_controller;
     private State m_goal;
 
-    public Rotate(SwerveDriveSubsystem drivetrain, double targetAngleRadians) {
+    public Rotate(SwerveDriveSubsystem drivetrain, DriveControllers controllers, double targetAngleRadians) {
         m_robotDrive = drivetrain;
-        m_controller = drivetrain.controllers.rotateController;
+        m_controller = controllers.rotateController;
         m_controller.enableContinuousInput(-Math.PI, Math.PI);
         m_controller.setTolerance(0.001);
         m_goal = new State(targetAngleRadians, 0);

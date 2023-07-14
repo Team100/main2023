@@ -3,9 +3,9 @@ package org.team100.frc2023.autonomous;
 import java.util.function.Supplier;
 
 import org.team100.frc2023.commands.GoalOffset;
-import org.team100.frc2023.subsystems.SwerveDriveSubsystem;
 import org.team100.lib.localization.AprilTagFieldLayoutWithCorrectOrientation;
 import org.team100.lib.subsystems.RedundantGyro;
+import org.team100.lib.subsystems.SwerveDriveSubsystem;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -30,9 +30,10 @@ public class DriveToAprilTag extends DriveToWaypoint2 {
             double yOffset,
             Supplier<GoalOffset> goalSupplier,
             SwerveDriveSubsystem robotDrive,
+            AprilTagFieldLayoutWithCorrectOrientation layout,
             RedundantGyro gyro,
             Supplier<Double> gamePieceOffset) {
-        Pose2d m_goal = goal(tagID, xOffset, robotDrive.visionDataProvider.layout);
+        Pose2d m_goal = goal(tagID, xOffset, layout);
         return new DriveToAprilTag(m_goal, yOffset, goalSupplier, robotDrive, gyro, gamePieceOffset);
     }
 
