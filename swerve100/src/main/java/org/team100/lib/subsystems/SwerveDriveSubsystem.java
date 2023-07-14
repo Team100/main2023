@@ -4,6 +4,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 
 import org.team100.lib.config.Identity;
+import org.team100.lib.sensors.RedundantGyro;
 
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;

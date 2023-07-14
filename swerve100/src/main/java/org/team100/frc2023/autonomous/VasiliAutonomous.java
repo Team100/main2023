@@ -8,8 +8,8 @@ import org.team100.frc2023.subsystems.Manipulator;
 import org.team100.frc2023.subsystems.arm.ArmController;
 import org.team100.frc2023.subsystems.arm.ArmPosition;
 import org.team100.lib.indicator.LEDIndicator;
+import org.team100.lib.sensors.RedundantGyro;
 import org.team100.lib.subsystems.DriveControllers;
-import org.team100.lib.subsystems.RedundantGyro;
 import org.team100.lib.subsystems.SwerveDriveSubsystem;
 
 import edu.wpi.first.math.geometry.Rotation2d;

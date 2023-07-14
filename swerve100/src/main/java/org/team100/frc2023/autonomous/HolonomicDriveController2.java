@@ -1,6 +1,6 @@
 package org.team100.frc2023.autonomous;
 
-import org.team100.lib.subsystems.RedundantGyro;
+import org.team100.lib.sensors.RedundantGyro;
 import org.team100.lib.subsystems.VeeringCorrection;
 
 import edu.wpi.first.math.controller.PIDController;
