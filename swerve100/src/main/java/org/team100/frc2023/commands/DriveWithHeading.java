@@ -92,11 +92,12 @@ public class DriveWithHeading extends CommandBase {
     public void initSendable(SendableBuilder builder) {
         super.initSendable(builder);
         builder.addDoubleProperty("Error", () -> m_headingController.getPositionError(), null);
-        builder.addDoubleProperty("Measurment", () -> currentPose.getRotation().getRadians(), null);
+        builder.addDoubleProperty("Measurement", () -> currentPose.getRotation().getRadians(), null);
         builder.addDoubleProperty("Setpoint Position", () -> m_headingController.getSetpoint().position, null);
         builder.addDoubleProperty("Setpoint Velocity", () -> m_headingController.getSetpoint().velocity, null);
-        builder.addDoubleProperty("Goal", () -> m_headingController.getGoal().position, null);
-        builder.addDoubleProperty("HeadingControllerOutput", () -> thetaControllerOutput, null);
+        builder.addDoubleProperty("Goal Position", () -> m_headingController.getGoal().position, null);
+        builder.addDoubleProperty("Goal Velocity", () -> m_headingController.getGoal().velocity, null);
+        builder.addDoubleProperty("Controller Output", () -> thetaControllerOutput, null);
         builder.addDoubleProperty("Theta Outpit", () -> thetaOuput, null);
     }
 }

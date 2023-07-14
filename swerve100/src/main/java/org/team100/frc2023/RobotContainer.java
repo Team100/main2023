@@ -333,12 +333,6 @@ public class RobotContainer implements Sendable {
         builder.addDoubleProperty("Y controller Error (m)", () -> controllers.yController.getPositionError(), null);
         builder.addDoubleProperty("Y controller Setpoint", () -> controllers.yController.getSetpoint(), null);
 
-        builder.addDoubleProperty("Heading Controller Setpoint (rad)",
-                () -> controllers.headingController.getSetpoint().position, null);
-
-        builder.addDoubleProperty("Heading Controller Goal (rad)",
-                () -> controllers.headingController.getGoal().position, null);
-
         builder.addDoubleProperty("Heading Degrees", () -> m_heading.getHeading().getDegrees(), null);
         builder.addDoubleProperty("Heading Radians", () -> m_heading.getHeading().getRadians(), null);
 
