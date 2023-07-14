@@ -1,6 +1,8 @@
 package org.team100.frc2023.subsystems.arm;
 
 import org.team100.lib.motors.FRCNEO;
+import org.team100.lib.subsystems.arm.ArmAngles;
+import org.team100.lib.subsystems.arm.ArmKinematics;
 
 import com.revrobotics.CANSparkMax.IdleMode;
 
@@ -42,7 +44,7 @@ public class ArmController extends SubsystemBase {
     private final AnalogEncoder upperArmEncoder = new AnalogEncoder(5);
 
     public ArmController() {
-        m_armKinematics = new ArmKinematics( kLowerArmLengthM, kUpperArmLengthM);
+        m_armKinematics = new ArmKinematics(kLowerArmLengthM, kUpperArmLengthM);
 
         lowerArmMotor = new FRCNEO.FRCNEOBuilder(43)
                 .withInverted(false)
@@ -70,7 +72,7 @@ public class ArmController extends SubsystemBase {
         lowerArmSegment = new ArmSegment(lowerArmMotor, "Lower Motor");
         upperArmSegment = new ArmSegment(upperArmMotor, "Upper Motor");
 
-        Translation2d initial = m_armKinematics.forward(getLowerArm(), getUpperArm());
+        Translation2d initial = m_armKinematics.forward(getArmAngles());
 
         xSetpoint = initial.getX();
         ySetpoint = initial.getY();
@@ -107,7 +109,7 @@ public class ArmController extends SubsystemBase {
             dy = (dy - 0.15) / 0.85;
         }
 
-        Translation2d current = m_armKinematics.forward(getLowerArm(), getUpperArm());
+        Translation2d current = m_armKinematics.forward(getArmAngles());
 
         dx *= 0.2;
         dy *= 0.2;
@@ -115,14 +117,14 @@ public class ArmController extends SubsystemBase {
         xSetpoint = current.getX() + dx;
         ySetpoint = current.getY() + dy;
 
-        ArmAngles angles = m_armKinematics.inverse(xSetpoint, ySetpoint);
+        ArmAngles angles = m_armKinematics.inverse(new Translation2d(xSetpoint, ySetpoint));
         upperAngleSetpoint = angles.th2;
         lowerAngleSetpoint = angles.th1;
         return angles;
     }
 
     public void resetSetpoint() {
-        Translation2d current = m_armKinematics.forward(getLowerArm(), getUpperArm());
+        Translation2d current = m_armKinematics.forward(getArmAngles());
         xSetpoint = current.getX();
         ySetpoint = current.getY();
     }
@@ -140,11 +142,11 @@ public class ArmController extends SubsystemBase {
     }
 
     public Translation2d getPose() {
-        return m_armKinematics.forward(getLowerArm(), getUpperArm());
+        return m_armKinematics.forward(getArmAngles());
     }
 
     public ArmAngles calculate(double x, double y) {
-        return m_armKinematics.inverse(x, y);
+        return m_armKinematics.inverse(new Translation2d(x, y));
     }
 
     /**
@@ -216,10 +218,8 @@ public class ArmController extends SubsystemBase {
     @Override
     public void initSendable(SendableBuilder builder) {
         super.initSendable(builder);
-        builder.addDoubleProperty("ARM X", () -> m_armKinematics.forward(getLowerArm(), getUpperArm()).getX(),
-                null);
-        builder.addDoubleProperty("ARM Y", () -> m_armKinematics.forward(getLowerArm(), getUpperArm()).getY(),
-                null);
+        builder.addDoubleProperty("ARM X", () -> m_armKinematics.forward(getArmAngles()).getX(), null);
+        builder.addDoubleProperty("ARM Y", () -> m_armKinematics.forward(getArmAngles()).getY(), null);
         builder.addDoubleProperty("Upper Arm Absolute Angle", () -> upperArmEncoder.getAbsolutePosition(), null);
         builder.addDoubleProperty("Lower Arm Absolute Angle", () -> lowerArmEncoder.getAbsolutePosition(), null);
         builder.addDoubleProperty("Upper Arm Absolute Radians", () -> getUpperArm(), null);
