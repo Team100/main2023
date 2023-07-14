@@ -1,5 +1,7 @@
 package org.team100.lib.subsystems;
 
+import org.team100.lib.sensors.RedundantGyro;
+
 import edu.wpi.first.math.geometry.Rotation2d;
 
 /** To make sure we calculate heading the same way everywhere. */

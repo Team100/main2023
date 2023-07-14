@@ -1,6 +1,7 @@
-package org.team100.lib.subsystems;
+package org.team100.lib.controller;
 
 import org.team100.lib.config.Identity;
+import org.team100.lib.subsystems.SpeedLimits;
 
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;

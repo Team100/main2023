@@ -1,4 +1,4 @@
-package org.team100.lib.subsystems;
+package org.team100.lib.sensors;
 
 import com.kauailabs.navx.frc.AHRS;
 
