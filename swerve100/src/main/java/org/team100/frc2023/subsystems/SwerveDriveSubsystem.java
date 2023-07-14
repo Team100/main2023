@@ -3,7 +3,6 @@ package org.team100.frc2023.subsystems;
 import java.io.FileWriter;
 import java.io.IOException;
 
-import org.team100.frc2023.RobotContainer;
 import org.team100.lib.config.Identity;
 import org.team100.lib.indicator.LEDIndicator;
 import org.team100.lib.localization.VisionDataProvider;
@@ -31,6 +30,7 @@ import edu.wpi.first.networktables.StringPublisher;
 import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
@@ -39,6 +39,7 @@ public class SwerveDriveSubsystem extends SubsystemBase {
     public static final SwerveDriveKinematics kDriveKinematics = SwerveDriveKinematicsFactory.get(Identity.get());
 
     private final RedundantGyro m_gyro;
+    private final Field2d m_field;
     private final SpeedLimits speedLimits;
     public final DriveControllers controllers;
     private final SwerveModuleCollection m_modules;
@@ -66,9 +67,11 @@ public class SwerveDriveSubsystem extends SubsystemBase {
             DriverStation.Alliance alliance,
             double currentLimit,
             RedundantGyro gyro,
+            Field2d field,
             LEDIndicator indicator)
             throws IOException {
         m_gyro = gyro;
+        m_field = field;
         m_veering = new VeeringCorrection(m_gyro);
         m_indicator = indicator;
 
@@ -118,7 +121,7 @@ public class SwerveDriveSubsystem extends SubsystemBase {
     @Override
     public void periodic() {
         updateOdometry();
-        RobotContainer.m_field.setRobotPose(m_poseEstimator.getEstimatedPosition());
+        m_field.setRobotPose(m_poseEstimator.getEstimatedPosition());
     }
 
     /**

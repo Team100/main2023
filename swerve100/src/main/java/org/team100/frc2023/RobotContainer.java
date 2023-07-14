@@ -65,7 +65,8 @@ public class RobotContainer implements Sendable {
     // SUBSYSTEMS
     private final LEDIndicator m_indicator;
     private final RedundantGyro ahrsclass;
-    public final SwerveDriveSubsystem m_robotDrive;
+    private final Field2d m_field;
+    private final SwerveDriveSubsystem m_robotDrive;
     private final Manipulator manipulator;
     private final ArmController armController;
     private final Illuminator illuminator;
@@ -73,7 +74,6 @@ public class RobotContainer implements Sendable {
     // CONTROL
     private final Control control;
 
-    public final static Field2d m_field = new Field2d();
     private final FileWriter myWriter;
     public static boolean enabled = false;
     public double m_routine = -1;
@@ -84,8 +84,11 @@ public class RobotContainer implements Sendable {
 
         m_indicator = new LEDIndicator(8);
         ahrsclass = new RedundantGyro();
+        m_field = new Field2d();
         SpeedLimits speedLimits = SpeedLimitsFactory.get(Identity.get(), SHOW_MODE);
-        m_robotDrive = new SwerveDriveSubsystem(speedLimits, m_alliance, kDriveCurrentLimit, ahrsclass, m_indicator);
+
+        m_robotDrive = new SwerveDriveSubsystem(speedLimits, m_alliance, kDriveCurrentLimit, ahrsclass, m_field,
+                m_indicator);
         manipulator = new Manipulator();
         armController = new ArmController();
         illuminator = new Illuminator(25);
