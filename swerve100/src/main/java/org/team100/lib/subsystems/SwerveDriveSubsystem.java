@@ -4,10 +4,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 
 import org.team100.lib.config.Identity;
-import org.team100.lib.indicator.LEDIndicator;
-import org.team100.lib.localization.VisionDataProvider;
 
-import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -20,7 +17,6 @@ import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StringPublisher;
 import edu.wpi.first.util.sendable.SendableBuilder;
-import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -29,16 +25,13 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 public class SwerveDriveSubsystem extends SubsystemBase {
     public static final SwerveDriveKinematics kDriveKinematics = SwerveDriveKinematicsFactory.get(Identity.get());
 
+    private final Heading m_heading;
     private final RedundantGyro m_gyro;
     private final Field2d m_field;
-    private final SpeedLimits speedLimits;
+    private final SpeedLimits m_speedLimits;
     private final SwerveModuleCollection m_modules;
     private final SwerveDrivePoseEstimator m_poseEstimator;
     private final VeeringCorrection m_veering;
-    public final LEDIndicator m_indicator;
-
-
-    public VisionDataProvider visionDataProvider;
 
     // for observers
     private final DoubleArrayPublisher robotPosePub;
@@ -50,17 +43,18 @@ public class SwerveDriveSubsystem extends SubsystemBase {
     public double keyList = -1;
 
     public SwerveDriveSubsystem(
+            Heading heading,
             SpeedLimits speedLimits,
-            DriverStation.Alliance alliance,
+            SwerveModuleCollection modules,
+            SwerveDrivePoseEstimator poseEstimator,
             double currentLimit,
             RedundantGyro gyro,
-            Field2d field,
-            LEDIndicator indicator)
+            Field2d field)
             throws IOException {
+        m_heading = heading;
         m_gyro = gyro;
         m_field = field;
         m_veering = new VeeringCorrection(m_gyro);
-        m_indicator = indicator;
 
         // Sets up Field2d pose tracking for glass.
         NetworkTableInstance inst = NetworkTableInstance.getDefault();
@@ -69,24 +63,16 @@ public class SwerveDriveSubsystem extends SubsystemBase {
         fieldTypePub = fieldTable.getStringTopic(".type").publish();
         fieldTypePub.set("Field2d");
 
-        this.speedLimits = speedLimits;
-        m_modules = SwerveModuleCollectionFactory.get(Identity.get(), currentLimit);
+        m_speedLimits = speedLimits;
+        m_modules = modules;
+        m_poseEstimator = poseEstimator;
 
-        m_poseEstimator = new SwerveDrivePoseEstimator(
-                kDriveKinematics,
-                getHeading(),
-                m_modules.positions(),
-                new Pose2d(),
-                VecBuilder.fill(0.5, 0.5, 0.5),
-                VecBuilder.fill(0.4, 0.4, 0.4)); // note tight rotation variance here, used to be MAX_VALUE
-        // VecBuilder.fill(0.01, 0.01, Integer.MAX_VALUE));
-        visionDataProvider = new VisionDataProvider(alliance, m_poseEstimator, () -> getPose());
         SmartDashboard.putData("Drive Subsystem", this);
     }
 
     public void updateOdometry() {
         m_poseEstimator.update(
-                getHeading(),
+                m_heading.getHeading(),
                 m_modules.positions());
         // {
         // if (m_pose.aprilPresent()) {
@@ -123,7 +109,7 @@ public class SwerveDriveSubsystem extends SubsystemBase {
     }
 
     public void resetPose(Pose2d robotPose) {
-        m_poseEstimator.resetPosition(getHeading(), m_modules.positions(), robotPose);
+        m_poseEstimator.resetPosition(m_heading.getHeading(), m_modules.positions(), robotPose);
     }
 
     // TODO: this looks broken
@@ -153,7 +139,7 @@ public class SwerveDriveSubsystem extends SubsystemBase {
     }
 
     public void setModuleStates(SwerveModuleState[] desiredStates) {
-        SwerveDriveKinematics.desaturateWheelSpeeds(desiredStates, speedLimits.kMaxSpeedMetersPerSecond);
+        SwerveDriveKinematics.desaturateWheelSpeeds(desiredStates, m_speedLimits.kMaxSpeedMetersPerSecond);
         getRobotVelocity(desiredStates);
         m_modules.setDesiredStates(desiredStates);
     }
@@ -189,17 +175,8 @@ public class SwerveDriveSubsystem extends SubsystemBase {
         m_modules.resetEncoders();
     }
 
-    public Rotation2d getHeading() {
-        return Rotation2d.fromDegrees(-m_gyro.getRedundantYaw());
-    }
-
     public void stop() {
         m_modules.stop();
-    }
-
-    // for tests, to keep from conflicting when the indicator is created.
-    public void close() {
-        m_indicator.close();
     }
 
     @Override
@@ -214,9 +191,6 @@ public class SwerveDriveSubsystem extends SubsystemBase {
         builder.addDoubleProperty("Actual Speed Y", () -> actualChassisSpeeds.vyMetersPerSecond, null);
         builder.addDoubleProperty("Actual Speed Theta", () -> actualChassisSpeeds.omegaRadiansPerSecond, null);
         builder.addBooleanProperty("Actually Moving", () -> isMoving(), null);
-
-        builder.addDoubleProperty("Heading Degrees", () -> getHeading().getDegrees(), null);
-        builder.addDoubleProperty("Heading Radians", () -> getHeading().getRadians(), null);
 
         builder.addDoubleProperty("Desired Speed X", () -> desiredChassisSpeeds.vxMetersPerSecond, null);
         builder.addDoubleProperty("Desired Speed Y", () -> desiredChassisSpeeds.vyMetersPerSecond, null);

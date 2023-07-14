@@ -15,7 +15,6 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation3d;
-import edu.wpi.first.wpilibj.DriverStation;
 
 public class VisionDataProviderTest {
     private static final double kDelta = 0.01;
@@ -112,7 +111,8 @@ public class VisionDataProviderTest {
     @Test
     public void testEstimateRobotPose() throws IOException {
         Supplier<Pose2d> robotPose = () -> new Pose2d(); // always at the origin
-        VisionDataProvider vdp = new VisionDataProvider(DriverStation.Alliance.Red, null, robotPose);
+        AprilTagFieldLayoutWithCorrectOrientation layout = AprilTagFieldLayoutWithCorrectOrientation.redLayout();
+        VisionDataProvider vdp = new VisionDataProvider(layout, null, robotPose);
 
         String key = "foo";
         // in red layout blip 5 is on the other side of the field
@@ -126,7 +126,7 @@ public class VisionDataProviderTest {
                         { 0 },
                         { 1 } });// one meter range (Z forward)
         // verify tag 5 location
-        Pose3d tagPose = vdp.layout.getTagPose(5).get();
+        Pose3d tagPose = layout.getTagPose(5).get();
         assertEquals(16.18, tagPose.getX(), kDelta);
         assertEquals(1.26, tagPose.getY(), kDelta);
         assertEquals(0.69, tagPose.getZ(), kDelta);
@@ -163,7 +163,8 @@ public class VisionDataProviderTest {
     public void testEstimateRobotPose2() throws IOException {
         // robot is panned right 45
         Supplier<Pose2d> robotPose = () -> new Pose2d(0, 0, new Rotation2d(-Math.PI / 4)); // just for rotation
-        VisionDataProvider vdp = new VisionDataProvider(DriverStation.Alliance.Red, null, robotPose);
+        AprilTagFieldLayoutWithCorrectOrientation layout = AprilTagFieldLayoutWithCorrectOrientation.redLayout();
+        VisionDataProvider vdp = new VisionDataProvider(layout, null, robotPose);
 
         String key = "foo";
         // in red layout blip 5 is on the other side of the field
@@ -179,7 +180,7 @@ public class VisionDataProviderTest {
                         { 0 },
                         { Math.sqrt(2) } }); // diagonal
         // verify tag 5 location
-        Pose3d tagPose = vdp.layout.getTagPose(5).get();
+        Pose3d tagPose = layout.getTagPose(5).get();
         assertEquals(16.18, tagPose.getX(), kDelta);
         assertEquals(1.26, tagPose.getY(), kDelta);
         assertEquals(0.69, tagPose.getZ(), kDelta);

@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.function.Supplier;
 
 import org.team100.frc2023.commands.SwerveControllerCommand;
+import org.team100.lib.localization.AprilTagFieldLayoutWithCorrectOrientation;
 import org.team100.lib.subsystems.DriveControllers;
 import org.team100.lib.subsystems.RedundantGyro;
 import org.team100.lib.subsystems.SwerveDriveSubsystem;
@@ -22,14 +23,16 @@ public class MoveToAprilTag extends SwerveControllerCommand {
             accelerationMetersPerSecondSquared)
             .setKinematics(SwerveDriveSubsystem.kDriveKinematics);
 
+
     public MoveToAprilTag(
             SwerveDriveSubsystem m_robotDrive,
             DriveControllers controllers,
+            AprilTagFieldLayoutWithCorrectOrientation layout,
             Supplier<Pose2d> getPose,
             int tagID,
             RedundantGyro gyro) {
         super(
-                genTrajectory(m_robotDrive, getPose, tagID),
+                genTrajectory(m_robotDrive, layout, getPose, tagID),
                 m_robotDrive::getPose,
                 SwerveDriveSubsystem.kDriveKinematics,
                 controllers.xController,
@@ -44,9 +47,10 @@ public class MoveToAprilTag extends SwerveControllerCommand {
 
     private static Trajectory genTrajectory(
             SwerveDriveSubsystem m_robotDrive,
+            AprilTagFieldLayoutWithCorrectOrientation layout,
             Supplier<Pose2d> getPose,
             int tagID) {
-        Pose2d aprilPose = m_robotDrive.visionDataProvider.layout.getTagPose(tagID).get().toPose2d();
+        Pose2d aprilPose = layout.getTagPose(tagID).get().toPose2d();
 
         Trajectory exampleTrajectory = TrajectoryGenerator.generateTrajectory(
                 getPose.get(),

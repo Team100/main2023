@@ -30,14 +30,22 @@ import org.team100.lib.commands.ResetRotation;
 import org.team100.lib.commands.Retro.LedOn;
 import org.team100.lib.config.Identity;
 import org.team100.lib.indicator.LEDIndicator;
+import org.team100.lib.localization.AprilTagFieldLayoutWithCorrectOrientation;
+import org.team100.lib.localization.VisionDataProvider;
 import org.team100.lib.retro.Illuminator;
 import org.team100.lib.subsystems.DriveControllers;
 import org.team100.lib.subsystems.DriveControllersFactory;
+import org.team100.lib.subsystems.Heading;
 import org.team100.lib.subsystems.RedundantGyro;
 import org.team100.lib.subsystems.SpeedLimits;
 import org.team100.lib.subsystems.SpeedLimitsFactory;
 import org.team100.lib.subsystems.SwerveDriveSubsystem;
+import org.team100.lib.subsystems.SwerveModuleCollection;
+import org.team100.lib.subsystems.SwerveModuleCollectionFactory;
 
+import edu.wpi.first.math.VecBuilder;
+import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.util.sendable.Sendable;
 import edu.wpi.first.util.sendable.SendableBuilder;
@@ -65,9 +73,11 @@ public class RobotContainer implements Sendable {
     private final DriverStation.Alliance m_alliance;
 
     // SUBSYSTEMS
+    private final Heading m_heading;
     private final LEDIndicator m_indicator;
     private final RedundantGyro ahrsclass;
     private final Field2d m_field;
+    private final AprilTagFieldLayoutWithCorrectOrientation layout;
     private final SwerveDriveSubsystem m_robotDrive;
     private final Manipulator manipulator;
     private final ArmController armController;
@@ -89,11 +99,38 @@ public class RobotContainer implements Sendable {
 
         m_indicator = new LEDIndicator(8);
         ahrsclass = new RedundantGyro();
+        m_heading = new Heading(ahrsclass);
         m_field = new Field2d();
         SpeedLimits speedLimits = SpeedLimitsFactory.get(Identity.get(), SHOW_MODE);
+        SwerveModuleCollection modules = SwerveModuleCollectionFactory.get(Identity.get(), kDriveCurrentLimit);
+        SwerveDrivePoseEstimator poseEstimator = new SwerveDrivePoseEstimator(
+                SwerveDriveSubsystem.kDriveKinematics,
+                m_heading.getHeading(),
+                modules.positions(),
+                new Pose2d(),
+                VecBuilder.fill(0.5, 0.5, 0.5),
+                VecBuilder.fill(0.4, 0.4, 0.4)); // note tight rotation variance here, used to be MAX_VALUE
 
-        m_robotDrive = new SwerveDriveSubsystem(speedLimits, m_alliance, kDriveCurrentLimit, ahrsclass, m_field,
-                m_indicator);
+        if (alliance == DriverStation.Alliance.Blue) {
+            layout = AprilTagFieldLayoutWithCorrectOrientation.blueLayout();
+        } else { // red
+            layout = AprilTagFieldLayoutWithCorrectOrientation.redLayout();
+        }
+
+        VisionDataProvider visionDataProvider = new VisionDataProvider(
+                layout,
+                poseEstimator,
+                poseEstimator::getEstimatedPosition);
+        visionDataProvider.updateTimestamp(); // this is just to keep lint from complaining
+
+        m_robotDrive = new SwerveDriveSubsystem(
+                m_heading,
+                speedLimits,
+                modules,
+                poseEstimator,
+                kDriveCurrentLimit,
+                ahrsclass,
+                m_field);
         manipulator = new Manipulator();
         armController = new ArmController();
         illuminator = new Illuminator(25);
@@ -269,7 +306,8 @@ public class RobotContainer implements Sendable {
     }
 
     private DriveToAprilTag toTag(int tagID, double xOffset, double yOffset) {
-        return DriveToAprilTag.newDriveToAprilTag(tagID, xOffset, yOffset, control::goalOffset, m_robotDrive,
+        return DriveToAprilTag.newDriveToAprilTag(tagID, xOffset, yOffset,
+                control::goalOffset, m_robotDrive, layout,
                 ahrsclass, () -> 0.0);
     }
 
@@ -300,6 +338,10 @@ public class RobotContainer implements Sendable {
 
         builder.addDoubleProperty("Heading Controller Goal (rad)",
                 () -> controllers.headingController.getGoal().position, null);
+
+        builder.addDoubleProperty("Heading Degrees", () -> m_heading.getHeading().getDegrees(), null);
+        builder.addDoubleProperty("Heading Radians", () -> m_heading.getHeading().getRadians(), null);
+
     }
 
 }

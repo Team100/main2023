@@ -30,9 +30,10 @@ public class DriveToAprilTag extends DriveToWaypoint2 {
             double yOffset,
             Supplier<GoalOffset> goalSupplier,
             SwerveDriveSubsystem robotDrive,
+            AprilTagFieldLayoutWithCorrectOrientation layout,
             RedundantGyro gyro,
             Supplier<Double> gamePieceOffset) {
-        Pose2d m_goal = goal(tagID, xOffset, robotDrive.visionDataProvider.layout);
+        Pose2d m_goal = goal(tagID, xOffset, layout);
         return new DriveToAprilTag(m_goal, yOffset, goalSupplier, robotDrive, gyro, gamePieceOffset);
     }
 
