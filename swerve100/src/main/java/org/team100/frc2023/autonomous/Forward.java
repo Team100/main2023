@@ -4,7 +4,7 @@ import java.util.List;
 
 import org.team100.frc2023.commands.SwerveControllerCommand;
 import org.team100.frc2023.subsystems.SwerveDriveSubsystem;
-import org.team100.lib.subsystems.AHRSClass;
+import org.team100.lib.subsystems.RedundantGyro;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -14,7 +14,7 @@ import edu.wpi.first.math.trajectory.TrajectoryGenerator;
 
 // TODO: do we need this?
 public class Forward extends SwerveControllerCommand {
-    public Forward(SwerveDriveSubsystem m_robotDrive, double x, AHRSClass gyro) {
+    public Forward(SwerveDriveSubsystem m_robotDrive, double x, RedundantGyro gyro) {
         super(
                 genTrajectory(m_robotDrive, x),
                 m_robotDrive::getPose,

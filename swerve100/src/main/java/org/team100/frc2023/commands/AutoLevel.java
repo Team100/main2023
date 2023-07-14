@@ -1,7 +1,7 @@
 package org.team100.frc2023.commands;
 
 import org.team100.frc2023.subsystems.SwerveDriveSubsystem;
-import org.team100.lib.subsystems.AHRSClass;
+import org.team100.lib.subsystems.RedundantGyro;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Twist2d;
@@ -17,11 +17,11 @@ public class AutoLevel extends CommandBase {
     private static final double kSpeedPerDegree = 0.005;
     private final boolean m_reversed;
     private final SwerveDriveSubsystem m_robotDrive;
-    private final AHRSClass m_gyro;
+    private final RedundantGyro m_gyro;
     private int count;
 
     // TODO: what is "reversed" for?
-    public AutoLevel(boolean reversed, SwerveDriveSubsystem robotDrive, AHRSClass gyro) {
+    public AutoLevel(boolean reversed, SwerveDriveSubsystem robotDrive, RedundantGyro gyro) {
         m_reversed = reversed;
         m_robotDrive = robotDrive;
         m_gyro = gyro;

@@ -4,7 +4,7 @@ import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 import org.team100.frc2023.autonomous.HolonomicDriveController2;
-import org.team100.lib.subsystems.AHRSClass;
+import org.team100.lib.subsystems.RedundantGyro;
 
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
@@ -26,7 +26,7 @@ public class SwerveControllerCommand extends CommandBase {
     private final HolonomicDriveController2 m_controller;
     private final Consumer<SwerveModuleState[]> m_outputModuleStates;
     private final Supplier<Rotation2d> m_desiredRotation;
-    private final AHRSClass m_gyro;
+    private final RedundantGyro m_gyro;
 
     public SwerveControllerCommand(
             Trajectory trajectory,
@@ -37,7 +37,7 @@ public class SwerveControllerCommand extends CommandBase {
             ProfiledPIDController thetaController,
             Supplier<Rotation2d> rotationSupplier,
             Consumer<SwerveModuleState[]> outputModuleStates,
-            AHRSClass gyro,
+            RedundantGyro gyro,
             Subsystem... requirements) {
         m_trajectory = trajectory;
         m_pose = pose;

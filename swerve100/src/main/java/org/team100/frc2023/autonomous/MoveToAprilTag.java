@@ -5,7 +5,7 @@ import java.util.function.Supplier;
 
 import org.team100.frc2023.commands.SwerveControllerCommand;
 import org.team100.frc2023.subsystems.SwerveDriveSubsystem;
-import org.team100.lib.subsystems.AHRSClass;
+import org.team100.lib.subsystems.RedundantGyro;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -25,7 +25,7 @@ public class MoveToAprilTag extends SwerveControllerCommand {
             SwerveDriveSubsystem m_robotDrive,
             Supplier<Pose2d> getPose,
             int tagID,
-            AHRSClass gyro) {
+            RedundantGyro gyro) {
         super(
                 genTrajectory(m_robotDrive, getPose, tagID),
                 m_robotDrive::getPose,

@@ -7,7 +7,7 @@ import org.team100.frc2023.RobotContainer;
 import org.team100.lib.config.Identity;
 import org.team100.lib.indicator.LEDIndicator;
 import org.team100.lib.localization.VisionDataProvider;
-import org.team100.lib.subsystems.AHRSClass;
+import org.team100.lib.subsystems.RedundantGyro;
 import org.team100.lib.subsystems.DriveControllers;
 import org.team100.lib.subsystems.DriveControllersFactory;
 import org.team100.lib.subsystems.SpeedLimits;
@@ -39,7 +39,7 @@ public class SwerveDriveSubsystem extends SubsystemBase {
 
     public static final SwerveDriveKinematics kDriveKinematics = SwerveDriveKinematicsFactory.get(Identity.get());
 
-    private final AHRSClass m_gyro;
+    private final RedundantGyro m_gyro;
     private final SpeedLimits speedLimits;
     public final DriveControllers controllers;
     private final SwerveModuleCollection m_modules;
@@ -65,7 +65,7 @@ public class SwerveDriveSubsystem extends SubsystemBase {
             SpeedLimits speedLimits,
             DriverStation.Alliance alliance,
             double currentLimit,
-            AHRSClass gyro,
+            RedundantGyro gyro,
             LEDIndicator indicator)
             throws IOException {
         m_gyro = gyro;

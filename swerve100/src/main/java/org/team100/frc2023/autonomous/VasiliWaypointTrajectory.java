@@ -6,7 +6,7 @@ import java.util.function.Supplier;
 
 import org.team100.frc2023.commands.SwerveControllerCommand;
 import org.team100.frc2023.subsystems.SwerveDriveSubsystem;
-import org.team100.lib.subsystems.AHRSClass;
+import org.team100.lib.subsystems.RedundantGyro;
 
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.trajectory.Trajectory;
@@ -22,7 +22,7 @@ public class VasiliWaypointTrajectory extends SwerveControllerCommand {
     public VasiliWaypointTrajectory(
             SwerveDriveSubsystem m_robotDrive,
             Supplier<Rotation2d> desiredRotation,
-            AHRSClass gyro,
+            RedundantGyro gyro,
             String path) {
         super(
                 genTrajectory(path),

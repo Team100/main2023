@@ -3,7 +3,7 @@ package org.team100.frc2023.commands;
 import java.util.function.Supplier;
 
 import org.team100.frc2023.subsystems.SwerveDriveSubsystem;
-import org.team100.lib.subsystems.AHRSClass;
+import org.team100.lib.subsystems.RedundantGyro;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.ProfiledPIDController;
@@ -19,7 +19,7 @@ public class DriveWithHeading extends CommandBase {
     private final SwerveDriveSubsystem m_robotDrive;
     private final double maxSpeedM_S;
     private final double maxRotSpeedRad_S;
-    private final AHRSClass m_gyro;
+    private final RedundantGyro m_gyro;
     private final ProfiledPIDController m_headingController;
     private final Supplier<Rotation2d> m_desiredRotation;
 
@@ -38,7 +38,7 @@ public class DriveWithHeading extends CommandBase {
             double maxSpeedM_S,
             double maxRotSpeedRad_S,
             Supplier<Rotation2d> desiredRotation,
-            AHRSClass gyro) {
+            RedundantGyro gyro) {
         this.twistSupplier = twistSupplier;
         m_robotDrive = robotDrive;
         this.maxSpeedM_S = maxSpeedM_S;
