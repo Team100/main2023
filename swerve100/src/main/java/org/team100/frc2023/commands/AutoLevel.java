@@ -1,7 +1,7 @@
 package org.team100.frc2023.commands;
 
-import org.team100.frc2023.subsystems.AHRSClass;
 import org.team100.frc2023.subsystems.SwerveDriveSubsystem;
+import org.team100.lib.subsystems.AHRSClass;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Twist2d;

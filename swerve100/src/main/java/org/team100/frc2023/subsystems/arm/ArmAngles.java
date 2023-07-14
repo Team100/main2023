@@ -1,17 +1,23 @@
 package org.team100.frc2023.subsystems.arm;
 
 public class ArmAngles {
-    public final double lowerTheta;
+    /** pi is up, pi/2 is forward */
     public final double upperTheta;
+    /** 0 is up, positive is forward */
+    public final double lowerTheta;
 
+    /**
+     * @param upperTheta radians
+     * @param lowerTheta radians
+     */
     public ArmAngles(double upperTheta, double lowerTheta) {
-        this.lowerTheta = lowerTheta;
         this.upperTheta = upperTheta;
+        this.lowerTheta = lowerTheta;
     }
 
     public ArmAngles() {
-        this.lowerTheta = 100;
         this.upperTheta = 100;
+        this.lowerTheta = 100;
     }
 
 }

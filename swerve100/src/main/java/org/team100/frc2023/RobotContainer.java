@@ -22,7 +22,6 @@ import org.team100.frc2023.commands.Manipulator.Home;
 import org.team100.frc2023.commands.Retro.DriveToRetroReflectiveTape;
 import org.team100.frc2023.control.Control;
 import org.team100.frc2023.control.JoystickControl;
-import org.team100.frc2023.subsystems.AHRSClass;
 import org.team100.frc2023.subsystems.Manipulator;
 import org.team100.frc2023.subsystems.SwerveDriveSubsystem;
 import org.team100.frc2023.subsystems.arm.ArmController;
@@ -33,6 +32,7 @@ import org.team100.lib.commands.Retro.LedOn;
 import org.team100.lib.config.Identity;
 import org.team100.lib.indicator.LEDIndicator;
 import org.team100.lib.retro.Illuminator;
+import org.team100.lib.subsystems.AHRSClass;
 import org.team100.lib.subsystems.SpeedLimits;
 import org.team100.lib.subsystems.SpeedLimitsFactory;
 

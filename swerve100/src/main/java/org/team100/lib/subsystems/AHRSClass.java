@@ -1,4 +1,4 @@
-package org.team100.frc2023.subsystems;
+package org.team100.lib.subsystems;
 
 import com.kauailabs.navx.frc.AHRS;
 
@@ -9,6 +9,7 @@ import edu.wpi.first.wpilibj.SerialPort;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
+// TODO: figure out why we disabled this mechanism during the 2023 season
 public class AHRSClass implements Sendable {
     private final AHRS m_gyro1;
     private final AHRS m_gyro2;
@@ -127,6 +128,7 @@ public class AHRSClass implements Sendable {
         return (redundRoll) / tmpInputs;
     }
 
+    // TODO: what are the units?
     public float getRedundantGyroRate() {
         if (!m_gyro1.isConnected()) {
             gyro1Connected = false;

@@ -4,7 +4,7 @@ import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 import org.team100.frc2023.autonomous.HolonomicDriveController2;
-import org.team100.frc2023.subsystems.AHRSClass;
+import org.team100.lib.subsystems.AHRSClass;
 
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;

@@ -1,8 +1,8 @@
 package org.team100.frc2023.control;
 
-import static org.team100.frc2023.control.ControlUtil.clamp;
-import static org.team100.frc2023.control.ControlUtil.deadband;
-import static org.team100.frc2023.control.ControlUtil.expo;
+import static org.team100.lib.control.ControlUtil.clamp;
+import static org.team100.lib.control.ControlUtil.deadband;
+import static org.team100.lib.control.ControlUtil.expo;
 
 import org.team100.frc2023.autonomous.DriveToWaypoint2;
 import org.team100.frc2023.autonomous.MoveConeWidth;

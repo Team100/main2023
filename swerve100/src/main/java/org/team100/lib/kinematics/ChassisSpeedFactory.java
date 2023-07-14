@@ -1,4 +1,4 @@
-package org.team100.frc2023.kinematics;
+package org.team100.lib.kinematics;
 
 import java.util.function.DoubleSupplier;
 
@@ -32,7 +32,7 @@ public class ChassisSpeedFactory {
         this(() -> 0.0, 0.0);
     }
 
-    Rotation2d correctAngle(Rotation2d robotAngle) {
+    public Rotation2d correctAngle(Rotation2d robotAngle) {
         return robotAngle.plus(new Rotation2d(gyroRateRadS.getAsDouble() * delaySec));
     }
 

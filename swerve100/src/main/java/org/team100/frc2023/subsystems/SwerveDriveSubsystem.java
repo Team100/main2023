@@ -7,6 +7,7 @@ import org.team100.frc2023.RobotContainer;
 import org.team100.lib.config.Identity;
 import org.team100.lib.indicator.LEDIndicator;
 import org.team100.lib.localization.VisionDataProvider;
+import org.team100.lib.subsystems.AHRSClass;
 import org.team100.lib.subsystems.DriveControllers;
 import org.team100.lib.subsystems.DriveControllersFactory;
 import org.team100.lib.subsystems.SpeedLimits;
@@ -155,6 +156,7 @@ public class SwerveDriveSubsystem extends SubsystemBase {
      * @param twist meters and radians per second
      */
     public void driveMetersPerSec(Twist2d twist, boolean fieldRelative) {
+        // TODO: replace this logic with the ChassisSpeedFactory logic
         double gyroRate = m_gyro.getRedundantGyroRate() * kVeeringCorrection;
         Rotation2d rotation2 = getPose().getRotation().minus(new Rotation2d(gyroRate));
         desiredChassisSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(twist.dx, twist.dy, twist.dtheta, rotation2);

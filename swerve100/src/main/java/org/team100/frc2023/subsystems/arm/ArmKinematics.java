@@ -2,76 +2,46 @@ package org.team100.frc2023.subsystems.arm;
 
 import edu.wpi.first.math.geometry.Translation2d;
 
-class ArmKinematics {
-    private static final double kUpperArmLength = 0.92;
-    private static final double kLowerArmLength = 0.93;
+/**
+ * Coordinates are as follows:
+ * * x up
+ * * y forward
+ * * joint angles absolute, relative to x
+ */
+public class ArmKinematics {
+    private static final double kUpperArmLengthM = 0.92;
+    private static final double kLowerArmLengthM = 0.93;
 
     /**
-     * Calculates the position of the arm based on the angles of the segments
+     * Calculates the position of the arm based on absolute joint angles.
      * 
-     * @param lowerArmAngle
-     * @param upperArmAngle
-     * @return Translation2d object containing the position of the arm
+     * @param lowerArmAngle radians
+     * @param upperArmAngle radians
+     * @return end position in meters
      */
-    public static Translation2d getArmPosition(double lowerArmAngle, double upperArmAngle) {
-        // upperArmAngle += lowerArmAngle;
-        double upperArmX = kUpperArmLength * Math.cos(upperArmAngle);
-        double upperArmY = kUpperArmLength * Math.sin(upperArmAngle);
+    public static Translation2d forward(double lowerArmAngle, double upperArmAngle) {
+        double upperArmX = kUpperArmLengthM * Math.cos(upperArmAngle);
+        double upperArmY = kUpperArmLengthM * Math.sin(upperArmAngle);
 
-        double lowerArmX = kLowerArmLength * Math.cos(lowerArmAngle);
-        double lowerArmY = kLowerArmLength * Math.sin(lowerArmAngle);
+        double lowerArmX = kLowerArmLengthM * Math.cos(lowerArmAngle);
+        double lowerArmY = kLowerArmLengthM * Math.sin(lowerArmAngle);
 
         return new Translation2d(upperArmX + lowerArmX, upperArmY + lowerArmY);
     }
 
     /**
-     * Calculates the angles the arm should be at to reach the setpoint.
-     * Accounts for the fact that our segment angles are independent.
+     * Calculate absolute joint angles given cartesian coords of the end.
      * 
-     * @param x
-     * @param y
-     * @return array containing the angles [lowerArmAngle, upperArmAngle]
+     * @param x meters
+     * @param y meters
+     * @return absolute joint angles
      */
-    static double[] algorithm2RIK(double x, double y) {
-        double[] angles = new double[2];
-
-        double c2 = (x * x + y * y - kUpperArmLength * kUpperArmLength - kLowerArmLength * kLowerArmLength)
-                / (2 * kUpperArmLength * kLowerArmLength);
-        double s2 = Math.sqrt(1 - c2 * c2);
-        angles[1] = Math.atan2(s2, c2);
-
-        double k1 = kUpperArmLength + kLowerArmLength * c2;
-        double k2 = kLowerArmLength * s2;
-        angles[0] = Math.atan2(y, x) - Math.atan2(k2, k1);
-
-        return angles;
+    public static ArmAngles inverse(double x, double y) {
+        double r = Math.sqrt(x * x + y * y);
+        double l = kLowerArmLengthM;
+        double u = kUpperArmLengthM;
+        double thetaLower = Math.atan2(y, x) - Math.acos((r * r + l * l - u * u) / (2 * r * l));
+        double thetaUpper = Math.PI + thetaLower - Math.acos((l * l + u * u - r * r) / (2 * l * u));
+        return new ArmAngles(thetaUpper, thetaLower);
     }
-
-    static double[] algorithm2RIKS(double x, double y) {
-        // https://www.youtube.com/watch?v=RH3iAmMsolo&t=7s
-
-        double[] angles = new double[2];
-        double xSquared = Math.pow(x, 2);
-        double ySquared = Math.pow(y, 2);
-
-        if (Math.sqrt(ySquared + xSquared) + 0.05 >= kLowerArmLength + kUpperArmLength) {
-            return null;
-        }
-
-        double upperLengthSquare = Math.pow(kUpperArmLength, 2);
-        double lowerLengthSquare = Math.pow(kLowerArmLength, 2);
-        double lengthSquared = upperLengthSquare + lowerLengthSquare;
-        double q2 = Math.PI
-                - Math.acos((lengthSquared - xSquared - ySquared) / (2 * kUpperArmLength * kLowerArmLength));
-        // maybe x/y try if it dosent work
-        double q1 = Math.atan(y / x)
-                - Math.atan((kUpperArmLength * Math.sin(q2)) / (kLowerArmLength + kUpperArmLength * Math.cos(q2)));
-
-        angles[0] = q1 + q2; // upper theta
-        angles[1] = q1; // lower theta
-
-        return angles;
-
-    }
-
 }
