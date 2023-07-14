@@ -1,6 +1,6 @@
 package org.team100.frc2023.autonomous;
 
-import org.team100.lib.subsystems.AHRSClass;
+import org.team100.lib.subsystems.RedundantGyro;
 
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
@@ -16,7 +16,7 @@ public class HolonomicDriveController2 {
     private Pose2d m_poseError = new Pose2d();
     private Rotation2d m_rotationError = new Rotation2d();
     private Pose2d m_poseTolerance = new Pose2d();
-    private final AHRSClass m_gyro;
+    private final RedundantGyro m_gyro;
 
     private final PIDController m_xController;
     private final PIDController m_yController;
@@ -34,7 +34,7 @@ public class HolonomicDriveController2 {
             PIDController xController,
             PIDController yController,
             ProfiledPIDController thetaController,
-            AHRSClass gyro) {
+            RedundantGyro gyro) {
         m_gyro = gyro;
         m_xController = xController;
         m_yController = yController;

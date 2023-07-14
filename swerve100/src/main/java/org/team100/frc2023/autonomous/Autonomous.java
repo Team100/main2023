@@ -12,7 +12,7 @@ import org.team100.frc2023.subsystems.arm.ArmPosition;
 import org.team100.lib.autonomous.DriveStop;
 import org.team100.lib.commands.ResetRotation;
 import org.team100.lib.indicator.LEDIndicator;
-import org.team100.lib.subsystems.AHRSClass;
+import org.team100.lib.subsystems.RedundantGyro;
 
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -29,7 +29,7 @@ public class Autonomous extends SequentialCommandGroup {
     private final SwerveDriveSubsystem m_robotDrive;
     private final ArmController m_arm;
     private final Manipulator m_manipulator;
-    private final AHRSClass m_gyro;
+    private final RedundantGyro m_gyro;
     private final LEDIndicator m_indicator;
 
     // TODO: make routine an enum
@@ -37,7 +37,7 @@ public class Autonomous extends SequentialCommandGroup {
             SwerveDriveSubsystem robotDrive,
             ArmController arm,
             Manipulator manipulator,
-            AHRSClass gyro,
+            RedundantGyro gyro,
             LEDIndicator indicator,
             int routine) {
         m_robotDrive = robotDrive;

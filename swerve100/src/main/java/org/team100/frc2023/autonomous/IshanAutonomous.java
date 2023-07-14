@@ -4,7 +4,7 @@ import java.util.List;
 
 import org.team100.frc2023.commands.SwerveControllerCommand;
 import org.team100.frc2023.subsystems.SwerveDriveSubsystem;
-import org.team100.lib.subsystems.AHRSClass;
+import org.team100.lib.subsystems.RedundantGyro;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -22,7 +22,7 @@ public class IshanAutonomous extends SwerveControllerCommand {
             accelerationMetersPerSecondSquared)
             .setKinematics(SwerveDriveSubsystem.kDriveKinematics);
 
-    public IshanAutonomous(SwerveDriveSubsystem m_robotDrive, AHRSClass gyro) {
+    public IshanAutonomous(SwerveDriveSubsystem m_robotDrive, RedundantGyro gyro) {
         super(genTrajectory(m_robotDrive),
                 m_robotDrive::getPose,
                 SwerveDriveSubsystem.kDriveKinematics,

@@ -10,7 +10,7 @@ import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 // TODO: figure out why we disabled this mechanism during the 2023 season
-public class AHRSClass implements Sendable {
+public class RedundantGyro implements Sendable {
     private final AHRS m_gyro1;
     private final AHRS m_gyro2;
     private final Timer m_timer;
@@ -22,7 +22,7 @@ public class AHRSClass implements Sendable {
     private float gyroZOffset_USB;
     private boolean timeGap = false;
 
-    public AHRSClass() {
+    public RedundantGyro() {
         m_timer = new Timer();
         m_timer.start();
 

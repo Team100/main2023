@@ -9,7 +9,7 @@ import org.team100.frc2023.subsystems.SwerveDriveSubsystem;
 import org.team100.frc2023.subsystems.arm.ArmController;
 import org.team100.frc2023.subsystems.arm.ArmPosition;
 import org.team100.lib.indicator.LEDIndicator;
-import org.team100.lib.subsystems.AHRSClass;
+import org.team100.lib.subsystems.RedundantGyro;
 
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.spline.Spline;
@@ -23,7 +23,7 @@ public class VasiliAutonomous extends SequentialCommandGroup {
 
     public VasiliAutonomous(
             SwerveDriveSubsystem m_robotDrive,
-            AHRSClass m_gyro,
+            RedundantGyro m_gyro,
             ArmController m_arm,
             Manipulator m_manipulator,
             LEDIndicator indicator) {

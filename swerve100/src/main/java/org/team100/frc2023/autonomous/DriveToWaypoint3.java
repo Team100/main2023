@@ -4,7 +4,7 @@ import java.util.List;
 
 import org.team100.frc2023.commands.GoalOffset;
 import org.team100.frc2023.subsystems.SwerveDriveSubsystem;
-import org.team100.lib.subsystems.AHRSClass;
+import org.team100.lib.subsystems.RedundantGyro;
 
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
@@ -27,7 +27,7 @@ import edu.wpi.first.wpilibj2.command.CommandBase;
 
 public class DriveToWaypoint3 extends CommandBase {
     private static final TrapezoidProfile.Constraints rotationConstraints = new TrapezoidProfile.Constraints(8, 12);
-    private final AHRSClass m_gyro;
+    private final RedundantGyro m_gyro;
     private final Pose2d m_goal;
     private final SwerveDriveSubsystem m_swerve;
     private final Timer m_timer;
@@ -50,7 +50,7 @@ public class DriveToWaypoint3 extends CommandBase {
     private Trajectory m_trajectory;
     private boolean isFinished = false;
 
-    public DriveToWaypoint3(Pose2d goal, SwerveDriveSubsystem drivetrain, AHRSClass gyro) {
+    public DriveToWaypoint3(Pose2d goal, SwerveDriveSubsystem drivetrain, RedundantGyro gyro) {
         m_goal = goal;
         m_swerve = drivetrain;
         m_gyro = gyro;

@@ -32,7 +32,7 @@ import org.team100.lib.commands.Retro.LedOn;
 import org.team100.lib.config.Identity;
 import org.team100.lib.indicator.LEDIndicator;
 import org.team100.lib.retro.Illuminator;
-import org.team100.lib.subsystems.AHRSClass;
+import org.team100.lib.subsystems.RedundantGyro;
 import org.team100.lib.subsystems.SpeedLimits;
 import org.team100.lib.subsystems.SpeedLimitsFactory;
 
@@ -64,7 +64,7 @@ public class RobotContainer implements Sendable {
 
     // SUBSYSTEMS
     private final LEDIndicator m_indicator;
-    private final AHRSClass ahrsclass;
+    private final RedundantGyro ahrsclass;
     public final SwerveDriveSubsystem m_robotDrive;
     private final Manipulator manipulator;
     private final ArmController armController;
@@ -83,7 +83,7 @@ public class RobotContainer implements Sendable {
         m_alliance = alliance;
 
         m_indicator = new LEDIndicator(8);
-        ahrsclass = new AHRSClass();
+        ahrsclass = new RedundantGyro();
         SpeedLimits speedLimits = SpeedLimitsFactory.get(Identity.get(), SHOW_MODE);
         m_robotDrive = new SwerveDriveSubsystem(speedLimits, m_alliance, kDriveCurrentLimit, ahrsclass, m_indicator);
         manipulator = new Manipulator();

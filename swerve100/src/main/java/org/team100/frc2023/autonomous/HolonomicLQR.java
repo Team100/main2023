@@ -6,7 +6,7 @@ package org.team100.frc2023.autonomous;
 
 import org.team100.frc2023.LQRManager;
 import org.team100.frc2023.subsystems.SwerveDriveSubsystem;
-import org.team100.lib.subsystems.AHRSClass;
+import org.team100.lib.subsystems.RedundantGyro;
 
 import com.acmerobotics.roadrunner.profile.MotionProfile;
 import com.acmerobotics.roadrunner.profile.MotionProfileGenerator;
@@ -39,7 +39,7 @@ public class HolonomicLQR {
   private Rotation2d m_rotationError = new Rotation2d();
   private Pose2d m_poseTolerance = new Pose2d();
   private boolean m_enabled = true;
-  private final AHRSClass m_gyro;
+  private final RedundantGyro m_gyro;
 
   private final LQRManager m_xManager;
   private final LQRManager m_yManager;
@@ -73,7 +73,7 @@ public class HolonomicLQR {
   DoublePublisher yVolt = inst.getTable("Holonomic LQR").getDoubleTopic("Y Volt").publish();
 
   public HolonomicLQR(
-      SwerveDriveSubsystem robotDrive, LQRManager xManager, LQRManager yManager, ProfiledPIDController thetaController, AHRSClass gyro) {
+      SwerveDriveSubsystem robotDrive, LQRManager xManager, LQRManager yManager, ProfiledPIDController thetaController, RedundantGyro gyro) {
     m_gyro = gyro;
     m_xManager = xManager;
     m_yManager = yManager;
