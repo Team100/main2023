@@ -67,7 +67,7 @@ public class ArmController extends SubsystemBase {
         lowerArmSegment = new ArmSegment(lowerArmMotor, "Lower Motor");
         upperArmSegment = new ArmSegment(upperArmMotor, "Upper Motor");
 
-        Translation2d initial = ArmKinematics.getArmPosition(getLowerArm(), getUpperArm());
+        Translation2d initial = ArmKinematics.forward(getLowerArm(), getUpperArm());
 
         xSetpoint = initial.getX();
         ySetpoint = initial.getY();
@@ -104,32 +104,22 @@ public class ArmController extends SubsystemBase {
             dy = (dy - 0.15) / 0.85;
         }
 
-        Translation2d current = ArmKinematics.getArmPosition(getLowerArm(), getUpperArm());
+        Translation2d current = ArmKinematics.forward(getLowerArm(), getUpperArm());
 
         dx *= 0.2;
         dy *= 0.2;
 
-        double x = current.getX() + dx;
-        double y = current.getY() + dy;
+        xSetpoint = current.getX() + dx;
+        ySetpoint = current.getY() + dy;
 
-        double[] coords = { x, y };
-
-        double[] angles = ArmKinematics.algorithm2RIKS(coords[0], coords[1]);
-
-        if (angles == null) {
-            return new ArmAngles();
-        }
-
-        upperAngleSetpoint = angles[0];
-        lowerAngleSetpoint = angles[1];
-
-        xSetpoint = coords[0];
-        ySetpoint = coords[1];
-        return new ArmAngles(angles[0], angles[1]); // upper theta, lower theta
+        ArmAngles angles = ArmKinematics.inverse(xSetpoint, ySetpoint);
+        upperAngleSetpoint = angles.upperTheta;
+        lowerAngleSetpoint = angles.lowerTheta;
+        return angles;
     }
 
     public void resetSetpoint() {
-        Translation2d current = ArmKinematics.getArmPosition(getLowerArm(), getUpperArm());
+        Translation2d current = ArmKinematics.forward(getLowerArm(), getUpperArm());
         xSetpoint = current.getX();
         ySetpoint = current.getY();
     }
@@ -147,12 +137,11 @@ public class ArmController extends SubsystemBase {
     }
 
     public Translation2d getPose() {
-        return ArmKinematics.getArmPosition(getLowerArm(), getUpperArm());
+        return ArmKinematics.forward(getLowerArm(), getUpperArm());
     }
 
     public ArmAngles calculate(double x, double y) {
-        double[] angles = ArmKinematics.algorithm2RIKS(x, y);
-        return new ArmAngles(angles[0], angles[1]); // upper theta, lower theta
+       return ArmKinematics.inverse(x, y);
     }
 
     /**
@@ -164,9 +153,7 @@ public class ArmController extends SubsystemBase {
      */
     public double getLowerArm() {
         double x = (lowerArmEncoder.getAbsolutePosition() - 0.861614) * 360;
-        double formatted = x;
-        // * Math.PI / 180;
-        return (-1.0 * formatted) * Math.PI / 180;
+        return (-1.0 * x) * Math.PI / 180;
     }
 
     /**
@@ -176,11 +163,8 @@ public class ArmController extends SubsystemBase {
      * @return upper arm angle
      */
     public double getUpperArm() {
-        // double x = (upperArmEncoder.getAbsolutePosition() - 0.53) * 350 + 3;
-        double x = (upperArmEncoder.getAbsolutePosition() - 0.266396) * 350;
-        double formatted = x;
-
-        return formatted * Math.PI / 180;
+        double x = (upperArmEncoder.getAbsolutePosition() - 0.266396) * 360;
+        return x * Math.PI / 180;
     }
 
     public ArmAngles getArmAngles() {
@@ -229,9 +213,9 @@ public class ArmController extends SubsystemBase {
     @Override
     public void initSendable(SendableBuilder builder) {
         super.initSendable(builder);
-        builder.addDoubleProperty("ARM X", () -> ArmKinematics.getArmPosition(getLowerArm(), getUpperArm()).getX(),
+        builder.addDoubleProperty("ARM X", () -> ArmKinematics.forward(getLowerArm(), getUpperArm()).getX(),
                 null);
-        builder.addDoubleProperty("ARM Y", () -> ArmKinematics.getArmPosition(getLowerArm(), getUpperArm()).getY(),
+        builder.addDoubleProperty("ARM Y", () -> ArmKinematics.forward(getLowerArm(), getUpperArm()).getY(),
                 null);
         builder.addDoubleProperty("Upper Arm Absolute Angle", () -> upperArmEncoder.getAbsolutePosition(), null);
         builder.addDoubleProperty("Lower Arm Absolute Angle", () -> lowerArmEncoder.getAbsolutePosition(), null);
