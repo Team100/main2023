@@ -1,23 +1,20 @@
 package org.team100.frc2023.subsystems.arm;
 
+/**
+ * Represents a 2DOF serial arm.
+ */
 public class ArmAngles {
-    /** pi is up, pi/2 is forward */
-    public final double upperTheta;
-    /** 0 is up, positive is forward */
-    public final double lowerTheta;
+    public final double th1;
+    public final double th2;
 
     /**
-     * @param upperTheta radians
-     * @param lowerTheta radians
+     * Theta counting out from the grounded joint.
+     * 
+     * @param th1 shoulder radians
+     * @param th2 elbow radians
      */
-    public ArmAngles(double upperTheta, double lowerTheta) {
-        this.upperTheta = upperTheta;
-        this.lowerTheta = lowerTheta;
+    public ArmAngles(double th1, double th2) {
+        this.th1 = th1;
+        this.th2 = th2;
     }
-
-    public ArmAngles() {
-        this.upperTheta = 100;
-        this.lowerTheta = 100;
-    }
-
 }

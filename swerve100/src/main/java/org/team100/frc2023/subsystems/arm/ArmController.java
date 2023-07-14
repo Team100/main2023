@@ -14,9 +14,14 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 public class ArmController extends SubsystemBase {
     public static final double coneSubVal = 1.308745;
     public static final double softStop = -0.594938;
+    private final double kUpperArmLengthM = 0.92;
+    private final double kLowerArmLengthM = 0.93;
 
     // private static final double kArmMaxXCoordinate = 1.4;
     // private static final double kArmMaxYCoordinate = 1.4;
+
+    /** Coordinates are x up, y forward. */
+    private final ArmKinematics m_armKinematics;
 
     private double xSetpoint = 1;
     private double ySetpoint = 1;
@@ -37,10 +42,8 @@ public class ArmController extends SubsystemBase {
     private final AnalogEncoder upperArmEncoder = new AnalogEncoder(5);
 
     public ArmController() {
-        // TrapezoidProfile.Const raints constraints = new TrapezoidProfile.Constraints(
-        // 0.3, // velocity rad/s
-        // 3.0 // accel rad/s^2
-        // );
+        m_armKinematics = new ArmKinematics( kLowerArmLengthM, kUpperArmLengthM);
+
         lowerArmMotor = new FRCNEO.FRCNEOBuilder(43)
                 .withInverted(false)
                 .withSensorPhase(false)
@@ -67,7 +70,7 @@ public class ArmController extends SubsystemBase {
         lowerArmSegment = new ArmSegment(lowerArmMotor, "Lower Motor");
         upperArmSegment = new ArmSegment(upperArmMotor, "Upper Motor");
 
-        Translation2d initial = ArmKinematics.forward(getLowerArm(), getUpperArm());
+        Translation2d initial = m_armKinematics.forward(getLowerArm(), getUpperArm());
 
         xSetpoint = initial.getX();
         ySetpoint = initial.getY();
@@ -104,7 +107,7 @@ public class ArmController extends SubsystemBase {
             dy = (dy - 0.15) / 0.85;
         }
 
-        Translation2d current = ArmKinematics.forward(getLowerArm(), getUpperArm());
+        Translation2d current = m_armKinematics.forward(getLowerArm(), getUpperArm());
 
         dx *= 0.2;
         dy *= 0.2;
@@ -112,14 +115,14 @@ public class ArmController extends SubsystemBase {
         xSetpoint = current.getX() + dx;
         ySetpoint = current.getY() + dy;
 
-        ArmAngles angles = ArmKinematics.inverse(xSetpoint, ySetpoint);
-        upperAngleSetpoint = angles.upperTheta;
-        lowerAngleSetpoint = angles.lowerTheta;
+        ArmAngles angles = m_armKinematics.inverse(xSetpoint, ySetpoint);
+        upperAngleSetpoint = angles.th2;
+        lowerAngleSetpoint = angles.th1;
         return angles;
     }
 
     public void resetSetpoint() {
-        Translation2d current = ArmKinematics.forward(getLowerArm(), getUpperArm());
+        Translation2d current = m_armKinematics.forward(getLowerArm(), getUpperArm());
         xSetpoint = current.getX();
         ySetpoint = current.getY();
     }
@@ -137,11 +140,11 @@ public class ArmController extends SubsystemBase {
     }
 
     public Translation2d getPose() {
-        return ArmKinematics.forward(getLowerArm(), getUpperArm());
+        return m_armKinematics.forward(getLowerArm(), getUpperArm());
     }
 
     public ArmAngles calculate(double x, double y) {
-       return ArmKinematics.inverse(x, y);
+        return m_armKinematics.inverse(x, y);
     }
 
     /**
@@ -168,7 +171,7 @@ public class ArmController extends SubsystemBase {
     }
 
     public ArmAngles getArmAngles() {
-        return new ArmAngles(getUpperArm(), getLowerArm());
+        return new ArmAngles(getLowerArm(), getUpperArm());
     }
 
     public double getLowerArmDegrees() {
@@ -213,9 +216,9 @@ public class ArmController extends SubsystemBase {
     @Override
     public void initSendable(SendableBuilder builder) {
         super.initSendable(builder);
-        builder.addDoubleProperty("ARM X", () -> ArmKinematics.forward(getLowerArm(), getUpperArm()).getX(),
+        builder.addDoubleProperty("ARM X", () -> m_armKinematics.forward(getLowerArm(), getUpperArm()).getX(),
                 null);
-        builder.addDoubleProperty("ARM Y", () -> ArmKinematics.forward(getLowerArm(), getUpperArm()).getY(),
+        builder.addDoubleProperty("ARM Y", () -> m_armKinematics.forward(getLowerArm(), getUpperArm()).getY(),
                 null);
         builder.addDoubleProperty("Upper Arm Absolute Angle", () -> upperArmEncoder.getAbsolutePosition(), null);
         builder.addDoubleProperty("Lower Arm Absolute Angle", () -> lowerArmEncoder.getAbsolutePosition(), null);

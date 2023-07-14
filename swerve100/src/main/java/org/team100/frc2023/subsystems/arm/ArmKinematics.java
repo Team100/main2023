@@ -2,46 +2,48 @@ package org.team100.frc2023.subsystems.arm;
 
 import edu.wpi.first.math.geometry.Translation2d;
 
-/**
- * Coordinates are as follows:
- * * x up
- * * y forward
- * * joint angles absolute, relative to x
- */
 public class ArmKinematics {
-    private static final double kUpperArmLengthM = 0.92;
-    private static final double kLowerArmLengthM = 0.93;
+    private final double l1;
+    private final double l2;
 
     /**
-     * Calculates the position of the arm based on absolute joint angles.
+     * Lengths counting out from the grounded joint.  Units here determine units below.
      * 
-     * @param lowerArmAngle radians
-     * @param upperArmAngle radians
-     * @return end position in meters
+     * @param l1 proximal
+     * @param l2 distal
      */
-    public static Translation2d forward(double lowerArmAngle, double upperArmAngle) {
-        double upperArmX = kUpperArmLengthM * Math.cos(upperArmAngle);
-        double upperArmY = kUpperArmLengthM * Math.sin(upperArmAngle);
+    public ArmKinematics(double l1, double l2) {
+        this.l1 = l1;
+        this.l2 = l2;
+    }
 
-        double lowerArmX = kLowerArmLengthM * Math.cos(lowerArmAngle);
-        double lowerArmY = kLowerArmLengthM * Math.sin(lowerArmAngle);
-
-        return new Translation2d(upperArmX + lowerArmX, upperArmY + lowerArmY);
+    /**
+     * Calculates the position of the arm based on absolute joint angles, counting
+     * out from the grounded joint.
+     * 
+     * @param th1 absolute proximal radians
+     * @param th2 absolute distal radians
+     * @return end position
+     */
+    public Translation2d forward(double th1, double th2) {
+        return new Translation2d(
+                l1 * Math.cos(th1) + l2 * Math.cos(th2),
+                l1 * Math.sin(th1) + l2 * Math.sin(th2));
     }
 
     /**
      * Calculate absolute joint angles given cartesian coords of the end.
      * 
-     * @param x meters
-     * @param y meters
-     * @return absolute joint angles
+     * @param x
+     * @param y
+     * @return absolute joint angles, null if unreachable.
      */
-    public static ArmAngles inverse(double x, double y) {
+    public ArmAngles inverse(double x, double y) {
         double r = Math.sqrt(x * x + y * y);
-        double l = kLowerArmLengthM;
-        double u = kUpperArmLengthM;
-        double thetaLower = Math.atan2(y, x) - Math.acos((r * r + l * l - u * u) / (2 * r * l));
-        double thetaUpper = Math.PI + thetaLower - Math.acos((l * l + u * u - r * r) / (2 * l * u));
-        return new ArmAngles(thetaUpper, thetaLower);
+        double th1 = Math.atan2(y, x) - Math.acos((r * r + l1 * l1 - l2 * l2) / (2 * r * l1));
+        double th2 = Math.PI + th1 - Math.acos((l1 * l1 + l2 * l2 - r * r) / (2 * l1 * l2));
+        if (Double.isNaN(th1) || Double.isNaN(th2))
+            return null;
+        return new ArmAngles(th1, th2);
     }
 }
