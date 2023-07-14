@@ -41,21 +41,6 @@ public class SwerveModuleCollection {
         m_rearRight.setDesiredState(swerveModuleStates[3]);
     }
 
-    public void setDesiredDriveStates(SwerveModuleState[] swerveModuleStates) {
-        m_frontLeft.setDesiredDriveState(swerveModuleStates[0]);
-        m_frontRight.setDesiredDriveState(swerveModuleStates[1]);
-        m_rearLeft.setDesiredDriveState(swerveModuleStates[2]);
-        m_rearRight.setDesiredDriveState(swerveModuleStates[3]);
-    }
-
-    // TODO: do we need this?
-    public void setDesiredStatesNoFF(SwerveModuleState[] swerveModuleStates) {
-        m_frontLeft.setDesiredStateNoFF(swerveModuleStates[0]);
-        m_frontRight.setDesiredStateNoFF(swerveModuleStates[1]);
-        m_rearLeft.setDesiredStateNoFF(swerveModuleStates[2]);
-        m_rearRight.setDesiredStateNoFF(swerveModuleStates[3]);
-    }
-
     public ChassisSpeeds toChassisSpeeds(SwerveDriveKinematics kinematics) {
         return kinematics.toChassisSpeeds(
                 m_frontLeft.getState(),

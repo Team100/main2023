@@ -173,12 +173,6 @@ public class SwerveDriveSubsystem extends SubsystemBase {
         m_modules.setDesiredStates(desiredStates);
     }
 
-    public void setModuleStatesNoFF(SwerveModuleState[] desiredStates) {
-        SwerveDriveKinematics.desaturateWheelSpeeds(desiredStates, speedLimits.kMaxSpeedMetersPerSecond);
-        getRobotVelocity(desiredStates);
-        m_modules.setDesiredStatesNoFF(desiredStates);
-    }
-
     public ChassisSpeeds getRobotStates() {
         return m_modules.toChassisSpeeds(kDriveKinematics);
     }
