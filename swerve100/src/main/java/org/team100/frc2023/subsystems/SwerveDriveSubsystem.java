@@ -14,6 +14,7 @@ import org.team100.lib.subsystems.SpeedLimits;
 import org.team100.lib.subsystems.SwerveDriveKinematicsFactory;
 import org.team100.lib.subsystems.SwerveModuleCollection;
 import org.team100.lib.subsystems.SwerveModuleCollectionFactory;
+import org.team100.lib.subsystems.VeeringCorrection;
 
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
@@ -34,8 +35,6 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class SwerveDriveSubsystem extends SubsystemBase {
-    // TODO: calibrate this number.
-    private static final double kVeeringCorrection = 0.15;
 
     public static final SwerveDriveKinematics kDriveKinematics = SwerveDriveKinematicsFactory.get(Identity.get());
 
@@ -44,6 +43,7 @@ public class SwerveDriveSubsystem extends SubsystemBase {
     public final DriveControllers controllers;
     private final SwerveModuleCollection m_modules;
     private final SwerveDrivePoseEstimator m_poseEstimator;
+    private final VeeringCorrection m_veering;
 
     private ChassisSpeeds desiredChassisSpeeds = new ChassisSpeeds();
 
@@ -69,6 +69,7 @@ public class SwerveDriveSubsystem extends SubsystemBase {
             LEDIndicator indicator)
             throws IOException {
         m_gyro = gyro;
+        m_veering = new VeeringCorrection(m_gyro);
         m_indicator = indicator;
 
         // Sets up Field2d pose tracking for glass.
@@ -153,31 +154,29 @@ public class SwerveDriveSubsystem extends SubsystemBase {
     /**
      * Calibrated inputs
      * 
+     * TODO: replace this logic with the ChassisSpeedFactory logic
+     * 
      * @param twist meters and radians per second
      */
     public void driveMetersPerSec(Twist2d twist, boolean fieldRelative) {
-        // TODO: replace this logic with the ChassisSpeedFactory logic
-        double gyroRate = m_gyro.getRedundantGyroRate() * kVeeringCorrection;
-        Rotation2d rotation2 = getPose().getRotation().minus(new Rotation2d(gyroRate));
+        Rotation2d rotation2 = m_veering.correct(getPose().getRotation());
         desiredChassisSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(twist.dx, twist.dy, twist.dtheta, rotation2);
-        SwerveModuleState[] swerveModuleStates = kDriveKinematics.toSwerveModuleStates(fieldRelative
-                ? desiredChassisSpeeds
-                : new ChassisSpeeds(twist.dx, twist.dy, twist.dtheta));
-        SwerveDriveKinematics.desaturateWheelSpeeds(swerveModuleStates, speedLimits.kMaxSpeedMetersPerSecond);
-        getRobotVelocity(swerveModuleStates);
-        m_modules.setDesiredStates(swerveModuleStates);
+        ChassisSpeeds targetChassisSpeeds = fieldRelative ? desiredChassisSpeeds
+                : new ChassisSpeeds(twist.dx, twist.dy, twist.dtheta);
+        SwerveModuleState[] swerveModuleStates = kDriveKinematics.toSwerveModuleStates(targetChassisSpeeds);
+        setModuleStates(swerveModuleStates);
     }
 
     public void setModuleStates(SwerveModuleState[] desiredStates) {
         SwerveDriveKinematics.desaturateWheelSpeeds(desiredStates, speedLimits.kMaxSpeedMetersPerSecond);
-        m_modules.setDesiredStates(desiredStates);
         getRobotVelocity(desiredStates);
+        m_modules.setDesiredStates(desiredStates);
     }
 
     public void setModuleStatesNoFF(SwerveModuleState[] desiredStates) {
         SwerveDriveKinematics.desaturateWheelSpeeds(desiredStates, speedLimits.kMaxSpeedMetersPerSecond);
-        m_modules.setDesiredStatesNoFF(desiredStates);
         getRobotVelocity(desiredStates);
+        m_modules.setDesiredStatesNoFF(desiredStates);
     }
 
     public ChassisSpeeds getRobotStates() {

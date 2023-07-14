@@ -1,6 +1,7 @@
 package org.team100.frc2023.autonomous;
 
 import org.team100.lib.subsystems.RedundantGyro;
+import org.team100.lib.subsystems.VeeringCorrection;
 
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
@@ -17,6 +18,7 @@ public class HolonomicDriveController2 {
     private Rotation2d m_rotationError = new Rotation2d();
     private Pose2d m_poseTolerance = new Pose2d();
     private final RedundantGyro m_gyro;
+    private final VeeringCorrection m_veering;
 
     private final PIDController m_xController;
     private final PIDController m_yController;
@@ -36,6 +38,7 @@ public class HolonomicDriveController2 {
             ProfiledPIDController thetaController,
             RedundantGyro gyro) {
         m_gyro = gyro;
+        m_veering = new VeeringCorrection(m_gyro);
         m_xController = xController;
         m_yController = yController;
         m_thetaController = thetaController;
@@ -88,8 +91,7 @@ public class HolonomicDriveController2 {
 
         xFBPublisher.set(xFeedback);
         yFBPublisher.set(yFeedback);
-        double gyroRate = m_gyro.getRedundantGyroRate() * 0.25;
-        Rotation2d rotation2 = currentPose.getRotation().minus(new Rotation2d(gyroRate));
+        Rotation2d rotation2 = m_veering.correct(currentPose.getRotation());
         return ChassisSpeeds.fromFieldRelativeSpeeds(
                 xFF + xFeedback, yFF + yFeedback, thetaFF, rotation2);
     }
