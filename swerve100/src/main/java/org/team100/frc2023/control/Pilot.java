@@ -5,6 +5,7 @@ import static org.team100.lib.control.ControlUtil.deadband;
 import static org.team100.lib.control.ControlUtil.expo;
 
 import org.team100.frc2023.autonomous.DriveToWaypoint2;
+import org.team100.frc2023.autonomous.DriveToWaypoint3;
 import org.team100.frc2023.autonomous.MoveConeWidth;
 import org.team100.frc2023.autonomous.Rotate;
 import org.team100.frc2023.commands.AutoLevel;
@@ -270,6 +271,12 @@ public class Pilot implements Control, Sendable {
         // builder.addDoubleProperty("x limited", () -> xLimited(), null);
         // builder.addDoubleProperty("y limtied", () -> yLimited(), null);
         // builder.addDoubleProperty("rot Limited", () -> rotLimited(), null);
+    }
+
+    @Override
+    public void driveWithLQR(DriveToWaypoint3 command) {
+        // TODO Auto-generated method stub
+        
     }
 
 }

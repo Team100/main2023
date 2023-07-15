@@ -126,10 +126,6 @@ public class DualXboxControl implements Control, Sendable {
         controller0.leftBumper().whileTrue(command);
     }
 
-    public XboxController getController0() {
-        return controller0.getHID();
-    }
-
     public void resetPose(ResetPose command){
         controller0.leftBumper().onTrue(command);
     }

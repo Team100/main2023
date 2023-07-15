@@ -2,18 +2,15 @@ package org.team100.frc2023.autonomous;
 
 import java.util.List;
 
-
-import edu.wpi.first.math.Matrix;
-import edu.wpi.first.math.Nat;
-import edu.wpi.first.math.VecBuilder;
-import edu.wpi.first.math.controller.LinearPlantInversionFeedforward;
-import edu.wpi.first.math.controller.LinearQuadraticRegulator;
-
+import org.team100.frc2023.LQRManager;
 import org.team100.frc2023.commands.GoalOffset;
 import org.team100.lib.sensors.RedundantGyro;
 import org.team100.lib.subsystems.SwerveDriveSubsystem;
 
-
+import edu.wpi.first.math.Matrix;
+import edu.wpi.first.math.Nat;
+import edu.wpi.first.math.VecBuilder;
+import edu.wpi.first.math.controller.LinearQuadraticRegulator;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.estimator.KalmanFilter;
@@ -21,30 +18,19 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
-
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N2;
 import edu.wpi.first.math.system.LinearSystem;
 import edu.wpi.first.math.system.plant.LinearSystemId;
-
-import edu.wpi.first.math.kinematics.ChassisSpeeds;
-import edu.wpi.first.math.kinematics.SwerveModuleState;
-
 import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.math.trajectory.TrajectoryConfig;
 import edu.wpi.first.math.trajectory.TrajectoryGenerator;
 import edu.wpi.first.math.trajectory.TrajectoryParameterizer.TrajectoryGenerationException;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
-import edu.wpi.first.math.trajectory.Trajectory.State;
 import edu.wpi.first.networktables.DoublePublisher;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.CommandBase;
-
-import org.team100.frc2023.LQRManager;
-import org.team100.frc2023.commands.GoalOffset;
-import org.team100.frc2023.subsystems.AHRSClass;
-import org.team100.frc2023.subsystems.SwerveDriveSubsystem;
     
 /**
  * This is a simpler way to drive to a waypoint. It's just like
@@ -76,21 +62,19 @@ public class DriveToWaypoint3 extends CommandBase {
  
     private final PIDController xController;
     private final PIDController yController;
-    private final HolonomicDriveController2 m_controller;
+    private final HolonomicLQR m_controller;
     private GoalOffset previousOffset;
     private Trajectory m_trajectory;
     private boolean isFinished = false;
   
     private final LQRManager xManager;
     private final LQRManager yManager;
-    private final HolonomicLQR m_controller;
+
  
     // private final Manipulator m_manipulator;
 
     // private Translation2d globalGoalTranslation;
 
-    private Trajectory m_trajectory;
-    private boolean isFinished = false;
 
     int count = 0;
 
@@ -167,11 +151,6 @@ public class DriveToWaypoint3 extends CommandBase {
         m_controller = new HolonomicLQR(m_swerve, xManager, yManager, m_rotationController, gyro);
         // m_controller = new HolonomicDriveController2(xController, yController, m_rotationController, m_gyro);
         
-        translationConfig = new TrajectoryConfig(
-                5, // velocity m/s
-                5 // accel m/s/s
-        ).setKinematics(SwerveDriveSubsystem.kDriveKinematics);
-
         // globalGoalTranslation = new Translation2d();
 
         // m_manipulator = manipulator;
@@ -218,7 +197,7 @@ public class DriveToWaypoint3 extends CommandBase {
         m_timer.restart();
         count = 0;
         m_controller.reset(m_swerve.getPose());
-        m_controller.updateProfile(goal.getX(), goal.getY(), 5, 3, 1 );
+        m_controller.updateProfile(m_goal.getX(), m_goal.getY(), 5, 3, 1 );
         m_controller.start();
         // m_trajectory = makeTrajectory(previousOffset, 0);
 
@@ -249,9 +228,9 @@ public class DriveToWaypoint3 extends CommandBase {
         // if (m_trajectory == null) {
         //     return;
         // }
-        // double curTime = m_timer.get();
-        // var desiredState = m_trajectory.sample(curTime);
-        var targetChassisSpeeds = m_controller.calculate(m_swerve.getPose(), goal.getRotation());
+        double curTime = m_timer.get();
+        var desiredState = m_trajectory.sample(curTime);
+        var targetChassisSpeeds = m_controller.calculate(m_swerve.getPose(), desiredState, m_goal.getRotation());
         var targetModuleStates = SwerveDriveSubsystem.kDriveKinematics.toSwerveModuleStates(targetChassisSpeeds);
       
         desiredXPublisher.set(desiredState.poseMeters.getX());
