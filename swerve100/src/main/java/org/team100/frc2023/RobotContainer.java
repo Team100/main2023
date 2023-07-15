@@ -6,6 +6,7 @@ import java.io.IOException;
 
 import org.team100.frc2023.autonomous.Autonomous;
 import org.team100.frc2023.autonomous.DriveToAprilTag;
+import org.team100.frc2023.autonomous.DriveToWaypoint3;
 import org.team100.frc2023.autonomous.MoveConeWidth;
 import org.team100.frc2023.autonomous.Rotate;
 import org.team100.frc2023.commands.AutoLevel;
@@ -38,6 +39,7 @@ import org.team100.frc2023.subsystems.SwerveDriveSubsystem;
 import org.team100.frc2023.subsystems.arm.ArmController;
 import org.team100.frc2023.subsystems.arm.ArmPosition;
 
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.util.sendable.Sendable;
 import edu.wpi.first.util.sendable.SendableBuilder;
@@ -126,6 +128,9 @@ public class RobotContainer implements Sendable {
     public DriveMedium driveMediumCommand;
 
     public double m_routine = -1;
+
+    public DriveToWaypoint3 driveLQR;
+
 
     
 
@@ -255,6 +260,8 @@ public class RobotContainer implements Sendable {
         moveConeWidthLeft = new MoveConeWidth(m_robotDrive, 1);
         moveConeWidthRight = new MoveConeWidth(m_robotDrive, -1);
 
+        driveLQR = new DriveToWaypoint3(new Pose2d(5, 0, new Rotation2d()), m_robotDrive, ahrsclass);
+
 
         // control.autoLevel(autoLevel);
         control.driveToLeftGrid(driveToLeftGrid);
@@ -316,7 +323,7 @@ public class RobotContainer implements Sendable {
         control.moveConeWidthRight(moveConeWidthRight);
 
 
-
+        control.driveWithLQR(driveLQR);
 
 
         // DEFAULT COMMANDS

@@ -137,7 +137,7 @@ public class SwerveModuleFactory {
             int turningEncoderChannel,
             double turningOffset,
             double currentLimit) {
-        final double kWheelDiameterMeters = 0.1016; // AndyMark Swerve & Steer has 4 inch wheel
+        final double kWheelDiameterMeters = 0.092; // AndyMark Swerve & Steer has 4 inch wheel
         final double kDriveReduction = 6.67; // see andymark.com/products/swerve-and-steer
         final double driveEncoderDistancePerTurn = kWheelDiameterMeters * Math.PI / kDriveReduction;
         final double turningGearRatio = 1.0; // andymark ma3 encoder is 1:1

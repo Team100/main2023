@@ -1,6 +1,7 @@
 package org.team100.frc2023.control;
 
 import org.team100.frc2023.autonomous.DriveToWaypoint2;
+import org.team100.frc2023.autonomous.DriveToWaypoint3;
 import org.team100.frc2023.autonomous.MoveConeWidth;
 import org.team100.frc2023.autonomous.Rotate;
 import org.team100.frc2023.commands.AutoLevel;
@@ -104,7 +105,7 @@ public class DualXboxControl implements Sendable {
     }
 
     public void driveSlow(DriveSlow command) {
-        controller0.leftBumper().whileTrue(command);
+        // controller0.leftBumper( ).whileTrue(command);
     }
 
     public XboxController getController0() {
@@ -112,7 +113,7 @@ public class DualXboxControl implements Sendable {
     }
 
     public void resetPose(ResetPose command){
-        // controller0.leftBumper().onTrue(command);
+        controller0.leftBumper().onTrue(command);
     }
 
     public Rotation2d desiredRotation() {
@@ -173,11 +174,15 @@ public class DualXboxControl implements Sendable {
     }
 
     public void moveConeWidthLeft(MoveConeWidth command){
-        controller0.y().whileTrue(command);
+        // controller0.y().whileTrue(command);
     }
 
     public void moveConeWidthRight(MoveConeWidth command){
         controller0.a().whileTrue(command);
+    }
+
+    public void driveWithLQR(DriveToWaypoint3 command){
+        controller0.y().whileTrue(command);
     }
 
     ///////////////////////////////

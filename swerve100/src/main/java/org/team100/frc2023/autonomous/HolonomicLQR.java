@@ -2,7 +2,7 @@
 // Open Source Software; you can modify and/or share it under the terms of
 // the WPILib BSD license file in the root directory of this project.
 
-package frc.robot.autonomous;
+package org.team100.frc2023.autonomous;
 
 import com.acmerobotics.roadrunner.profile.MotionProfile;
 import com.acmerobotics.roadrunner.profile.MotionProfileGenerator;
@@ -24,9 +24,9 @@ import edu.wpi.first.math.util.Units;
 import edu.wpi.first.networktables.DoublePublisher;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.Timer;
-import frc.robot.LQRManager;
-import frc.robot.subsystems.AHRSClass;
-import frc.robot.subsystems.SwerveDriveSubsystem;
+import org.team100.frc2023.LQRManager;
+import org.team100.frc2023.subsystems.AHRSClass;
+import org.team100.frc2023.subsystems.SwerveDriveSubsystem;
 
 /**
  * This holonomic drive controller can be used to follow trajectories using a holonomic drivetrain
@@ -51,8 +51,8 @@ public class HolonomicLQR {
 
   MotionState goalX;
   MotionState goalY;
-  private MotionProfile profileX = new MotionProfile(null);
-  private MotionProfile profileY = new MotionProfile(null);
+  private MotionProfile profileX; 
+  private MotionProfile profileY; 
   
   Timer m_timer = new Timer();
 
@@ -123,8 +123,6 @@ public class HolonomicLQR {
    */
   public ChassisSpeeds calculate(
       Pose2d currentPose,
-      Pose2d trajectoryPose,
-      double desiredLinearVelocityMetersPerSecond,
       Rotation2d desiredHeading) {
 
     // If this is the first run, then we need to reset the theta controller to the current pose's
@@ -133,17 +131,17 @@ public class HolonomicLQR {
     // Calculate feedforward velocities (field-relative).
     
     
-    double xFF = desiredLinearVelocityMetersPerSecond * trajectoryPose.getRotation().getCos();
+    // double xFF = desiredLinearVelocityMetersPerSecond * trajectoryPose.getRotation().getCos();
 
-    double yFF = desiredLinearVelocityMetersPerSecond * trajectoryPose.getRotation().getSin();
+    // double yFF = desiredLinearVelocityMetersPerSecond * trajectoryPose.getRotation().getSin();
     
     double thetaFF =
         m_thetaController.calculate(
             currentPose.getRotation().getRadians(), desiredHeading.getRadians());
 
 
-    m_poseError = trajectoryPose.relativeTo(currentPose);
-    m_rotationError = desiredHeading.minus(currentPose.getRotation());
+    // m_poseError = trajectoryPose.relativeTo(currentPose);
+    // m_rotationError = desiredHeading.minus(currentPose.getRotation());
 
     if (!m_enabled) {
       // return ChassisSpeeds.fromFieldRelativeSpeeds(xFF, yFF, thetaFF, currentPose.getRotation());
@@ -169,6 +167,8 @@ public class HolonomicLQR {
     xDesired.set(m_lastXRef.getX());
     yDesired.set(m_lastYRef.getX());
 
+    // m_xManager.feedforward.calculate(null)
+
     m_xManager.m_loop.setNextR(m_lastXRef.getX(), m_lastXRef.getV());
     m_yManager.m_loop.setNextR(m_lastYRef.getX(), m_lastYRef.getV());
 
@@ -181,14 +181,17 @@ public class HolonomicLQR {
     double nextXVoltage = m_xManager.m_loop.getU(0);
     double nextYVoltage = m_yManager.m_loop.getU(0);
 
-    xVolt.set(nextXVoltage);
-    yVolt.set(nextYVoltage);
+    xVolt.set(0.5 * m_lastXRef.getV() + m_lastXRef.getA());
+    yVolt.set(0.5 * m_lastYRef.getV() + m_lastYRef.getA());
+    
 
+    //nextXVoltage + m_lastXRef.getA()
+    // nextYVoltage + m_lastYRef.getA()
     double gyroRate = m_gyro.getRedundantGyroRate() * 0.25;
     Rotation2d rotation2 = currentPose.getRotation().minus(new Rotation2d(gyroRate));
     
     return ChassisSpeeds.fromFieldRelativeSpeeds(
-        5 * nextXVoltage, 5 * nextYVoltage, thetaFF, rotation2);
+        ((1.15 * m_lastXRef.getV()) + (0.7 * m_lastXRef.getA())), ((1.15 * m_lastYRef.getV()) +  (0.7 * m_lastYRef.getA())), thetaFF, rotation2);
   }
 
   /**
@@ -199,11 +202,11 @@ public class HolonomicLQR {
    * @param desiredHeading The desired heading.
    * @return The next output of the holonomic drive controller.
    */
-  public ChassisSpeeds calculate(
-    Pose2d currentPose, Trajectory.State desiredState, Rotation2d desiredHeading) {
-    return calculate(
-        currentPose, desiredState.poseMeters, desiredState.velocityMetersPerSecond, desiredHeading);
-  }
+//   public ChassisSpeeds calculate(
+//     Pose2d currentPose, Rotation2d desiredHeading) {
+//     return calculate(
+//         currentPose, desiredHeading);
+//   }
 
   public void reset(Pose2d currentPose){
     m_thetaController.reset(currentPose.getRotation().getRadians());

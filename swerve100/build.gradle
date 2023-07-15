@@ -1,24 +1,12 @@
-buildscript {
-    repositories {
-        mavenLocal()
-        mavenCentral()
-        google()
-    }
-    dependencies {
-        classpath 'com.guardsquare:proguard-gradle:7.2.0-beta2'
-    }
-}
-
 plugins {
     id "java"
-    id "edu.wpi.first.GradleRIO" version "2023.4.2"
-    id "jacoco"
+    id "edu.wpi.first.GradleRIO" version "2023.4.3"
 }
 
 sourceCompatibility = JavaVersion.VERSION_11
 targetCompatibility = JavaVersion.VERSION_11
 
-def ROBOT_MAIN_CLASS = "team100.frc2023.Main"
+def ROBOT_MAIN_CLASS = "org.team100.frc2023.Main"
 
 // Define my targets (RoboRIO) and artifacts (deployable files)
 // This is added by GradleRIO's backing project DeployUtils.
@@ -96,21 +84,6 @@ dependencies {
 test {
     useJUnitPlatform()
     systemProperty 'junit.jupiter.extensions.autodetection.enabled', 'true'
-    finalizedBy jacocoTestReport, jacocoTestCoverageVerification
-}
-
-jacocoTestReport {
-    dependsOn test
-}
-
-jacocoTestCoverageVerification {
-    violationRules {
-        rule {
-            limit {
-                minimum = 0.05
-            }
-        }
-    }
 }
 
 // Simulation configuration (e.g. environment variables).
@@ -135,14 +108,3 @@ wpi.java.configureTestTasks(test)
 tasks.withType(JavaCompile) {
     options.compilerArgs.add '-XDstringConcat=inline'
 }
-
-task proguard(type: proguard.gradle.ProGuardTask) {
-    configuration 'proguard.txt'
-}
-
-task proguardshrink(type: proguard.gradle.ProGuardTask) {
-    configuration 'proguard-shrink.txt'
-}
-
-test.finalizedBy proguard
-test.finalizedBy proguardshrink
