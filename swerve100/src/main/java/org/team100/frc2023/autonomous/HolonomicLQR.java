@@ -21,9 +21,7 @@ import edu.wpi.first.math.util.Units;
 import edu.wpi.first.networktables.DoublePublisher;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.Timer;
-import org.team100.frc2023.LQRManager;
-import org.team100.frc2023.subsystems.AHRSClass;
-import org.team100.frc2023.subsystems.SwerveDriveSubsystem;
+
 
 /**
  * This holonomic drive controller can be used to follow trajectories using a
@@ -56,8 +54,8 @@ public class HolonomicLQR {
 
     MotionState goalX;
     MotionState goalY;
-    private MotionProfile profileX = new MotionProfile(null);
-    private MotionProfile profileY = new MotionProfile(null);
+    private MotionProfile profileX;
+    private MotionProfile profileY;
   
   
     Timer m_timer = new Timer();

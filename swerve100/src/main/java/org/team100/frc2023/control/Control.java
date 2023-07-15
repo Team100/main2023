@@ -1,6 +1,7 @@
 package org.team100.frc2023.control;
 
 import org.team100.frc2023.autonomous.DriveToWaypoint2;
+import org.team100.frc2023.autonomous.DriveToWaypoint3;
 import org.team100.frc2023.autonomous.MoveConeWidth;
 import org.team100.frc2023.autonomous.Rotate;
 import org.team100.frc2023.commands.AutoLevel;
@@ -77,6 +78,8 @@ public interface Control {
     void moveConeWidthLeft(MoveConeWidth command);
 
     void moveConeWidthRight(MoveConeWidth command);
+
+    void driveWithLQR(DriveToWaypoint3 command);
 
     ///////////////////////////////
     //
