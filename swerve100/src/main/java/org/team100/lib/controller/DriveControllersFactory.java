@@ -9,6 +9,7 @@ import edu.wpi.first.math.util.Units;
 
 public class DriveControllersFactory {
     public static DriveControllers get(Identity identity, SpeedLimits speedLimits) {
+
         switch (identity) {
             case COMP_BOT:
                 var headingController = new ProfiledPIDController(0.67, 0, 0, speedLimits.constraints());
@@ -16,8 +17,9 @@ public class DriveControllersFactory {
                 // Note very low heading tolerance.
                 headingController.setTolerance(0.01);
 
-                var rotateController = new ProfiledPIDController(1, 0.5, 0, speedLimits.constraints());
-                rotateController.setIntegratorRange(-0.2, 0.2);
+                var rotateController = new PIDController(1, 0, 0);
+                rotateController.enableContinuousInput(-Math.PI, Math.PI);
+                rotateController.setTolerance(0.003, 0.003); // one degree, one degree per second
 
                 var xController = new PIDController(0.15, 0.0, 0.0);
                 xController.setTolerance(0.01);
@@ -35,7 +37,9 @@ public class DriveControllersFactory {
                 // Note very low heading tolerance.
                 headingController.setTolerance(Units.degreesToRadians(0.1));
 
-                rotateController = new ProfiledPIDController(0.7, 0, 0, speedLimits.constraints());
+                 rotateController = new PIDController(1, 0, 0);
+                rotateController.enableContinuousInput(-Math.PI, Math.PI);
+                rotateController.setTolerance(0.003, 0.003); // one degree, one degree per second
 
                 xController = new PIDController(2, 0.1, 0.0);
                 xController.setTolerance(0.01);
@@ -54,7 +58,9 @@ public class DriveControllersFactory {
                 // Note very low heading tolerance.
                 headingController.setTolerance(Units.degreesToRadians(0.1));
 
-                rotateController = new ProfiledPIDController(0.7, 0, 0, speedLimits.constraints());
+                rotateController = new PIDController(1, 0, 0);
+                rotateController.enableContinuousInput(-Math.PI, Math.PI);
+                rotateController.setTolerance(0.003, 0.003); // one degree, one degree per second
 
                 xController = new PIDController(0.15, 0.0, 0.0);
                 xController.setTolerance(0.2);
@@ -71,7 +77,9 @@ public class DriveControllersFactory {
                 // Note very low heading tolerance.
                 headingController.setTolerance(Units.degreesToRadians(0.1));
 
-                rotateController = new ProfiledPIDController(0.7, 0, 0, speedLimits.constraints());
+                rotateController = new PIDController(1, 0, 0);
+                rotateController.enableContinuousInput(-Math.PI, Math.PI);
+                rotateController.setTolerance(0.003, 0.003); // one degree, one degree per second
 
                 xController = new PIDController(0.15, 0.0, 0.0);
                 xController.setTolerance(0.2);
@@ -90,8 +98,9 @@ public class DriveControllersFactory {
                 // Note very low heading tolerance.
                 headingController.setTolerance(Units.degreesToRadians(0.1));
 
-                rotateController = new ProfiledPIDController(0.7, 0, 0,
-                        speedLimits.constraints());
+                rotateController = new PIDController(1, 0, 0);
+                rotateController.enableContinuousInput(-Math.PI, Math.PI);
+                rotateController.setTolerance(0.003, 0.003); // one degree, one degree per second
 
                 xController = new PIDController(0.15, 0.0, 0.0);
                 xController.setTolerance(0.01);

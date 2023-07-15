@@ -23,7 +23,7 @@ import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
-public class SwerveDriveSubsystem extends SubsystemBase {
+public class SwerveDriveSubsystem extends SubsystemBase implements SwerveDriveSubsystemInterface {
     public static final SwerveDriveKinematics kDriveKinematics = SwerveDriveKinematicsFactory.get(Identity.get());
 
     private final Heading m_heading;
@@ -101,6 +101,7 @@ public class SwerveDriveSubsystem extends SubsystemBase {
      * Note this doesn't include the gyro reading directly, the estimate is
      * considerably massaged by the odometry logic.
      */
+    @Override
     public Pose2d getPose() {
         return m_poseEstimator.getEstimatedPosition();
     }
@@ -130,6 +131,7 @@ public class SwerveDriveSubsystem extends SubsystemBase {
      * 
      * @param twist meters and radians per second
      */
+    @Override
     public void driveMetersPerSec(Twist2d twist, boolean fieldRelative) {
         Rotation2d rotation2 = m_veering.correct(getPose().getRotation());
         desiredChassisSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(twist.dx, twist.dy, twist.dtheta, rotation2);
@@ -176,6 +178,7 @@ public class SwerveDriveSubsystem extends SubsystemBase {
         m_modules.resetEncoders();
     }
 
+    @Override
     public void stop() {
         m_modules.stop();
     }

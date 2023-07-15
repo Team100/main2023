@@ -50,6 +50,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.util.sendable.Sendable;
 import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -164,7 +165,7 @@ public class RobotContainer implements Sendable {
         control.driveMedium(new DriveScaled(control::twist, m_robotDrive, 2.0, 0.5));
         control.resetPose(new ResetPose(m_robotDrive, 0, 0, 0));
         control.tapeDetect(new DriveToRetroReflectiveTape(m_robotDrive));
-        control.rotate0(new Rotate(m_robotDrive, controllers, 0));
+        control.rotate0(new Rotate(m_robotDrive, speedLimits, controllers.rotateController, new Timer(), 0));
 
         control.moveConeWidthLeft(new MoveConeWidth(m_robotDrive, 1));
         control.moveConeWidthRight(new MoveConeWidth(m_robotDrive, -1));
