@@ -9,14 +9,15 @@ public class DriveControllers {
     // TODO i suspect there are duplicate controllers here
     public final ProfiledPIDController headingController; // only used by DriveWithHeading.
     public final ProfiledPIDController thetaController; // used by several commands
-    public final ProfiledPIDController rotateController; // only used by Rotate.
+    public final PIDController rotateController; // only used by Rotate.
 
     public DriveControllers(
             PIDController xController,
             PIDController yController,
             ProfiledPIDController headingController,
             ProfiledPIDController thetaController,
-            ProfiledPIDController rotateController) {
+            PIDController rotateController
+            ) {
         this.xController = xController;
         this.yController = yController;
         this.headingController = headingController;
