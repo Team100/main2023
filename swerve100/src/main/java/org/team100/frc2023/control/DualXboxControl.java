@@ -5,6 +5,7 @@ import static org.team100.lib.control.ControlUtil.deadband;
 import static org.team100.lib.control.ControlUtil.expo;
 
 import org.team100.frc2023.autonomous.DriveToWaypoint2;
+import org.team100.frc2023.autonomous.DriveToWaypoint3;
 import org.team100.frc2023.autonomous.MoveConeWidth;
 import org.team100.frc2023.autonomous.Rotate;
 import org.team100.frc2023.commands.AutoLevel;
@@ -120,13 +121,17 @@ public class DualXboxControl implements Control, Sendable {
     }
 
     @Override
+
     public void driveSlow(DriveScaled command) {
         controller0.leftBumper().whileTrue(command);
     }
 
-    @Override
-    public void resetPose(ResetPose command) {
-        // controller0.leftBumper().onTrue(command);
+    public XboxController getController0() {
+        return controller0.getHID();
+    }
+
+    public void resetPose(ResetPose command){
+        controller0.leftBumper().onTrue(command);
     }
 
     @Override
@@ -192,14 +197,17 @@ public class DualXboxControl implements Control, Sendable {
         controller0.rightBumper().whileTrue(command);
     }
 
-    @Override
-    public void moveConeWidthLeft(MoveConeWidth command) {
-        controller0.y().whileTrue(command);
+    public void moveConeWidthLeft(MoveConeWidth command){
+        // controller0.y().whileTrue(command);
     }
 
     @Override
     public void moveConeWidthRight(MoveConeWidth command) {
         controller0.a().whileTrue(command);
+    }
+
+    public void driveWithLQR(DriveToWaypoint3 command){
+        controller0.y().whileTrue(command);
     }
 
     ///////////////////////////////

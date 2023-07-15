@@ -5,6 +5,7 @@ import java.io.IOException;
 
 import org.team100.frc2023.autonomous.Autonomous;
 import org.team100.frc2023.autonomous.DriveToAprilTag;
+import org.team100.frc2023.autonomous.DriveToWaypoint3;
 import org.team100.frc2023.autonomous.MoveConeWidth;
 import org.team100.frc2023.autonomous.Rotate;
 import org.team100.frc2023.commands.Defense;
@@ -25,6 +26,7 @@ import org.team100.frc2023.control.JoystickControl;
 import org.team100.frc2023.subsystems.Manipulator;
 import org.team100.frc2023.subsystems.arm.ArmController;
 import org.team100.frc2023.subsystems.arm.ArmPosition;
+
 import org.team100.lib.commands.ResetPose;
 import org.team100.lib.commands.ResetRotation;
 import org.team100.lib.commands.Retro.LedOn;
@@ -94,6 +96,8 @@ public class RobotContainer implements Sendable {
     public static boolean enabled = false;
     public double m_routine = -1;
 
+    public DriveToWaypoint3 driveLQR;
+
     public RobotContainer(DriverStation.Alliance alliance) throws IOException {
         // m_alliance = DriverStation.getAlliance();
         m_alliance = alliance;
@@ -135,6 +139,7 @@ public class RobotContainer implements Sendable {
         manipulator = new Manipulator();
         armController = new ArmController();
         illuminator = new Illuminator(25);
+          
 
         controllers = DriveControllersFactory.get(Identity.get(), speedLimits);
 
@@ -169,6 +174,8 @@ public class RobotContainer implements Sendable {
 
         control.moveConeWidthLeft(new MoveConeWidth(m_robotDrive, 1));
         control.moveConeWidthRight(new MoveConeWidth(m_robotDrive, -1));
+      
+        control.driveWithLQR(new DriveToWaypoint3(new Pose2d(5, 0, new Rotation2d()), m_robotDrive, ahrsclass));
 
         ///////////////////////////
         // MANIPULATOR COMMANDS
