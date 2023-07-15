@@ -247,7 +247,7 @@ public class RobotContainer implements Sendable {
 
         defense = new Defense(m_robotDrive);
 
-        manualArm = new ManualArm(armController, control.getController());
+        manualArm = new ManualArm(armController, control);
 
         armSafeBack = new ArmTrajectory(ArmPosition.SAFEBACK, armController);
 

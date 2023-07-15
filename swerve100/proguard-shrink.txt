@@ -8,7 +8,7 @@
 -dontobfuscate
 -dontpreverify
 
--keep public class team100.frc2023.Main {
+-keep public class org.team100.frc2023.Main {
     public static void main(java.lang.String[]);
 }
 
@@ -26,3 +26,8 @@
 -dontwarn org.xml.**
 -dontwarn sun.misc.Unsafe
 -dontwarn us.hebi.matlab.mat.**
+-dontwarn kotlin.time.**
+
+# reduce unnecessary output
+
+-dontnote **
