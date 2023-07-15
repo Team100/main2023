@@ -1,32 +1,38 @@
 package org.team100.frc2023.control;
 
+import static org.team100.lib.control.ControlUtil.clamp;
+import static org.team100.lib.control.ControlUtil.deadband;
+import static org.team100.lib.control.ControlUtil.expo;
+
 import org.team100.frc2023.autonomous.DriveToWaypoint2;
 import org.team100.frc2023.autonomous.MoveConeWidth;
 import org.team100.frc2023.autonomous.Rotate;
 import org.team100.frc2023.commands.AutoLevel;
 import org.team100.frc2023.commands.Defense;
-import org.team100.frc2023.commands.DriveMedium;
-import org.team100.frc2023.commands.DriveSlow;
+import org.team100.frc2023.commands.DriveScaled;
 import org.team100.frc2023.commands.GoalOffset;
-import org.team100.frc2023.commands.ResetPose;
-import org.team100.frc2023.commands.ResetRotation;
 import org.team100.frc2023.commands.RumbleOn;
 import org.team100.frc2023.commands.Arm.ArmTrajectory;
 import org.team100.frc2023.commands.Arm.Oscillate;
 import org.team100.frc2023.commands.Arm.SetConeMode;
 import org.team100.frc2023.commands.Arm.SetCubeMode;
-import org.team100.frc2023.commands.Manipulator.Close;
 import org.team100.frc2023.commands.Manipulator.CloseSlow;
+import org.team100.frc2023.commands.Manipulator.Eject;
 import org.team100.frc2023.commands.Manipulator.Home;
 import org.team100.frc2023.commands.Manipulator.Open;
 import org.team100.frc2023.commands.Retro.DriveToRetroReflectiveTape;
-import org.team100.frc2023.commands.Retro.LedOn;
+import org.team100.lib.commands.ResetPose;
+import org.team100.lib.commands.ResetRotation;
+import org.team100.lib.commands.Retro.LedOn;
 
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Twist2d;
 import edu.wpi.first.util.sendable.Sendable;
 import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.button.CommandJoystick;
+import edu.wpi.first.wpilibj2.command.button.JoystickButton;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 
 /**
  * Experiment for driving swerve with the big joystick.
@@ -37,6 +43,9 @@ import edu.wpi.first.wpilibj2.command.button.CommandJoystick;
  * Command buttons are not implemented.
  */
 public class JoystickControl implements Control, Sendable {
+    private static final double kDeadband = 0.02;
+    private static final double kExpo = 0.5;
+
     private final CommandJoystick controller0;
     // private final CommandJoystick controller1;
     private Rotation2d previousRotation = new Rotation2d(0);
@@ -71,29 +80,36 @@ public class JoystickControl implements Control, Sendable {
 
     @Override
     public void resetRotation0(ResetRotation command) {
+        JoystickButton startButton = new JoystickButton(controller0.getHID(), 2);
+        startButton.onTrue(command);
     }
 
     @Override
     public void resetRotation180(ResetRotation command) {
+        JoystickButton startButton = new JoystickButton(controller0.getHID(), 3);
+        startButton.onTrue(command);
     }
 
     @Override
-    public double xSpeed() {
-        return controller0.getY();
+    public Twist2d twist() {
+        double dx = expo(deadband(-1.0 * clamp(controller0.getY(), 1), kDeadband, 1), kExpo);
+        double dy = expo(deadband(-1.0 * clamp(controller0.getX(), 1), kDeadband, 1), kExpo);
+        double dtheta = expo(deadband(-1.0 * clamp(controller0.getTwist(), 1), kDeadband, 1), kExpo);
+        return new Twist2d(dx, dy, dtheta);
     }
 
     @Override
-    public double ySpeed() {
-        return controller0.getX();
+    public Trigger trigger() {
+        return controller0.trigger();
     }
 
     @Override
-    public double rotSpeed() {
-        return controller0.getTwist();
+    public Trigger thumb() {
+        return controller0.top();
     }
 
     @Override
-    public void driveSlow(DriveSlow command) {
+    public void driveSlow(DriveScaled command) {
     }
 
     @Override
@@ -137,7 +153,7 @@ public class JoystickControl implements Control, Sendable {
     }
 
     @Override
-    public void driveMedium(DriveMedium command) {
+    public void driveMedium(DriveScaled command) {
     }
 
     @Override
@@ -213,7 +229,7 @@ public class JoystickControl implements Control, Sendable {
     }
 
     @Override
-    public void close(Close command) {
+    public void close(Eject command) {
     }
 
     @Override

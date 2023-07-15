@@ -1,8 +1,11 @@
-// Copyright (c) FIRST and other WPILib contributors.
-// Open Source Software; you can modify and/or share it under the terms of
-// the WPILib BSD license file in the root directory of this project.
-
 package org.team100.frc2023.autonomous;
+
+
+import org.team100.frc2023.LQRManager;
+import org.team100.lib.sensors.RedundantGyro;
+import org.team100.lib.subsystems.SwerveDriveSubsystem;
+import org.team100.lib.subsystems.VeeringCorrection;
+
 
 import com.acmerobotics.roadrunner.profile.MotionProfile;
 import com.acmerobotics.roadrunner.profile.MotionProfileGenerator;
@@ -23,186 +26,210 @@ import org.team100.frc2023.subsystems.AHRSClass;
 import org.team100.frc2023.subsystems.SwerveDriveSubsystem;
 
 /**
- * This holonomic drive controller can be used to follow trajectories using a holonomic drivetrain
- * (i.e. swerve or mecanum). Holonomic trajectory following is a much simpler problem to solve
- * compared to skid-steer style drivetrains because it is possible to individually control forward,
+ * This holonomic drive controller can be used to follow trajectories using a
+ * holonomic drivetrain
+ * (i.e. swerve or mecanum). Holonomic trajectory following is a much simpler
+ * problem to solve
+ * compared to skid-steer style drivetrains because it is possible to
+ * individually control forward,
  * sideways, and angular velocity.
  *
- * <p>The holonomic drive controller takes in one PID controller for each direction, forward and
- * sideways, and one profiled PID controller for the angular direction. Because the heading dynamics
- * are decoupled from translations, users can specify a custom heading that the drivetrain should
+ * <p>
+ * The holonomic drive controller takes in one PID controller for each
+ * direction, forward and
+ * sideways, and one profiled PID controller for the angular direction. Because
+ * the heading dynamics
+ * are decoupled from translations, users can specify a custom heading that the
+ * drivetrain should
  * point toward. This heading reference is profiled for smoothness.
  */
 public class HolonomicLQR {
-  private Pose2d m_poseError = new Pose2d();
-  private Rotation2d m_rotationError = new Rotation2d();
-  private Pose2d m_poseTolerance = new Pose2d();
-  private boolean m_enabled = true;
-  private final AHRSClass m_gyro;
-
-  private final LQRManager m_xManager;
-  private final LQRManager m_yManager;
-
-  MotionState goalX;
-  MotionState goalY;
-  private MotionProfile profileX; 
-  private MotionProfile profileY; 
+    private Pose2d m_poseError = new Pose2d();
+    private Rotation2d m_rotationError = new Rotation2d();
+    private Pose2d m_poseTolerance = new Pose2d();
+    private boolean m_enabled = true;
+    private final RedundantGyro m_gyro;
+    private final VeeringCorrection m_veering;
   
-  Timer m_timer = new Timer();
+    private final LQRManager m_xManager;
+    private final LQRManager m_yManager;
 
-
-  private final ProfiledPIDController m_thetaController;
-
-  private boolean m_firstRun = true;
-
-  SwerveDriveSubsystem m_robotDrive;
-
-  private MotionState m_lastXRef = new MotionState(0, 0);
-  private MotionState m_lastYRef = new MotionState(0, 0);
+    MotionState goalX;
+    MotionState goalY;
+    private MotionProfile profileX = new MotionProfile(null);
+    private MotionProfile profileY = new MotionProfile(null);
   
-  NetworkTableInstance inst = NetworkTableInstance.getDefault();
-
-  DoublePublisher xOutPublisher = inst.getTable("Holonomic LQR").getDoubleTopic("X Output").publish();
-  DoublePublisher yOutPublisher = inst.getTable("Holonomic LQR").getDoubleTopic("Y Output").publish();
-
-  DoublePublisher xDesired = inst.getTable("Holonomic LQR").getDoubleTopic("X Desired").publish();
-  DoublePublisher yDesired = inst.getTable("Holonomic LQR").getDoubleTopic("Y Desired").publish();
   
-  DoublePublisher xVolt = inst.getTable("Holonomic LQR").getDoubleTopic("X Volt").publish();
-  DoublePublisher yVolt = inst.getTable("Holonomic LQR").getDoubleTopic("Y Volt").publish();
+    Timer m_timer = new Timer();
 
-  public HolonomicLQR(
-      SwerveDriveSubsystem robotDrive, LQRManager xManager, LQRManager yManager, ProfiledPIDController thetaController, AHRSClass gyro) {
-    m_gyro = gyro;
-    m_xManager = xManager;
-    m_yManager = yManager;
-    m_thetaController = thetaController;
-    m_robotDrive = robotDrive;
-    m_thetaController.enableContinuousInput(0, Units.degreesToRadians(360.0));
+    private final ProfiledPIDController m_thetaController;
+
+    // private boolean m_firstRun = true;
+
+    SwerveDriveSubsystem m_robotDrive;
+
+    private MotionState m_lastXRef = new MotionState(0, 0);
+    private MotionState m_lastYRef = new MotionState(0, 0);
   
-}
+    NetworkTableInstance inst = NetworkTableInstance.getDefault();
 
-  /**
-   * Returns true if the pose error is within tolerance of the reference.
-   *
-   * @return True if the pose error is within tolerance of the reference.
-   */
-  public boolean atReference() {
-    final var eTranslate = m_poseError.getTranslation();
-    final var eRotate = m_rotationError;
-    final var tolTranslate = m_poseTolerance.getTranslation();
-    final var tolRotate = m_poseTolerance.getRotation();
-    return Math.abs(eTranslate.getX()) < tolTranslate.getX()
-        && Math.abs(eTranslate.getY()) < tolTranslate.getY()
-        && Math.abs(eRotate.getRadians()) < tolRotate.getRadians();
-  }
+    DoublePublisher xOutPublisher = inst.getTable("Holonomic LQR").getDoubleTopic("X Output").publish();
+    DoublePublisher yOutPublisher = inst.getTable("Holonomic LQR").getDoubleTopic("Y Output").publish();
 
-  /**
-   * Sets the pose error which is considered tolerance for use with atReference().
-   *
-   * @param tolerance The pose error which is tolerable.
-   */
-  public void setTolerance(Pose2d tolerance) {
-    m_poseTolerance = tolerance;
-  }
+    DoublePublisher xDesired = inst.getTable("Holonomic LQR").getDoubleTopic("X Desired").publish();
+    DoublePublisher yDesired = inst.getTable("Holonomic LQR").getDoubleTopic("Y Desired").publish();
 
-  /**
-   * Returns the next output of the holonomic drive controller.
-   *
-   * @param currentPose The current pose, as measured by odometry or pose estimator.
-   * @param trajectoryPose The desired trajectory pose, as sampled for the current timestep.
-   * @param desiredLinearVelocityMetersPerSecond The desired linear velocity.
-   * @param desiredHeading The desired heading.
-   * @return The next output of the holonomic drive controller.
-   */
-  public ChassisSpeeds calculate(
-      Pose2d currentPose,
-      Rotation2d desiredHeading) {
-
-    // If this is the first run, then we need to reset the theta controller to the current pose's
-    
-
-    // Calculate feedforward velocities (field-relative).
-    
-    
-    // double xFF = desiredLinearVelocityMetersPerSecond * trajectoryPose.getRotation().getCos();
-
-    // double yFF = desiredLinearVelocityMetersPerSecond * trajectoryPose.getRotation().getSin();
-    
-    double thetaFF =
-        m_thetaController.calculate(
-            currentPose.getRotation().getRadians(), desiredHeading.getRadians());
-
-
-    // m_poseError = trajectoryPose.relativeTo(currentPose);
-    // m_rotationError = desiredHeading.minus(currentPose.getRotation());
-
-    if (!m_enabled) {
-      // return ChassisSpeeds.fromFieldRelativeSpeeds(xFF, yFF, thetaFF, currentPose.getRotation());
-      return null;
+    DoublePublisher xVolt = inst.getTable("Holonomic LQR").getDoubleTopic("X Volt").publish();
+    DoublePublisher yVolt = inst.getTable("Holonomic LQR").getDoubleTopic("Y Volt").publish();
+  
+    public HolonomicLQR(
+            SwerveDriveSubsystem robotDrive, LQRManager xManager, LQRManager yManager,
+            ProfiledPIDController thetaController, RedundantGyro gyro) {
+        m_gyro = gyro;
+        m_veering = new VeeringCorrection(m_gyro);
+        m_xManager = xManager;
+        m_yManager = yManager;
+        m_thetaController = thetaController;
+        m_robotDrive = robotDrive;
+        m_thetaController.enableContinuousInput(0, Units.degreesToRadians(360.0));
+    }
+  
+      /**
+     * Returns true if the pose error is within tolerance of the reference.
+     *
+     * @return True if the pose error is within tolerance of the reference.
+     */
+    public boolean atReference() {
+        final var eTranslate = m_poseError.getTranslation();
+        final var eRotate = m_rotationError;
+        final var tolTranslate = m_poseTolerance.getTranslation();
+        final var tolRotate = m_poseTolerance.getRotation();
+        return Math.abs(eTranslate.getX()) < tolTranslate.getX()
+                && Math.abs(eTranslate.getY()) < tolTranslate.getY()
+                && Math.abs(eRotate.getRadians()) < tolRotate.getRadians();
     }
 
-    // Calculate feedback velocities (based on position error).
+    /**
+     * Sets the pose error which is considered tolerance for use with atReference().
+     *
+     * @param tolerance The pose error which is tolerable.
+     */
+    public void setTolerance(Pose2d tolerance) {
+        m_poseTolerance = tolerance;
+    }
+  
+  
+      /**
+     * Returns the next output of the holonomic drive controller.
+     *
+     * @param currentPose                          The current pose, as measured by
+     *                                             odometry or pose estimator.
+     * @param trajectoryPose                       The desired trajectory pose, as
+     *                                             sampled for the current timestep.
+     * @param desiredLinearVelocityMetersPerSecond The desired linear velocity.
+     * @param desiredHeading                       The desired heading.
+     * @return The next output of the holonomic drive controller.
+     */
+  
+      public ChassisSpeeds calculate(
+            Pose2d currentPose,
+            Pose2d trajectoryPose,
+            double desiredLinearVelocityMetersPerSecond,
+            Rotation2d desiredHeading) {
+        
+                // If this is the first run, then we need to reset the theta controller to the
+        // current pose's
 
-    // goalX = new TrapezoidProfile.State(trajectoryPose.getX(), 0.0);
-    // goalY = new TrapezoidProfile.State(trajectoryPose.getY(), 0.0);
+        // Calculate feedforward velocities (field-relative).
 
-    // goalX = new MotionState(trajectoryPose.getX(), 0);
-    // goalY = new MotionState(trajectoryPose.getY(), 0);
+        // double xFF = desiredLinearVelocityMetersPerSecond *
+        // trajectoryPose.getRotation().getCos();
 
-    
-    m_lastXRef = profileX.get(m_timer.get());
-    m_lastYRef = profileY.get(m_timer.get());
+        // double yFF = desiredLinearVelocityMetersPerSecond *
+        // trajectoryPose.getRotation().getSin();
+        
+           double thetaFF = m_thetaController.calculate(
+                currentPose.getRotation().getRadians(), desiredHeading.getRadians());
 
-    // m_lastXRef = (new TrapezoidProfile(m_xManager.m_constraints, goalX, m_lastXRef)).calculate(0.020);
-    // m_lastYRef = (new TrapezoidProfile(m_yManager.m_constraints, goalY, m_lastYRef)).calculate(0.020);
+        m_poseError = trajectoryPose.relativeTo(currentPose);
+        m_rotationError = desiredHeading.minus(currentPose.getRotation());
+        
+        
+                if (!m_enabled) {
+            // return ChassisSpeeds.fromFieldRelativeSpeeds(xFF, yFF, thetaFF,
+            // currentPose.getRotation());
+            return null;
+        }
+        
+        
+                // Calculate feedback velocities (based on position error).
 
+        // goalX = new TrapezoidProfile.State(trajectoryPose.getX(), 0.0);
+        // goalY = new TrapezoidProfile.State(trajectoryPose.getY(), 0.0);
 
-    xDesired.set(m_lastXRef.getX());
-    yDesired.set(m_lastYRef.getX());
+        // goalX = new MotionState(trajectoryPose.getX(), 0);
+        // goalY = new MotionState(trajectoryPose.getY(), 0);
+        
+        
+                m_lastXRef = profileX.get(m_timer.get());
+        m_lastYRef = profileY.get(m_timer.get());
 
-    // m_xManager.feedforward.calculate(null)
+        // m_lastXRef = (new TrapezoidProfile(m_xManager.m_constraints, goalX,
+        // m_lastXRef)).calculate(0.020);
+        // m_lastYRef = (new TrapezoidProfile(m_yManager.m_constraints, goalY,
+        // m_lastYRef)).calculate(0.020);
 
-    m_xManager.m_loop.setNextR(m_lastXRef.getX(), m_lastXRef.getV());
-    m_yManager.m_loop.setNextR(m_lastYRef.getX(), m_lastYRef.getV());
+        xDesired.set(m_lastXRef.getX());
+        yDesired.set(m_lastYRef.getX());
+      // m_xManager.feedforward.calculate(null)
+         m_xManager.m_loop.setNextR(m_lastXRef.getX(), m_lastXRef.getV());
+        m_yManager.m_loop.setNextR(m_lastYRef.getX(), m_lastYRef.getV());
 
-    m_xManager.m_loop.correct(VecBuilder.fill(m_robotDrive.getPose().getX()));
-    m_yManager.m_loop.correct(VecBuilder.fill(m_robotDrive.getPose().getY()));
+        m_xManager.m_loop.correct(VecBuilder.fill(m_robotDrive.getPose().getX()));
+        m_yManager.m_loop.correct(VecBuilder.fill(m_robotDrive.getPose().getY()));
 
-    m_xManager.m_loop.predict(0.020);
-    m_yManager.m_loop.predict(0.020);
-
-    double nextXVoltage = m_xManager.m_loop.getU(0);
-    double nextYVoltage = m_yManager.m_loop.getU(0);
-
-    xVolt.set(0.5 * m_lastXRef.getV() + m_lastXRef.getA());
+        m_xManager.m_loop.predict(0.020);
+        m_yManager.m_loop.predict(0.020);
+        
+          double nextXVoltage = m_xManager.m_loop.getU(0);
+        double nextYVoltage = m_yManager.m_loop.getU(0);
+        
+       xVolt.set(0.5 * m_lastXRef.getV() + m_lastXRef.getA());
     yVolt.set(0.5 * m_lastYRef.getV() + m_lastYRef.getA());
-    
-
-    //nextXVoltage + m_lastXRef.getA()
+        
+            //nextXVoltage + m_lastXRef.getA()
     // nextYVoltage + m_lastYRef.getA()
-    double gyroRate = m_gyro.getRedundantGyroRate() * 0.25;
-    Rotation2d rotation2 = currentPose.getRotation().minus(new Rotation2d(gyroRate));
+        
+                Rotation2d rotation2 = m_veering.correct(currentPose.getRotation());
+       
+
+ 
     
     return ChassisSpeeds.fromFieldRelativeSpeeds(
         ((1.15 * m_lastXRef.getV()) + (0.7 * m_lastXRef.getA())), ((1.15 * m_lastYRef.getV()) +  (0.7 * m_lastYRef.getA())), thetaFF, rotation2);
   }
 
-  /**
-   * Returns the next output of the holonomic drive controller.
-   *
-   * @param currentPose The current pose, as measured by odometry or pose estimator.
-   * @param desiredState The desired trajectory pose, as sampled for the current timestep.
-   * @param desiredHeading The desired heading.
-   * @return The next output of the holonomic drive controller.
-   */
-//   public ChassisSpeeds calculate(
-//     Pose2d currentPose, Rotation2d desiredHeading) {
-//     return calculate(
-//         currentPose, desiredHeading);
-//   }
 
-  public void reset(Pose2d currentPose){
+  
+  
+    /**
+     * Returns the next output of the holonomic drive controller.
+     *
+     * @param currentPose    The current pose, as measured by odometry or pose
+     *                       estimator.
+     * @param desiredState   The desired trajectory pose, as sampled for the current
+     *                       timestep.
+     * @param desiredHeading The desired heading.
+     * @return The next output of the holonomic drive controller.
+     */
+    public ChassisSpeeds calculate(
+            Pose2d currentPose, Trajectory.State desiredState, Rotation2d desiredHeading) {
+        return calculate(
+                currentPose, desiredState.poseMeters, desiredState.velocityMetersPerSecond, desiredHeading);
+    }
+
+  
+    public void reset(Pose2d currentPose){
     m_thetaController.reset(currentPose.getRotation().getRadians());
     m_xManager.m_loop.reset(VecBuilder.fill(m_robotDrive.getPose().getX(), 0));
     m_yManager.m_loop.reset(VecBuilder.fill(m_robotDrive.getPose().getY(), 0));
@@ -214,8 +241,8 @@ public class HolonomicLQR {
       new MotionState(m_robotDrive.getPose().getY(), 0);
 
   }
-
-  public void start(){
+  
+    public void start(){
     m_timer.restart();
   }
 
@@ -235,8 +262,7 @@ public class HolonomicLQR {
         maxJerk);
 
   }
-
-  /**
+    /**
    * Enables and disables the controller for troubleshooting problems. When calculate() is called on
    * a disabled controller, only feedforward values are returned.
    *
@@ -245,6 +271,6 @@ public class HolonomicLQR {
   public void setEnabled(boolean enabled) {
     m_enabled = enabled;
   }
-
+  
   
 }

@@ -15,7 +15,6 @@ public class GamepieceLocator extends SubsystemBase {
     private double offset;
     private boolean hasGamepiece;
 
-    /** Creates a new GamepieceLocator. */
     public GamepieceLocator() {
         leftSensor = new NTDistanceSensor("distance_a");
         rightSensor = new NTDistanceSensor("distance_b");
@@ -27,8 +26,10 @@ public class GamepieceLocator extends SubsystemBase {
     }
 
     /**
-     * Get the offset of the gamepiece from the center of the manipulator in centimeters.
+     * Get the offset of the gamepiece from the center of the manipulator in
+     * centimeters.
      * Positive is towards the right
+     * 
      * @return offset in centimeters (defaults to 0 if no gamepiece is detected)
      */
     public double getOffsetCentimeters() {
@@ -38,6 +39,7 @@ public class GamepieceLocator extends SubsystemBase {
     /**
      * Get the offset of the gamepiece from the center of the manipulator in meters.
      * In robot coords (y-axis), so positive is towards the left
+     * 
      * @return offset in meters (defaults to 0 if no gamepiece is detected)
      */
     public double getOffsetMeters() {
@@ -46,6 +48,7 @@ public class GamepieceLocator extends SubsystemBase {
 
     /**
      * Whether or not a gamepiece has been detected.
+     * 
      * @return true if a gamepiece is detected
      */
     public boolean hasGamepiece() {
@@ -58,15 +61,18 @@ public class GamepieceLocator extends SubsystemBase {
         double left = leftSensor.getCentimeters();
         double right = rightSensor.getCentimeters();
 
-        // If the sensors detect something outside of their rated range, the Pi will return -1.
+        // If the sensors detect something outside of their rated range, the Pi will
+        // return -1.
         // Also will be -2 if the Pi is not on NetworkTables. Detect those cases here
         if (left < 0 || right < 0) {
             offset = 0;
             hasGamepiece = false;
         }
 
-        // If the sensors give us a distance larger than the manipulator, we can assume they are
-        // interfering with each other. This is likely because there is no gamepiece in the manipulator
+        // If the sensors give us a distance larger than the manipulator, we can assume
+        // they are
+        // interfering with each other. This is likely because there is no gamepiece in
+        // the manipulator
         else if (left > kSeparationWidth || right > kSeparationWidth || left + right > kSeparationWidth) {
             offset = 0;
             hasGamepiece = false;

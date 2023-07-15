@@ -84,6 +84,21 @@ dependencies {
 test {
     useJUnitPlatform()
     systemProperty 'junit.jupiter.extensions.autodetection.enabled', 'true'
+    finalizedBy jacocoTestReport, jacocoTestCoverageVerification
+}
+
+jacocoTestReport {
+    dependsOn test
+}
+
+jacocoTestCoverageVerification {
+    violationRules {
+        rule {
+            limit {
+                minimum = 0.04
+            }
+        }
+    }
 }
 
 // Simulation configuration (e.g. environment variables).

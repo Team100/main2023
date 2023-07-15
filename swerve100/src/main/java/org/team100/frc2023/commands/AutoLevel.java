@@ -1,106 +1,75 @@
 package org.team100.frc2023.commands;
 
-import org.team100.frc2023.subsystems.AHRSClass;
-import org.team100.frc2023.subsystems.SwerveDriveSubsystem;
+import org.team100.lib.commands.DriveUtil;
+import org.team100.lib.sensors.RedundantGyro;
+import org.team100.lib.subsystems.SwerveDriveSubsystem;
 
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.geometry.Twist2d;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 
 public class AutoLevel extends CommandBase {
-  private final AHRSClass m_gyro;
-  private final SwerveDriveSubsystem m_robotDrive;
-  private int count = 0;
-  boolean reversed;
-    /** Creates a new autoLevel. */
-  double startX = 0;
-  public AutoLevel(boolean r, SwerveDriveSubsystem robotDrive, AHRSClass gyro) {
-    m_gyro = gyro;
-    m_robotDrive = robotDrive;
-    reversed = r;
-    // Use addRequirements() here to declare subsystem dependencies.
-    addRequirements(m_robotDrive);
-  }
+    private static final double kMaxSpeed = 4.5;
+    private static final double kMaxRot = 5;
+    private static final double kCruiseSpeed = 1.5;
+    /** max speed as a fraction */
+    private static final double kSpeedClamp1_1 = 0.08;
+    // TODO: is this unit correct?
+    private static final double kSpeedPerDegree = 0.005;
+    private final boolean m_reversed;
+    private final SwerveDriveSubsystem m_robotDrive;
+    private final RedundantGyro m_gyro;
+    private int count;
 
-  // Called when the command is initially scheduled.
-  @Override
-  public void initialize() {
+    // TODO: what is "reversed" for?
+    public AutoLevel(boolean reversed, SwerveDriveSubsystem robotDrive, RedundantGyro gyro) {
+        m_reversed = reversed;
+        m_robotDrive = robotDrive;
+        m_gyro = gyro;
+        addRequirements(m_robotDrive);
+    }
 
-    startX = m_robotDrive.getPose().getX();
-    count = 0;
-  }
+    @Override
+    public void initialize() {
+        count = 0;
+    }
 
-  // Called every time the scheduler runs while the command is scheduled
-  public void execute() {
+    public void execute() {
+        double Roll = m_gyro.getRedundantRoll();
+        double Pitch = m_gyro.getRedundantPitch();
+        double ySpeed = MathUtil.clamp(kSpeedPerDegree * Roll, -kSpeedClamp1_1, kSpeedClamp1_1);
+        double xSpeed = MathUtil.clamp(kSpeedPerDegree * Pitch, -kSpeedClamp1_1, kSpeedClamp1_1);
 
-    if(reversed){
-        // if(m_robotDrive.getPose().getX() <= 4.354773){ //4.125
-            double Roll = m_gyro.getRedundantRoll();    //
-            double Pitch = m_gyro.getRedundantPitch();
-                // System.out.println(Roll);
-                double driveRollAmount = MathUtil.clamp(0.005 * Roll, -0.08, 0.08);
-                double drivePitchAmount = MathUtil.clamp(0.005   * Pitch, -0.08, 0.08);
-                System.out.println(drivePitchAmount);
-        
-               if(Math.abs(Roll) > 2.5 || Math.abs(Pitch) > 2.5){   //
+        if (m_reversed) {
+            if (Math.abs(Roll) > 2.5 || Math.abs(Pitch) > 2.5) {
                 count = 0;
-                // m_robotDrive.driveSlow(drivePitchAmount, driveRollAmount, 0, true);     
-                m_robotDrive.driveSlow(drivePitchAmount, driveRollAmount, 0, false);   //was false be
-                System.out.println(drivePitchAmount);
 
-               } else{
+                Twist2d twist = new Twist2d(xSpeed, ySpeed, 0);
+                Twist2d twistM_S = DriveUtil.scale(twist, kMaxSpeed, kMaxRot);
+                m_robotDrive.driveMetersPerSec(twistM_S, false);
+            } else {
                 count++;
-               }
-        // } else {
-            // m_robotDrive.drive(-0.2, 0, 0, true);
-        // }
-    } else {
-        if(m_robotDrive.getPose().getX() >= 3.277){
-            double Roll = m_gyro.getRedundantRoll();
-            double Pitch = m_gyro.getRedundantPitch();
-                // System.out.println(Roll);
-                double driveRollAmount = MathUtil.clamp(0.004 * Roll, -0.08, 0.08);
-                double drivePitchAmount = MathUtil.clamp(0.004   * Pitch, -0.08, 0.08);
-                System.out.println(drivePitchAmount);
-        
-               if(Math.abs(Roll) > 2.5 || Math.abs(Pitch) > 2.5){   
-                count = 0;
-                m_robotDrive.driveSlow(drivePitchAmount, -driveRollAmount, 0, false);     
-               } else{
-                count++;
-               }
+            }
         } else {
-            m_robotDrive.drive(0.3, 0, 0, true);
+            if (m_robotDrive.getPose().getX() >= 3.277) {
+                if (Math.abs(Roll) > 2.5 || Math.abs(Pitch) > 2.5) {
+                    count = 0;
+
+                    Twist2d twist = new Twist2d(xSpeed, -ySpeed, 0);
+                    Twist2d twistM_S = DriveUtil.scale(twist, kMaxSpeed, kMaxRot);
+                    m_robotDrive.driveMetersPerSec(twistM_S, false);
+                } else {
+                    count++;
+                }
+            } else {
+                Twist2d twistM_S = new Twist2d(kCruiseSpeed, 0, 0);
+                m_robotDrive.driveMetersPerSec(twistM_S, true);
+            }
         }
     }
 
-
-    // double Roll = m_gyro.getRoll();
-    //         double Pitch = m_gyro.getPitch();
-    //             // System.out.println(Roll);
-    //             double driveRollAmount = MathUtil.clamp(0.004 * Roll, -0.08, 0.08);
-    //             double drivePitchAmount = MathUtil.clamp(0.004   * Pitch, -0.08, 0.08);
-    //             System.out.println(drivePitchAmount);
-        
-    //            if(Math.abs(Roll) > 2.5 || Math.abs(Pitch) > 2.5){   
-    //             count = 0;
-    //             drivetrain.drive(drivePitchAmount, -0, 0, false);     
-    //            } else{
-    //             count++;
-    //            }
-
-   
-
-    
+    @Override
+    public boolean isFinished() {
+        return count >= 20;
     }
-  // Called once the command ends or is interrupted.
-  @Override
-  public void end(boolean interrupted) {
-    System.out.println("AUTO LEVEL ENDING");
-  }
-
-  // Returns true when the command should end.
-  @Override
-  public boolean isFinished() {
-    return count >= 20;
-  }
 }

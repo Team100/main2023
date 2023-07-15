@@ -1,6 +1,8 @@
 package org.team100.frc2023.subsystems.arm;
 
 import org.team100.lib.motors.FRCNEO;
+import org.team100.lib.subsystems.arm.ArmAngles;
+import org.team100.lib.subsystems.arm.ArmKinematics;
 
 import com.revrobotics.CANSparkMax.IdleMode;
 
@@ -12,9 +14,16 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class ArmController extends SubsystemBase {
+    public static final double coneSubVal = 1.308745;
+    public static final double softStop = -0.594938;
+    private final double kUpperArmLengthM = 0.92;
+    private final double kLowerArmLengthM = 0.93;
 
     // private static final double kArmMaxXCoordinate = 1.4;
     // private static final double kArmMaxYCoordinate = 1.4;
+
+    /** Coordinates are x up, y forward. */
+    private final ArmKinematics m_armKinematics;
 
     private double xSetpoint = 1;
     private double ySetpoint = 1;
@@ -25,25 +34,18 @@ public class ArmController extends SubsystemBase {
     private double lowerAngleSetpoint = 0;
 
     // Lower arm objects
-    public ArmSegment lowerArmSegment;
-    private FRCNEO lowerArmMotor;
+    public final ArmSegment lowerArmSegment;
+    private final FRCNEO lowerArmMotor;
     private final AnalogEncoder lowerArmEncoder = new AnalogEncoder(6);
 
     // Upper arm objects
-    public ArmSegment upperArmSegment;
-    private FRCNEO upperArmMotor;
-
+    public final ArmSegment upperArmSegment;
+    private final FRCNEO upperArmMotor;
     private final AnalogEncoder upperArmEncoder = new AnalogEncoder(5);
 
-    public double softStop = -0.594938;
-
-    public double coneSubVal = 1.308745;
-
     public ArmController() {
-        // TrapezoidProfile.Const   raints constraints = new TrapezoidProfile.Constraints(
-        //         0.3, // velocity rad/s
-        //         3.0 // accel rad/s^2
-        // );
+        m_armKinematics = new ArmKinematics(kLowerArmLengthM, kUpperArmLengthM);
+
         lowerArmMotor = new FRCNEO.FRCNEOBuilder(43)
                 .withInverted(false)
                 .withSensorPhase(false)
@@ -67,10 +69,10 @@ public class ArmController extends SubsystemBase {
                 .withForwardSoftLimitEnabled(false)
                 .build();
 
-        lowerArmSegment = new ArmSegment(this::getLowerArm, lowerArmMotor, "Lower Motor");
-        upperArmSegment = new ArmSegment(this::getUpperArm, upperArmMotor, "Upper Motor");
+        lowerArmSegment = new ArmSegment(lowerArmMotor, "Lower Motor");
+        upperArmSegment = new ArmSegment(upperArmMotor, "Upper Motor");
 
-        Translation2d initial = ArmKinematics.getArmPosition(getLowerArm(), getUpperArm());
+        Translation2d initial = m_armKinematics.forward(getArmAngles());
 
         xSetpoint = initial.getX();
         ySetpoint = initial.getY();
@@ -90,7 +92,7 @@ public class ArmController extends SubsystemBase {
      * @param x vertical axis coordinate
      * @param y horizontal axis coordinate
      */
-    public InverseKinematicsAngle manualSetpoint(XboxController m_driverController) {
+    public ArmAngles manualSetpoint(XboxController m_driverController) {
 
         double dx = -m_driverController.getLeftY();
         double dy = m_driverController.getRightX();
@@ -107,32 +109,22 @@ public class ArmController extends SubsystemBase {
             dy = (dy - 0.15) / 0.85;
         }
 
-        Translation2d current = ArmKinematics.getArmPosition(getLowerArm(), getUpperArm());
+        Translation2d current = m_armKinematics.forward(getArmAngles());
 
         dx *= 0.2;
         dy *= 0.2;
 
-        double x = current.getX() + dx;
-        double y = current.getY() + dy;
+        xSetpoint = current.getX() + dx;
+        ySetpoint = current.getY() + dy;
 
-        double[] coords = { x, y };
-
-        double[] angles = ArmKinematics.algorithm2RIKS(coords[0], coords[1]);
-
-        if (angles == null) {
-            return new InverseKinematicsAngle();
-        }
-
-        upperAngleSetpoint = angles[0];
-        lowerAngleSetpoint = angles[1];
-
-        xSetpoint = coords[0];
-        ySetpoint = coords[1];
-        return new InverseKinematicsAngle(angles[0], angles[1]); // upper theta, lower theta
+        ArmAngles angles = m_armKinematics.inverse(new Translation2d(xSetpoint, ySetpoint));
+        upperAngleSetpoint = angles.th2;
+        lowerAngleSetpoint = angles.th1;
+        return angles;
     }
 
     public void resetSetpoint() {
-        Translation2d current = ArmKinematics.getArmPosition(getLowerArm(), getUpperArm());
+        Translation2d current = m_armKinematics.forward(getArmAngles());
         xSetpoint = current.getX();
         ySetpoint = current.getY();
     }
@@ -150,27 +142,12 @@ public class ArmController extends SubsystemBase {
     }
 
     public Translation2d getPose() {
-        return ArmKinematics.getArmPosition(getLowerArm(), getUpperArm());
+        return m_armKinematics.forward(getArmAngles());
     }
 
-    public InverseKinematicsAngle calculate(double x, double y) {
-        double[] angles = ArmKinematics.algorithm2RIKS(x, y);
-        return new InverseKinematicsAngle(angles[0], angles[1]); // upper theta, lower theta
+    public ArmAngles calculate(double x, double y) {
+        return m_armKinematics.inverse(new Translation2d(x, y));
     }
-
-    /**
-     * Clamps the coordinates to the max values.
-     * 
-     * @param x
-     * @param y
-     * @return clamped coordinates
-     */
-    // private double[] clampCoords(double x, double y) {
-    //     double[] coords = new double[2];
-    //     coords[0] = MathUtil.clamp(x, 0, kArmMaxXCoordinate);
-    //     coords[1] = MathUtil.clamp(y, 0, kArmMaxYCoordinate);
-    //     return coords;
-    // }
 
     /**
      * The angle the lower arm is at (in radians)
@@ -181,9 +158,7 @@ public class ArmController extends SubsystemBase {
      */
     public double getLowerArm() {
         double x = (lowerArmEncoder.getAbsolutePosition() - 0.861614) * 360;
-        double formatted = x;
-        // * Math.PI / 180;
-        return (-1.0 * formatted) * Math.PI / 180;
+        return (-1.0 * x) * Math.PI / 180;
     }
 
     /**
@@ -193,11 +168,12 @@ public class ArmController extends SubsystemBase {
      * @return upper arm angle
      */
     public double getUpperArm() {
-        // double x = (upperArmEncoder.getAbsolutePosition() - 0.53) * 350 + 3;
-        double x = (upperArmEncoder.getAbsolutePosition() - 0.266396) * 350;
-        double formatted = x;
+        double x = (upperArmEncoder.getAbsolutePosition() - 0.266396) * 360;
+        return x * Math.PI / 180;
+    }
 
-        return formatted * Math.PI / 180;
+    public ArmAngles getArmAngles() {
+        return new ArmAngles(getLowerArm(), getUpperArm());
     }
 
     public double getLowerArmDegrees() {
@@ -210,7 +186,7 @@ public class ArmController extends SubsystemBase {
 
     public void setLowerArm(double x) {
 
-        if(getLowerArm() <= softStop && x < 0){
+        if (getLowerArm() <= softStop && x < 0) {
             lowerArmMotor.motor.set(x);
         } else {
             lowerArmMotor.motor.set(0);
@@ -224,7 +200,7 @@ public class ArmController extends SubsystemBase {
     }
 
     public void driveLowerArm(double x) {
-        lowerArmMotor.motor.setVoltage(12* x);
+        lowerArmMotor.motor.setVoltage(12 * x);
     }
 
     public void driveUpperArm(double x) {
@@ -239,15 +215,11 @@ public class ArmController extends SubsystemBase {
         return lowerArmMotor.getSelectedSensorPosition();
     }
 
-
-
     @Override
     public void initSendable(SendableBuilder builder) {
         super.initSendable(builder);
-        builder.addDoubleProperty("ARM X", () -> ArmKinematics.getArmPosition(getLowerArm(), getUpperArm()).getX(),
-                null);
-        builder.addDoubleProperty("ARM Y", () -> ArmKinematics.getArmPosition(getLowerArm(), getUpperArm()).getY(),
-                null);
+        builder.addDoubleProperty("ARM X", () -> m_armKinematics.forward(getArmAngles()).getX(), null);
+        builder.addDoubleProperty("ARM Y", () -> m_armKinematics.forward(getArmAngles()).getY(), null);
         builder.addDoubleProperty("Upper Arm Absolute Angle", () -> upperArmEncoder.getAbsolutePosition(), null);
         builder.addDoubleProperty("Lower Arm Absolute Angle", () -> lowerArmEncoder.getAbsolutePosition(), null);
         builder.addDoubleProperty("Upper Arm Absolute Radians", () -> getUpperArm(), null);
@@ -263,79 +235,4 @@ public class ArmController extends SubsystemBase {
         builder.addDoubleProperty("Upper Arm Relative", () -> getUpperArmRel(), null);
 
     }
-
-}
-
-class ArmKinematics {
-    private static final double kUpperArmLength = 0.92;
-    private static final double kLowerArmLength = 0.93;
-
-    /**
-     * Calculates the position of the arm based on the angles of the segments
-     * 
-     * @param lowerArmAngle
-     * @param upperArmAngle
-     * @return Translation2d object containing the position of the arm
-     */
-    public static Translation2d getArmPosition(double lowerArmAngle, double upperArmAngle) {
-        // upperArmAngle += lowerArmAngle;
-        double upperArmX = kUpperArmLength * Math.cos(upperArmAngle);
-        double upperArmY = kUpperArmLength * Math.sin(upperArmAngle);
-
-        double lowerArmX = kLowerArmLength * Math.cos(lowerArmAngle);
-        double lowerArmY = kLowerArmLength * Math.sin(lowerArmAngle);
-
-        return new Translation2d(upperArmX + lowerArmX, upperArmY + lowerArmY);
-    }
-
-    /**
-     * Calculates the angles the arm should be at to reach the setpoint.
-     * Accounts for the fact that our segment angles are independent.
-     * 
-     * @param x
-     * @param y
-     * @return array containing the angles [lowerArmAngle, upperArmAngle]
-     */
-    static double[] algorithm2RIK(double x, double y) {
-        double[] angles = new double[2];
-
-        double c2 = (x * x + y * y - kUpperArmLength * kUpperArmLength - kLowerArmLength * kLowerArmLength)
-                / (2 * kUpperArmLength * kLowerArmLength);
-        double s2 = Math.sqrt(1 - c2 * c2);
-        angles[1] = Math.atan2(s2, c2);
-
-        double k1 = kUpperArmLength + kLowerArmLength * c2;
-        double k2 = kLowerArmLength * s2;
-        angles[0] = Math.atan2(y, x) - Math.atan2(k2, k1);
-
-        return angles;
-    }
-
-    static double[] algorithm2RIKS(double x, double y) {
-        // https://www.youtube.com/watch?v=RH3iAmMsolo&t=7s
-
-        double[] angles = new double[2];
-        double xSquared = Math.pow(x, 2);
-        double ySquared = Math.pow(y, 2);
-
-        if (Math.sqrt(ySquared + xSquared) + 0.05 >= kLowerArmLength + kUpperArmLength) {
-            return null;
-        }
-
-        double upperLengthSquare = Math.pow(kUpperArmLength, 2);
-        double lowerLengthSquare = Math.pow(kLowerArmLength, 2);
-        double lengthSquared = upperLengthSquare + lowerLengthSquare;
-        double q2 = Math.PI
-                - Math.acos((lengthSquared - xSquared - ySquared) / (2 * kUpperArmLength * kLowerArmLength));
-        // maybe x/y try if it dosent work
-        double q1 = Math.atan(y / x)
-                - Math.atan((kUpperArmLength * Math.sin(q2)) / (kLowerArmLength + kUpperArmLength * Math.cos(q2)));
-
-        angles[0] = q1 + q2; // upper theta
-        angles[1] = q1; // lower theta
-
-        return angles;
-
-    }
-
 }

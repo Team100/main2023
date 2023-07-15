@@ -6,132 +6,49 @@ import org.team100.lib.motors.FRCTalonSRX.FRCTalonSRXBuilder;
 
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 
-import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.util.sendable.SendableBuilder;
-import edu.wpi.first.wpilibj.AnalogEncoder;
-// import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class Manipulator extends SubsystemBase {
-  /** Creates a new Manipulator. */
-  public FRCTalonSRX pinch;
-  public AnalogEncoder position;
-  public PIDController pinchController;
-  private double origin;
-  GamepieceLocator gamepieceLocator;
+    private final FRCTalonSRX m_motor;
+    private final GamepieceLocator gamepieceLocator;
 
-  public Manipulator() {
-    pinch = new FRCTalonSRXBuilder(10)
-    // .withKP(Constants.DrivetrainConstants.DrivetrainMotors.LeftMaster.KP)
-    // .withKI(Constants.DrivetrainConstants.DrivetrainMotors.LeftMaster.KI)
-    // .withKD(Constants.DrivetrainConstants.DrivetrainMotors.LeftMaster.KD)
-    // .withKF(Constants.DrivetrainConstants.DrivetrainMotors.LeftMaster.KF)
-    .withInverted(false)
-    .withSensorPhase(false)
-    // .withSensorPhase(Constants.DrivetrainConstants.DrivetrainMotors.LeftMaster.SENSOR_PHASE)
-    .withPeakOutputForward(1)
-    .withPeakOutputReverse(-1)
-    .withNeutralMode(NeutralMode.Brake)
-    .withCurrentLimitEnabled(true)
-    //.withCurrentLimit(7)
-    .build();
-
-    pinch.motor.configPeakCurrentLimit(30);
-    // pinch.motor.configContinuousCurrentLimit(1);
-
-    // pinch.motor.configPeakCurrentDuration(0)
-    pinch.motor.configPeakCurrentDuration(1000);
-
-    // pinch.motor.enableCurrentLimit(true);
-    // pinch.motor.enableCont
-    // pinch.motor.configCurrent
-    // mconfigPeakCurrentDuration
-    
-    gamepieceLocator = new GamepieceLocator();
-  
-    position = new AnalogEncoder(4);
-
-    position.reset();
-    
-    pinchController = new PIDController(0.2, 0, 0);
-
-    SmartDashboard.putData("Manipulator", this);
-
-  }
-
-  @Override
-  public void periodic() {
-    // This method will be called once per scheduler run
-    // System.out.println(pinch.getAppliedOutput());
-
-    // System.out.println(pinch.getSelectedSensorPosition());
-    SmartDashboard.putData("Manipulator", this);
-    //System.out.println("in Manipulator");
-  }
-  public double getOrigin(){
-    return origin;
-  }
-
-  public void pinch(double d){
-    pinch.motor.set(d);
-
-  }
-
-  public void pinchv2(double x, double y){
-    if(x > 0){
-      pinch.drivePercentOutput(x/4);
-    }else if(y > 0){
-      pinch.drivePercentOutput(-y/4);
-    }else{
-      pinch.drivePercentOutput(0);
+    public Manipulator() {
+        m_motor = new FRCTalonSRXBuilder(10)
+                .withInverted(false)
+                .withSensorPhase(false)
+                .withPeakOutputForward(1)
+                .withPeakOutputReverse(-1)
+                .withNeutralMode(NeutralMode.Brake)
+                .withCurrentLimitEnabled(true)
+                .build();
+        m_motor.motor.configPeakCurrentLimit(30);
+        m_motor.motor.configPeakCurrentDuration(1000);
+        gamepieceLocator = new GamepieceLocator();
+        SmartDashboard.putData("Manipulator", this);
     }
 
-  }
- 
-  public double getStatorCurrent(){
-    return pinch.motor.getStatorCurrent();
-  }
-  public boolean getInnerLimitSwitch(){
-    return pinch.motor.isFwdLimitSwitchClosed()==1;
-  }
-
-  public double getPosition(){
-    return position.get();
-  }
-
-  public boolean getForwardLimitSwitch(){
-    if(pinch.motor.isFwdLimitSwitchClosed() == 1){
-      return true;
-    }else{
-      return false;
+    public void set(double speed1_1, int currentLimit) {
+        m_motor.motor.configPeakCurrentLimit(currentLimit);
+        m_motor.motor.set(speed1_1);
     }
-  }
 
-  public boolean getReverseLimitSwitch(){
-    if(pinch.motor.isRevLimitSwitchClosed() == 1){
-      return true;
-    }else{
-      return false;
+    public double getStatorCurrent() {
+        return m_motor.motor.getStatorCurrent();
     }
-  }
 
-  public double getGamePieceOffset(){
-    return gamepieceLocator.getOffsetMeters();
-  }
+    public double getGamePieceOffset() {
+        return gamepieceLocator.getOffsetMeters();
+    }
 
-  public boolean hasGamepiece(){
-    return gamepieceLocator.hasGamepiece();
-  }
+    public boolean hasGamepiece() {
+        return gamepieceLocator.hasGamepiece();
+    }
 
-  public void initSendable(SendableBuilder builder) {
-    super.initSendable(builder);
-    builder.addDoubleProperty("Position", () -> getPosition(), null );
-    builder.addBooleanProperty("Fwd Limit Switch", () -> getForwardLimitSwitch(), null );
-    builder.addBooleanProperty("Rev Limit Switch", () -> getReverseLimitSwitch(), null );
-    builder.addDoubleProperty("Output Current", ()->pinch.motor.getStatorCurrent(), null);
-    builder.addDoubleProperty("Input Current", ()->pinch.motor.getSupplyCurrent(), null);
-
-  }
-
+    public void initSendable(SendableBuilder builder) {
+        super.initSendable(builder);
+        builder.addDoubleProperty("Output Current", () -> m_motor.motor.getStatorCurrent(), null);
+        builder.addDoubleProperty("Input Current", () -> m_motor.motor.getSupplyCurrent(), null);
+    }
 }

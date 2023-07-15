@@ -1,45 +1,46 @@
 package org.team100.frc2023.autonomous;
 
-import org.team100.frc2023.subsystems.SwerveDriveSubsystem;
+import org.team100.lib.subsystems.SwerveDriveSubsystem;
 
+import edu.wpi.first.math.geometry.Twist2d;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 
 public class DriveToThreshold extends CommandBase {
-  /** Creates a new DriveToThreshold. */
-  SwerveDriveSubsystem m_robotDrive;
-  boolean done;
-  public DriveToThreshold(SwerveDriveSubsystem robotDrive) {
-    // Use addRequirements() here to declare subsystem dependencies.
+    private static final double kEdgeOfRampMeters = 4.1;
+    private static final double kXSpeedM_S = -2.0;
 
-    m_robotDrive = robotDrive;
+    private final SwerveDriveSubsystem m_robotDrive;
+    
+    private boolean done;
 
-    addRequirements(m_robotDrive);
-  }
-
-  // Called when the command is initially scheduled.
-  @Override
-  public void initialize() {
-    System.out.println("+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++");
-  }
-
-  // Called every time the scheduler runs while the command is scheduled.
-  @Override
-  public void execute() {
-    if(m_robotDrive.getPose().getX() > 4.1){
-        m_robotDrive.drive(-0.4, 0, 0, true);
-    } else {
-      m_robotDrive.drive(0, 0, 0, true);
-      done = true;
+    /** Drive back to the edge of the charge station. */
+    public DriveToThreshold(SwerveDriveSubsystem robotDrive) {
+        m_robotDrive = robotDrive;
+        addRequirements(m_robotDrive);
     }
-  }
 
-  // Called once the command ends or is interrupted.
-  @Override
-  public void end(boolean interrupted) {}
+    @Override
+    public void initialize() {
+        done = false;
+    }
 
-  // Returns true when the command should end.
-  @Override
-  public boolean isFinished() {
-    return done;
-  }
+    @Override
+    public void execute() {
+        if (m_robotDrive.getPose().getX() > kEdgeOfRampMeters) {
+            m_robotDrive.driveMetersPerSec(new Twist2d(kXSpeedM_S, 0, 0), true);
+        } else {
+            done = true;
+        }
+    }
+
+    @Override
+    public boolean isFinished() {
+        return done;
+    }
+
+    @Override
+    public void end(boolean interrupted) {
+        m_robotDrive.driveMetersPerSec(new Twist2d(0, 0, 0), false);
+    }
+
 }
