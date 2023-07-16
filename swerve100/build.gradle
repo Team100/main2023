@@ -82,6 +82,9 @@ dependencies {
     nativeDebug wpi.java.vendor.jniDebug(wpi.platforms.desktop)
     simulationDebug wpi.sim.enableDebug()
 
+    // 254 uses jama
+    implementation 'gov.nist.math:jama:1.0.3'
+
     nativeRelease wpi.java.deps.wpilibJniRelease(wpi.platforms.desktop)
     nativeRelease wpi.java.vendor.jniRelease(wpi.platforms.desktop)
     simulationRelease wpi.sim.enableRelease()
@@ -89,6 +92,10 @@ dependencies {
     testImplementation 'org.junit.jupiter:junit-jupiter-api:5.8.2'
     testImplementation 'org.junit.jupiter:junit-jupiter-params:5.8.2'
     testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.8.2'
+
+    // to run 254's tests which are junit 4
+    testImplementation("junit:junit:4.13.2")
+    testRuntimeOnly 'org.junit.vintage:junit-vintage-engine:5.8.2'
 
     implementation 'com.acmerobotics.roadrunner:core:0.5.6'
 }
