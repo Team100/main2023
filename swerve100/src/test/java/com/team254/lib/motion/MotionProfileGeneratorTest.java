@@ -82,7 +82,8 @@ public class MotionProfileGeneratorTest {
         }
         // Profile should end at the goal state.
         if (!ignore_goal) {
-            var goal_state_at_end_time = goal.pos(profile.endTime());
+            // var goal_state_at_end_time = 
+            goal.pos(profile.endTime());
             assertTrue(goal.atGoalState(profile.endState()));
         }
     }
