@@ -1,11 +1,10 @@
 package com.team254.lib.trajectory;
 
-import com.team254.lib.geometry.Rotation2d;
-import com.team254.lib.geometry.State;
-import com.team254.lib.util.CSVWritable;
-
 import java.util.ArrayList;
 import java.util.List;
+
+import com.team254.lib.geometry.State;
+import com.team254.lib.util.CSVWritable;
 
 public class Trajectory<S extends State<S>, T extends State<T>> implements CSVWritable {
     protected final List<TrajectoryPoint<S, T>> points_;
