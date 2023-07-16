@@ -18,8 +18,12 @@ import edu.wpi.first.networktables.RawSubscriber;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 
 public class DriveToRetroReflectiveTape extends CommandBase {
-    private static final LinearFilter xFilter = LinearFilter.singlePoleIIR(0.06, 0.02);
-    private static final LinearFilter yFilter = LinearFilter.singlePoleIIR(0.06, 0.02);
+    public static class Config {
+        public LinearFilter xFilter = LinearFilter.singlePoleIIR(0.06, 0.02);
+        public LinearFilter yFilter = LinearFilter.singlePoleIIR(0.06, 0.02);
+    }
+
+    private final Config m_config = new Config();
 
     private final SwerveDriveSubsystem m_robotDrive;
     private final ObjectMapper object_mapper;
@@ -73,8 +77,8 @@ public class DriveToRetroReflectiveTape extends CommandBase {
             Tapes tapes = object_mapper.readValue(data, Tapes.class);
 
             if (tapes.tapes.size() > 0) {
-                double yMeasurment = yFilter.calculate(-tapes.tapes.get(0).pose_t[1]);
-                double xMeasurment = xFilter.calculate(-tapes.tapes.get(0).pose_t[0]);
+                double yMeasurment = m_config.yFilter.calculate(-tapes.tapes.get(0).pose_t[1]);
+                double xMeasurment = m_config.xFilter.calculate(-tapes.tapes.get(0).pose_t[0]);
 
                 if (firstRun == true) {
                     yController.reset(yMeasurment);

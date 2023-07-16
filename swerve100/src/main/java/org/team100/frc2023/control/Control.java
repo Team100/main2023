@@ -10,7 +10,6 @@ import org.team100.frc2023.commands.DriveScaled;
 import org.team100.frc2023.commands.GoalOffset;
 import org.team100.frc2023.commands.RumbleOn;
 import org.team100.frc2023.commands.Arm.ArmTrajectory;
-import org.team100.frc2023.commands.Arm.Oscillate;
 import org.team100.frc2023.commands.Arm.SetConeMode;
 import org.team100.frc2023.commands.Arm.SetCubeMode;
 import org.team100.frc2023.commands.Manipulator.CloseSlow;
@@ -129,7 +128,7 @@ public interface Control {
 
     void ledOn(LedOn command);
 
-    void oscillate(Oscillate command);
+    void oscillate(ArmTrajectory command);
 
     void tapeDetect(DriveToRetroReflectiveTape command);
 

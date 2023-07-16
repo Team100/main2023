@@ -14,7 +14,6 @@ import org.team100.frc2023.commands.DriveScaled;
 import org.team100.frc2023.commands.GoalOffset;
 import org.team100.frc2023.commands.RumbleOn;
 import org.team100.frc2023.commands.Arm.ArmTrajectory;
-import org.team100.frc2023.commands.Arm.Oscillate;
 import org.team100.frc2023.commands.Arm.SetConeMode;
 import org.team100.frc2023.commands.Arm.SetCubeMode;
 import org.team100.frc2023.commands.Manipulator.CloseSlow;
@@ -42,12 +41,17 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
  * https://docs.google.com/document/d/1M89x_IiguQdY0VhQlOjqADMa6SYVp202TTuXZ1Ps280/edit#
  */
 public class DualXboxControl implements Control, Sendable {
-    private static final double kDeadband = 0.02;
-    private static final double kExpo = 0.5;
+    public static class Config {
 
-    // private static final double kDtSeconds = 0.02;
-    // private static final double kMaxRotationRateRadiansPerSecond = Math.PI;
-    private static final double kTriggerThreshold = .5;
+        public double kDeadband = 0.02;
+        public double kExpo = 0.5;
+
+        // public double kDtSeconds = 0.02;
+        // public double kMaxRotationRateRadiansPerSecond = Math.PI;
+        public double kTriggerThreshold = .5;
+    }
+
+    private final Config m_config = new Config();
 
     private final CommandXboxController controller0;
     private final CommandXboxController controller1;
@@ -104,9 +108,9 @@ public class DualXboxControl implements Control, Sendable {
 
     @Override
     public Twist2d twist() {
-        double dx = expo(deadband(-1.0 * clamp(controller0.getRightY(), 1), kDeadband, 1), kExpo);
-        double dy = expo(deadband(-1.0 * clamp(controller0.getRightX(), 1), kDeadband, 1), kExpo);
-        double dtheta = expo(deadband(-1.0 * clamp(controller0.getLeftX(), 1), kDeadband, 1), kExpo);
+        double dx = expo(deadband(-1.0 * clamp(controller0.getRightY(), 1), m_config.kDeadband, 1), m_config.kExpo);
+        double dy = expo(deadband(-1.0 * clamp(controller0.getRightX(), 1), m_config.kDeadband, 1), m_config.kExpo);
+        double dtheta = expo(deadband(-1.0 * clamp(controller0.getLeftX(), 1), m_config.kDeadband, 1), m_config.kExpo);
         return new Twist2d(dx, dy, dtheta);
     }
 
@@ -126,7 +130,7 @@ public class DualXboxControl implements Control, Sendable {
         controller0.leftBumper().whileTrue(command);
     }
 
-    public void resetPose(ResetPose command){
+    public void resetPose(ResetPose command) {
         controller0.leftBumper().onTrue(command);
     }
 
@@ -145,13 +149,13 @@ public class DualXboxControl implements Control, Sendable {
     public GoalOffset goalOffset() {
         double left = controller0.getLeftTriggerAxis();
         double right = controller0.getRightTriggerAxis();
-        if (left > kTriggerThreshold) {
-            if (right > kTriggerThreshold) {
+        if (left > m_config.kTriggerThreshold) {
+            if (right > m_config.kTriggerThreshold) {
                 return GoalOffset.center;
             }
             return GoalOffset.left;
         }
-        if (right > kTriggerThreshold) {
+        if (right > m_config.kTriggerThreshold) {
             return GoalOffset.right;
         }
         return GoalOffset.center;
@@ -193,7 +197,7 @@ public class DualXboxControl implements Control, Sendable {
         controller0.rightBumper().whileTrue(command);
     }
 
-    public void moveConeWidthLeft(MoveConeWidth command){
+    public void moveConeWidthLeft(MoveConeWidth command) {
         // controller0.y().whileTrue(command);
     }
 
@@ -202,7 +206,7 @@ public class DualXboxControl implements Control, Sendable {
         controller0.a().whileTrue(command);
     }
 
-    public void driveWithLQR(DriveToWaypoint3 command){
+    public void driveWithLQR(DriveToWaypoint3 command) {
         controller0.y().whileTrue(command);
     }
 
@@ -326,7 +330,7 @@ public class DualXboxControl implements Control, Sendable {
     }
 
     @Override
-    public void oscillate(Oscillate command) {
+    public void oscillate(ArmTrajectory command) {
         controller1.rightBumper().whileTrue(command);
     }
 

@@ -2,6 +2,7 @@ package org.team100.frc2023.commands.Arm;
 
 import org.team100.frc2023.subsystems.arm.ArmController;
 import org.team100.lib.indicator.LEDIndicator;
+import org.team100.lib.indicator.LEDIndicator.State;
 
 import edu.wpi.first.wpilibj2.command.CommandBase;
 
@@ -18,7 +19,7 @@ public class SetCubeMode extends CommandBase {
     @Override
     public void initialize() {
         m_arm.cubeMode = true;
-        m_indicator.purple();
+        m_indicator.set(State.PURPLE);
     }
 
     @Override

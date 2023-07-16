@@ -11,6 +11,7 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 
 public class DriveToAprilTag extends DriveToWaypoint2 {
 
@@ -19,9 +20,10 @@ public class DriveToAprilTag extends DriveToWaypoint2 {
             double yOffset,
             Supplier<GoalOffset> goalSupplier,
             SwerveDriveSubsystem robotDrive,
+            SwerveDriveKinematics kinematics, 
             RedundantGyro gyro,
             Supplier<Double> gamePieceOffset) {
-        super(goal, yOffset, goalSupplier, robotDrive, gyro, gamePieceOffset);
+        super(goal, yOffset, goalSupplier, robotDrive, kinematics, gyro, gamePieceOffset);
     }
 
     public static DriveToAprilTag newDriveToAprilTag(
@@ -30,11 +32,12 @@ public class DriveToAprilTag extends DriveToWaypoint2 {
             double yOffset,
             Supplier<GoalOffset> goalSupplier,
             SwerveDriveSubsystem robotDrive,
+            SwerveDriveKinematics kinematics, 
             AprilTagFieldLayoutWithCorrectOrientation layout,
             RedundantGyro gyro,
             Supplier<Double> gamePieceOffset) {
         Pose2d m_goal = goal(tagID, xOffset, layout);
-        return new DriveToAprilTag(m_goal, yOffset, goalSupplier, robotDrive, gyro, gamePieceOffset);
+        return new DriveToAprilTag(m_goal, yOffset, goalSupplier, robotDrive, kinematics, gyro, gamePieceOffset);
     }
 
     public static Pose2d goal(int tagID, double xOffset, AprilTagFieldLayoutWithCorrectOrientation layout) {

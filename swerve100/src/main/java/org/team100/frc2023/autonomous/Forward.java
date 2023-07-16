@@ -9,17 +9,19 @@ import org.team100.lib.subsystems.SwerveDriveSubsystem;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.math.trajectory.TrajectoryConfig;
 import edu.wpi.first.math.trajectory.TrajectoryGenerator;
 
 // TODO: do we need this?
 public class Forward extends SwerveControllerCommand {
-    public Forward(SwerveDriveSubsystem m_robotDrive, DriveControllers controllers, double x, RedundantGyro gyro) {
+    public Forward(SwerveDriveSubsystem m_robotDrive, SwerveDriveKinematics kinematics,
+            DriveControllers controllers, double x, RedundantGyro gyro) {
         super(
-                genTrajectory(m_robotDrive, x),
+                genTrajectory(m_robotDrive, kinematics, x),
                 m_robotDrive::getPose,
-                SwerveDriveSubsystem.kDriveKinematics,
+                kinematics,
                 controllers.xController,
                 controllers.yController,
                 controllers.thetaController,
@@ -30,7 +32,8 @@ public class Forward extends SwerveControllerCommand {
         addRequirements(m_robotDrive);
     }
 
-    private static Trajectory genTrajectory(SwerveDriveSubsystem m_robotDrive, double x) {
+    private static Trajectory genTrajectory(SwerveDriveSubsystem m_robotDrive, SwerveDriveKinematics kinematics,
+            double x) {
         Pose2d currentRobotPose = m_robotDrive.getPose();
         double xRobot = currentRobotPose.getX();
         double yRobot = currentRobotPose.getY();
@@ -39,10 +42,7 @@ public class Forward extends SwerveControllerCommand {
             rotRobot = new Rotation2d(rotRobot.getRadians() - Math.PI);
         }
 
-        TrajectoryConfig trajectoryConfig = new TrajectoryConfig(
-                4,
-                3)
-                .setKinematics(SwerveDriveSubsystem.kDriveKinematics);
+        TrajectoryConfig trajectoryConfig = new TrajectoryConfig(4, 3).setKinematics(kinematics);
 
         Trajectory exampleTrajectory = TrajectoryGenerator.generateTrajectory(
                 new Pose2d(xRobot, yRobot, rotRobot),

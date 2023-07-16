@@ -14,7 +14,6 @@ import org.team100.frc2023.commands.DriveWithHeading;
 import org.team100.frc2023.commands.RumbleOn;
 import org.team100.frc2023.commands.Arm.ArmTrajectory;
 import org.team100.frc2023.commands.Arm.ManualArm;
-import org.team100.frc2023.commands.Arm.Oscillate;
 import org.team100.frc2023.commands.Arm.SetConeMode;
 import org.team100.frc2023.commands.Arm.SetCubeMode;
 import org.team100.frc2023.commands.Manipulator.CloseSlow;
@@ -26,21 +25,22 @@ import org.team100.frc2023.control.JoystickControl;
 import org.team100.frc2023.subsystems.Manipulator;
 import org.team100.frc2023.subsystems.arm.ArmController;
 import org.team100.frc2023.subsystems.arm.ArmPosition;
-
 import org.team100.lib.commands.ResetPose;
 import org.team100.lib.commands.ResetRotation;
 import org.team100.lib.commands.Retro.LedOn;
 import org.team100.lib.config.Identity;
+import org.team100.lib.controller.DriveControllers;
 import org.team100.lib.controller.DriveControllersFactory;
 import org.team100.lib.indicator.LEDIndicator;
+import org.team100.lib.indicator.LEDIndicator.State;
 import org.team100.lib.localization.AprilTagFieldLayoutWithCorrectOrientation;
 import org.team100.lib.localization.VisionDataProvider;
 import org.team100.lib.retro.Illuminator;
 import org.team100.lib.sensors.RedundantGyro;
-import org.team100.lib.controller.DriveControllers;
 import org.team100.lib.subsystems.Heading;
 import org.team100.lib.subsystems.SpeedLimits;
 import org.team100.lib.subsystems.SpeedLimitsFactory;
+import org.team100.lib.subsystems.SwerveDriveKinematicsFactory;
 import org.team100.lib.subsystems.SwerveDriveSubsystem;
 import org.team100.lib.subsystems.SwerveModuleCollection;
 import org.team100.lib.subsystems.SwerveModuleCollectionFactory;
@@ -49,6 +49,7 @@ import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.util.sendable.Sendable;
 import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -60,17 +61,22 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 
 public class RobotContainer implements Sendable {
-    //////////////////////////////////////
-    // SHOW MODE
-    //
-    // Show mode is for younger drivers to drive the robot slowly.
-    //
-    // TODO: make a physical show mode switch.
-    private static final boolean SHOW_MODE = false;
-    //
-    //////////////////////////////////////
+    public static class Config {
 
-    private static final double kDriveCurrentLimit = SHOW_MODE ? 20 : 60;
+        //////////////////////////////////////
+        // SHOW MODE
+        //
+        // Show mode is for younger drivers to drive the robot slowly.
+        //
+        // TODO: make a physical show mode switch.
+        public boolean SHOW_MODE = false;
+        //
+        //////////////////////////////////////
+
+        public double kDriveCurrentLimit = SHOW_MODE ? 20 : 60;
+    }
+
+    private final Config m_config = new Config();
 
     // CONFIG
     private final DriverStation.Alliance m_alliance;
@@ -82,6 +88,7 @@ public class RobotContainer implements Sendable {
     private final Field2d m_field;
     private final AprilTagFieldLayoutWithCorrectOrientation layout;
     private final SwerveDriveSubsystem m_robotDrive;
+    private final SwerveDriveKinematics m_kinematics;
     private final Manipulator manipulator;
     private final ArmController armController;
     private final Illuminator illuminator;
@@ -106,10 +113,14 @@ public class RobotContainer implements Sendable {
         ahrsclass = new RedundantGyro();
         m_heading = new Heading(ahrsclass);
         m_field = new Field2d();
-        SpeedLimits speedLimits = SpeedLimitsFactory.get(Identity.get(), SHOW_MODE);
-        SwerveModuleCollection modules = SwerveModuleCollectionFactory.get(Identity.get(), kDriveCurrentLimit);
+
+        Identity identity = Identity.get();
+        SpeedLimits speedLimits = SpeedLimitsFactory.get(identity, m_config.SHOW_MODE);
+        m_kinematics = SwerveDriveKinematicsFactory.get(identity);
+
+        SwerveModuleCollection modules = SwerveModuleCollectionFactory.get(identity, m_config.kDriveCurrentLimit);
         SwerveDrivePoseEstimator poseEstimator = new SwerveDrivePoseEstimator(
-                SwerveDriveSubsystem.kDriveKinematics,
+            m_kinematics,
                 m_heading.getHeading(),
                 modules.positions(),
                 new Pose2d(),
@@ -128,20 +139,20 @@ public class RobotContainer implements Sendable {
                 poseEstimator::getEstimatedPosition);
         visionDataProvider.updateTimestamp(); // this is just to keep lint from complaining
 
+
         m_robotDrive = new SwerveDriveSubsystem(
                 m_heading,
                 speedLimits,
+                m_kinematics,
                 modules,
                 poseEstimator,
-                kDriveCurrentLimit,
                 ahrsclass,
                 m_field);
         manipulator = new Manipulator();
         armController = new ArmController();
         illuminator = new Illuminator(25);
-          
 
-        controllers = DriveControllersFactory.get(Identity.get(), speedLimits);
+        controllers = DriveControllersFactory.get(identity, speedLimits);
 
         // TODO: control selection using names
         // control = new DualXboxControl();
@@ -174,8 +185,8 @@ public class RobotContainer implements Sendable {
 
         control.moveConeWidthLeft(new MoveConeWidth(m_robotDrive, 1));
         control.moveConeWidthRight(new MoveConeWidth(m_robotDrive, -1));
-      
-        control.driveWithLQR(new DriveToWaypoint3(new Pose2d(5, 0, new Rotation2d()), m_robotDrive, ahrsclass));
+
+        control.driveWithLQR(new DriveToWaypoint3(new Pose2d(5, 0, new Rotation2d()), m_robotDrive, m_kinematics, ahrsclass));
 
         ///////////////////////////
         // MANIPULATOR COMMANDS
@@ -186,16 +197,17 @@ public class RobotContainer implements Sendable {
 
         ////////////////////////////
         // ARM COMMANDS
-        control.armHigh(new ArmTrajectory(ArmPosition.HIGH, armController));
-        control.armSafe(new ArmTrajectory(ArmPosition.SAFE, armController));
-        control.armSubstation(new ArmTrajectory(ArmPosition.SUB, armController));
+        control.armHigh(new ArmTrajectory(ArmPosition.HIGH, armController, false));
+        control.armSafe(new ArmTrajectory(ArmPosition.SAFE, armController, false));
+        control.armSubstation(new ArmTrajectory(ArmPosition.SUB, armController, false));
         control.coneMode(new SetConeMode(armController, m_indicator));
         control.cubeMode(new SetCubeMode(armController, m_indicator));
-        control.armLow(new ArmTrajectory(ArmPosition.MID, armController));
-        control.armSafeBack(new ArmTrajectory(ArmPosition.SAFEBACK, armController));
-        control.armToSub(new ArmTrajectory(ArmPosition.SUBTOCUBE, armController));
-        control.safeWaypoint(new ArmTrajectory(ArmPosition.SAFEWAYPOINT, armController));
-        control.oscillate(new Oscillate(armController));
+        control.armLow(new ArmTrajectory(ArmPosition.MID, armController, false));
+        control.armSafeBack(new ArmTrajectory(ArmPosition.SAFEBACK, armController, false));
+        control.armToSub(new ArmTrajectory(ArmPosition.SUBTOCUBE, armController, false));
+        control.safeWaypoint(new ArmTrajectory(ArmPosition.SAFEWAYPOINT, armController, false));
+        // control.oscillate(new Oscillate(armController));
+        control.oscillate(new ArmTrajectory(ArmPosition.SUB, armController, true));
         // control.armSafeSequential(armSafeWaypoint, armSafe);
         // control.armMid(new ArmTrajectory(ArmPosition.LOW, armController));
 
@@ -207,7 +219,7 @@ public class RobotContainer implements Sendable {
         ///////////////////////////
         // DRIVE
 
-        if (SHOW_MODE) {
+        if (m_config.SHOW_MODE) {
             m_robotDrive.setDefaultCommand(
                     new DriveScaled(
                             control::twist,
@@ -289,7 +301,7 @@ public class RobotContainer implements Sendable {
     }
 
     public void ledStart() {
-        m_indicator.orange();
+        m_indicator.set(State.ORANGE);
     }
 
     public void ledStop() {
@@ -297,11 +309,11 @@ public class RobotContainer implements Sendable {
     }
 
     public void red() {
-        m_indicator.red();
+        m_indicator.set(State.RED);
     }
 
     public void green() {
-        m_indicator.green();
+        m_indicator.set(State.GREEN);
     }
 
     private static FileWriter logFile() {
@@ -315,7 +327,7 @@ public class RobotContainer implements Sendable {
 
     private DriveToAprilTag toTag(int tagID, double xOffset, double yOffset) {
         return DriveToAprilTag.newDriveToAprilTag(tagID, xOffset, yOffset,
-                control::goalOffset, m_robotDrive, layout,
+                control::goalOffset, m_robotDrive, m_kinematics, layout,
                 ahrsclass, () -> 0.0);
     }
 

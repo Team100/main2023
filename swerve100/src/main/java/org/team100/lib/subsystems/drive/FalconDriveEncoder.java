@@ -4,7 +4,6 @@ import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class FalconDriveEncoder implements DriveEncoder {
-    private static final int kIntegratedSensorPulsesPerTurn = 2048;
     private final FalconDriveMotor m_motor;
     private final double m_distancePerPulse;
 
@@ -13,7 +12,7 @@ public class FalconDriveEncoder implements DriveEncoder {
             FalconDriveMotor motor,
             double distancePerTurn) {
         this.m_motor = motor;
-        this.m_distancePerPulse = distancePerTurn / kIntegratedSensorPulsesPerTurn;
+        this.m_distancePerPulse = distancePerTurn / 2048;
         SmartDashboard.putData(String.format("Falcon Drive Encoder %s", name), this);
     }
 

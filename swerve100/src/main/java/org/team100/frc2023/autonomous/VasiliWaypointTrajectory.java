@@ -10,6 +10,7 @@ import org.team100.lib.controller.DriveControllers;
 import org.team100.lib.subsystems.SwerveDriveSubsystem;
 
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.math.trajectory.TrajectoryUtil;
 import edu.wpi.first.util.sendable.SendableBuilder;
@@ -22,6 +23,7 @@ public class VasiliWaypointTrajectory extends SwerveControllerCommand {
 
     public VasiliWaypointTrajectory(
             SwerveDriveSubsystem m_robotDrive,
+            SwerveDriveKinematics kinematics,
             DriveControllers controllers,
             Supplier<Rotation2d> desiredRotation,
             RedundantGyro gyro,
@@ -29,7 +31,7 @@ public class VasiliWaypointTrajectory extends SwerveControllerCommand {
         super(
                 genTrajectory(path),
                 m_robotDrive::getPose,
-                SwerveDriveSubsystem.kDriveKinematics,
+                kinematics,
                 controllers.xController,
                 controllers.yController,
                 controllers.thetaController,

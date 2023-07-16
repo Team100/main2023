@@ -14,13 +14,13 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class ArmController extends SubsystemBase {
-    public static final double coneSubVal = 1.308745;
-    public static final double softStop = -0.594938;
-    private final double kUpperArmLengthM = 0.92;
-    private final double kLowerArmLengthM = 0.93;
+    public static class Config {
+        public double softStop = -0.594938;
+        public double kUpperArmLengthM = 0.92;
+        public double kLowerArmLengthM = 0.93;
+    }
 
-    // private static final double kArmMaxXCoordinate = 1.4;
-    // private static final double kArmMaxYCoordinate = 1.4;
+    private final Config m_config = new Config();
 
     /** Coordinates are x up, y forward. */
     private final ArmKinematics m_armKinematics;
@@ -44,7 +44,7 @@ public class ArmController extends SubsystemBase {
     private final AnalogEncoder upperArmEncoder = new AnalogEncoder(5);
 
     public ArmController() {
-        m_armKinematics = new ArmKinematics(kLowerArmLengthM, kUpperArmLengthM);
+        m_armKinematics = new ArmKinematics(m_config.kLowerArmLengthM, m_config.kUpperArmLengthM);
 
         lowerArmMotor = new FRCNEO.FRCNEOBuilder(43)
                 .withInverted(false)
@@ -186,7 +186,7 @@ public class ArmController extends SubsystemBase {
 
     public void setLowerArm(double x) {
 
-        if (getLowerArm() <= softStop && x < 0) {
+        if (getLowerArm() <= m_config.softStop && x < 0) {
             lowerArmMotor.motor.set(x);
         } else {
             lowerArmMotor.motor.set(0);

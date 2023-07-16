@@ -35,7 +35,11 @@ import edu.wpi.first.math.Pair;
  * https://colab.research.google.com/drive/1W0YVYi4eXLpfdkSNpOy4otiW2Poliems#scrollTo=ps1ulO5dYUL4
  */
 public class VarianceWeightedLinearPooling<States extends Num> extends LinearPooling<States> {
-    private static final double kThreshold = 1e-15;
+    public static class Config {
+        public double kThreshold = 1e-15;
+    }
+
+    private final Config m_config = new Config();
 
     public RandomVector<States> fuse(RandomVector<States> a, RandomVector<States> b) {
         // TODO: turn off these checks somehow for matches, use some sort of backoff
@@ -43,11 +47,11 @@ public class VarianceWeightedLinearPooling<States extends Num> extends LinearPoo
         if (a.getClass() != b.getClass()) {
             throw new IllegalArgumentException("a and b must be same type\n" + a.getClass() + " " + b.getClass());
         }
-        Pair<Matrix<States,States>,Matrix<States,States>> weights = weights(a,b);
+        Pair<Matrix<States, States>, Matrix<States, States>> weights = weights(a, b);
         Matrix<States, States> pa = weights.getFirst();
         Matrix<States, States> pb = weights.getSecond();
-      // System.out.println("pa " + pa);
-      //  System.out.println("pb " + pb);
+        // System.out.println("pa " + pa);
+        // System.out.println("pb " + pb);
         return fuse(a, pa, b, pb);
     }
 
@@ -55,22 +59,22 @@ public class VarianceWeightedLinearPooling<States extends Num> extends LinearPoo
     Pair<Matrix<States, States>, Matrix<States, States>> weights(RandomVector<States> a, RandomVector<States> b) {
         Matrix<States, States> aP = a.Kxx.getValue();
         Matrix<States, States> bP = b.Kxx.getValue();
-        if (aP.det() < kThreshold) {
+        if (aP.det() < m_config.kThreshold) {
             throw new IllegalArgumentException("aP is singular.\n" + aP.toString());
         }
-        if (bP.det() < kThreshold) {
+        if (bP.det() < m_config.kThreshold) {
             throw new IllegalArgumentException("bP is singular.\n" + bP.toString());
         }
         Matrix<States, States> aPI = aP.inv();
         Matrix<States, States> bPI = bP.inv();
         Matrix<States, States> PIsum = aPI.plus(bPI);
-        if (PIsum.det() < kThreshold) {
+        if (PIsum.det() < m_config.kThreshold) {
             throw new IllegalArgumentException("PIsum is singular.\n" + PIsum.toString());
         }
         Matrix<States, States> pIsumI = PIsum.inv();
         Matrix<States, States> pa = aPI.times(pIsumI);
         Matrix<States, States> pb = bPI.times(pIsumI);
-        return Pair.of(pa,pb);
+        return Pair.of(pa, pb);
     }
 
 }

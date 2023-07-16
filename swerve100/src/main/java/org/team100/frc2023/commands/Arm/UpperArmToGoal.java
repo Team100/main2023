@@ -11,15 +11,19 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 
 public class UpperArmToGoal extends CommandBase {
-    private static final SimpleMotorFeedforward upperArmFeedforward = new SimpleMotorFeedforward(0.0, 0.3);
-    private static final TrapezoidProfile.Constraints constraints = new TrapezoidProfile.Constraints(2, 3);
+    public static class Config {
+        public SimpleMotorFeedforward upperArmFeedforward = new SimpleMotorFeedforward(0.0, 0.3);
+        public TrapezoidProfile.Constraints constraints = new TrapezoidProfile.Constraints(2, 3);
+    }
+
+    private final Config m_config = new Config();
     private final ArmController m_arm;
     private final ProfiledPIDController m_controller;
     private State m_goal;
 
     public UpperArmToGoal(double position, ArmController arm, double velocity) {
         m_arm = arm;
-        m_controller = new ProfiledPIDController(2.2, 0, 0, constraints);
+        m_controller = new ProfiledPIDController(2.2, 0, 0, m_config.constraints);
         m_controller.setTolerance(0.1);
         m_goal = new State(position, velocity);
         addRequirements(arm);
@@ -35,7 +39,7 @@ public class UpperArmToGoal extends CommandBase {
     public void execute() {
         m_arm.upperArmSegment.setMotor(
                 m_controller.calculate(m_arm.getUpperArm(), m_goal)
-                        + upperArmFeedforward.calculate(m_controller.getSetpoint().velocity, 0));
+                        + m_config.upperArmFeedforward.calculate(m_controller.getSetpoint().velocity, 0));
 
     }
 

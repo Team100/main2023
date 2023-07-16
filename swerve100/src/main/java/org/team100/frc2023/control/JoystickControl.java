@@ -14,7 +14,6 @@ import org.team100.frc2023.commands.DriveScaled;
 import org.team100.frc2023.commands.GoalOffset;
 import org.team100.frc2023.commands.RumbleOn;
 import org.team100.frc2023.commands.Arm.ArmTrajectory;
-import org.team100.frc2023.commands.Arm.Oscillate;
 import org.team100.frc2023.commands.Arm.SetConeMode;
 import org.team100.frc2023.commands.Arm.SetCubeMode;
 import org.team100.frc2023.commands.Manipulator.CloseSlow;
@@ -44,9 +43,12 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
  * Command buttons are not implemented.
  */
 public class JoystickControl implements Control, Sendable {
-    private static final double kDeadband = 0.02;
-    private static final double kExpo = 0.5;
+    public static class Config {
+        public double kDeadband = 0.02;
+        public double kExpo = 0.5;
+    }
 
+    private final Config m_config = new Config();
     private final CommandJoystick controller0;
     // private final CommandJoystick controller1;
     private Rotation2d previousRotation = new Rotation2d(0);
@@ -93,9 +95,9 @@ public class JoystickControl implements Control, Sendable {
 
     @Override
     public Twist2d twist() {
-        double dx = expo(deadband(-1.0 * clamp(controller0.getY(), 1), kDeadband, 1), kExpo);
-        double dy = expo(deadband(-1.0 * clamp(controller0.getX(), 1), kDeadband, 1), kExpo);
-        double dtheta = expo(deadband(-1.0 * clamp(controller0.getTwist(), 1), kDeadband, 1), kExpo);
+        double dx = expo(deadband(-1.0 * clamp(controller0.getY(), 1), m_config.kDeadband, 1), m_config.kExpo);
+        double dy = expo(deadband(-1.0 * clamp(controller0.getX(), 1), m_config.kDeadband, 1), m_config.kExpo);
+        double dtheta = expo(deadband(-1.0 * clamp(controller0.getTwist(), 1), m_config.kDeadband, 1), m_config.kExpo);
         return new Twist2d(dx, dy, dtheta);
     }
 
@@ -250,7 +252,7 @@ public class JoystickControl implements Control, Sendable {
     }
 
     @Override
-    public void oscillate(Oscillate command) {
+    public void oscillate(ArmTrajectory command) {
     }
 
     @Override
@@ -274,7 +276,7 @@ public class JoystickControl implements Control, Sendable {
 
     @Override
     public void driveWithLQR(DriveToWaypoint3 command) {
-        // TODO: implement this        
+        // TODO: implement this
     }
 
 }

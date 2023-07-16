@@ -13,16 +13,23 @@ import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 
 public class ArmTrajectory extends CommandBase {
+    public static class Config {
+        public double oscillatorFrequencyHz = 2;
+        /** amplitude (each way) of oscillation in encoder units */
+        public double oscillatorScale = 0.025;
+        /** start oscillating when this close to the target. */
+        public double oscillatorZone = 0.1;
+    }
 
+    private final Config m_config = new Config();
     private final ArmController m_arm;
     private final ArmPosition m_position;
+    private final boolean m_oscillate;
     private final ArmTrajectories m_trajectories;
     private final Timer m_timer;
 
-    private final PIDController upperController;
-    private final PIDController lowerController;
-    private final PIDController upperDownController;
-    private final PIDController lowerDownController;
+    private final PIDController m_upperController;
+    private final PIDController m_lowerController;
 
     private final NetworkTableInstance inst;
     private final DoublePublisher measurmentX;
@@ -32,9 +39,13 @@ public class ArmTrajectory extends CommandBase {
 
     private Trajectory m_trajectory;
 
-    public ArmTrajectory(ArmPosition position, ArmController arm) {
+    /**
+     * Go to the specified position and optionally oscillate when you get there.
+     */
+    public ArmTrajectory(ArmPosition position, ArmController arm, boolean oscillate) {
         m_arm = arm;
         m_position = position;
+        m_oscillate = oscillate;
 
         if (m_position != ArmPosition.SAFE) {
             m_trajectories = new ArmTrajectories(new TrajectoryConfig(12, 2));
@@ -44,12 +55,15 @@ public class ArmTrajectory extends CommandBase {
 
         m_timer = new Timer();
 
-        upperController = new PIDController(4, 0.2, 0.05);
-        upperController.setTolerance(0.001);
-        lowerController = new PIDController(3, 0, 0.1);
-        lowerController.setTolerance(0.001);
-        upperDownController = new PIDController(2.5, 0, 0);
-        lowerDownController = new PIDController(2.5, 0, 0);
+        if (m_position == ArmPosition.SAFE) {
+            m_upperController = new PIDController(2.5, 0, 0);
+            m_lowerController = new PIDController(2.5, 0, 0);
+        } else {
+            m_upperController = new PIDController(4, 0.2, 0.05);
+            m_lowerController = new PIDController(3, 0, 0.1);
+            m_upperController.setTolerance(0.001);
+            m_lowerController.setTolerance(0.001);
+        }
 
         inst = NetworkTableInstance.getDefault();
         measurmentX = inst.getTable("Arm Trajec").getDoubleTopic("measurmentX").publish();
@@ -70,28 +84,34 @@ public class ArmTrajectory extends CommandBase {
         if (m_trajectory == null) {
             return;
         }
-        double curTime = m_timer.get();
+        double currentUpper = m_arm.getUpperArm();
+        double currentLower = m_arm.getLowerArm();
 
+        double curTime = m_timer.get();
         State desiredState = m_trajectory.sample(curTime);
 
         double desiredUpper = desiredState.poseMeters.getX();
         double desiredLower = desiredState.poseMeters.getY();
 
-        double currentUpper = m_arm.getUpperArm();
-        double currentLower = m_arm.getLowerArm();
+        double upperError = desiredUpper - currentUpper;
 
-        if (m_position == ArmPosition.SAFE) {
-            m_arm.setUpperArm(upperDownController.calculate(currentUpper, desiredUpper));
-            m_arm.setLowerArm(lowerDownController.calculate(currentLower, desiredLower));
-        } else {
-            m_arm.setUpperArm(upperController.calculate(currentUpper, desiredUpper));
-            m_arm.setLowerArm(lowerController.calculate(currentLower, desiredLower));
+        if (m_oscillate && upperError < m_config.oscillatorZone) {
+            desiredUpper += oscillator(curTime);
         }
 
         measurmentX.set(currentUpper);
         measurmentY.set(currentLower);
+
         setpointUpper.set(desiredUpper);
         setpointLower.set(desiredLower);
+
+        m_arm.setUpperArm(m_upperController.calculate(currentUpper, desiredUpper));
+        m_arm.setLowerArm(m_lowerController.calculate(currentLower, desiredLower));
+
+    }
+
+    private double oscillator(double timeSec) {
+        return m_config.oscillatorScale * Math.sin(2 * Math.PI * m_config.oscillatorFrequencyHz * timeSec);
     }
 
     @Override
@@ -104,8 +124,7 @@ public class ArmTrajectory extends CommandBase {
     public boolean isFinished() {
         if (m_position == ArmPosition.SAFEWAYPOINT) {
             return m_timer.hasElapsed(m_trajectory.getTotalTimeSeconds());
-        } else {
-            return false;
         }
+        return false;
     }
 }
