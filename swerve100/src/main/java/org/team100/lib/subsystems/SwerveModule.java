@@ -18,8 +18,12 @@ import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class SwerveModule implements Sendable {
-    private static final double kSteeringDeadband = 0.03;
-    private static final double kDriveDeadband = 0.03;
+    public static class Config {
+        public double kSteeringDeadband = 0.03;
+        public double kDriveDeadband = 0.03;
+    }
+
+    private final Config m_config = new Config();
 
     private final String m_name;
     private final DriveMotor m_driveMotor;
@@ -90,8 +94,8 @@ public class SwerveModule implements Sendable {
      * @param turnOutput  in range [-1, 1]
      */
     public void setOutput(double driveOutput, double turnOutput) {
-        m_driveMotor.set(MathUtil.applyDeadband(driveOutput, kDriveDeadband));
-        m_turningMotor.set(MathUtil.applyDeadband(turnOutput, kSteeringDeadband));
+        m_driveMotor.set(MathUtil.applyDeadband(driveOutput, m_config.kDriveDeadband));
+        m_turningMotor.set(MathUtil.applyDeadband(turnOutput, m_config.kSteeringDeadband));
     }
 
     /** Reset distance and angle to zero. */

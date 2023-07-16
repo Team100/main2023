@@ -9,7 +9,11 @@ import edu.wpi.first.math.trajectory.TrapezoidProfile.Constraints;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 
 public class MoveConeWidth extends CommandBase {
-    private static final double goalRotation = Math.PI;
+    public static class Config {
+    public double goalRotation = Math.PI;
+}
+
+private final Config m_config = new Config();
 
     private final SwerveDriveSubsystem m_robotDrive;
     private final double m_coneWidth;
@@ -39,7 +43,7 @@ public class MoveConeWidth extends CommandBase {
     public void execute() {
         double outputRot = m_rotationController.calculate(
                 m_robotDrive.getPose().getRotation().getRadians(),
-                goalRotation);
+                m_config.goalRotation);
         double outputY = yController.calculate(m_robotDrive.getPose().getY(), goalY);
         m_robotDrive.driveMetersPerSec(new Twist2d(0, outputY, outputRot), true);
     }

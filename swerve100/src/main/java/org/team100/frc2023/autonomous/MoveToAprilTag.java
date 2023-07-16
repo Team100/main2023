@@ -11,30 +11,30 @@ import org.team100.lib.subsystems.SwerveDriveSubsystem;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.math.trajectory.TrajectoryConfig;
 import edu.wpi.first.math.trajectory.TrajectoryGenerator;
 
 public class MoveToAprilTag extends SwerveControllerCommand {
-    private static final double speedMetersPerSecond = 2;
-    private static final double accelerationMetersPerSecondSquared = 1;
-    private static final TrajectoryConfig trajectoryConfig = new TrajectoryConfig(
-            speedMetersPerSecond,
-            accelerationMetersPerSecondSquared)
-            .setKinematics(SwerveDriveSubsystem.kDriveKinematics);
-
+    public static class Config {
+        public double speedMetersPerSecond = 2;
+        public double accelerationMetersPerSecondSquared = 1;
+    }
 
     public MoveToAprilTag(
+            Config config,
             SwerveDriveSubsystem m_robotDrive,
+            SwerveDriveKinematics kinematics,
             DriveControllers controllers,
             AprilTagFieldLayoutWithCorrectOrientation layout,
             Supplier<Pose2d> getPose,
             int tagID,
             RedundantGyro gyro) {
         super(
-                genTrajectory(m_robotDrive, layout, getPose, tagID),
+                genTrajectory(config, m_robotDrive, kinematics, layout, getPose, tagID),
                 m_robotDrive::getPose,
-                SwerveDriveSubsystem.kDriveKinematics,
+                kinematics,
                 controllers.xController,
                 controllers.yController,
                 controllers.thetaController,
@@ -46,10 +46,18 @@ public class MoveToAprilTag extends SwerveControllerCommand {
     }
 
     private static Trajectory genTrajectory(
+            Config config,
             SwerveDriveSubsystem m_robotDrive,
+            SwerveDriveKinematics kinematics,
             AprilTagFieldLayoutWithCorrectOrientation layout,
             Supplier<Pose2d> getPose,
             int tagID) {
+
+        TrajectoryConfig trajectoryConfig = new TrajectoryConfig(
+                config.speedMetersPerSecond,
+                config.accelerationMetersPerSecondSquared)
+                .setKinematics(kinematics);
+
         Pose2d aprilPose = layout.getTagPose(tagID).get().toPose2d();
 
         Trajectory exampleTrajectory = TrajectoryGenerator.generateTrajectory(

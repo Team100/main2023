@@ -10,7 +10,11 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 
 public class LowerArmToGoal extends CommandBase {
-    private static final TrapezoidProfile.Constraints constraints = new TrapezoidProfile.Constraints(2, 3);
+    public static class Config {
+        public TrapezoidProfile.Constraints constraints = new TrapezoidProfile.Constraints(2, 3);
+    }
+
+    private final Config m_config = new Config();
     private final ArmController m_arm;
     private final ProfiledPIDController m_controller;
     private State m_goal;
@@ -18,7 +22,7 @@ public class LowerArmToGoal extends CommandBase {
     public LowerArmToGoal(double position, ArmController arm) {
         m_goal = new State(position, 0);
         m_arm = arm;
-        m_controller = new ProfiledPIDController(1.2, 0, 0, constraints);
+        m_controller = new ProfiledPIDController(1.2, 0, 0, m_config.constraints);
         m_controller.setTolerance(0.1); // radians
         addRequirements(arm);
         SmartDashboard.putData("Lower Arm To Goal", this);

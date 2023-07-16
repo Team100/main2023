@@ -24,14 +24,15 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class SwerveDriveSubsystem extends SubsystemBase implements SwerveDriveSubsystemInterface {
-    public static final SwerveDriveKinematics kDriveKinematics = SwerveDriveKinematicsFactory.get(Identity.get());
 
     private final Heading m_heading;
-    private final RedundantGyro m_gyro;
-    private final Field2d m_field;
     private final SpeedLimits m_speedLimits;
+    private final SwerveDriveKinematics m_DriveKinematics = SwerveDriveKinematicsFactory.get(Identity.get());
     private final SwerveModuleCollection m_modules;
     private final SwerveDrivePoseEstimator m_poseEstimator;
+    private final RedundantGyro m_gyro;
+    private final Field2d m_field;
+
     private final VeeringCorrection m_veering;
 
     // for observers
@@ -46,15 +47,19 @@ public class SwerveDriveSubsystem extends SubsystemBase implements SwerveDriveSu
     public SwerveDriveSubsystem(
             Heading heading,
             SpeedLimits speedLimits,
+            SwerveDriveKinematics driveKinematics,
             SwerveModuleCollection modules,
             SwerveDrivePoseEstimator poseEstimator,
-            double currentLimit,
             RedundantGyro gyro,
             Field2d field)
             throws IOException {
         m_heading = heading;
+        m_speedLimits = speedLimits;
+        m_modules = modules;
+        m_poseEstimator = poseEstimator;
         m_gyro = gyro;
         m_field = field;
+
         m_veering = new VeeringCorrection(m_gyro);
 
         // Sets up Field2d pose tracking for glass.
@@ -63,10 +68,6 @@ public class SwerveDriveSubsystem extends SubsystemBase implements SwerveDriveSu
         robotPosePub = fieldTable.getDoubleArrayTopic("robotPose").publish();
         fieldTypePub = fieldTable.getStringTopic(".type").publish();
         fieldTypePub.set("Field2d");
-
-        m_speedLimits = speedLimits;
-        m_modules = modules;
-        m_poseEstimator = poseEstimator;
 
         SmartDashboard.putData("Drive Subsystem", this);
     }
@@ -137,7 +138,7 @@ public class SwerveDriveSubsystem extends SubsystemBase implements SwerveDriveSu
         desiredChassisSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(twist.dx, twist.dy, twist.dtheta, rotation2);
         ChassisSpeeds targetChassisSpeeds = fieldRelative ? desiredChassisSpeeds
                 : new ChassisSpeeds(twist.dx, twist.dy, twist.dtheta);
-        SwerveModuleState[] swerveModuleStates = kDriveKinematics.toSwerveModuleStates(targetChassisSpeeds);
+        SwerveModuleState[] swerveModuleStates = m_DriveKinematics.toSwerveModuleStates(targetChassisSpeeds);
         setModuleStates(swerveModuleStates);
     }
 
@@ -148,7 +149,7 @@ public class SwerveDriveSubsystem extends SubsystemBase implements SwerveDriveSu
     }
 
     public void getRobotVelocity(SwerveModuleState[] desiredStates) {
-        actualChassisSpeeds = kDriveKinematics.toChassisSpeeds(desiredStates[0], desiredStates[1],
+        actualChassisSpeeds = m_DriveKinematics.toChassisSpeeds(desiredStates[0], desiredStates[1],
                 desiredStates[2], desiredStates[3]);
     }
 

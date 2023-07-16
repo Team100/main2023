@@ -14,6 +14,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.math.trajectory.TrajectoryConfig;
@@ -27,10 +28,15 @@ import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 
 public class DriveToWaypoint2 extends CommandBase {
-    private static final TrapezoidProfile.Constraints rotationConstraints = new TrapezoidProfile.Constraints(8, 12);
+    public static class Config {
+        public TrapezoidProfile.Constraints rotationConstraints = new TrapezoidProfile.Constraints(8, 12);
+    }
+
+    private final Config m_config = new Config();
     private final RedundantGyro m_gyro;
     private final Pose2d m_goal;
     private final SwerveDriveSubsystem m_swerve;
+    private final SwerveDriveKinematics m_kinematics;
     private final Supplier<GoalOffset> m_goalOffsetSupplier;
     private final Supplier<Double> m_gamePieceOffsetSupplier;
     private final Timer m_timer;
@@ -55,10 +61,11 @@ public class DriveToWaypoint2 extends CommandBase {
     private boolean isFinished = false;
 
     public DriveToWaypoint2(Pose2d goal, double yOffset, Supplier<GoalOffset> offsetSupplier,
-            SwerveDriveSubsystem drivetrain, RedundantGyro gyro, Supplier<Double> gamePieceOffsetSupplier) {
+            SwerveDriveSubsystem drivetrain, SwerveDriveKinematics kinematics, RedundantGyro gyro, Supplier<Double> gamePieceOffsetSupplier) {
         m_goal = goal;
         m_yOffset = yOffset;
         m_swerve = drivetrain;
+        m_kinematics = kinematics;
         m_gyro = gyro;
         m_goalOffsetSupplier = offsetSupplier;
         m_gamePieceOffsetSupplier = gamePieceOffsetSupplier;
@@ -77,7 +84,7 @@ public class DriveToWaypoint2 extends CommandBase {
 
         previousOffset = m_goalOffsetSupplier.get();
 
-        m_rotationController = new ProfiledPIDController(6.5, 0, 1, rotationConstraints);
+        m_rotationController = new ProfiledPIDController(6.5, 0, 1, m_config.rotationConstraints);
         m_rotationController.setTolerance(Math.PI / 180);
 
         xController = new PIDController(2, 0, 0);
@@ -90,7 +97,7 @@ public class DriveToWaypoint2 extends CommandBase {
 
         m_controller = new HolonomicDriveController2(xController, yController, m_rotationController, m_gyro);
 
-        translationConfig = new TrajectoryConfig(5, 4.5).setKinematics(SwerveDriveSubsystem.kDriveKinematics);
+        translationConfig = new TrajectoryConfig(5, 4.5).setKinematics(kinematics);
         addRequirements(drivetrain);
     }
 
@@ -110,8 +117,7 @@ public class DriveToWaypoint2 extends CommandBase {
         Translation2d goalTranslation = transformedGoal.getTranslation();
         Translation2d translationToGoal = goalTranslation.minus(currentTranslation);
         Rotation2d angleToGoal = translationToGoal.getAngle();
-        TrajectoryConfig withStartVelocityConfig = new TrajectoryConfig(5, 2)
-                .setKinematics(SwerveDriveSubsystem.kDriveKinematics);
+        TrajectoryConfig withStartVelocityConfig = new TrajectoryConfig(5, 2).setKinematics(m_kinematics);
         withStartVelocityConfig.setStartVelocity(startVelocity);
 
         try {
@@ -159,8 +165,7 @@ public class DriveToWaypoint2 extends CommandBase {
         State desiredState = m_trajectory.sample(m_timer.get());
         ChassisSpeeds targetChassisSpeeds = m_controller.calculate(m_swerve.getPose(), desiredState,
                 m_goal.getRotation());
-        SwerveModuleState[] targetModuleStates = SwerveDriveSubsystem.kDriveKinematics
-                .toSwerveModuleStates(targetChassisSpeeds);
+        SwerveModuleState[] targetModuleStates = m_kinematics.toSwerveModuleStates(targetChassisSpeeds);
 
         desiredXPublisher.set(desiredState.poseMeters.getX());
         desiredYPublisher.set(desiredState.poseMeters.getY());

@@ -19,10 +19,14 @@ import edu.wpi.first.math.geometry.Rotation2d;
  * https://www.chiefdelphi.com/t/field-relative-swervedrive-drift-even-with-simulated-perfect-modules/413892
  */
 public class VeeringCorrection {
-    /**
-     * Delay in seconds.
-     */
-    private static final double kVeeringCorrection = 0.15;
+    public static class Config {
+        /**
+         * Delay in seconds.
+         */
+        public double kVeeringCorrection = 0.15;
+    }
+
+    private final Config m_config = new Config();
 
     private final RedundantGyro m_gyro;
 
@@ -37,7 +41,7 @@ public class VeeringCorrection {
      * @return future rotation
      */
     public Rotation2d correct(Rotation2d in) {
-        return in.minus(new Rotation2d(m_gyro.getRedundantGyroRate() * kVeeringCorrection));
+        return in.minus(new Rotation2d(m_gyro.getRedundantGyroRate() * m_config.kVeeringCorrection));
 
     }
 

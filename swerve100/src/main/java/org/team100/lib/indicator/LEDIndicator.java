@@ -1,19 +1,25 @@
 package org.team100.lib.indicator;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import edu.wpi.first.wpilibj.AddressableLED;
 import edu.wpi.first.wpilibj.AddressableLEDBuffer;
 import edu.wpi.first.wpilibj.util.Color;
 
 public class LEDIndicator {
-    private static final int kStripLength = 60;
-    private final AddressableLED led;
+    public static class Config {
+        public int kStripLength = 60;
+    }
+
+    private final Config m_config = new Config();
 
     /**
      * This enum exists to prepopulate the buffers, so they can be set atomically,
      * which is faster.
+     * TODO: fix these colors, i think they're all wrong now
      */
-    private static enum State {
-        // TODO: fix these colors, i think they're all wrong now
+    public static enum State {
         BLACK(new Color(0, 0, 0)),
         RED(new Color(255, 0, 0)),
         GREEN(new Color(0, 0, 255)),
@@ -21,45 +27,33 @@ public class LEDIndicator {
         YELLOW(new Color(255, 0, 80)),
         ORANGE(new Color(255, 0, 30));
 
-        private final AddressableLEDBuffer buffer;
+        private final Color color;
 
         private State(Color color) {
-            buffer = new AddressableLEDBuffer(kStripLength);
-            for (int i = 0; i < kStripLength; i++) {
-                buffer.setLED(i, color);
-            }
-        }
-
-        public void set(AddressableLED led) {
-            led.setData(buffer);
+            this.color = color;
         }
     }
+
+    private final Map<State, AddressableLEDBuffer> buffers;
+    private final AddressableLED led;
 
     public LEDIndicator(int port) {
+        buffers = new HashMap<State, AddressableLEDBuffer>();
+        for (State s : State.values()) {
+            AddressableLEDBuffer buffer = new AddressableLEDBuffer(m_config.kStripLength);
+            for (int i = 0; i < m_config.kStripLength; i++) {
+                buffer.setLED(i, s.color);
+            }
+            buffers.put(s, buffer);
+        }
         led = new AddressableLED(port);
-        led.setLength(kStripLength);
+        led.setLength(m_config.kStripLength);
         led.start();
-        State.ORANGE.set(led);
+        set(State.ORANGE);
     }
 
-    public void yellow() {
-        State.YELLOW.set(led);
-    }
-
-    public void red() {
-        State.RED.set(led);
-    }
-
-    public void green() {
-        State.GREEN.set(led);
-    }
-
-    public void purple() {
-        State.PURPLE.set(led);
-    }
-
-    public void orange() {
-        State.ORANGE.set(led);
+    public void set(State s) {
+        led.setData(buffers.get(s));
     }
 
     public void close() {

@@ -6,9 +6,12 @@ import edu.wpi.first.math.geometry.Twist2d;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 
 public class DriveToThreshold extends CommandBase {
-    private static final double kEdgeOfRampMeters = 4.1;
-    private static final double kXSpeedM_S = -2.0;
+    public static class Config {
+        public double kEdgeOfRampMeters = 4.1;
+        public double kXSpeedM_S = -2.0;
+    }
 
+    private final Config m_config = new Config();
     private final SwerveDriveSubsystem m_robotDrive;
     
     private boolean done;
@@ -26,8 +29,8 @@ public class DriveToThreshold extends CommandBase {
 
     @Override
     public void execute() {
-        if (m_robotDrive.getPose().getX() > kEdgeOfRampMeters) {
-            m_robotDrive.driveMetersPerSec(new Twist2d(kXSpeedM_S, 0, 0), true);
+        if (m_robotDrive.getPose().getX() > m_config.kEdgeOfRampMeters) {
+            m_robotDrive.driveMetersPerSec(new Twist2d(m_config.kXSpeedM_S, 0, 0), true);
         } else {
             done = true;
         }

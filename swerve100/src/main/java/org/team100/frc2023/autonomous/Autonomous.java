@@ -21,11 +21,14 @@ import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 
 public class Autonomous extends SequentialCommandGroup {
-    private static final double kArmExtendTimeout = 1.5;
-    private static final double kManipulatorRunTimeout = 0.2;
-    private static final double kArmSafeTimeout = 2;
-    private static final double kStopTimeout = 1;
+    public static class Config {
+        public double kArmExtendTimeout = 1.5;
+        public double kManipulatorRunTimeout = 0.2;
+        public double kArmSafeTimeout = 2;
+        public double kStopTimeout = 1;        
+    }
 
+    private final Config m_config = new Config();
     private final SwerveDriveSubsystem m_robotDrive;
     private final ArmController m_arm;
     private final Manipulator m_manipulator;
@@ -63,16 +66,16 @@ public class Autonomous extends SequentialCommandGroup {
     private void placeCube() {
         addCommands(
                 new SetCubeMode(m_arm, m_indicator),
-                timeout(new ArmTrajectory(ArmPosition.HIGH, m_arm), kArmExtendTimeout),
-                timeout(new Eject(m_manipulator), kManipulatorRunTimeout),
-                timeout(new ArmTrajectory(ArmPosition.SAFE, m_arm), kArmSafeTimeout),
+                timeout(new ArmTrajectory(ArmPosition.HIGH, m_arm, false), m_config.kArmExtendTimeout),
+                timeout(new Eject(m_manipulator), m_config.kManipulatorRunTimeout),
+                timeout(new ArmTrajectory(ArmPosition.SAFE, m_arm, false), m_config.kArmSafeTimeout),
                 new ResetRotation(m_robotDrive, Rotation2d.fromDegrees(180)));
     }
 
     private void driveOutAndBack() {
         addCommands(
                 new DriveMobility(m_robotDrive),
-                timeout(new DriveStop(m_robotDrive), kStopTimeout),
+                timeout(new DriveStop(m_robotDrive), m_config.kStopTimeout),
                 new DriveToThreshold(m_robotDrive));
     }
 

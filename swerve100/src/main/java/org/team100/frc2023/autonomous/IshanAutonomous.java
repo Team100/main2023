@@ -10,23 +10,26 @@ import org.team100.lib.subsystems.SwerveDriveSubsystem;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.math.trajectory.TrajectoryConfig;
 import edu.wpi.first.math.trajectory.TrajectoryGenerator;
 
 public class IshanAutonomous extends SwerveControllerCommand {
-    private static final double speedMetersPerSecond = 1;
-    private static final double accelerationMetersPerSecondSquared = 1;
+    public static class Config {
+        public double speedMetersPerSecond = 1;
+        public double accelerationMetersPerSecondSquared = 1;
+    }
 
-    private static final TrajectoryConfig kTrajectoryConfig = new TrajectoryConfig(
-            speedMetersPerSecond,
-            accelerationMetersPerSecondSquared)
-            .setKinematics(SwerveDriveSubsystem.kDriveKinematics);
-
-    public IshanAutonomous(SwerveDriveSubsystem m_robotDrive, DriveControllers controllers, RedundantGyro gyro) {
-        super(genTrajectory(m_robotDrive),
+    public IshanAutonomous(
+            Config m_config,
+            SwerveDriveSubsystem m_robotDrive,
+            SwerveDriveKinematics kinematics,
+            DriveControllers controllers,
+            RedundantGyro gyro) {
+        super(genTrajectory(m_config, m_robotDrive, kinematics),
                 m_robotDrive::getPose,
-                SwerveDriveSubsystem.kDriveKinematics,
+                kinematics,
                 controllers.xController,
                 controllers.yController,
                 controllers.thetaController,
@@ -36,7 +39,12 @@ public class IshanAutonomous extends SwerveControllerCommand {
                 m_robotDrive);
     }
 
-    private static Trajectory genTrajectory(SwerveDriveSubsystem m_robotDrive) {
+    private static Trajectory genTrajectory(Config config, SwerveDriveSubsystem m_robotDrive,
+            SwerveDriveKinematics kinematics) {
+        TrajectoryConfig kTrajectoryConfig = new TrajectoryConfig(
+                config.speedMetersPerSecond,
+                config.accelerationMetersPerSecondSquared)
+                .setKinematics(kinematics);
         double controlPointAngle = Math.atan2(
                 (1.071626 - m_robotDrive.getPose().getY()),
                 (14.513558 - m_robotDrive.getPose().getX()));

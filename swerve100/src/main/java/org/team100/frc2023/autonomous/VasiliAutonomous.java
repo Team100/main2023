@@ -13,6 +13,7 @@ import org.team100.lib.controller.DriveControllers;
 import org.team100.lib.subsystems.SwerveDriveSubsystem;
 
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.spline.Spline;
 import edu.wpi.first.math.trajectory.TrajectoryGenerator.ControlVectorList;
 import edu.wpi.first.wpilibj2.command.ParallelDeadlineGroup;
@@ -24,6 +25,7 @@ public class VasiliAutonomous extends SequentialCommandGroup {
 
     public VasiliAutonomous(
             SwerveDriveSubsystem m_robotDrive,
+            SwerveDriveKinematics kinematics, 
             DriveControllers controllers,
             RedundantGyro m_gyro,
             ArmController m_arm,
@@ -96,16 +98,17 @@ public class VasiliAutonomous extends SequentialCommandGroup {
                 new SetCubeMode(m_arm, indicator),
                 new ParallelDeadlineGroup(
                         new WaitCommand(3),
-                        new ArmTrajectory(ArmPosition.HIGH, m_arm)),
+                        new ArmTrajectory(ArmPosition.HIGH, m_arm, false)),
                 new ParallelDeadlineGroup(
                         new WaitCommand(2),
                         new Eject(m_manipulator)),
                 new ParallelDeadlineGroup(
                         new WaitCommand(2),
-                        new ArmTrajectory(ArmPosition.SAFE, m_arm)),
+                        new ArmTrajectory(ArmPosition.SAFE, m_arm, false)),
 
                 new VasiliWaypointTrajectory(
                         m_robotDrive,
+                        kinematics,
                         controllers,
                         () -> new Rotation2d(Math.PI),
                         m_gyro,
