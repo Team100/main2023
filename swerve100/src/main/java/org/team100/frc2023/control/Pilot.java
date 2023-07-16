@@ -280,8 +280,6 @@ public class Pilot implements Control, Sendable {
 
     @Override
     public void driveWithLQR(DriveToWaypoint3 command) {
-        // TODO Auto-generated method stub
-
     }
 
 }
