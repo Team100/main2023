@@ -4,15 +4,16 @@ import com.team254.lib.geometry.Pose2d;
 import com.team254.lib.geometry.Rotation2d;
 import com.team254.lib.geometry.Translation2d;
 import com.team254.lib.geometry.Twist2d;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.JUnit4;
+
 
 import java.util.Arrays;
 import java.util.List;
 
-@RunWith(JUnit4.class)
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+
 public class PurePursuitControllerTest {
 
     @Test
@@ -46,7 +47,7 @@ public class PurePursuitControllerTest {
             robot_pose = robot_pose.transformBy(Pose2d.exp(steering_command));
         }
         System.out.println("i = " + i);
-        Assert.assertTrue(i <= kMaxIter);
+        assertTrue(i <= kMaxIter);
     }
 
 }

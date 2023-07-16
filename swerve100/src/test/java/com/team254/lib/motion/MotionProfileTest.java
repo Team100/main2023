@@ -1,22 +1,23 @@
 package com.team254.lib.motion;
 
-import org.junit.Before;
-import org.junit.Test;
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.*;
-
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 public class MotionProfileTest {
     List<MotionSegment> segments;
     List<MotionSegment> segments_reversed;
     List<MotionSegment> segments_combined;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         segments = new ArrayList<>();
         // Accelerate at 1 unit/s^2 for 1 second

@@ -1,13 +1,11 @@
 package com.team254.frc2022.paths;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.JUnit4;
+import org.junit.jupiter.api.Test;
 
 /**
  * Ensure all trajectories are valid
  */
-@RunWith(JUnit4.class)
 public class TrajectoryGeneratorTest {
     @Test
     public void testGenerateTrajectories() {

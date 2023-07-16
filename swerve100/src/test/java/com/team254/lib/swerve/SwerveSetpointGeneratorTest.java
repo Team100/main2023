@@ -1,13 +1,12 @@
 package com.team254.lib.swerve;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import org.junit.jupiter.api.Test;
 
 import com.team254.lib.geometry.Rotation2d;
 import com.team254.lib.geometry.Translation2d;
 import com.team254.lib.util.Util;
-
-import org.junit.Test;
-
 
 public class SwerveSetpointGeneratorTest {
 

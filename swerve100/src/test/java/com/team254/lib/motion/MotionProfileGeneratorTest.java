@@ -1,15 +1,16 @@
 package com.team254.lib.motion;
 
-import com.team254.lib.motion.IMotionProfileGoal.CompletionBehavior;
-import com.team254.lib.util.Util;
+import static com.team254.lib.motion.MotionUtil.kEpsilon;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import org.hamcrest.BaseMatcher;
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static com.team254.lib.motion.MotionUtil.kEpsilon;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
+import com.team254.lib.motion.IMotionProfileGoal.CompletionBehavior;
+import com.team254.lib.util.Util;
 
 public class MotionProfileGeneratorTest {
 

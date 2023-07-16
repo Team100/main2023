@@ -1,17 +1,19 @@
 package com.team254.lib.spline;
 
-import com.team254.lib.geometry.*;
-import com.team254.lib.trajectory.TrajectoryPoint;
-import com.team254.lib.trajectory.TrajectoryTest;
-import com.team254.lib.util.Util;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.JUnit4;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.List;
 
-@RunWith(JUnit4.class)
+import org.junit.jupiter.api.Test;
+
+import com.team254.lib.geometry.Pose2d;
+import com.team254.lib.geometry.Pose2dWithCurvature;
+import com.team254.lib.geometry.Rotation2d;
+import com.team254.lib.geometry.Translation2d;
+import com.team254.lib.geometry.Twist2d;
+import com.team254.lib.trajectory.TrajectoryPoint;
+import com.team254.lib.util.Util;
+
 public class SplineGeneratorTest {
     public static final double kTestEpsilon = Util.kEpsilon;
 
@@ -36,10 +38,10 @@ public class SplineGeneratorTest {
             cur_heading = point.heading();
         }
 
-        Assert.assertEquals(cur_pose.getTranslation().x(), 15.0, kTestEpsilon);
-        Assert.assertEquals(cur_pose.getTranslation().y(), 10.0, kTestEpsilon);
-        Assert.assertEquals(cur_pose.getRotation().getDegrees(), -78.69006752597981, kTestEpsilon);
-        Assert.assertEquals(arclength, 23.17291953186379, kTestEpsilon);
-        Assert.assertEquals(cur_heading.getRadians(), headings.get(1).getRadians(), kTestEpsilon);
+        assertEquals(cur_pose.getTranslation().x(), 15.0, kTestEpsilon);
+        assertEquals(cur_pose.getTranslation().y(), 10.0, kTestEpsilon);
+        assertEquals(cur_pose.getRotation().getDegrees(), -78.69006752597981, kTestEpsilon);
+        assertEquals(arclength, 23.17291953186379, kTestEpsilon);
+        assertEquals(cur_heading.getRadians(), headings.get(1).getRadians(), kTestEpsilon);
     }
 }

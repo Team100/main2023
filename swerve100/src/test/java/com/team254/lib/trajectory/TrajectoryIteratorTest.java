@@ -1,17 +1,18 @@
 package com.team254.lib.trajectory;
 
-import com.team254.lib.geometry.Rotation2d;
-import com.team254.lib.geometry.Translation2d;
-import com.team254.lib.util.Util;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.JUnit4;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.Arrays;
 import java.util.List;
 
-@RunWith(JUnit4.class)
+import org.junit.jupiter.api.Test;
+
+import com.team254.lib.geometry.Rotation2d;
+import com.team254.lib.geometry.Translation2d;
+import com.team254.lib.util.Util;
+
 public class TrajectoryIteratorTest {
     public static final double kTestEpsilon = Util.kEpsilon;
 
@@ -34,51 +35,51 @@ public class TrajectoryIteratorTest {
         TrajectoryIterator<Translation2d, Rotation2d> iterator = new TrajectoryIterator<>(traj.getIndexView());
 
         // Initial conditions.
-        Assert.assertEquals(0.0, iterator.getProgress(), kTestEpsilon);
-        Assert.assertEquals(3.0, iterator.getRemainingProgress(), kTestEpsilon);
-        Assert.assertEquals(kWaypoints.get(0), iterator.getState());
-        Assert.assertEquals(kHeadings.get(0), iterator.getHeading());
-        Assert.assertFalse(iterator.isDone());
+        assertEquals(0.0, iterator.getProgress(), kTestEpsilon);
+        assertEquals(3.0, iterator.getRemainingProgress(), kTestEpsilon);
+        assertEquals(kWaypoints.get(0), iterator.getState());
+        assertEquals(kHeadings.get(0), iterator.getHeading());
+        assertFalse(iterator.isDone());
 
         // Advance forward.
-        Assert.assertEquals(kWaypoints.get(0).interpolate(kWaypoints.get(1), 0.5), iterator.preview(0.5).state());
-        Assert.assertEquals(kHeadings.get(0).interpolate(kHeadings.get(1), 0.5), iterator.preview(0.5).heading());
+        assertEquals(kWaypoints.get(0).interpolate(kWaypoints.get(1), 0.5), iterator.preview(0.5).state());
+        assertEquals(kHeadings.get(0).interpolate(kHeadings.get(1), 0.5), iterator.preview(0.5).heading());
         TrajectorySamplePoint<Translation2d, Rotation2d> newPoint = iterator.advance(0.5);
-        Assert.assertEquals(kWaypoints.get(0).interpolate(kWaypoints.get(1), 0.5), newPoint.state());
-        Assert.assertEquals(kHeadings.get(0).interpolate(kHeadings.get(1), 0.5), newPoint.heading());
-        Assert.assertEquals(0.5, iterator.getProgress(), kTestEpsilon);
-        Assert.assertEquals(2.5, iterator.getRemainingProgress(), kTestEpsilon);
-        Assert.assertFalse(iterator.isDone());
+        assertEquals(kWaypoints.get(0).interpolate(kWaypoints.get(1), 0.5), newPoint.state());
+        assertEquals(kHeadings.get(0).interpolate(kHeadings.get(1), 0.5), newPoint.heading());
+        assertEquals(0.5, iterator.getProgress(), kTestEpsilon);
+        assertEquals(2.5, iterator.getRemainingProgress(), kTestEpsilon);
+        assertFalse(iterator.isDone());
 
         // Advance backwards.
-        Assert.assertEquals(kWaypoints.get(0).interpolate(kWaypoints.get(1), 0.25), iterator.preview(-0.25).state());
-        Assert.assertEquals(kHeadings.get(0).interpolate(kHeadings.get(1), 0.25), iterator.preview(-0.25).heading());
+        assertEquals(kWaypoints.get(0).interpolate(kWaypoints.get(1), 0.25), iterator.preview(-0.25).state());
+        assertEquals(kHeadings.get(0).interpolate(kHeadings.get(1), 0.25), iterator.preview(-0.25).heading());
         newPoint = iterator.advance(-0.25);
-        Assert.assertEquals(kWaypoints.get(0).interpolate(kWaypoints.get(1), 0.25), newPoint.state());
-        Assert.assertEquals(kHeadings.get(0).interpolate(kHeadings.get(1), 0.25), newPoint.heading());
-        Assert.assertEquals(0.25, iterator.getProgress(), kTestEpsilon);
-        Assert.assertEquals(2.75, iterator.getRemainingProgress(), kTestEpsilon);
-        Assert.assertFalse(iterator.isDone());
+        assertEquals(kWaypoints.get(0).interpolate(kWaypoints.get(1), 0.25), newPoint.state());
+        assertEquals(kHeadings.get(0).interpolate(kHeadings.get(1), 0.25), newPoint.heading());
+        assertEquals(0.25, iterator.getProgress(), kTestEpsilon);
+        assertEquals(2.75, iterator.getRemainingProgress(), kTestEpsilon);
+        assertFalse(iterator.isDone());
 
         // Advance past end.
-        Assert.assertEquals(kWaypoints.get(3), iterator.preview(5.0).state());
-        Assert.assertEquals(kHeadings.get(3), iterator.preview(5.0).heading());
+        assertEquals(kWaypoints.get(3), iterator.preview(5.0).state());
+        assertEquals(kHeadings.get(3), iterator.preview(5.0).heading());
         newPoint = iterator.advance(5.0);
-        Assert.assertEquals(kWaypoints.get(3), newPoint.state());
-        Assert.assertEquals(kHeadings.get(3), newPoint.heading());
-        Assert.assertEquals(3.0, iterator.getProgress(), kTestEpsilon);
-        Assert.assertEquals(0.0, iterator.getRemainingProgress(), kTestEpsilon);
-        Assert.assertTrue(iterator.isDone());
+        assertEquals(kWaypoints.get(3), newPoint.state());
+        assertEquals(kHeadings.get(3), newPoint.heading());
+        assertEquals(3.0, iterator.getProgress(), kTestEpsilon);
+        assertEquals(0.0, iterator.getRemainingProgress(), kTestEpsilon);
+        assertTrue(iterator.isDone());
 
         // Advance past beginning.
-        Assert.assertEquals(kWaypoints.get(0), iterator.preview(-5.0).state());
-        Assert.assertEquals(kHeadings.get(0), iterator.preview(-5.0).heading());
+        assertEquals(kWaypoints.get(0), iterator.preview(-5.0).state());
+        assertEquals(kHeadings.get(0), iterator.preview(-5.0).heading());
         newPoint = iterator.advance(-5.0);
-        Assert.assertEquals(kWaypoints.get(0), newPoint.state());
-        Assert.assertEquals(kHeadings.get(0), newPoint.heading());
-        Assert.assertEquals(0.0, iterator.getProgress(), kTestEpsilon);
-        Assert.assertEquals(3.0, iterator.getRemainingProgress(), kTestEpsilon);
-        Assert.assertFalse(iterator.isDone());
+        assertEquals(kWaypoints.get(0), newPoint.state());
+        assertEquals(kHeadings.get(0), newPoint.heading());
+        assertEquals(0.0, iterator.getProgress(), kTestEpsilon);
+        assertEquals(3.0, iterator.getRemainingProgress(), kTestEpsilon);
+        assertFalse(iterator.isDone());
     }
 
 }
