@@ -99,7 +99,8 @@ dependencies {
     // to run some of 254's tests using junit5
     testImplementation 'org.hamcrest:hamcrest-library:2.2'
 
-    implementation 'com.acmerobotics.roadrunner:core:0.5.6'
+    // changed my mind about roadrunner; ported the useful stuff to Java.
+    // implementation 'com.acmerobotics.roadrunner:core:0.5.6'
 }
 
 test {

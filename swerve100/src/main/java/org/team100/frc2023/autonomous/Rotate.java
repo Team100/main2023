@@ -1,11 +1,15 @@
 package org.team100.frc2023.autonomous;
 
+import org.team100.lib.profile.MotionProfile;
+import org.team100.lib.profile.MotionProfileGenerator;
+import org.team100.lib.profile.MotionState;
 import org.team100.lib.subsystems.SpeedLimits;
 import org.team100.lib.subsystems.SwerveDriveSubsystemInterface;
 
-import com.acmerobotics.roadrunner.profile.MotionProfile;
-import com.acmerobotics.roadrunner.profile.MotionProfileGenerator;
-import com.acmerobotics.roadrunner.profile.MotionState;
+// replaced with our own versions
+// import com.acmerobotics.roadrunner.profile.MotionProfile;
+// import com.acmerobotics.roadrunner.profile.MotionProfileGenerator;
+// import com.acmerobotics.roadrunner.profile.MotionState;
 
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Twist2d;
