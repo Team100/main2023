@@ -1,24 +1,25 @@
 package com.team254.lib.util;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class StickyBooleanTest {
     @Test
     public void testLatches() {
         StickyBoolean b = new StickyBoolean();
-        Assert.assertFalse(b.update(false));
-        Assert.assertTrue(b.update(true));
-        Assert.assertTrue(b.update(false));
-        Assert.assertTrue(b.get());
+        assertFalse(b.update(false));
+        assertTrue(b.update(true));
+        assertTrue(b.update(false));
+        assertTrue(b.get());
     }
 
     @Test
     public void testReset() {
         StickyBoolean b = new StickyBoolean();
-        Assert.assertTrue(b.update(true));
+        assertTrue(b.update(true));
         b.reset();
-        Assert.assertFalse(b.get());
-        Assert.assertFalse(b.update(false));
+        assertFalse(b.get());
+        assertFalse(b.update(false));
     }
 }

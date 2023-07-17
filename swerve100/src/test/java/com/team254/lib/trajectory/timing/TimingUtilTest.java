@@ -1,5 +1,15 @@
 package com.team254.lib.trajectory.timing;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
+import org.junit.jupiter.api.Test;
+
 import com.team254.lib.geometry.ITranslation2d;
 import com.team254.lib.geometry.Rotation2d;
 import com.team254.lib.geometry.State;
@@ -8,16 +18,7 @@ import com.team254.lib.trajectory.DistanceView;
 import com.team254.lib.trajectory.Trajectory;
 import com.team254.lib.trajectory.timing.TimingConstraint.MinMaxAcceleration;
 import com.team254.lib.util.Util;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.JUnit4;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
-@RunWith(JUnit4.class)
 public class TimingUtilTest {
 
     public static final double kTestEpsilon = Util.kEpsilon;
@@ -53,23 +54,23 @@ public class TimingUtilTest {
                                                      double end_vel,
                                                      double max_vel,
                                                      double max_acc) {
-        Assert.assertFalse(traj.isEmpty());
-        Assert.assertEquals(traj.getPoint(0).state().velocity(), start_vel, kTestEpsilon);
-        Assert.assertEquals(traj.getPoint(traj.length() - 1).state().velocity(), end_vel, kTestEpsilon);
+        assertFalse(traj.isEmpty());
+        assertEquals(traj.getPoint(0).state().velocity(), start_vel, kTestEpsilon);
+        assertEquals(traj.getPoint(traj.length() - 1).state().velocity(), end_vel, kTestEpsilon);
 
         // Go state by state, verifying all constraints are satisfied and integration is correct.
         for (int i = 0; i < traj.length(); ++i) {
             final TimedState<S> state = traj.getPoint(i).state();
             for (final TimingConstraint<S> constraint : constraints) {
-                Assert.assertTrue(state.velocity() - kTestEpsilon <= constraint.getMaxVelocity(state.state()));
+                assertTrue(state.velocity() - kTestEpsilon <= constraint.getMaxVelocity(state.state()));
                 final MinMaxAcceleration accel_limits = constraint.getMinMaxAcceleration(state.state(),
                         state.velocity());
-                Assert.assertTrue(state.acceleration() - kTestEpsilon <= accel_limits.max_acceleration());
-                Assert.assertTrue(state.acceleration() + kTestEpsilon >= accel_limits.min_acceleration());
+                assertTrue(state.acceleration() - kTestEpsilon <= accel_limits.max_acceleration());
+                assertTrue(state.acceleration() + kTestEpsilon >= accel_limits.min_acceleration());
             }
             if (i > 0) {
                 final TimedState<S> prev_state = traj.getPoint(i - 1).state();
-                Assert.assertEquals(state.velocity(),
+                assertEquals(state.velocity(),
                         prev_state.velocity() + (state.t() - prev_state.t()) * prev_state.acceleration(), kTestEpsilon);
             }
         }

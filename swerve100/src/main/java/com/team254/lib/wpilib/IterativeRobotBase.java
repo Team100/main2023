@@ -8,7 +8,6 @@
 package com.team254.lib.wpilib;
 
 import edu.wpi.first.hal.DriverStationJNI;
-import edu.wpi.first.hal.HAL;
 import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.Watchdog;
 import edu.wpi.first.wpilibj.livewindow.LiveWindow;

@@ -189,8 +189,8 @@ public class HolonomicLQR {
         m_xManager.m_loop.predict(0.020);
         m_yManager.m_loop.predict(0.020);
         
-          double nextXVoltage = m_xManager.m_loop.getU(0);
-        double nextYVoltage = m_yManager.m_loop.getU(0);
+        //   double nextXVoltage = m_xManager.m_loop.getU(0);
+        // double nextYVoltage = m_yManager.m_loop.getU(0);
         
        xVolt.set(0.5 * m_lastXRef.getV() + m_lastXRef.getA());
     yVolt.set(0.5 * m_lastYRef.getV() + m_lastYRef.getA());

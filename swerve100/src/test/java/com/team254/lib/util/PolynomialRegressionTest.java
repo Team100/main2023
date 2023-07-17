@@ -1,13 +1,13 @@
 package com.team254.lib.util;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+import org.junit.jupiter.api.Test;
 
 import com.team254.frc2022.Constants;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.JUnit4;
 
-@RunWith(JUnit4.class)
+
+
 public class PolynomialRegressionTest {
     public static final double kTestEpsilon = 1E-9;
 

@@ -23,7 +23,7 @@ public class LQRManager {
 
     Matrix<N2, N1> matrixB = new Matrix<>(Nat.N2(), Nat.N1());
 
-    public LinearPlantInversionFeedforward feedforward;
+    public LinearPlantInversionFeedforward<N2,N1,N2> feedforward;
 
     
     public LQRManager(LinearSystem<N2, N1, N1> plant,  KalmanFilter<N2, N1, N1> observer, LinearQuadraticRegulator<N2, N1, N1> controller, TrapezoidProfile.Constraints constraints){

@@ -73,7 +73,7 @@ public class PointEstimatorTest {
         // partial measurement has "don't know" values
         Matrix<N2, N2> yP = new Matrix<>(Nat.N2(), Nat.N2());
         yP.set(0, 0, 0.01);
-        yP.set(1, 1, 1e9); // enormous variance; TODO: how big shouild this be?
+        yP.set(1, 1, 1e9); // enormous variance; how big shouild this be?
         RandomVector<N2> y = new RandomVector<>(yx, new Variance<>(yP));
 
         RandomVector<N2> xhat = pointEstimator.stateForMeasurementWithZeroU(y);

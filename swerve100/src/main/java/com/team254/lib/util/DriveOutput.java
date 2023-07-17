@@ -1,7 +1,6 @@
 package com.team254.lib.util;
 
 import com.team254.lib.geometry.Rotation2d;
-import com.team254.lib.physics.SwerveDrive;
 import com.team254.lib.swerve.SwerveModuleState;
 
 /**

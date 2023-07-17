@@ -4,8 +4,6 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import javax.sound.sampled.Line;
-
 import com.team254.lib.motion.IMotionProfileGoal.CompletionBehavior;
 
 /**

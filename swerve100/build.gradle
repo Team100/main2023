@@ -94,8 +94,10 @@ dependencies {
     testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.8.2'
 
     // to run 254's tests which are junit 4
-    testImplementation("junit:junit:4.13.2")
-    testRuntimeOnly 'org.junit.vintage:junit-vintage-engine:5.8.2'
+    // testImplementation("junit:junit:4.13.2")
+    // testRuntimeOnly 'org.junit.vintage:junit-vintage-engine:5.8.2'
+    // to run some of 254's tests using junit5
+    testImplementation 'org.hamcrest:hamcrest-library:2.2'
 
     implementation 'com.acmerobotics.roadrunner:core:0.5.6'
 }

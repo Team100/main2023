@@ -1,12 +1,11 @@
 package com.team254.lib.trajectory.timing;
 
-import com.team254.lib.geometry.Rotation2d;
+import java.util.ArrayList;
+import java.util.List;
+
 import com.team254.lib.geometry.State;
 import com.team254.lib.trajectory.DistanceView;
 import com.team254.lib.trajectory.Trajectory;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class TimingUtil {
     public static <S extends State<S>, T extends State<T>> Trajectory<TimedState<S>, TimedState<T>> timeParameterizeTrajectory(

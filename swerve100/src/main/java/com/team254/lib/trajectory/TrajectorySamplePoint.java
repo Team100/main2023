@@ -1,6 +1,5 @@
 package com.team254.lib.trajectory;
 
-import com.team254.lib.geometry.Rotation2d;
 import com.team254.lib.geometry.State;
 
 public class TrajectorySamplePoint<S extends State<S>, T extends State<T>> {

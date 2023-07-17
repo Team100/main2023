@@ -48,7 +48,7 @@ public class DriveToWaypoint3 extends CommandBase {
     }
 
     private final Config m_config = new Config();
-    private final RedundantGyro m_gyro;
+    //  private final RedundantGyro m_gyro;
     private final Pose2d m_goal;
     private final SwerveDriveSubsystem m_swerve;
     private final SwerveDriveKinematics m_kinematics;
@@ -97,7 +97,7 @@ public class DriveToWaypoint3 extends CommandBase {
         m_goal = goal;
         m_swerve = drivetrain;
         m_kinematics= kinematics;
-        m_gyro = gyro;
+        //  m_gyro = gyro;
         m_timer = new Timer();
         System.out.println("CONSTRUCTOR****************************************************");
 
@@ -166,7 +166,7 @@ public class DriveToWaypoint3 extends CommandBase {
         addRequirements(drivetrain);
     }
 
-    private Trajectory makeTrajectory(SwerveDriveKinematics kinematics, GoalOffset goalOffset, double startVelocity) {
+    private Trajectory makeTrajectory(GoalOffset goalOffset, double startVelocity) {
         Pose2d currentPose = m_swerve.getPose();
         Translation2d currentTranslation = currentPose.getTranslation();
 
@@ -177,7 +177,7 @@ public class DriveToWaypoint3 extends CommandBase {
         Translation2d goalTranslation = transformedGoal.getTranslation();
         Translation2d translationToGoal = goalTranslation.minus(currentTranslation);
         Rotation2d angleToGoal = translationToGoal.getAngle();
-        TrajectoryConfig withStartVelocityConfig = new TrajectoryConfig(5, 2)    .setKinematics(kinematics);
+        TrajectoryConfig withStartVelocityConfig = new TrajectoryConfig(5, 2)    .setKinematics(m_kinematics);
         withStartVelocityConfig.setStartVelocity(startVelocity);
 
         try {
@@ -200,7 +200,7 @@ public class DriveToWaypoint3 extends CommandBase {
         m_controller.reset(m_swerve.getPose());
         m_controller.updateProfile(m_goal.getX(), m_goal.getY(), 5, 3, 1);
         m_controller.start();
-        // m_trajectory = makeTrajectory(previousOffset, 0);
+        m_trajectory = makeTrajectory(previousOffset, 0);
 
     }
 
