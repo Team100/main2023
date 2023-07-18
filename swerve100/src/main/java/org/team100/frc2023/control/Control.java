@@ -23,6 +23,7 @@ import org.team100.lib.commands.Retro.LedOn;
 
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Twist2d;
+import edu.wpi.first.wpilibj2.command.Command;
 
 /** Implementations should do their own deadbanding, scaling, expo, etc. */
 public interface Control {
@@ -31,103 +32,174 @@ public interface Control {
     //
     // DRIVER: manual driving and auto navigation controls
 
-    void driveToLeftGrid(DriveToWaypoint2 command);
+    /**
+     * forward positive, left positive, counterclockwise positive
+     * 
+     * @return [-1,1]
+     */
+    default Twist2d twist() {
+        return new Twist2d();
+    };
 
-    void autoLevel(AutoLevel command);
+    default Rotation2d desiredRotation() {
+        return new Rotation2d();
+    };
 
-    void driveToCenterGrid(DriveToWaypoint2 command);
 
-    void driveToRightGrid(DriveToWaypoint2 command);
+    default GoalOffset goalOffset() {
+        return GoalOffset.center;
+    };
 
-    void driveToSubstation(DriveToWaypoint2 command);
+    default void driveToLeftGrid(Command command) {
+    };
 
-    void resetRotation0(ResetRotation command);
+    default void autoLevel(Command command) {
+    };
 
-    void resetRotation180(ResetRotation command);
+    default void driveToCenterGrid(Command command) {
+    };
 
-    /** forward positive, left positive, counterclockwise positive, [-1,1] */
-    Twist2d twist();
+    default void driveToRightGrid(Command command) {
+    };
 
-    void driveSlow(DriveScaled command);
+    default void driveToSubstation(Command command) {
+    };
 
-    void resetPose(ResetPose command);
+    default void resetRotation0(Command command) {
+    };
 
-    Rotation2d desiredRotation();
+    default void resetRotation180(Command command) {
+    };
 
-    GoalOffset goalOffset();
+    default void driveSlow(Command command) {
+    };
 
-    void defense(Defense defense);
+    default void resetPose(Command command) {
+    };
 
-    void rumbleOn();
+    default void defense(Command defense) {
+    };
 
-    void rumbleTrigger(RumbleOn command);
+    default void rumbleOn() {
+    };
 
-    void rumbleOff();
+    default void rumbleTrigger(Command command) {
+    };
 
-    void rotate0(Rotate command);
+    default void rumbleOff() {
+    };
 
-    void driveMedium(DriveScaled command);
+    default void rotate0(Command command) {
+    };
 
-    void moveConeWidthLeft(MoveConeWidth command);
+    default void driveMedium(Command command) {
+    };
 
-    void moveConeWidthRight(MoveConeWidth command);
+    default void moveConeWidthLeft(Command command) {
+    };
 
-    void driveWithLQR(DriveToWaypoint3 command);
+    default void moveConeWidthRight(Command command) {
+    };
+
+    default void driveWithLQR(Command command) {
+    };
 
     ///////////////////////////////
     //
     // OPERATOR: arm and manipulator controls
 
     /** @return [-1,1] */
-    double openSpeed();
+    default double openSpeed() {
+        return 0;
+    };
 
     /** @return [-1,1] */
-    double closeSpeed();
+    default double closeSpeed() {
+        return 0;
+    };
 
     /** @return [-1,1] */
-    double lowerSpeed();
+    default double lowerSpeed() {
+        return 0;
+    };
 
     /** @return [-1,1] */
-    double upperSpeed();
+    default double upperSpeed() {
+        return 0;
+    };
 
-    double armX();
-    double armY();
+    /**
+     * Cartesian arm control
+     * 
+     * @return positive-up [-1,1]
+     */
+    default double armX() {
+        return 0;
+    };
 
-    void armHigh(ArmTrajectory command);
+    /**
+     * Cartesian arm control
+     * 
+     * @return positive-forward [-1,1]
+     */
+    default double armY() {
+        return 0;
+    };
 
-    void armLow(ArmTrajectory command);
+    default void armHigh(Command command) {
+    };
 
-    void armSafe(ArmTrajectory command);
+    default void armLow(Command command) {
+    };
 
-    void safeWaypoint(ArmTrajectory command);
+    default void armSafe(Command command) {
+    };
 
-    void armSafeSequential(ArmTrajectory command, ArmTrajectory command2);
+    default void safeWaypoint(Command command) {
+    };
 
-    void armSafeBack(ArmTrajectory command);
+    default void armSafeSequential(Command command, Command command2) {
+    };
 
-    void closeSlow(CloseSlow command);
+    default void armSafeBack(Command command) {
+    };
 
-    void armSubstation(ArmTrajectory command);
+    default void closeSlow(Command command) {
+    };
 
-    void armMid(ArmTrajectory command);
+    default void armSubstation(Command command) {
+    };
 
-    void open(Open command);
+    default void armMid(Command command) {
+    };
 
-    void home(Home command);
+    default void open(Command command) {
+    };
 
-    void close(Eject command);
+    default void home(Command command) {
+    };
 
-    void cubeMode(SetCubeMode command);
+    default void close(Command command) {
+    };
 
-    void coneMode(SetConeMode command);
+    default void cubeMode(Command command) {
+    };
 
-    void armToSub(ArmTrajectory command);
+    default void coneMode(Command command) {
+    };
 
-    void ledOn(LedOn command);
+    default void armToSub(Command command) {
+    };
 
-    void oscillate(ArmTrajectory command);
+    default void ledOn(Command command) {
+    };
 
-    void tapeDetect(DriveToRetroReflectiveTape command);
+    default void oscillate(Command command) {
+    };
 
-    void armSubSafe(ArmTrajectory command);
+    default void tapeDetect(Command command) {
+    };
+
+    default void armSubSafe(Command command) {
+    };
 }
