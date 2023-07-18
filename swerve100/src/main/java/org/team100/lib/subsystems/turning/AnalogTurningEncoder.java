@@ -1,11 +1,12 @@
 package org.team100.lib.subsystems.turning;
 
+import edu.wpi.first.util.sendable.Sendable;
 import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.AnalogEncoder;
 import edu.wpi.first.wpilibj.AnalogInput;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
-public class AnalogTurningEncoder implements TurningEncoder {
+public class AnalogTurningEncoder implements TurningEncoder, Sendable {
     private final AnalogInput m_input;
     private final AnalogEncoder m_encoder;
 

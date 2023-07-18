@@ -1,9 +1,10 @@
 package org.team100.lib.subsystems.drive;
 
+import edu.wpi.first.util.sendable.Sendable;
 import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
-public class FalconDriveEncoder implements DriveEncoder {
+public class FalconDriveEncoder implements DriveEncoder, Sendable {
     private final FalconDriveMotor m_motor;
     private final double m_distancePerPulse;
 

@@ -1,11 +1,12 @@
 package org.team100.lib.subsystems.turning;
 
+import edu.wpi.first.util.sendable.Sendable;
 import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.motorcontrol.PWMMotorController;
 import edu.wpi.first.wpilibj.motorcontrol.VictorSP;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
-public class PWMTurningMotor implements TurningMotor {
+public class PWMTurningMotor implements TurningMotor, Sendable {
     private final PWMMotorController m_motor;
 
     public PWMTurningMotor(String name, int channel) {

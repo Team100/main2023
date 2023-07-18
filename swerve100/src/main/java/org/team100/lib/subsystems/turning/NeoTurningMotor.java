@@ -3,10 +3,11 @@ package org.team100.lib.subsystems.turning;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
+import edu.wpi.first.util.sendable.Sendable;
 import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
-public class NeoTurningMotor implements TurningMotor {
+public class NeoTurningMotor implements TurningMotor, Sendable {
     public static class Config {
         public int kCurrentLimit = 40;
     }

@@ -1,8 +1,6 @@
 package org.team100.lib.subsystems.drive;
 
-import edu.wpi.first.util.sendable.Sendable;
-
-public interface DriveEncoder extends Sendable {
+public interface DriveEncoder {
     /** @return encoder rate in meters per second */
     double getRate();
 

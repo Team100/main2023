@@ -2,10 +2,11 @@ package org.team100.lib.subsystems.turning;
 
 import com.ctre.phoenix.motorcontrol.can.WPI_VictorSPX;
 
+import edu.wpi.first.util.sendable.Sendable;
 import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
-public class CANTurningMotor implements TurningMotor {
+public class CANTurningMotor implements TurningMotor, Sendable {
     private final WPI_VictorSPX m_motor;
     private final int channel;
 
