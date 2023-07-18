@@ -383,12 +383,6 @@ public class FRCNEO implements Sendable {
         this.isInverted = inverted;
     }
 
-
-
-    public void setFeedbackPort(int feedbackPort) {
-        this.feedbackPort = feedbackPort;
-    }
-
     public int getTimeout() {
         return timeout;
     }
@@ -812,7 +806,6 @@ public class FRCNEO implements Sendable {
             fRCNEO.setCanID(canID);
             fRCNEO.setMotorType(motorType);
             fRCNEO.setInverted(isInverted);
-            fRCNEO.setFeedbackPort(feedbackPort);
             fRCNEO.setTimeout(timeout);
             fRCNEO.setSensorPhase(sensorPhase);
             fRCNEO.setAnalogMode(analogMode);
