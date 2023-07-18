@@ -15,6 +15,13 @@ plugins {
     id "jacoco"
 }
 
+// these four lines are for development builds
+// https://github.com/wpilibsuite/allwpilib/blob/main/DevelopmentBuilds.md
+// wpi.maven.useLocal = false
+// wpi.maven.useDevelopment = true
+// wpi.versions.wpilibVersion = '2023.+'
+// wpi.versions.wpimathVersion = '2023.+'
+
 sourceCompatibility = JavaVersion.VERSION_11
 targetCompatibility = JavaVersion.VERSION_11
 
