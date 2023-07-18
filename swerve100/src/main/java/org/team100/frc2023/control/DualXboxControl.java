@@ -4,26 +4,7 @@ import static org.team100.lib.control.ControlUtil.clamp;
 import static org.team100.lib.control.ControlUtil.deadband;
 import static org.team100.lib.control.ControlUtil.expo;
 
-import org.team100.frc2023.autonomous.DriveToWaypoint2;
-import org.team100.frc2023.autonomous.DriveToWaypoint3;
-import org.team100.frc2023.autonomous.MoveConeWidth;
-import org.team100.frc2023.autonomous.Rotate;
-import org.team100.frc2023.commands.AutoLevel;
-import org.team100.frc2023.commands.Defense;
-import org.team100.frc2023.commands.DriveScaled;
 import org.team100.frc2023.commands.GoalOffset;
-import org.team100.frc2023.commands.RumbleOn;
-import org.team100.frc2023.commands.Arm.ArmTrajectory;
-import org.team100.frc2023.commands.Arm.SetConeMode;
-import org.team100.frc2023.commands.Arm.SetCubeMode;
-import org.team100.frc2023.commands.Manipulator.CloseSlow;
-import org.team100.frc2023.commands.Manipulator.Eject;
-import org.team100.frc2023.commands.Manipulator.Home;
-import org.team100.frc2023.commands.Manipulator.Open;
-import org.team100.frc2023.commands.Retro.DriveToRetroReflectiveTape;
-import org.team100.lib.commands.ResetPose;
-import org.team100.lib.commands.ResetRotation;
-import org.team100.lib.commands.Retro.LedOn;
 
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Twist2d;
