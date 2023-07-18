@@ -4,11 +4,10 @@ import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 import org.team100.frc2023.autonomous.HolonomicDriveController2;
+import org.team100.lib.controller.DriveControllers;
 import org.team100.lib.sensors.RedundantGyro;
 import org.team100.lib.subsystems.VeeringCorrection;
 
-import edu.wpi.first.math.controller.PIDController;
-import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
@@ -35,9 +34,7 @@ public class SwerveControllerCommand extends CommandBase {
             Trajectory trajectory,
             Supplier<Pose2d> pose,
             SwerveDriveKinematics kinematics,
-            PIDController xController,
-            PIDController yController,
-            ProfiledPIDController thetaController,
+            DriveControllers controllers,
             Supplier<Rotation2d> rotationSupplier,
             Consumer<SwerveModuleState[]> outputModuleStates,
             RedundantGyro gyro,
@@ -45,7 +42,7 @@ public class SwerveControllerCommand extends CommandBase {
         m_trajectory = trajectory;
         m_pose = pose;
         m_kinematics = kinematics;
-        m_controller = new HolonomicDriveController2(xController, yController, thetaController, gyro);
+        m_controller = new HolonomicDriveController2(controllers.xController, controllers.yController, controllers.thetaController, gyro);
         m_gyro = gyro;
         m_veering = new VeeringCorrection(m_gyro);
         m_desiredRotation = rotationSupplier;
