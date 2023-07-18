@@ -1,10 +1,9 @@
 package org.team100.frc2023.commands.Arm;
 
+import org.team100.frc2023.subsystems.arm.ArmPosition;
 import org.team100.frc2023.subsystems.arm.ArmSubsystem;
 import org.team100.lib.subsystems.arm.ArmAngles;
-import org.team100.frc2023.subsystems.arm.ArmPosition;
 
-import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.math.trajectory.Trajectory.State;
 import edu.wpi.first.math.trajectory.TrajectoryConfig;
@@ -20,16 +19,17 @@ public class ArmTrajectory extends CommandBase {
         public double oscillatorScale = 0.025;
         /** start oscillating when this close to the target. */
         public double oscillatorZone = 0.1;
+        public TrajectoryConfig safeTrajectory = new TrajectoryConfig(9, 1.5);
+        public TrajectoryConfig normalTrajectory = new TrajectoryConfig(12, 2);
     }
 
     private final Config m_config = new Config();
     private final ArmSubsystem m_arm;
     private final ArmPosition m_position;
     private final boolean m_oscillate;
-    private final ArmTrajectories m_trajectories;
+
     private final Timer m_timer;
 
-    private final NetworkTableInstance inst;
     private final DoublePublisher measurmentX;
     private final DoublePublisher measurmentY;
     private final DoublePublisher setpointUpper;
@@ -44,27 +44,9 @@ public class ArmTrajectory extends CommandBase {
         m_arm = arm;
         m_position = position;
         m_oscillate = oscillate;
-
-        if (m_position != ArmPosition.SAFE) {
-            m_trajectories = new ArmTrajectories(new TrajectoryConfig(12, 2));
-        } else {
-            m_trajectories = new ArmTrajectories(new TrajectoryConfig(9, 1.5));
-        }
-
         m_timer = new Timer();
 
-TODO: edit the PID values in the subsytem here
-        if (m_position == ArmPosition.SAFE) {
-            m_upperController = new PIDController(2.5, 0, 0);
-            m_lowerController = new PIDController(2.5, 0, 0);
-        } else {
-            m_upperController = new PIDController(4, 0.2, 0.05);
-            m_lowerController = new PIDController(3, 0, 0.1);
-            m_upperController.setTolerance(0.001);
-            m_lowerController.setTolerance(0.001);
-        }
-
-        inst = NetworkTableInstance.getDefault();
+        NetworkTableInstance inst = NetworkTableInstance.getDefault();
         measurmentX = inst.getTable("Arm Trajec").getDoubleTopic("measurmentX").publish();
         measurmentY = inst.getTable("Arm Trajec").getDoubleTopic("measurmentY").publish();
         setpointUpper = inst.getTable("Arm Trajec").getDoubleTopic("Setpoint Upper").publish();
@@ -76,7 +58,18 @@ TODO: edit the PID values in the subsytem here
     @Override
     public void initialize() {
         m_timer.restart();
-        m_trajectory = m_trajectories.makeTrajectory(m_arm.getMeasurement(), m_position, m_arm.cubeMode);
+        final TrajectoryConfig trajectoryConfig;
+        if (m_position == ArmPosition.SAFE) {
+            trajectoryConfig = m_config.safeTrajectory;
+            m_arm.setControlSafe();
+        } else {
+            trajectoryConfig = m_config.normalTrajectory;
+            m_arm.setControlNormal();
+        }
+        m_trajectory = new ArmTrajectories(trajectoryConfig).makeTrajectory(
+                m_arm.getMeasurement(),
+                m_position,
+                m_arm.cubeMode);
     }
 
     public void execute() {
@@ -93,7 +86,6 @@ TODO: edit the PID values in the subsytem here
         double desiredUpper = desiredState.poseMeters.getX();
         double desiredLower = desiredState.poseMeters.getY();
 
-
         double upperError = desiredUpper - currentUpper;
 
         if (m_oscillate && upperError < m_config.oscillatorZone) {
@@ -106,17 +98,13 @@ TODO: edit the PID values in the subsytem here
 
         measurmentX.set(currentUpper);
         measurmentY.set(currentLower);
-
         setpointUpper.set(desiredUpper);
         setpointLower.set(desiredLower);
     }
 
-    private double oscillator(double timeSec) {
-        return m_config.oscillatorScale * Math.sin(2 * Math.PI * m_config.oscillatorFrequencyHz * timeSec);
-    }
-
     @Override
     public void end(boolean interrupted) {
+        m_arm.setControlNormal();
         m_arm.setReference(m_arm.getMeasurement());
     }
 
@@ -127,4 +115,9 @@ TODO: edit the PID values in the subsytem here
         }
         return false;
     }
+
+    private double oscillator(double timeSec) {
+        return m_config.oscillatorScale * Math.sin(2 * Math.PI * m_config.oscillatorFrequencyHz * timeSec);
+    }
+
 }

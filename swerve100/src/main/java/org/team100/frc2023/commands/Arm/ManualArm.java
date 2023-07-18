@@ -26,11 +26,21 @@ public class ManualArm extends CommandBase {
     }
 
     @Override
+    public void initialize() {
+        m_arm.setControlNormal();
+    }
+
+    @Override
     public void execute() {
         ArmAngles measurement = m_arm.getMeasurement();
         ArmAngles reference = new ArmAngles(
                 measurement.th1 + 0.02 * m_config.speedRadS * m_lowerSpeed.get(),
                 measurement.th2 + 0.02 * m_config.speedRadS * m_upperSpeed.get());
-        m_arm.setReference(measurement, reference);
+        m_arm.setReference(reference);
+    }
+
+    @Override
+    public void end(boolean interrupted) {
+        m_arm.setReference(m_arm.getMeasurement());
     }
 }
