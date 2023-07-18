@@ -96,6 +96,9 @@ public interface Control {
     /** @return [-1,1] */
     double upperSpeed();
 
+    double armX();
+    double armY();
+
     void armHigh(ArmTrajectory command);
 
     void armLow(ArmTrajectory command);

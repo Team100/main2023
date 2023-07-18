@@ -279,4 +279,14 @@ public class JoystickControl implements Control, Sendable {
         // TODO: implement this
     }
 
+    @Override
+    public double armX() {
+        return 0;
+    }
+
+    @Override
+    public double armY() {
+        return 0;
+    }
+
 }

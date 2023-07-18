@@ -23,7 +23,7 @@ import org.team100.frc2023.commands.Retro.DriveToRetroReflectiveTape;
 import org.team100.frc2023.control.Control;
 import org.team100.frc2023.control.JoystickControl;
 import org.team100.frc2023.subsystems.Manipulator;
-import org.team100.frc2023.subsystems.arm.ArmController;
+import org.team100.frc2023.subsystems.arm.ArmSubsystem;
 import org.team100.frc2023.subsystems.arm.ArmPosition;
 import org.team100.lib.commands.ResetPose;
 import org.team100.lib.commands.ResetRotation;
@@ -90,7 +90,7 @@ public class RobotContainer implements Sendable {
     private final SwerveDriveSubsystem m_robotDrive;
     private final SwerveDriveKinematics m_kinematics;
     private final Manipulator manipulator;
-    private final ArmController armController;
+    private final ArmSubsystem armController;
     private final Illuminator illuminator;
 
     // CONTROLLERS
@@ -120,7 +120,7 @@ public class RobotContainer implements Sendable {
 
         SwerveModuleCollection modules = SwerveModuleCollectionFactory.get(identity, m_config.kDriveCurrentLimit);
         SwerveDrivePoseEstimator poseEstimator = new SwerveDrivePoseEstimator(
-            m_kinematics,
+                m_kinematics,
                 m_heading.getHeading(),
                 modules.positions(),
                 new Pose2d(),
@@ -139,7 +139,6 @@ public class RobotContainer implements Sendable {
                 poseEstimator::getEstimatedPosition);
         visionDataProvider.updateTimestamp(); // this is just to keep lint from complaining
 
-
         m_robotDrive = new SwerveDriveSubsystem(
                 m_heading,
                 speedLimits,
@@ -149,7 +148,7 @@ public class RobotContainer implements Sendable {
                 ahrsclass,
                 m_field);
         manipulator = new Manipulator();
-        armController = new ArmController();
+        armController = new ArmSubsystem();
         illuminator = new Illuminator(25);
 
         controllers = DriveControllersFactory.get(identity, speedLimits);
@@ -186,7 +185,8 @@ public class RobotContainer implements Sendable {
         control.moveConeWidthLeft(new MoveConeWidth(m_robotDrive, 1));
         control.moveConeWidthRight(new MoveConeWidth(m_robotDrive, -1));
 
-        control.driveWithLQR(new DriveToWaypoint3(new Pose2d(5, 0, new Rotation2d()), m_robotDrive, m_kinematics, ahrsclass));
+        control.driveWithLQR(
+                new DriveToWaypoint3(new Pose2d(5, 0, new Rotation2d()), m_robotDrive, m_kinematics, ahrsclass));
 
         ///////////////////////////
         // MANIPULATOR COMMANDS
@@ -246,7 +246,7 @@ public class RobotContainer implements Sendable {
 
         ////////////////////////
         // ARM
-        armController.setDefaultCommand(new ManualArm(armController, control));
+        armController.setDefaultCommand(new ManualArm(armController, control::lowerSpeed, control::upperSpeed));
         SmartDashboard.putData("Robot Container", this);
     }
 

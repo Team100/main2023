@@ -6,7 +6,7 @@ import org.team100.frc2023.commands.Arm.ArmTrajectory;
 import org.team100.frc2023.commands.Arm.SetCubeMode;
 import org.team100.frc2023.commands.Manipulator.Eject;
 import org.team100.frc2023.subsystems.Manipulator;
-import org.team100.frc2023.subsystems.arm.ArmController;
+import org.team100.frc2023.subsystems.arm.ArmSubsystem;
 import org.team100.frc2023.subsystems.arm.ArmPosition;
 import org.team100.lib.autonomous.DriveStop;
 import org.team100.lib.commands.ResetRotation;
@@ -30,7 +30,7 @@ public class Autonomous extends SequentialCommandGroup {
 
     private final Config m_config = new Config();
     private final SwerveDriveSubsystem m_robotDrive;
-    private final ArmController m_arm;
+    private final ArmSubsystem m_arm;
     private final Manipulator m_manipulator;
     private final RedundantGyro m_gyro;
     private final LEDIndicator m_indicator;
@@ -38,7 +38,7 @@ public class Autonomous extends SequentialCommandGroup {
     // TODO: make routine an enum
     public Autonomous(
             SwerveDriveSubsystem robotDrive,
-            ArmController arm,
+            ArmSubsystem arm,
             Manipulator manipulator,
             RedundantGyro gyro,
             LEDIndicator indicator,

@@ -1,6 +1,7 @@
 package org.team100.frc2023.commands.Arm;
 
-import org.team100.frc2023.subsystems.arm.ArmController;
+import org.team100.frc2023.subsystems.arm.ArmSubsystem;
+import org.team100.lib.subsystems.arm.ArmAngles;
 import org.team100.frc2023.subsystems.arm.ArmPosition;
 
 import edu.wpi.first.math.controller.PIDController;
@@ -22,14 +23,11 @@ public class ArmTrajectory extends CommandBase {
     }
 
     private final Config m_config = new Config();
-    private final ArmController m_arm;
+    private final ArmSubsystem m_arm;
     private final ArmPosition m_position;
     private final boolean m_oscillate;
     private final ArmTrajectories m_trajectories;
     private final Timer m_timer;
-
-    private final PIDController m_upperController;
-    private final PIDController m_lowerController;
 
     private final NetworkTableInstance inst;
     private final DoublePublisher measurmentX;
@@ -42,7 +40,7 @@ public class ArmTrajectory extends CommandBase {
     /**
      * Go to the specified position and optionally oscillate when you get there.
      */
-    public ArmTrajectory(ArmPosition position, ArmController arm, boolean oscillate) {
+    public ArmTrajectory(ArmPosition position, ArmSubsystem arm, boolean oscillate) {
         m_arm = arm;
         m_position = position;
         m_oscillate = oscillate;
@@ -55,6 +53,7 @@ public class ArmTrajectory extends CommandBase {
 
         m_timer = new Timer();
 
+TODO: edit the PID values in the subsytem here
         if (m_position == ArmPosition.SAFE) {
             m_upperController = new PIDController(2.5, 0, 0);
             m_lowerController = new PIDController(2.5, 0, 0);
@@ -77,15 +76,16 @@ public class ArmTrajectory extends CommandBase {
     @Override
     public void initialize() {
         m_timer.restart();
-        m_trajectory = m_trajectories.makeTrajectory(m_arm.getArmAngles(), m_position, m_arm.cubeMode);
+        m_trajectory = m_trajectories.makeTrajectory(m_arm.getMeasurement(), m_position, m_arm.cubeMode);
     }
 
     public void execute() {
         if (m_trajectory == null) {
             return;
         }
-        double currentUpper = m_arm.getUpperArm();
-        double currentLower = m_arm.getLowerArm();
+        ArmAngles measurement = m_arm.getMeasurement();
+        double currentUpper = measurement.th2;
+        double currentLower = measurement.th1;
 
         double curTime = m_timer.get();
         State desiredState = m_trajectory.sample(curTime);
@@ -93,21 +93,22 @@ public class ArmTrajectory extends CommandBase {
         double desiredUpper = desiredState.poseMeters.getX();
         double desiredLower = desiredState.poseMeters.getY();
 
+
         double upperError = desiredUpper - currentUpper;
 
         if (m_oscillate && upperError < m_config.oscillatorZone) {
             desiredUpper += oscillator(curTime);
         }
 
+        ArmAngles reference = new ArmAngles(desiredLower, desiredUpper);
+
+        m_arm.setReference(reference);
+
         measurmentX.set(currentUpper);
         measurmentY.set(currentLower);
 
         setpointUpper.set(desiredUpper);
         setpointLower.set(desiredLower);
-
-        m_arm.setUpperArm(m_upperController.calculate(currentUpper, desiredUpper));
-        m_arm.setLowerArm(m_lowerController.calculate(currentLower, desiredLower));
-
     }
 
     private double oscillator(double timeSec) {
@@ -116,8 +117,7 @@ public class ArmTrajectory extends CommandBase {
 
     @Override
     public void end(boolean interrupted) {
-        m_arm.setUpperArm(0);
-        m_arm.setLowerArm(0);
+        m_arm.setReference(m_arm.getMeasurement());
     }
 
     @Override

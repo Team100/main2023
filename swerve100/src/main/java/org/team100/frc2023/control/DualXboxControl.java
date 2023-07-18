@@ -229,13 +229,13 @@ public class DualXboxControl implements Control, Sendable {
     /** @return [-1,1] */
     @Override
     public double lowerSpeed() {
-        return controller1.getRightX();
+        return 0.25 * deadband(controller1.getRightX(), 0.15, 1.0);
     }
 
     /** @return [-1,1] */
     @Override
     public double upperSpeed() {
-        return controller1.getLeftY();
+        return 0.25 * deadband(controller1.getLeftY(), 0.15, 1.0);
     }
 
     @Override
@@ -354,5 +354,19 @@ public class DualXboxControl implements Control, Sendable {
         // builder.addDoubleProperty("x limited", () -> xLimited(), null);
         // builder.addDoubleProperty("y limtied", () -> yLimited(), null);
         // builder.addDoubleProperty("rot Limited", () -> rotLimited(), null);
+    }
+
+    @Override
+    public double armX() {
+        // TODO: wire this up
+        // return 0.2 * deadband(-1.0 * controller1.getLeftY(), 0.15, 1.0);
+        return 0;
+    }
+
+    @Override
+    public double armY() {
+        // TODO: wire this up
+        // return 0.2 * deadband(controller1.getRightX(), 0.15, 1.0);
+        return 0;
     }
 }

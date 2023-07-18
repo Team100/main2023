@@ -19,8 +19,6 @@ public class FRCNEO implements Sendable {
     @Override
     public void initSendable(SendableBuilder builder) {
         builder.setSmartDashboardType("Text View");
-        builder.addDoubleProperty("EncoderPosition", this::getSelectedSensorPosition, null);
-        builder.addDoubleProperty("EncoderSpeed", this::getSensorVelocity, null);
         builder.addBooleanProperty("Fwd Limit", this.fwdLimitSwitch::isPressed, null);
         builder.addBooleanProperty("Rev Limit", this.revLimitSwitch::isPressed, null);
         builder.addDoubleProperty("current", motor::getOutputCurrent, null);
@@ -45,10 +43,6 @@ public class FRCNEO implements Sendable {
         this.motor.getEncoder().setPosition(position);
     }
 
-    public void driveMotionMagic(double setpoint) {
-        this.closedLoop.setReference(setpoint, ControlType.kSmartMotion);
-    }
-
     public void drivePosition(double setpoint) {
         this.closedLoop.setReference(setpoint, ControlType.kPosition);
     }
@@ -56,19 +50,7 @@ public class FRCNEO implements Sendable {
     public void driveCurrent(double current) {
         this.closedLoop.setReference(current, ControlType.kCurrent);
     }
-
-    public int getSensorVelocity() {
-        return (int)this.motor.getEncoder().getVelocity();
-    }
-
-    public double getAnalogSensorPosition() {
-        return this.motor.getAnalog(this.analogMode).getPosition();
-    }
-
-    public int getSelectedSensorPosition() {
-        return (int)this.motor.getEncoder().getPosition();
-    }
-
+    
     ///////////////////////////////////////////////////////////////////////////
     /**
      * A direct reference to the CANSparkMax motor, designed for direct control
@@ -110,11 +92,6 @@ public class FRCNEO implements Sendable {
      * Uses Boolean
      */
     private boolean isInverted;
-
-    /**
-     * The feedback port of the motor Default is 0
-     */
-    private int feedbackPort = 0;
 
     /**
      * The timeout of the motor in ms
@@ -406,9 +383,7 @@ public class FRCNEO implements Sendable {
         this.isInverted = inverted;
     }
 
-    public int getFeedbackPort() {
-        return feedbackPort;
-    }
+
 
     public void setFeedbackPort(int feedbackPort) {
         this.feedbackPort = feedbackPort;
@@ -696,10 +671,6 @@ public class FRCNEO implements Sendable {
             this.smartDashboardPath = "NEO_" + canID;
         }
 
-        // public static FRCNEOBuilder aFRCNEO() {
-        // return new FRCNEOBuilder();
-        // }
-
         public FRCNEOBuilder withCanID(int canID) {
             this.canID = canID;
             return this;
@@ -715,10 +686,6 @@ public class FRCNEO implements Sendable {
             return this;
         }
 
-        public FRCNEOBuilder withFeedbackPort(int feedbackPort) {
-            this.feedbackPort = feedbackPort;
-            return this;
-        }
 
         public FRCNEOBuilder withTimeout(int timeout) {
             this.timeout = timeout;
@@ -727,16 +694,6 @@ public class FRCNEO implements Sendable {
 
         public FRCNEOBuilder withSensorPhase(boolean sensorPhase) {
             this.sensorPhase = sensorPhase;
-            return this;
-        }
-
-        public FRCNEOBuilder withAnalogSensorMode(SparkMaxAnalogSensor.Mode analogMode) {
-            return withAnalogSensorMode(analogMode, false);
-        }
-
-        public FRCNEOBuilder withAnalogSensorMode(SparkMaxAnalogSensor.Mode analogMode, boolean useForPID) {
-            this.useAnalogForPID = useForPID;
-            this.analogMode = analogMode;
             return this;
         }
 
@@ -777,26 +734,6 @@ public class FRCNEO implements Sendable {
 
         public FRCNEOBuilder withNeutralMode(IdleMode idleMode) {
             this.idleMode = idleMode;
-            return this;
-        }
-
-        public FRCNEOBuilder withSmartDashboardPutEnabled(boolean smartDashboardPutEnabled) {
-            this.smartDashboardPutEnabled = smartDashboardPutEnabled;
-            return this;
-        }
-
-        public FRCNEOBuilder withSmartDashboardPath(String smartDashboardPath) {
-            this.smartDashboardPath = smartDashboardPath;
-            return this;
-        }
-
-        public FRCNEOBuilder withOpenLoopRampRate(double openLoopRampRate) {
-            this.openLoopRampRate = openLoopRampRate;
-            return this;
-        }
-
-        public FRCNEOBuilder withClosedLoopRampRate(double closedLoopRampRate) {
-            this.closedLoopRampRate = closedLoopRampRate;
             return this;
         }
 
@@ -867,11 +804,6 @@ public class FRCNEO implements Sendable {
 
         public FRCNEOBuilder withMotionProfileTrajectoryPeriod(int motionProfileTrajectoryPeriod) {
             this.motionProfileTrajectoryPeriod = motionProfileTrajectoryPeriod;
-            return this;
-        }
-
-        public FRCNEOBuilder withMaster(FRCNEO master) {
-            this.master = master;
             return this;
         }
 

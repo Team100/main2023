@@ -282,4 +282,14 @@ public class Pilot implements Control, Sendable {
     public void driveWithLQR(DriveToWaypoint3 command) {
     }
 
+    @Override
+    public double armX() {
+        return 0;
+    }
+
+    @Override
+    public double armY() {
+        return 0;
+    }
+
 }

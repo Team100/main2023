@@ -5,7 +5,7 @@ import org.team100.frc2023.commands.Arm.ArmTrajectory;
 import org.team100.frc2023.commands.Arm.SetCubeMode;
 import org.team100.frc2023.commands.Manipulator.Eject;
 import org.team100.frc2023.subsystems.Manipulator;
-import org.team100.frc2023.subsystems.arm.ArmController;
+import org.team100.frc2023.subsystems.arm.ArmSubsystem;
 import org.team100.frc2023.subsystems.arm.ArmPosition;
 import org.team100.lib.indicator.LEDIndicator;
 import org.team100.lib.sensors.RedundantGyro;
@@ -28,7 +28,7 @@ public class VasiliAutonomous extends SequentialCommandGroup {
             SwerveDriveKinematics kinematics, 
             DriveControllers controllers,
             RedundantGyro m_gyro,
-            ArmController m_arm,
+            ArmSubsystem m_arm,
             Manipulator m_manipulator,
             LEDIndicator indicator) {
 
