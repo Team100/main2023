@@ -4,8 +4,6 @@ import static org.team100.lib.control.ControlUtil.clamp;
 import static org.team100.lib.control.ControlUtil.deadband;
 import static org.team100.lib.control.ControlUtil.expo;
 
-import org.team100.frc2023.commands.GoalOffset;
-
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Twist2d;
 import edu.wpi.first.wpilibj2.command.Command;
