@@ -19,13 +19,15 @@ import edu.wpi.first.wpilibj2.command.CommandBase;
 
 public class DriveToRetroReflectiveTape extends CommandBase {
     public static class Config {
-        public LinearFilter xFilter = LinearFilter.singlePoleIIR(0.06, 0.02);
-        public LinearFilter yFilter = LinearFilter.singlePoleIIR(0.06, 0.02);
+        public double filterTimeConstantS = 0.06;
+        public double filterPeriodS = 0.02;
     }
 
     private final Config m_config = new Config();
 
     private final SwerveDriveSubsystem m_robotDrive;
+    private final LinearFilter xFilter;
+    private final LinearFilter yFilter;
     private final ObjectMapper object_mapper;
 
     private final NetworkTableInstance inst;
@@ -47,6 +49,8 @@ public class DriveToRetroReflectiveTape extends CommandBase {
 
     public DriveToRetroReflectiveTape(SwerveDriveSubsystem robotDrive) {
         m_robotDrive = robotDrive;
+        xFilter = LinearFilter.singlePoleIIR(m_config.filterTimeConstantS, m_config.filterPeriodS);
+        yFilter = LinearFilter.singlePoleIIR(m_config.filterTimeConstantS, m_config.filterPeriodS);
         object_mapper = new ObjectMapper(new MessagePackFactory());
         inst = NetworkTableInstance.getDefault();
         setpointX = inst.getTable("Retro Tape").getDoubleTopic("Setpoint X").publish();
@@ -77,8 +81,8 @@ public class DriveToRetroReflectiveTape extends CommandBase {
             Tapes tapes = object_mapper.readValue(data, Tapes.class);
 
             if (tapes.tapes.size() > 0) {
-                double yMeasurment = m_config.yFilter.calculate(-tapes.tapes.get(0).pose_t[1]);
-                double xMeasurment = m_config.xFilter.calculate(-tapes.tapes.get(0).pose_t[0]);
+                double yMeasurment = yFilter.calculate(-tapes.tapes.get(0).pose_t[1]);
+                double xMeasurment = xFilter.calculate(-tapes.tapes.get(0).pose_t[0]);
 
                 if (firstRun == true) {
                     yController.reset(yMeasurment);
