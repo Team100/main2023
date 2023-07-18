@@ -1,4 +1,4 @@
-package org.team100.lib.commands.Retro;
+package org.team100.lib.commands.retro;
 
 import org.team100.lib.retro.Illuminator;
 

@@ -1,4 +1,4 @@
-package org.team100.frc2023.commands.Arm;
+package org.team100.frc2023.commands.arm;
 
 import org.team100.frc2023.subsystems.arm.ArmPosition;
 import org.team100.frc2023.subsystems.arm.ArmSubsystem;

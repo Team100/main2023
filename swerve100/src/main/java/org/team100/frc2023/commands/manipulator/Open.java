@@ -1,4 +1,4 @@
-package org.team100.frc2023.commands.Manipulator;
+package org.team100.frc2023.commands.manipulator;
 
 import org.team100.frc2023.subsystems.Manipulator;
 

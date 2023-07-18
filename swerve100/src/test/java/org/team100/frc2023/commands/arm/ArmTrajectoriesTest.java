@@ -3,7 +3,6 @@ package org.team100.frc2023.commands.arm;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
 import org.junit.jupiter.api.Test;
-import org.team100.frc2023.commands.Arm.ArmTrajectories;
 import org.team100.frc2023.subsystems.arm.ArmPosition;
 import org.team100.lib.subsystems.arm.ArmAngles;
 

@@ -1,9 +1,8 @@
-package org.team100.frc2023.commands.Arm;
+package org.team100.frc2023.commands.arm;
 
 import java.util.function.Supplier;
 
 import org.team100.frc2023.subsystems.arm.ArmSubsystem;
-import org.team100.lib.subsystems.arm.ArmAngles;
 import org.team100.lib.subsystems.arm.ArmKinematics;
 
 import edu.wpi.first.math.geometry.Translation2d;

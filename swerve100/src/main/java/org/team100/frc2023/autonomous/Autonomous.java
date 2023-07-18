@@ -2,9 +2,9 @@ package org.team100.frc2023.autonomous;
 
 import org.team100.frc2023.commands.AutoLevel;
 import org.team100.frc2023.commands.DriveMobility;
-import org.team100.frc2023.commands.Arm.ArmTrajectory;
-import org.team100.frc2023.commands.Arm.SetCubeMode;
-import org.team100.frc2023.commands.Manipulator.Eject;
+import org.team100.frc2023.commands.arm.ArmTrajectory;
+import org.team100.frc2023.commands.arm.SetCubeMode;
+import org.team100.frc2023.commands.manipulator.Eject;
 import org.team100.frc2023.subsystems.Manipulator;
 import org.team100.frc2023.subsystems.arm.ArmSubsystem;
 import org.team100.frc2023.subsystems.arm.ArmPosition;
