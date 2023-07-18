@@ -8,8 +8,7 @@ import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.util.Units;
 
 public class DriveControllersFactory {
-    public static DriveControllers get(Identity identity, SpeedLimits speedLimits) {
-
+    public DriveControllers get(Identity identity, SpeedLimits speedLimits) {
         switch (identity) {
             case COMP_BOT:
                 var headingController = new ProfiledPIDController(0.67, 0, 0, speedLimits.constraints());

@@ -151,7 +151,7 @@ public class RobotContainer implements Sendable {
         armController = new ArmSubsystem();
         illuminator = new Illuminator(25);
 
-        controllers = DriveControllersFactory.get(identity, speedLimits);
+        controllers = new DriveControllersFactory().get(identity, speedLimits);
 
         // TODO: control selection using names
         // control = new DualXboxControl();
