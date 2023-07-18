@@ -13,12 +13,15 @@ import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.math.trajectory.TrajectoryConfig;
 import edu.wpi.first.math.trajectory.TrajectoryGenerator;
+import edu.wpi.first.wpilibj2.command.CommandBase;
 
 // TODO: do we need this?
-public class Forward extends SwerveControllerCommand {
+public class Forward extends CommandBase {
+    private final SwerveControllerCommand m_swerveController;
+
     public Forward(SwerveDriveSubsystem m_robotDrive, SwerveDriveKinematics kinematics,
             DriveControllers controllers, double x, RedundantGyro gyro) {
-        super(
+                m_swerveController = new SwerveControllerCommand(
                 genTrajectory(m_robotDrive, kinematics, x),
                 m_robotDrive::getPose,
                 kinematics,
@@ -27,7 +30,26 @@ public class Forward extends SwerveControllerCommand {
                 m_robotDrive::setModuleStates,
                 gyro,
                 m_robotDrive);
-        addRequirements(m_robotDrive);
+    }
+
+    @Override
+    public void initialize() {
+        m_swerveController.initialize();
+    }
+
+    @Override
+    public void execute() {
+        m_swerveController.execute();
+    }
+
+    @Override
+    public boolean isFinished() {
+        return m_swerveController.isFinished();
+    }
+
+    @Override
+    public void end(boolean interrupted) {
+        m_swerveController.end(interrupted);
     }
 
     private static Trajectory genTrajectory(SwerveDriveSubsystem m_robotDrive, SwerveDriveKinematics kinematics,

@@ -15,12 +15,15 @@ import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.math.trajectory.TrajectoryConfig;
 import edu.wpi.first.math.trajectory.TrajectoryGenerator;
+import edu.wpi.first.wpilibj2.command.CommandBase;
 
-public class MoveToAprilTag extends SwerveControllerCommand {
+public class MoveToAprilTag extends CommandBase {
     public static class Config {
         public double speedMetersPerSecond = 2;
         public double accelerationMetersPerSecondSquared = 1;
     }
+
+   private final SwerveControllerCommand m_swerveController;
 
     public MoveToAprilTag(
             Config config,
@@ -31,7 +34,7 @@ public class MoveToAprilTag extends SwerveControllerCommand {
             Supplier<Pose2d> getPose,
             int tagID,
             RedundantGyro gyro) {
-        super(
+                m_swerveController = new SwerveControllerCommand(
                 genTrajectory(config, m_robotDrive, kinematics, layout, getPose, tagID),
                 m_robotDrive::getPose,
                 kinematics,
@@ -41,6 +44,26 @@ public class MoveToAprilTag extends SwerveControllerCommand {
                 gyro,
                 m_robotDrive);
         addRequirements(m_robotDrive);
+    }
+
+    @Override
+    public void initialize() {
+        m_swerveController.initialize();
+    }
+
+    @Override
+    public void execute() {
+        m_swerveController.execute();
+    }
+
+    @Override
+    public boolean isFinished() {
+        return m_swerveController.isFinished();
+    }
+
+    @Override
+    public void end(boolean interrupted) {
+        m_swerveController.end(interrupted);
     }
 
     private static Trajectory genTrajectory(

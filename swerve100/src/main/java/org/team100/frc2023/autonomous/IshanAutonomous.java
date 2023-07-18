@@ -14,12 +14,16 @@ import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.math.trajectory.TrajectoryConfig;
 import edu.wpi.first.math.trajectory.TrajectoryGenerator;
+import edu.wpi.first.wpilibj2.command.CommandBase;
 
-public class IshanAutonomous extends SwerveControllerCommand {
+public class IshanAutonomous extends CommandBase {
     public static class Config {
         public double speedMetersPerSecond = 1;
         public double accelerationMetersPerSecondSquared = 1;
     }
+
+    private final SwerveControllerCommand m_swerveController;
+
 
     public IshanAutonomous(
             Config m_config,
@@ -27,7 +31,7 @@ public class IshanAutonomous extends SwerveControllerCommand {
             SwerveDriveKinematics kinematics,
             DriveControllers controllers,
             RedundantGyro gyro) {
-        super(genTrajectory(m_config, m_robotDrive, kinematics),
+        m_swerveController = new SwerveControllerCommand(genTrajectory(m_config, m_robotDrive, kinematics),
                 m_robotDrive::getPose,
                 kinematics,
                 controllers,
@@ -35,6 +39,26 @@ public class IshanAutonomous extends SwerveControllerCommand {
                 m_robotDrive::setModuleStates,
                 gyro,
                 m_robotDrive);
+    }
+
+    @Override
+    public void initialize() {
+        m_swerveController.initialize();
+    }
+
+    @Override
+    public void execute() {
+        m_swerveController.execute();
+    }
+
+    @Override
+    public boolean isFinished() {
+        return m_swerveController.isFinished();
+    }
+
+    @Override
+    public void end(boolean interrupted) {
+        m_swerveController.end(interrupted);
     }
 
     private static Trajectory genTrajectory(Config config, SwerveDriveSubsystem m_robotDrive,

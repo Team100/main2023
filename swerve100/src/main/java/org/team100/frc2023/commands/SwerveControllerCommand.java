@@ -15,11 +15,10 @@ import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.wpilibj.Timer;
-import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 
 // TODO: discard this class, use a holonomic trajectory instead, e.g. like PathPlanner Waypoints
-public class SwerveControllerCommand extends CommandBase {
+public class SwerveControllerCommand {
     private final Timer m_timer = new Timer();
     private final Trajectory m_trajectory;
     private final Supplier<Pose2d> m_pose;
@@ -47,10 +46,8 @@ public class SwerveControllerCommand extends CommandBase {
         m_veering = new VeeringCorrection(m_gyro);
         m_desiredRotation = rotationSupplier;
         m_outputModuleStates = outputModuleStates;
-        addRequirements(requirements);
     }
 
-    @Override
     public void execute() {
         double curTime = m_timer.get();
         var desiredState = m_trajectory.sample(curTime);
@@ -60,17 +57,14 @@ public class SwerveControllerCommand extends CommandBase {
         m_outputModuleStates.accept(targetModuleStates);
     }
 
-    @Override
     public void initialize() {
         m_timer.restart();
     }
 
-    @Override
     public void end(boolean interrupted) {
         m_timer.stop();
     }
 
-    @Override
     public boolean isFinished() {
         return m_timer.hasElapsed(m_trajectory.getTotalTimeSeconds());
     }
