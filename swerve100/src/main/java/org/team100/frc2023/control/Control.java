@@ -23,7 +23,6 @@ import org.team100.lib.commands.Retro.LedOn;
 
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Twist2d;
-import edu.wpi.first.wpilibj2.command.button.Trigger;
 
 /** Implementations should do their own deadbanding, scaling, expo, etc. */
 public interface Control {
@@ -48,11 +47,6 @@ public interface Control {
 
     /** forward positive, left positive, counterclockwise positive, [-1,1] */
     Twist2d twist();
-
-    // used for position control
-    Trigger trigger();
-
-    Trigger thumb();
 
     void driveSlow(DriveScaled command);
 

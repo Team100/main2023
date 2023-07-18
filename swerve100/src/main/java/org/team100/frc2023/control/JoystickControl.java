@@ -102,16 +102,6 @@ public class JoystickControl implements Control, Sendable {
     }
 
     @Override
-    public Trigger trigger() {
-        return controller0.trigger();
-    }
-
-    @Override
-    public Trigger thumb() {
-        return controller0.top();
-    }
-
-    @Override
     public void driveSlow(DriveScaled command) {
     }
 
