@@ -10,18 +10,18 @@ import edu.wpi.first.wpilibj2.command.CommandBase;
 /** Manual arm control in joint coordinates. */
 public class ManualArm extends CommandBase {
     public static class Config {
-        public double speedRadS = 0.5;
+        public double maxSpeedRadS = 0.5;
     }
 
     private final Config m_config = new Config();
     private final ArmSubsystem m_arm;
-    private final Supplier<Double> m_upperSpeed;
-    private final Supplier<Double> m_lowerSpeed;
+    private final Supplier<Double> m_upperSpeed1_1;
+    private final Supplier<Double> m_lowerSpeed1_1;
 
-    public ManualArm(ArmSubsystem arm, Supplier<Double> lowerSpeed, Supplier<Double> upperSpeed) {
+    public ManualArm(ArmSubsystem arm, Supplier<Double> lowerSpeed1_1, Supplier<Double> upperSpeed1_1) {
         m_arm = arm;
-        m_lowerSpeed = lowerSpeed;
-        m_upperSpeed = upperSpeed;
+        m_lowerSpeed1_1 = lowerSpeed1_1;
+        m_upperSpeed1_1 = upperSpeed1_1;
         addRequirements(arm);
     }
 
@@ -32,10 +32,11 @@ public class ManualArm extends CommandBase {
 
     @Override
     public void execute() {
+        final double dt = 0.02;
         ArmAngles measurement = m_arm.getMeasurement();
         ArmAngles reference = new ArmAngles(
-                measurement.th1 + 0.02 * m_config.speedRadS * m_lowerSpeed.get(),
-                measurement.th2 + 0.02 * m_config.speedRadS * m_upperSpeed.get());
+                measurement.th1 + dt * m_config.maxSpeedRadS * m_lowerSpeed1_1.get(),
+                measurement.th2 + dt * m_config.maxSpeedRadS * m_upperSpeed1_1.get());
         m_arm.setReference(reference);
     }
 

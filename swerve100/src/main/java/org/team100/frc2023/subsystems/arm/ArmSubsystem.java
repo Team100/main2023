@@ -37,8 +37,8 @@ public class ArmSubsystem extends SubsystemBase {
 
     private final Config m_config = new Config();
 
-    /** Coordinates are x up, y forward. */
-    private final ArmKinematics m_armKinematics;
+    /** Kinematics in meters. Coordinates are x up, y forward. */
+    private final ArmKinematics m_armKinematicsM;
     private final LinearFilter m_lowerMeasurementFilter;
     private final LinearFilter m_upperMeasurementFilter;
     private final PIDController m_lowerController;
@@ -53,7 +53,7 @@ public class ArmSubsystem extends SubsystemBase {
     private ArmAngles m_reference;
 
     public ArmSubsystem() {
-        m_armKinematics = new ArmKinematics(m_config.kLowerArmLengthM, m_config.kUpperArmLengthM);
+        m_armKinematicsM = new ArmKinematics(m_config.kLowerArmLengthM, m_config.kUpperArmLengthM);
         m_lowerMeasurementFilter = LinearFilter.singlePoleIIR(m_config.filterTimeConstantS, m_config.filterPeriodS);
         m_upperMeasurementFilter = LinearFilter.singlePoleIIR(m_config.filterTimeConstantS, m_config.filterPeriodS);
         m_lowerController = new PIDController(m_config.normalLowerP, m_config.normalLowerI, m_config.normalLowerD);
@@ -170,8 +170,8 @@ public class ArmSubsystem extends SubsystemBase {
     @Override
     public void initSendable(SendableBuilder builder) {
         super.initSendable(builder);
-        builder.addDoubleProperty("ARM X", () -> m_armKinematics.forward(getMeasurement()).getX(), null);
-        builder.addDoubleProperty("ARM Y", () -> m_armKinematics.forward(getMeasurement()).getY(), null);
+        builder.addDoubleProperty("ARM X", () -> m_armKinematicsM.forward(getMeasurement()).getX(), null);
+        builder.addDoubleProperty("ARM Y", () -> m_armKinematicsM.forward(getMeasurement()).getY(), null);
         builder.addDoubleProperty("Upper Arm Absolute Angle", () -> upperArmEncoder.getAbsolutePosition(), null);
         builder.addDoubleProperty("Lower Arm Absolute Angle", () -> lowerArmEncoder.getAbsolutePosition(), null);
         builder.addDoubleProperty("Upper Arm Absolute Radians", () -> getUpperArm(), null);

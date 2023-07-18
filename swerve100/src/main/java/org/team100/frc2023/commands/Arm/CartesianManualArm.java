@@ -12,30 +12,37 @@ import edu.wpi.first.wpilibj2.command.CommandBase;
 /** Manual arm control in cartesian coordinates. */
 public class CartesianManualArm extends CommandBase {
     private final ArmSubsystem m_arm;
-    private final ArmKinematics m_armKinematics;
-    private final Supplier<Double> m_dx;
-    private final Supplier<Double> m_dy;
+    private final ArmKinematics m_armKinematicsM;
+    private final Supplier<Double> m_dxM_S;
+    private final Supplier<Double> m_dyM_S;
 
     /**
-     * @param dx use Control.armX().
-     * @param dy use Control.armY().
+     * @param armKinematicsM in meters
+     * @param dxM_S          in meters per second. use Control.armX().
+     * @param dyM_S          in meters per second. use Control.armY().
      */
-    public CartesianManualArm(ArmSubsystem arm, ArmKinematics armKinematics, Supplier<Double> dx, Supplier<Double> dy) {
+    public CartesianManualArm(ArmSubsystem arm, ArmKinematics armKinematicsM, Supplier<Double> dxM_S,
+            Supplier<Double> dyM_S) {
         m_arm = arm;
-        m_armKinematics = armKinematics;
-        m_dx = dx;
-        m_dy = dy;
+        m_armKinematicsM = armKinematicsM;
+        m_dxM_S = dxM_S;
+        m_dyM_S = dyM_S;
         addRequirements(arm);
+    }
+
+    @Override
+    public void initialize() {
+        m_arm.setControlNormal();
     }
 
     /** Set a new reference equal to the current state plus the controller input. */
     @Override
     public void execute() {
-        ArmAngles measurement = m_arm.getMeasurement();
-        Translation2d current = m_armKinematics.forward(measurement);
-        double xReference = current.getX() + m_dx.get();
-        double yReference = current.getY() + m_dy.get();
-        m_arm.setReference(m_armKinematics.inverse(new Translation2d(xReference, yReference)));
+        final double dt = 0.02;
+        Translation2d currentM = m_armKinematicsM.forward(m_arm.getMeasurement());
+        double xReferenceM = currentM.getX() + dt * m_dxM_S.get();
+        double yReferenceM = currentM.getY() + dt * m_dyM_S.get();
+        m_arm.setReference(m_armKinematicsM.inverse(new Translation2d(xReferenceM, yReferenceM)));
     }
 
     /** Set the reference equal to the current state. */
