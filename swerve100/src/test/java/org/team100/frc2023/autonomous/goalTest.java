@@ -1,4 +1,4 @@
-package org.team100.frc2023;
+package org.team100.frc2023.autonomous;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 

@@ -8,34 +8,34 @@ import edu.wpi.first.math.controller.ProfiledPIDController;
 
 public class DriveControllersFactory {
     public static class Config {
-        private PidGains compBotHeadingGain = new PidGains(0.67, 0, 0);
-        private PidGains swerveOneHeadingGain = new PidGains(0.5, 0, 0);
-        private PidGains swerveTwoHeadingGain = new PidGains(1.0, 0, 0.15);
+        public PidGains compBotHeadingGain = new PidGains(0.67, 0, 0);
+        public PidGains swerveOneHeadingGain = new PidGains(0.5, 0, 0);
+        public PidGains swerveTwoHeadingGain = new PidGains(1.0, 0, 0.15);
 
-        private double compBotHeadingIntegratorRange = 0.1;
-        private double swerveOneHeadingIntegratorRange = 0.1;
-        private double swerveTwoHeadingIntegratorRange = 0.5;
+        public double compBotHeadingIntegratorRange = 0.1;
+        public double swerveOneHeadingIntegratorRange = 0.1;
+        public double swerveTwoHeadingIntegratorRange = 0.5;
 
-        private double compBotHeadingTolerance = 0.01;
-        private double swerveOneHeadingTolerance = 0.002;
-        private double swerveTwoHeadingTolerance = 0.002;
+        public double compBotHeadingTolerance = 0.01;
+        public double swerveOneHeadingTolerance = 0.002;
+        public double swerveTwoHeadingTolerance = 0.002;
 
-        private PidGains compBotRotateGain = new PidGains(1.0, 0, 0);
-        private PidGains swerveOneRotateGain = new PidGains(1.0, 0, 0);
-        private PidGains swerveTwoRotateGain = new PidGains(1.0, 0, 0.15);
+        public PidGains compBotRotateGain = new PidGains(1.0, 0, 0);
+        public PidGains swerveOneRotateGain = new PidGains(1.0, 0, 0);
+        public PidGains swerveTwoRotateGain = new PidGains(1.0, 0, 0.15);
 
-        private PidGains thetaGain = new PidGains(3.0, 0, 0);
+        public PidGains thetaGain = new PidGains(3.0, 0, 0);
 
-        private PidGains compBotCartesianGain = new PidGains(0.15, 0, 0);
-        private PidGains swerveOneCartesianGain = new PidGains(0.15, 0, 0);
-        private PidGains swerveTwoCartesianGain = new PidGains(2.0, 0.1, 0.15);
+        public PidGains compBotCartesianGain = new PidGains(0.15, 0, 0);
+        public PidGains swerveOneCartesianGain = new PidGains(0.15, 0, 0);
+        public PidGains swerveTwoCartesianGain = new PidGains(2.0, 0.1, 0.15);
 
-        private double swerveTwoCartesianIntegratorRange = 0.5;
-        private double rotateTolerance = 0.003;
+        public double swerveTwoCartesianIntegratorRange = 0.5;
+        public double rotateTolerance = 0.003;
 
-        private double compBotCartesianTolerance = 0.01;
-        private double swerveOneCartesianTolerance = 0.2;
-        private double swerveTwoCartesianTolerance = 0.01;
+        public double compBotCartesianTolerance = 0.01;
+        public double swerveOneCartesianTolerance = 0.2;
+        public double swerveTwoCartesianTolerance = 0.01;
     }
 
     private final Config m_config = new Config();

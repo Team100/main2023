@@ -1,5 +1,7 @@
 package org.team100.frc2023.autonomous;
 
+import org.team100.lib.controller.PidGains;
+
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -71,7 +73,7 @@ public class HolonomicDriveController2 {
 
         double xFF = desiredLinearVelocityMetersPerSecond * trajectoryPose.getRotation().getCos();
         double yFF = desiredLinearVelocityMetersPerSecond * trajectoryPose.getRotation().getSin();
-      
+
         double thetaFF = m_thetaController.calculate(currentRotation.getRadians(), desiredHeading.getRadians());
         xFFPublisher.set(xFF);
         yFFPublisher.set(yFF);
@@ -88,6 +90,23 @@ public class HolonomicDriveController2 {
         yFBPublisher.set(yFeedback);
 
         return new Twist2d(xFF + xFeedback, yFF + yFeedback, thetaFF);
+    }
+
+    public void setGains(PidGains cartesian, PidGains rotation) {
+        m_xController.setPID(cartesian.p, cartesian.i, cartesian.d);
+        m_yController.setPID(cartesian.p, cartesian.i, cartesian.d);
+        m_thetaController.setPID(rotation.p, rotation.i, rotation.d);
+    }
+
+    public void setIRange(double cartesian) {
+        m_xController.setIntegratorRange(-1.0 * cartesian, cartesian);
+        m_yController.setIntegratorRange(-1.0 * cartesian, cartesian);
+    }
+
+    public void setTolerance(double cartesian, double rotation) {
+        m_xController.setTolerance(cartesian);
+        m_yController.setTolerance(cartesian);
+        m_thetaController.setTolerance(rotation);
     }
 
     private final NetworkTableInstance inst = NetworkTableInstance.getDefault();

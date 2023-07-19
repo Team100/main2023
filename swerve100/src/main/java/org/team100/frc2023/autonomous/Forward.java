@@ -19,16 +19,18 @@ import edu.wpi.first.wpilibj2.command.CommandBase;
 public class Forward extends CommandBase {
     private final SwerveControllerCommand m_swerveController;
 
-    public Forward(SwerveDriveSubsystem m_robotDrive, SwerveDriveKinematics kinematics,
-            DriveControllers controllers, double x, RedundantGyro gyro) {
+    public Forward(
+            SwerveDriveSubsystem m_robotDrive,
+            HolonomicDriveController2 controller,
+            SwerveDriveKinematics kinematics,
+            double x,
+            RedundantGyro gyro) {
         Trajectory trajectory = genTrajectory(m_robotDrive, kinematics, x);
         m_swerveController = new SwerveControllerCommand(
                 m_robotDrive,
+                controller,
                 trajectory,
-                kinematics,
-                controllers,
-                () -> new Rotation2d(),
-                gyro);
+                () -> new Rotation2d());
     }
 
     @Override

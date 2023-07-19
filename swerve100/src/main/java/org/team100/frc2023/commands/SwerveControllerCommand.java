@@ -4,14 +4,11 @@ import java.util.function.Supplier;
 
 import org.team100.frc2023.autonomous.HolonomicDriveController2;
 import org.team100.lib.controller.DriveControllers;
-import org.team100.lib.sensors.RedundantGyro;
 import org.team100.lib.subsystems.SwerveDriveSubsystem;
-import org.team100.lib.subsystems.VeeringCorrection;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Twist2d;
-import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.math.trajectory.Trajectory.State;
 import edu.wpi.first.wpilibj.Timer;
@@ -22,26 +19,17 @@ public class SwerveControllerCommand {
     private final Timer m_timer;
     private final Trajectory m_trajectory;
     private final Supplier<Rotation2d> m_desiredRotation;
-    private final SwerveDriveKinematics m_kinematics;
     private final HolonomicDriveController2 m_controller;
-    private final VeeringCorrection m_veering;
 
     public SwerveControllerCommand(
             SwerveDriveSubsystem robotDrive,
+            HolonomicDriveController2 controller,
             Trajectory trajectory,
-            SwerveDriveKinematics kinematics,
-            DriveControllers controllers,
-            Supplier<Rotation2d> rotationSupplier,
-            RedundantGyro gyro) {
+            Supplier<Rotation2d> rotationSupplier) {
         m_robotDrive = robotDrive;
+        m_controller = controller;
         m_trajectory = trajectory;
         m_desiredRotation = rotationSupplier;
-        m_kinematics = kinematics;
-        m_controller = new HolonomicDriveController2(
-                controllers.xController,
-                controllers.yController,
-                controllers.thetaController);
-        m_veering = new VeeringCorrection(gyro);
         m_timer = new Timer();
     }
 
