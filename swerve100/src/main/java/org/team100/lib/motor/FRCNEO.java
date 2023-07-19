@@ -627,7 +627,6 @@ public class FRCNEO implements Sendable {
         private int canID;
         private MotorType motorType = MotorType.kBrushless;
         private boolean isInverted = false;
-        private int feedbackPort = 0;
         private int timeout = 10;
         private boolean sensorPhase = false;
         private SparkMaxAnalogSensor.Mode analogMode = SparkMaxAnalogSensor.Mode.kAbsolute;

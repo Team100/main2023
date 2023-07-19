@@ -157,7 +157,7 @@ public class RedundantGyro implements Sendable {
     }
 
     // do we need this ?
-    private float getRedundantGyroZ() {
+    float getRedundantGyroZ() {
         if (!m_gyro1.isConnected()) {
             gyro1Connected = false;
         }
