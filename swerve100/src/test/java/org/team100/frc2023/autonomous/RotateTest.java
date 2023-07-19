@@ -21,8 +21,13 @@ public class RotateTest {
 
     class MockHeading implements HeadingInterface {
         @Override
-        public Rotation2d getHeading() {
+        public Rotation2d getHeadingNWU() {
             return new Rotation2d();
+        }
+
+        @Override
+        public double getHeadingRateNWU() {
+            return 0;
         }
     }
 

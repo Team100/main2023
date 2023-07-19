@@ -2,13 +2,12 @@ package org.team100.frc2023.commands;
 
 import org.team100.lib.commands.DriveUtil;
 import org.team100.lib.motion.drivetrain.SwerveDriveSubsystem;
-import org.team100.lib.motion.drivetrain.kinematics.ChassisSpeedFactory;
+import org.team100.lib.motion.drivetrain.kinematics.FrameTransform;
 import org.team100.lib.sensors.RedundantGyro;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Twist2d;
-import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 
 public class AutoLevel extends CommandBase {
@@ -26,7 +25,7 @@ public class AutoLevel extends CommandBase {
     private final boolean m_reversed;
     private final SwerveDriveSubsystem m_robotDrive;
     private final RedundantGyro m_gyro;
-    private final ChassisSpeedFactory m_chassisSpeedFactory;
+    private final FrameTransform m_chassisSpeedFactory;
     private int count;
 
     // TODO: what is "reversed" for?
@@ -34,7 +33,7 @@ public class AutoLevel extends CommandBase {
             boolean reversed,
             SwerveDriveSubsystem robotDrive,
             RedundantGyro gyro,
-            ChassisSpeedFactory chassisSpeedFactory) {
+            FrameTransform chassisSpeedFactory) {
         m_reversed = reversed;
         m_robotDrive = robotDrive;
         m_gyro = gyro;
@@ -63,10 +62,9 @@ public class AutoLevel extends CommandBase {
 
                 Twist2d twist = new Twist2d(xSpeed, ySpeed, 0);
                 Twist2d twistM_S = DriveUtil.scale(twist, m_config.kMaxSpeed, m_config.kMaxRot);
-                ChassisSpeeds fieldRelative = m_chassisSpeedFactory.toFieldRelativeSpeeds(
+                Twist2d fieldRelative = m_chassisSpeedFactory.toFieldRelativeSpeeds(
                         twistM_S.dx, twistM_S.dy, twistM_S.dtheta, rot);
-                m_robotDrive.driveInFieldCoords(new Twist2d(fieldRelative.vxMetersPerSecond,
-                        fieldRelative.vyMetersPerSecond, fieldRelative.omegaRadiansPerSecond));
+                m_robotDrive.driveInFieldCoords(fieldRelative);
             } else {
                 count++;
             }
@@ -77,10 +75,9 @@ public class AutoLevel extends CommandBase {
 
                     Twist2d twist = new Twist2d(xSpeed, -ySpeed, 0);
                     Twist2d twistM_S = DriveUtil.scale(twist, m_config.kMaxSpeed, m_config.kMaxRot);
-                    ChassisSpeeds fieldRelative = m_chassisSpeedFactory.toFieldRelativeSpeeds(
+                    Twist2d fieldRelative = m_chassisSpeedFactory.toFieldRelativeSpeeds(
                             twistM_S.dx, twistM_S.dy, twistM_S.dtheta, rot);
-                    m_robotDrive.driveInFieldCoords(new Twist2d(fieldRelative.vxMetersPerSecond,
-                            fieldRelative.vyMetersPerSecond, fieldRelative.omegaRadiansPerSecond));
+                    m_robotDrive.driveInFieldCoords(fieldRelative);
                 } else {
                     count++;
                 }

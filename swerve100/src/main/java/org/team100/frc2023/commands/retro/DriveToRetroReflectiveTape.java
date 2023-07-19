@@ -5,7 +5,7 @@ import java.io.IOException;
 import org.msgpack.jackson.dataformat.MessagePackFactory;
 import org.team100.lib.localization.Tapes;
 import org.team100.lib.motion.drivetrain.SwerveDriveSubsystem;
-import org.team100.lib.motion.drivetrain.kinematics.ChassisSpeedFactory;
+import org.team100.lib.motion.drivetrain.kinematics.FrameTransform;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -13,7 +13,6 @@ import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.filter.LinearFilter;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Twist2d;
-import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.trajectory.TrapezoidProfile.Constraints;
 import edu.wpi.first.networktables.DoublePublisher;
 import edu.wpi.first.networktables.NetworkTable;
@@ -30,7 +29,7 @@ public class DriveToRetroReflectiveTape extends CommandBase {
     private final Config m_config = new Config();
 
     private final SwerveDriveSubsystem m_robotDrive;
-    private final ChassisSpeedFactory m_chassisSpeedFactory;
+    private final FrameTransform m_chassisSpeedFactory;
     private final LinearFilter xFilter;
     private final LinearFilter yFilter;
     private final ObjectMapper object_mapper;
@@ -41,7 +40,7 @@ public class DriveToRetroReflectiveTape extends CommandBase {
 
     public DriveToRetroReflectiveTape(
             SwerveDriveSubsystem robotDrive,
-            ChassisSpeedFactory chassisSpeedFactory) {
+            FrameTransform chassisSpeedFactory) {
         m_robotDrive = robotDrive;
         m_chassisSpeedFactory = chassisSpeedFactory;
         xFilter = LinearFilter.singlePoleIIR(m_config.filterTimeConstantS, m_config.filterPeriodS);
@@ -91,10 +90,9 @@ public class DriveToRetroReflectiveTape extends CommandBase {
                 errorY.set(yController.getPositionError());
 
                 Twist2d twistM_S = new Twist2d(xOutput, yOutput, 0);
-                ChassisSpeeds fieldRelative = m_chassisSpeedFactory.toFieldRelativeSpeeds(
+                Twist2d fieldRelative = m_chassisSpeedFactory.toFieldRelativeSpeeds(
                         twistM_S.dx, twistM_S.dy, twistM_S.dtheta, rot);
-                m_robotDrive.driveInFieldCoords(new Twist2d(fieldRelative.vxMetersPerSecond,
-                        fieldRelative.vyMetersPerSecond, fieldRelative.omegaRadiansPerSecond));
+                m_robotDrive.driveInFieldCoords(fieldRelative);
             } else {
                 m_robotDrive.stop();
                 tagView.set(2);

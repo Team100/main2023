@@ -9,7 +9,7 @@ import org.team100.frc2023.subsystems.arm.ArmPosition;
 import org.team100.frc2023.subsystems.arm.ArmSubsystem;
 import org.team100.lib.indicator.LEDIndicator;
 import org.team100.lib.motion.drivetrain.SwerveDriveSubsystem;
-import org.team100.lib.motion.drivetrain.kinematics.ChassisSpeedFactory;
+import org.team100.lib.motion.drivetrain.kinematics.FrameTransform;
 import org.team100.lib.sensors.RedundantGyro;
 
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -25,7 +25,7 @@ public class VasiliAutonomous extends SequentialCommandGroup {
 
     public VasiliAutonomous(
             SwerveDriveSubsystem drive,
-            ChassisSpeedFactory chassisSpeedFactory,
+            FrameTransform chassisSpeedFactory,
             HolonomicDriveController2 controller,
             SwerveDriveKinematics kinematics, 
             RedundantGyro gyro,

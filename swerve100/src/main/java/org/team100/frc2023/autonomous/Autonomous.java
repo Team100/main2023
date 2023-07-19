@@ -12,7 +12,7 @@ import org.team100.lib.autonomous.DriveStop;
 import org.team100.lib.commands.ResetRotation;
 import org.team100.lib.indicator.LEDIndicator;
 import org.team100.lib.motion.drivetrain.SwerveDriveSubsystem;
-import org.team100.lib.motion.drivetrain.kinematics.ChassisSpeedFactory;
+import org.team100.lib.motion.drivetrain.kinematics.FrameTransform;
 import org.team100.lib.sensors.RedundantGyro;
 
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -31,7 +31,7 @@ public class Autonomous extends SequentialCommandGroup {
 
     private final Config m_config = new Config();
     private final SwerveDriveSubsystem m_robotDrive;
-    private final ChassisSpeedFactory m_chassisSpeedFactory;
+    private final FrameTransform m_chassisSpeedFactory;
     private final ArmSubsystem m_arm;
     private final Manipulator m_manipulator;
     private final RedundantGyro m_gyro;
@@ -40,7 +40,7 @@ public class Autonomous extends SequentialCommandGroup {
     // TODO: make routine an enum
     public Autonomous(
             SwerveDriveSubsystem robotDrive,
-            ChassisSpeedFactory chassisSpeedFactory,
+            FrameTransform chassisSpeedFactory,
             ArmSubsystem arm,
             Manipulator manipulator,
             RedundantGyro gyro,

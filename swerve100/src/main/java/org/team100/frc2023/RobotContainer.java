@@ -40,9 +40,11 @@ import org.team100.lib.motion.drivetrain.Heading;
 import org.team100.lib.motion.drivetrain.SpeedLimits;
 import org.team100.lib.motion.drivetrain.SpeedLimitsFactory;
 import org.team100.lib.motion.drivetrain.SwerveDriveSubsystem;
+import org.team100.lib.motion.drivetrain.SwerveLocal;
 import org.team100.lib.motion.drivetrain.SwerveModuleCollection;
 import org.team100.lib.motion.drivetrain.SwerveModuleCollectionFactory;
-import org.team100.lib.motion.drivetrain.kinematics.ChassisSpeedFactory;
+import org.team100.lib.motion.drivetrain.VeeringCorrection;
+import org.team100.lib.motion.drivetrain.kinematics.FrameTransform;
 import org.team100.lib.motion.drivetrain.kinematics.SwerveDriveKinematicsFactory;
 import org.team100.lib.retro.Illuminator;
 import org.team100.lib.sensors.RedundantGyro;
@@ -91,7 +93,7 @@ public class RobotContainer implements Sendable {
     private final AprilTagFieldLayoutWithCorrectOrientation layout;
     private final SwerveDriveSubsystem m_robotDrive;
     private final SwerveDriveKinematics m_kinematics;
-    private final ChassisSpeedFactory m_chassisSpeedFactory;
+    private final FrameTransform m_frameTransform;
     private final Manipulator manipulator;
     private final ArmSubsystem armController;
     private final Illuminator illuminator;
@@ -120,14 +122,15 @@ public class RobotContainer implements Sendable {
         Identity identity = Identity.get();
         SpeedLimits speedLimits = SpeedLimitsFactory.get(identity, m_config.SHOW_MODE);
         m_kinematics = SwerveDriveKinematicsFactory.get(identity);
-        // TODO: move this constant
-        double kVeeringCorrection = 0.15;
-        m_chassisSpeedFactory = new ChassisSpeedFactory(ahrsclass::getRedundantGyroRate, kVeeringCorrection);
+
+        VeeringCorrection veering = new VeeringCorrection(m_heading::getHeadingRateNWU);
+
+        m_frameTransform = new FrameTransform(veering);
 
         SwerveModuleCollection modules = SwerveModuleCollectionFactory.get(identity, m_config.kDriveCurrentLimit);
         SwerveDrivePoseEstimator poseEstimator = new SwerveDrivePoseEstimator(
                 m_kinematics,
-                m_heading.getHeading(),
+                m_heading.getHeadingNWU(),
                 modules.positions(),
                 new Pose2d(),
                 VecBuilder.fill(0.5, 0.5, 0.5),
@@ -145,13 +148,12 @@ public class RobotContainer implements Sendable {
                 poseEstimator::getEstimatedPosition);
         visionDataProvider.updateTimestamp(); // this is just to keep lint from complaining
 
+        SwerveLocal swerveLocal = new SwerveLocal(speedLimits, m_kinematics, modules);
         m_robotDrive = new SwerveDriveSubsystem(
                 m_heading,
-                speedLimits,
-                m_kinematics,
-                modules,
                 poseEstimator,
-                ahrsclass,
+                m_frameTransform,
+                swerveLocal,
                 m_field);
         manipulator = new Manipulator();
         armController = new ArmSubsystem();
@@ -190,14 +192,13 @@ public class RobotContainer implements Sendable {
         control.driveSlow(new DriveScaled(control::twist, m_robotDrive, 0.4, 0.5));
         control.driveMedium(new DriveScaled(control::twist, m_robotDrive, 2.0, 0.5));
         control.resetPose(new ResetPose(m_robotDrive, 0, 0, 0));
-        control.tapeDetect(new DriveToRetroReflectiveTape(m_robotDrive, m_chassisSpeedFactory));
+        control.tapeDetect(new DriveToRetroReflectiveTape(m_robotDrive, m_frameTransform));
         control.rotate0(new Rotate(m_robotDrive, speedLimits, controllers.rotateController, new Timer(), 0));
 
         control.moveConeWidthLeft(new MoveConeWidth(m_robotDrive, 1));
         control.moveConeWidthRight(new MoveConeWidth(m_robotDrive, -1));
 
-        control.driveWithLQR(
-                new DriveToWaypoint3(new Pose2d(5, 0, new Rotation2d()), m_robotDrive, m_kinematics, ahrsclass));
+        control.driveWithLQR(new DriveToWaypoint3(new Pose2d(5, 0, new Rotation2d()), m_robotDrive, m_kinematics));
 
         ///////////////////////////
         // MANIPULATOR COMMANDS
@@ -264,7 +265,7 @@ public class RobotContainer implements Sendable {
     public Command getAutonomousCommand2(int routine) {
         return new Autonomous(
                 m_robotDrive,
-                m_chassisSpeedFactory,
+                m_frameTransform,
                 armController,
                 manipulator,
                 ahrsclass,
@@ -383,8 +384,8 @@ public class RobotContainer implements Sendable {
         builder.addDoubleProperty("Y controller Error (m)", () -> controllers.yController.getPositionError(), null);
         builder.addDoubleProperty("Y controller Setpoint", () -> controllers.yController.getSetpoint(), null);
 
-        builder.addDoubleProperty("Heading Degrees", () -> m_heading.getHeading().getDegrees(), null);
-        builder.addDoubleProperty("Heading Radians", () -> m_heading.getHeading().getRadians(), null);
+        builder.addDoubleProperty("Heading Degrees", () -> m_heading.getHeadingNWU().getDegrees(), null);
+        builder.addDoubleProperty("Heading Radians", () -> m_heading.getHeadingNWU().getRadians(), null);
 
     }
 

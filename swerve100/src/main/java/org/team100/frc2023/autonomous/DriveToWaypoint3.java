@@ -52,8 +52,6 @@ public class DriveToWaypoint3 extends CommandBase {
     }
 
     private final Config m_config = new Config();
-    // private final RedundantGyro m_gyro;
-    private final VeeringCorrection m_veering;
     private final Pose2d m_goal;
     private final SwerveDriveSubsystem m_swerve;
     private final SwerveDriveKinematics m_kinematics;
@@ -89,14 +87,14 @@ public class DriveToWaypoint3 extends CommandBase {
 
     // private State desiredStateGlobal;
 
-    public DriveToWaypoint3(Pose2d goal, SwerveDriveSubsystem drivetrain, SwerveDriveKinematics kinematics,
-            RedundantGyro gyro) {
+    public DriveToWaypoint3(
+            Pose2d goal,
+            SwerveDriveSubsystem drivetrain,
+            SwerveDriveKinematics kinematics) {
         m_goal = goal;
         m_swerve = drivetrain;
         m_kinematics = kinematics;
 
-        // m_gyro = gyro;
-        m_veering = new VeeringCorrection(gyro);
         m_timer = new Timer();
 
         m_rotationController = new ProfiledPIDController(6.5, 0, 1, m_config.rotationConstraints);
@@ -137,7 +135,7 @@ public class DriveToWaypoint3 extends CommandBase {
 
         // m_controller = new HolonomicDriveController2(xController, yController,
         // m_rotationController, m_gyro);
-        m_controller = new HolonomicLQR(m_swerve, xManager, yManager, m_rotationController, gyro);
+        m_controller = new HolonomicLQR(m_swerve, xManager, yManager, m_rotationController);
         // m_controller = new HolonomicDriveController2(xController, yController,
         // m_rotationController, m_gyro);
 

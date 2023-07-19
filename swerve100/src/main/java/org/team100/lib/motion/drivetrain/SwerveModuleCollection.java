@@ -34,15 +34,6 @@ public class SwerveModuleCollection {
         };
     }
 
-    public SwerveModuleState[] states() {
-        return new SwerveModuleState[] {
-                m_frontLeft.getState(),
-                m_frontRight.getState(),
-                m_rearLeft.getState(),
-                m_rearRight.getState()
-        };
-    }
-
     public void setDesiredStates(SwerveModuleState[] swerveModuleStates) {
         m_frontLeft.setDesiredState(swerveModuleStates[0]);
         m_frontRight.setDesiredState(swerveModuleStates[1]);
@@ -50,7 +41,7 @@ public class SwerveModuleCollection {
         m_rearRight.setDesiredState(swerveModuleStates[3]);
     }
 
-    public void stop() {
+    void stop() {
         m_frontLeft.stop();
         m_frontRight.stop();
         m_rearLeft.stop();
@@ -58,7 +49,7 @@ public class SwerveModuleCollection {
     }
 
     /** Test and log. */
-    public void test(double[][] desiredOutputs, FileWriter writer) {
+    void test(double[][] desiredOutputs, FileWriter writer) {
         m_frontLeft.test(desiredOutputs[0]);
         m_frontRight.test(desiredOutputs[1]);
         m_rearLeft.test(desiredOutputs[2]);
@@ -66,8 +57,8 @@ public class SwerveModuleCollection {
         try {
             if (writer != null) {
                 writer.write("Timestamp: " + Timer.getFPGATimestamp() +
-                        ", P" + positions()[0].distanceMeters
-                        + ", " + states()[0].speedMetersPerSecond + "\n");
+                        ", P" + m_frontLeft.getPosition().distanceMeters
+                        + ", " + m_frontLeft.getState().speedMetersPerSecond + "\n");
                 writer.flush();
             }
         } catch (IOException e) {

@@ -2,11 +2,9 @@ package org.team100.frc2023.autonomous;
 
 import org.team100.frc2023.LQRManager;
 import org.team100.lib.motion.drivetrain.SwerveDriveSubsystem;
-import org.team100.lib.motion.drivetrain.VeeringCorrection;
 import org.team100.lib.profile.MotionProfile;
 import org.team100.lib.profile.MotionProfileGenerator;
 import org.team100.lib.profile.MotionState;
-import org.team100.lib.sensors.RedundantGyro;
 
 // these are replaced by our own versions
 // import com.acmerobotics.roadrunner.profile.MotionProfile;
@@ -48,7 +46,6 @@ public class HolonomicLQR {
     private Rotation2d m_rotationError = new Rotation2d();
     private Pose2d m_poseTolerance = new Pose2d();
     private boolean m_enabled = true;
-    private final RedundantGyro m_gyro;
 
     private final LQRManager m_xManager;
     private final LQRManager m_yManager;
@@ -69,12 +66,11 @@ public class HolonomicLQR {
     private MotionState m_lastXRef = new MotionState(0, 0);
     private MotionState m_lastYRef = new MotionState(0, 0);
 
-
-
     public HolonomicLQR(
-            SwerveDriveSubsystem robotDrive, LQRManager xManager, LQRManager yManager,
-            ProfiledPIDController thetaController, RedundantGyro gyro) {
-        m_gyro = gyro;
+            SwerveDriveSubsystem robotDrive,
+            LQRManager xManager,
+            LQRManager yManager,
+            ProfiledPIDController thetaController) {
         m_xManager = xManager;
         m_yManager = yManager;
         m_thetaController = thetaController;
@@ -125,7 +121,8 @@ public class HolonomicLQR {
         Pose2d trajectoryPose = desiredState.poseMeters;
 
         // TODO: turn feedforward back on
-        // double desiredLinearVelocityMetersPerSecond = desiredState.velocityMetersPerSecond;
+        // double desiredLinearVelocityMetersPerSecond =
+        // desiredState.velocityMetersPerSecond;
 
         // If this is the first run, then we need to reset the theta controller to the
         // current pose's

@@ -2,7 +2,10 @@ package org.team100.lib.motion.drivetrain;
 
 import edu.wpi.first.math.geometry.Rotation2d;
 
-/** this makes testing easier. */
+/** This makes testing easier.  NWU, counterclockwise positive. */
 public interface HeadingInterface {
-       Rotation2d getHeading() ;
+    /** NWU coordinates in rad: counterclockwise positive. */
+    Rotation2d getHeadingNWU();
+    /** Rate in rad/s: counterclockwise positive. */
+    double getHeadingRateNWU();
 }

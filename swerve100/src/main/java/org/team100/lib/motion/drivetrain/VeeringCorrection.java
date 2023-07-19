@@ -1,6 +1,6 @@
 package org.team100.lib.motion.drivetrain;
 
-import org.team100.lib.sensors.RedundantGyro;
+import java.util.function.DoubleSupplier;
 
 import edu.wpi.first.math.geometry.Rotation2d;
 
@@ -28,10 +28,17 @@ public class VeeringCorrection {
 
     private final Config m_config = new Config();
 
-    private final RedundantGyro m_gyro;
+    private final DoubleSupplier m_gyroRateRadSNWU;
 
-    public VeeringCorrection(RedundantGyro gyro) {
-        m_gyro = gyro;
+    /**
+     * Be sure to supply NWU, counterclockwise-positive, rates here. The default
+     * AHRS rate is the other way, don't use that without inverting it. Use the
+     * Heading class.
+     * 
+     * @param gyroRateRadSNWU rotation rate counterclockwise positive rad/s
+     */
+    public VeeringCorrection(DoubleSupplier gyroRateRadSNWU) {
+        m_gyroRateRadSNWU = gyroRateRadSNWU;
     }
 
     /**
@@ -41,8 +48,7 @@ public class VeeringCorrection {
      * @return future rotation
      */
     public Rotation2d correct(Rotation2d in) {
-        return in.minus(new Rotation2d(m_gyro.getRedundantGyroRate() * m_config.kVeeringCorrection));
-
+        return in.plus(new Rotation2d(m_gyroRateRadSNWU.getAsDouble() * m_config.kVeeringCorrection));
     }
 
 }
