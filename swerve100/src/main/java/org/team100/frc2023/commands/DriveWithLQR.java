@@ -1,6 +1,6 @@
 package org.team100.frc2023.commands;
 
-import org.team100.lib.subsystems.SwerveDriveSubsystem;
+import org.team100.lib.motion.drivetrain.SwerveDriveSubsystem;
 
 import edu.wpi.first.math.Nat;
 import edu.wpi.first.math.VecBuilder;
@@ -79,7 +79,7 @@ public class DriveWithLQR extends CommandBase {
 
         double u = m_loop.getU(0);
 
-        m_robotDrive.driveMetersPerSec(new Twist2d(u, 0, 0), true);
+        m_robotDrive.driveInFieldCoords(new Twist2d(u, 0, 0));
 
     }
 

@@ -5,9 +5,9 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.junit.jupiter.api.Test;
-import org.team100.lib.subsystems.HeadingInterface;
-import org.team100.lib.subsystems.SpeedLimits;
-import org.team100.lib.subsystems.SwerveDriveSubsystemInterface;
+import org.team100.lib.motion.drivetrain.HeadingInterface;
+import org.team100.lib.motion.drivetrain.SpeedLimits;
+import org.team100.lib.motion.drivetrain.SwerveDriveSubsystemInterface;
 
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -21,8 +21,13 @@ public class RotateTest {
 
     class MockHeading implements HeadingInterface {
         @Override
-        public Rotation2d getHeading() {
+        public Rotation2d getHeadingNWU() {
             return new Rotation2d();
+        }
+
+        @Override
+        public double getHeadingRateNWU() {
+            return 0;
         }
     }
 
@@ -38,13 +43,13 @@ public class RotateTest {
         }
 
         @Override
-        public void driveMetersPerSec(Twist2d twist, boolean fieldRelative) {
-            output = twist.dtheta;
+        public void stop() {
+            stopped = true;
         }
 
         @Override
-        public void stop() {
-            stopped = true;
+        public void driveInFieldCoords(Twist2d twist2d) {
+            output = twist2d.dtheta;
         }
     }
 
@@ -87,7 +92,7 @@ public class RotateTest {
 
         assertEquals(0, timer.time, kDelta); // now the timer is reset
         assertEquals(0, rotate.profile.start().getX(), kDelta);
-        assertEquals(Math.PI/2, rotate.profile.end().getX(), kDelta);
+        assertEquals(Math.PI / 2, rotate.profile.end().getX(), kDelta);
         assertEquals(2.571, rotate.profile.duration(), kDelta);
 
         rotate.execute();

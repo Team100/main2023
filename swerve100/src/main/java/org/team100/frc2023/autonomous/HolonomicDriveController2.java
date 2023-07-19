@@ -1,24 +1,22 @@
 package org.team100.frc2023.autonomous;
 
-import org.team100.lib.sensors.RedundantGyro;
-import org.team100.lib.subsystems.VeeringCorrection;
+import org.team100.lib.controller.PidGains;
 
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.math.geometry.Twist2d;
 import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.networktables.DoublePublisher;
+import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
 
 public class HolonomicDriveController2 {
     private Pose2d m_poseError = new Pose2d();
     private Rotation2d m_rotationError = new Rotation2d();
     private Pose2d m_poseTolerance = new Pose2d();
-    private final RedundantGyro m_gyro;
-    private final VeeringCorrection m_veering;
 
     private final PIDController m_xController;
     private final PIDController m_yController;
@@ -26,19 +24,10 @@ public class HolonomicDriveController2 {
 
     private boolean m_firstRun = true;
 
-    NetworkTableInstance inst = NetworkTableInstance.getDefault();
-    DoublePublisher xFFPublisher = inst.getTable("Holonomic2").getDoubleTopic("xFF").publish();
-    DoublePublisher xFBPublisher = inst.getTable("Holonomic2").getDoubleTopic("xFB").publish();
-    DoublePublisher yFFPublisher = inst.getTable("Holonomic2").getDoubleTopic("yFF").publish();
-    DoublePublisher yFBPublisher = inst.getTable("Holonomic2").getDoubleTopic("yFB").publish();
-
     public HolonomicDriveController2(
             PIDController xController,
             PIDController yController,
-            ProfiledPIDController thetaController,
-            RedundantGyro gyro) {
-        m_gyro = gyro;
-        m_veering = new VeeringCorrection(m_gyro);
+            ProfiledPIDController thetaController) {
         m_xController = xController;
         m_yController = yController;
         m_thetaController = thetaController;
@@ -60,7 +49,15 @@ public class HolonomicDriveController2 {
                 && Math.abs(eRotate.getRadians()) < tolRotate.getRadians();
     }
 
-    public ChassisSpeeds calculate(
+    /**
+     * TODO: combine the cartesian and heading parts of the reference state.
+     * 
+     * @param currentPose    robot's current pose in field coordinates
+     * @param desiredState   cartesian part of the reference
+     * @param desiredHeading heading part of the reference
+     * @return field-relative twist, meters and radians per second
+     */
+    public Twist2d calculate(
             Pose2d currentPose,
             Trajectory.State desiredState,
             Rotation2d desiredHeading) {
@@ -68,31 +65,58 @@ public class HolonomicDriveController2 {
         Pose2d trajectoryPose = desiredState.poseMeters;
         double desiredLinearVelocityMetersPerSecond = desiredState.velocityMetersPerSecond;
 
+        Rotation2d currentRotation = currentPose.getRotation();
         if (m_firstRun) {
-            m_thetaController.reset(currentPose.getRotation().getRadians());
+            m_thetaController.reset(currentRotation.getRadians());
             m_firstRun = false;
         }
 
         double xFF = desiredLinearVelocityMetersPerSecond * trajectoryPose.getRotation().getCos();
-
         double yFF = desiredLinearVelocityMetersPerSecond * trajectoryPose.getRotation().getSin();
 
-        double thetaFF = m_thetaController.calculate(
-                currentPose.getRotation().getRadians(), desiredHeading.getRadians());
-
+        double thetaFF = m_thetaController.calculate(currentRotation.getRadians(), desiredHeading.getRadians());
         xFFPublisher.set(xFF);
         yFFPublisher.set(yFF);
+        rotSetpoint.set(m_thetaController.getSetpoint().position);
 
         m_poseError = trajectoryPose.relativeTo(currentPose);
-        m_rotationError = desiredHeading.minus(currentPose.getRotation());
+        m_rotationError = desiredHeading.minus(currentRotation);
 
         double xFeedback = m_xController.calculate(currentPose.getX(), trajectoryPose.getX());
         double yFeedback = m_yController.calculate(currentPose.getY(), trajectoryPose.getY());
-
+        poseXErrorPublisher.set(m_xController.getPositionError());
+        poseYErrorPublisher.set(m_yController.getPositionError());
         xFBPublisher.set(xFeedback);
         yFBPublisher.set(yFeedback);
-        Rotation2d rotation2 = m_veering.correct(currentPose.getRotation());
-        return ChassisSpeeds.fromFieldRelativeSpeeds(
-                xFF + xFeedback, yFF + yFeedback, thetaFF, rotation2);
+
+        return new Twist2d(xFF + xFeedback, yFF + yFeedback, thetaFF);
     }
+
+    public void setGains(PidGains cartesian, PidGains rotation) {
+        m_xController.setPID(cartesian.p, cartesian.i, cartesian.d);
+        m_yController.setPID(cartesian.p, cartesian.i, cartesian.d);
+        m_thetaController.setPID(rotation.p, rotation.i, rotation.d);
+    }
+
+    public void setIRange(double cartesian) {
+        m_xController.setIntegratorRange(-1.0 * cartesian, cartesian);
+        m_yController.setIntegratorRange(-1.0 * cartesian, cartesian);
+    }
+
+    public void setTolerance(double cartesian, double rotation) {
+        m_xController.setTolerance(cartesian);
+        m_yController.setTolerance(cartesian);
+        m_thetaController.setTolerance(rotation);
+    }
+
+    private final NetworkTableInstance inst = NetworkTableInstance.getDefault();
+    private final NetworkTable table = inst.getTable("Holonomic2");
+    private final DoublePublisher xFFPublisher = table.getDoubleTopic("xFF").publish();
+    private final DoublePublisher xFBPublisher = table.getDoubleTopic("xFB").publish();
+    private final DoublePublisher yFFPublisher = table.getDoubleTopic("yFF").publish();
+    private final DoublePublisher yFBPublisher = table.getDoubleTopic("yFB").publish();
+    private final DoublePublisher poseXErrorPublisher = table.getDoubleTopic("xErr").publish();
+    private final DoublePublisher poseYErrorPublisher = table.getDoubleTopic("yErr").publish();
+    private final DoublePublisher rotSetpoint = table.getDoubleTopic("Rot Setpoint").publish();
+
 }

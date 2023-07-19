@@ -1,6 +1,6 @@
 package org.team100.frc2023.autonomous;
 
-import org.team100.lib.subsystems.SwerveDriveSubsystem;
+import org.team100.lib.motion.drivetrain.SwerveDriveSubsystem;
 
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
@@ -45,6 +45,6 @@ private final Config m_config = new Config();
                 m_robotDrive.getPose().getRotation().getRadians(),
                 m_config.goalRotation);
         double outputY = yController.calculate(m_robotDrive.getPose().getY(), goalY);
-        m_robotDrive.driveMetersPerSec(new Twist2d(0, outputY, outputRot), true);
+        m_robotDrive.driveInFieldCoords(new Twist2d(0, outputY, outputRot));
     }
 }

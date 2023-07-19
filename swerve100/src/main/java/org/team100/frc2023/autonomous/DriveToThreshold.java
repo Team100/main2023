@@ -1,6 +1,6 @@
 package org.team100.frc2023.autonomous;
 
-import org.team100.lib.subsystems.SwerveDriveSubsystem;
+import org.team100.lib.motion.drivetrain.SwerveDriveSubsystem;
 
 import edu.wpi.first.math.geometry.Twist2d;
 import edu.wpi.first.wpilibj2.command.CommandBase;
@@ -30,7 +30,7 @@ public class DriveToThreshold extends CommandBase {
     @Override
     public void execute() {
         if (m_robotDrive.getPose().getX() > m_config.kEdgeOfRampMeters) {
-            m_robotDrive.driveMetersPerSec(new Twist2d(m_config.kXSpeedM_S, 0, 0), true);
+            m_robotDrive.driveInFieldCoords(new Twist2d(m_config.kXSpeedM_S, 0, 0));
         } else {
             done = true;
         }
@@ -43,7 +43,7 @@ public class DriveToThreshold extends CommandBase {
 
     @Override
     public void end(boolean interrupted) {
-        m_robotDrive.driveMetersPerSec(new Twist2d(0, 0, 0), false);
+        m_robotDrive.stop();
     }
 
 }

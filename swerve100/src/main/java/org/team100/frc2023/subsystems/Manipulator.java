@@ -1,8 +1,8 @@
 package org.team100.frc2023.subsystems;
 
 import org.team100.frc2023.subsystems.game_piece_detection.GamepieceLocator;
-import org.team100.lib.motors.FRCTalonSRX;
-import org.team100.lib.motors.FRCTalonSRX.FRCTalonSRXBuilder;
+import org.team100.lib.motor.FRCTalonSRX;
+import org.team100.lib.motor.FRCTalonSRX.FRCTalonSRXBuilder;
 
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 

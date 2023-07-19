@@ -6,28 +6,29 @@ import java.io.IOException;
 import org.team100.frc2023.autonomous.Autonomous;
 import org.team100.frc2023.autonomous.DriveToAprilTag;
 import org.team100.frc2023.autonomous.DriveToWaypoint3;
+import org.team100.frc2023.autonomous.HolonomicDriveController2;
 import org.team100.frc2023.autonomous.MoveConeWidth;
 import org.team100.frc2023.autonomous.Rotate;
 import org.team100.frc2023.commands.Defense;
 import org.team100.frc2023.commands.DriveScaled;
 import org.team100.frc2023.commands.DriveWithHeading;
 import org.team100.frc2023.commands.RumbleOn;
-import org.team100.frc2023.commands.Arm.ArmTrajectory;
-import org.team100.frc2023.commands.Arm.ManualArm;
-import org.team100.frc2023.commands.Arm.SetConeMode;
-import org.team100.frc2023.commands.Arm.SetCubeMode;
-import org.team100.frc2023.commands.Manipulator.CloseSlow;
-import org.team100.frc2023.commands.Manipulator.Eject;
-import org.team100.frc2023.commands.Manipulator.Home;
-import org.team100.frc2023.commands.Retro.DriveToRetroReflectiveTape;
+import org.team100.frc2023.commands.arm.ArmTrajectory;
+import org.team100.frc2023.commands.arm.ManualArm;
+import org.team100.frc2023.commands.arm.SetConeMode;
+import org.team100.frc2023.commands.arm.SetCubeMode;
+import org.team100.frc2023.commands.manipulator.CloseSlow;
+import org.team100.frc2023.commands.manipulator.Eject;
+import org.team100.frc2023.commands.manipulator.Home;
+import org.team100.frc2023.commands.retro.DriveToRetroReflectiveTape;
 import org.team100.frc2023.control.Control;
 import org.team100.frc2023.control.JoystickControl;
 import org.team100.frc2023.subsystems.Manipulator;
-import org.team100.frc2023.subsystems.arm.ArmController;
 import org.team100.frc2023.subsystems.arm.ArmPosition;
+import org.team100.frc2023.subsystems.arm.ArmSubsystem;
 import org.team100.lib.commands.ResetPose;
 import org.team100.lib.commands.ResetRotation;
-import org.team100.lib.commands.Retro.LedOn;
+import org.team100.lib.commands.retro.LedOn;
 import org.team100.lib.config.Identity;
 import org.team100.lib.controller.DriveControllers;
 import org.team100.lib.controller.DriveControllersFactory;
@@ -35,15 +36,18 @@ import org.team100.lib.indicator.LEDIndicator;
 import org.team100.lib.indicator.LEDIndicator.State;
 import org.team100.lib.localization.AprilTagFieldLayoutWithCorrectOrientation;
 import org.team100.lib.localization.VisionDataProvider;
+import org.team100.lib.motion.drivetrain.Heading;
+import org.team100.lib.motion.drivetrain.SpeedLimits;
+import org.team100.lib.motion.drivetrain.SpeedLimitsFactory;
+import org.team100.lib.motion.drivetrain.SwerveDriveSubsystem;
+import org.team100.lib.motion.drivetrain.SwerveLocal;
+import org.team100.lib.motion.drivetrain.SwerveModuleCollection;
+import org.team100.lib.motion.drivetrain.SwerveModuleCollectionFactory;
+import org.team100.lib.motion.drivetrain.VeeringCorrection;
+import org.team100.lib.motion.drivetrain.kinematics.FrameTransform;
+import org.team100.lib.motion.drivetrain.kinematics.SwerveDriveKinematicsFactory;
 import org.team100.lib.retro.Illuminator;
 import org.team100.lib.sensors.RedundantGyro;
-import org.team100.lib.subsystems.Heading;
-import org.team100.lib.subsystems.SpeedLimits;
-import org.team100.lib.subsystems.SpeedLimitsFactory;
-import org.team100.lib.subsystems.SwerveDriveKinematicsFactory;
-import org.team100.lib.subsystems.SwerveDriveSubsystem;
-import org.team100.lib.subsystems.SwerveModuleCollection;
-import org.team100.lib.subsystems.SwerveModuleCollectionFactory;
 
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
@@ -89,8 +93,9 @@ public class RobotContainer implements Sendable {
     private final AprilTagFieldLayoutWithCorrectOrientation layout;
     private final SwerveDriveSubsystem m_robotDrive;
     private final SwerveDriveKinematics m_kinematics;
+    private final FrameTransform m_frameTransform;
     private final Manipulator manipulator;
-    private final ArmController armController;
+    private final ArmSubsystem armController;
     private final Illuminator illuminator;
 
     // CONTROLLERS
@@ -118,10 +123,14 @@ public class RobotContainer implements Sendable {
         SpeedLimits speedLimits = SpeedLimitsFactory.get(identity, m_config.SHOW_MODE);
         m_kinematics = SwerveDriveKinematicsFactory.get(identity);
 
+        VeeringCorrection veering = new VeeringCorrection(m_heading::getHeadingRateNWU);
+
+        m_frameTransform = new FrameTransform(veering);
+
         SwerveModuleCollection modules = SwerveModuleCollectionFactory.get(identity, m_config.kDriveCurrentLimit);
         SwerveDrivePoseEstimator poseEstimator = new SwerveDrivePoseEstimator(
-            m_kinematics,
-                m_heading.getHeading(),
+                m_kinematics,
+                m_heading.getHeadingNWU(),
                 modules.positions(),
                 new Pose2d(),
                 VecBuilder.fill(0.5, 0.5, 0.5),
@@ -139,20 +148,18 @@ public class RobotContainer implements Sendable {
                 poseEstimator::getEstimatedPosition);
         visionDataProvider.updateTimestamp(); // this is just to keep lint from complaining
 
-
+        SwerveLocal swerveLocal = new SwerveLocal(speedLimits, m_kinematics, modules);
         m_robotDrive = new SwerveDriveSubsystem(
                 m_heading,
-                speedLimits,
-                m_kinematics,
-                modules,
                 poseEstimator,
-                ahrsclass,
+                m_frameTransform,
+                swerveLocal,
                 m_field);
         manipulator = new Manipulator();
-        armController = new ArmController();
+        armController = new ArmSubsystem();
         illuminator = new Illuminator(25);
 
-        controllers = DriveControllersFactory.get(identity, speedLimits);
+        controllers = new DriveControllersFactory().get(identity, speedLimits);
 
         // TODO: control selection using names
         // control = new DualXboxControl();
@@ -160,19 +167,24 @@ public class RobotContainer implements Sendable {
 
         myWriter = logFile();
 
+        HolonomicDriveController2 controller = new HolonomicDriveController2(
+                controllers.xController,
+                controllers.yController,
+                controllers.thetaController);
+
         ////////////////////////////
         // DRIVETRAIN COMMANDS
         // control.autoLevel(new AutoLevel(false, m_robotDrive, ahrsclass));
         if (m_alliance == DriverStation.Alliance.Blue) {
-            control.driveToLeftGrid(toTag(6, 1.25, 0));
-            control.driveToCenterGrid(toTag(7, 0.95, .55));
-            control.driveToRightGrid(toTag(8, 0.95, .55));
-            control.driveToSubstation(toTag(4, 0.53, -0.749));
+            control.driveToLeftGrid(toTag(controller, 6, 1.25, 0));
+            control.driveToCenterGrid(toTag(controller, 7, 0.95, .55));
+            control.driveToRightGrid(toTag(controller, 8, 0.95, .55));
+            control.driveToSubstation(toTag(controller, 4, 0.53, -0.749));
         } else {
-            control.driveToLeftGrid(toTag(1, 0.95, .55));
-            control.driveToCenterGrid(toTag(2, 0.95, .55));
-            control.driveToRightGrid(toTag(3, 0.95, .55));
-            control.driveToSubstation(toTag(5, 0.9, -0.72));
+            control.driveToLeftGrid(toTag(controller, 1, 0.95, .55));
+            control.driveToCenterGrid(toTag(controller, 2, 0.95, .55));
+            control.driveToRightGrid(toTag(controller, 3, 0.95, .55));
+            control.driveToSubstation(toTag(controller, 5, 0.9, -0.72));
         }
         control.defense(new Defense(m_robotDrive));
         control.resetRotation0(new ResetRotation(m_robotDrive, new Rotation2d(0)));
@@ -180,13 +192,13 @@ public class RobotContainer implements Sendable {
         control.driveSlow(new DriveScaled(control::twist, m_robotDrive, 0.4, 0.5));
         control.driveMedium(new DriveScaled(control::twist, m_robotDrive, 2.0, 0.5));
         control.resetPose(new ResetPose(m_robotDrive, 0, 0, 0));
-        control.tapeDetect(new DriveToRetroReflectiveTape(m_robotDrive));
+        control.tapeDetect(new DriveToRetroReflectiveTape(m_robotDrive, m_frameTransform));
         control.rotate0(new Rotate(m_robotDrive, speedLimits, controllers.rotateController, new Timer(), 0));
 
         control.moveConeWidthLeft(new MoveConeWidth(m_robotDrive, 1));
         control.moveConeWidthRight(new MoveConeWidth(m_robotDrive, -1));
 
-        control.driveWithLQR(new DriveToWaypoint3(new Pose2d(5, 0, new Rotation2d()), m_robotDrive, m_kinematics, ahrsclass));
+        control.driveWithLQR(new DriveToWaypoint3(new Pose2d(5, 0, new Rotation2d()), m_robotDrive, m_kinematics));
 
         ///////////////////////////
         // MANIPULATOR COMMANDS
@@ -246,12 +258,19 @@ public class RobotContainer implements Sendable {
 
         ////////////////////////
         // ARM
-        armController.setDefaultCommand(new ManualArm(armController, control));
+        armController.setDefaultCommand(new ManualArm(armController, control::lowerSpeed, control::upperSpeed));
         SmartDashboard.putData("Robot Container", this);
     }
 
     public Command getAutonomousCommand2(int routine) {
-        return new Autonomous(m_robotDrive, armController, manipulator, ahrsclass, m_indicator, routine);
+        return new Autonomous(
+                m_robotDrive,
+                m_frameTransform,
+                armController,
+                manipulator,
+                ahrsclass,
+                m_indicator,
+                routine);
     }
 
     public void runTest() {
@@ -325,10 +344,22 @@ public class RobotContainer implements Sendable {
         return null;
     }
 
-    private DriveToAprilTag toTag(int tagID, double xOffset, double yOffset) {
-        return DriveToAprilTag.newDriveToAprilTag(tagID, xOffset, yOffset,
-                control::goalOffset, m_robotDrive, m_kinematics, layout,
-                ahrsclass, () -> 0.0);
+    private DriveToAprilTag toTag(
+            HolonomicDriveController2 controller,
+            int tagID,
+            double xOffset,
+            double yOffset) {
+        return new DriveToAprilTag(
+                tagID,
+                xOffset,
+                yOffset,
+                control::goalOffset,
+                m_robotDrive,
+                controller,
+                m_kinematics,
+                controllers,
+                layout,
+                () -> 0.0);
     }
 
     @Override
@@ -353,8 +384,8 @@ public class RobotContainer implements Sendable {
         builder.addDoubleProperty("Y controller Error (m)", () -> controllers.yController.getPositionError(), null);
         builder.addDoubleProperty("Y controller Setpoint", () -> controllers.yController.getSetpoint(), null);
 
-        builder.addDoubleProperty("Heading Degrees", () -> m_heading.getHeading().getDegrees(), null);
-        builder.addDoubleProperty("Heading Radians", () -> m_heading.getHeading().getRadians(), null);
+        builder.addDoubleProperty("Heading Degrees", () -> m_heading.getHeadingNWU().getDegrees(), null);
+        builder.addDoubleProperty("Heading Radians", () -> m_heading.getHeadingNWU().getRadians(), null);
 
     }
 

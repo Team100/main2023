@@ -3,7 +3,7 @@ package org.team100.frc2023.commands;
 import java.util.function.Supplier;
 
 import org.team100.lib.commands.DriveUtil;
-import org.team100.lib.subsystems.SwerveDriveSubsystem;
+import org.team100.lib.motion.drivetrain.SwerveDriveSubsystem;
 
 import edu.wpi.first.math.geometry.Twist2d;
 import edu.wpi.first.wpilibj2.command.CommandBase;
@@ -30,6 +30,6 @@ public class DriveScaled extends CommandBase {
     @Override
     public void execute() {
         Twist2d twistM_S = DriveUtil.scale(twistSupplier.get(), kMaxSpeed, kMaxRot);
-        m_robotDrive.driveMetersPerSec(twistM_S, true);
+        m_robotDrive.driveInFieldCoords(twistM_S);
     }
 }

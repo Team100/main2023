@@ -49,7 +49,8 @@ public class RedundantGyro implements Sendable {
         SmartDashboard.putData("AHRSClass", this);
     }
 
-    public float getRedundantYaw() {
+    /** NOTE NOTE NOTE this is NED = clockwise positive = backwards */
+    public float getRedundantYawNED() {
         if (!m_gyro1.isConnected()) {
             gyro1Connected = false;
         }
@@ -128,8 +129,11 @@ public class RedundantGyro implements Sendable {
         return (redundRoll) / tmpInputs;
     }
 
-    // TODO: what are the units?
-    public float getRedundantGyroRate() {
+    /**
+     * NOTE this is NED = clockwise positive = backwards
+     * TODO: check the units
+     */
+    public float getRedundantGyroRateNED() {
         if (!m_gyro1.isConnected()) {
             gyro1Connected = false;
         }
@@ -152,7 +156,8 @@ public class RedundantGyro implements Sendable {
         return (redundRate) / tmpInputs;
     }
 
-    public float getRedundantGyroZ() {
+    // do we need this ?
+    private float getRedundantGyroZ() {
         if (!m_gyro1.isConnected()) {
             gyro1Connected = false;
         }
@@ -186,8 +191,8 @@ public class RedundantGyro implements Sendable {
         builder.addDoubleProperty("Gyro 2 Angle (deg)", () -> m_gyro2.getAngle(), null);
         builder.addDoubleProperty("Gyro 1 Fused (deg)", () -> m_gyro1.getFusedHeading(), null);
         builder.addDoubleProperty("Gyro 2 Fused (deg)", () -> m_gyro2.getFusedHeading(), null);
-        builder.addDoubleProperty("Gyro Redundant Rate (rad/s)", () -> getRedundantGyroRate(), null);
-        builder.addDoubleProperty("Gyro Redundant Yaw", () -> getRedundantYaw(), null);
+        builder.addDoubleProperty("Gyro Redundant Rate NED (rad/s)", () -> getRedundantGyroRateNED(), null);
+        builder.addDoubleProperty("Gyro Redundant Yaw NED (rad)", () -> getRedundantYawNED(), null);
         builder.addDoubleProperty("Gyro 1 Yaw", () -> m_gyro1.getYaw(), null);
         builder.addDoubleProperty("Gyro 2 Yaw", () -> m_gyro2.getYaw(), null);
         builder.addDoubleProperty("Gyro 1 Angle Mod 360 (deg)", () -> m_gyro1.getAngle() % 360, null);

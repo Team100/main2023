@@ -2,17 +2,18 @@ package org.team100.frc2023.autonomous;
 
 import org.team100.frc2023.commands.AutoLevel;
 import org.team100.frc2023.commands.DriveMobility;
-import org.team100.frc2023.commands.Arm.ArmTrajectory;
-import org.team100.frc2023.commands.Arm.SetCubeMode;
-import org.team100.frc2023.commands.Manipulator.Eject;
+import org.team100.frc2023.commands.arm.ArmTrajectory;
+import org.team100.frc2023.commands.arm.SetCubeMode;
+import org.team100.frc2023.commands.manipulator.Eject;
 import org.team100.frc2023.subsystems.Manipulator;
-import org.team100.frc2023.subsystems.arm.ArmController;
+import org.team100.frc2023.subsystems.arm.ArmSubsystem;
 import org.team100.frc2023.subsystems.arm.ArmPosition;
 import org.team100.lib.autonomous.DriveStop;
 import org.team100.lib.commands.ResetRotation;
 import org.team100.lib.indicator.LEDIndicator;
+import org.team100.lib.motion.drivetrain.SwerveDriveSubsystem;
+import org.team100.lib.motion.drivetrain.kinematics.FrameTransform;
 import org.team100.lib.sensors.RedundantGyro;
-import org.team100.lib.subsystems.SwerveDriveSubsystem;
 
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -30,7 +31,8 @@ public class Autonomous extends SequentialCommandGroup {
 
     private final Config m_config = new Config();
     private final SwerveDriveSubsystem m_robotDrive;
-    private final ArmController m_arm;
+    private final FrameTransform m_chassisSpeedFactory;
+    private final ArmSubsystem m_arm;
     private final Manipulator m_manipulator;
     private final RedundantGyro m_gyro;
     private final LEDIndicator m_indicator;
@@ -38,12 +40,14 @@ public class Autonomous extends SequentialCommandGroup {
     // TODO: make routine an enum
     public Autonomous(
             SwerveDriveSubsystem robotDrive,
-            ArmController arm,
+            FrameTransform chassisSpeedFactory,
+            ArmSubsystem arm,
             Manipulator manipulator,
             RedundantGyro gyro,
             LEDIndicator indicator,
             int routine) {
         m_robotDrive = robotDrive;
+        m_chassisSpeedFactory = chassisSpeedFactory;
         m_arm = arm;
         m_manipulator = manipulator;
         m_gyro = gyro;
@@ -81,7 +85,7 @@ public class Autonomous extends SequentialCommandGroup {
 
     private void autoLevel(boolean reversed) {
         addCommands(
-                new AutoLevel(reversed, m_robotDrive, m_gyro));
+                new AutoLevel(reversed, m_robotDrive, m_gyro, m_chassisSpeedFactory));
     }
 
     // TODO: why do we need a timeout?

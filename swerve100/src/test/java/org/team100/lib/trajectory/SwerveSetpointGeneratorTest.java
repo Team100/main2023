@@ -3,7 +3,7 @@ package org.team100.lib.trajectory;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import org.junit.jupiter.api.Test;
-import org.team100.lib.kinematics.SwerveKinematics;
+import org.team100.lib.motion.drivetrain.kinematics.SwerveKinematics;
 
 import com.team254.lib.swerve.SwerveSetpoint;
 import com.team254.lib.swerve.SwerveSetpointGenerator;
