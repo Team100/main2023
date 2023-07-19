@@ -42,6 +42,7 @@ import org.team100.lib.motion.drivetrain.SpeedLimitsFactory;
 import org.team100.lib.motion.drivetrain.SwerveDriveSubsystem;
 import org.team100.lib.motion.drivetrain.SwerveModuleCollection;
 import org.team100.lib.motion.drivetrain.SwerveModuleCollectionFactory;
+import org.team100.lib.motion.drivetrain.kinematics.ChassisSpeedFactory;
 import org.team100.lib.motion.drivetrain.kinematics.SwerveDriveKinematicsFactory;
 import org.team100.lib.retro.Illuminator;
 import org.team100.lib.sensors.RedundantGyro;
@@ -90,6 +91,7 @@ public class RobotContainer implements Sendable {
     private final AprilTagFieldLayoutWithCorrectOrientation layout;
     private final SwerveDriveSubsystem m_robotDrive;
     private final SwerveDriveKinematics m_kinematics;
+    private final ChassisSpeedFactory m_chassisSpeedFactory;
     private final Manipulator manipulator;
     private final ArmSubsystem armController;
     private final Illuminator illuminator;
@@ -118,6 +120,9 @@ public class RobotContainer implements Sendable {
         Identity identity = Identity.get();
         SpeedLimits speedLimits = SpeedLimitsFactory.get(identity, m_config.SHOW_MODE);
         m_kinematics = SwerveDriveKinematicsFactory.get(identity);
+        // TODO: move this constant
+        double kVeeringCorrection = 0.15;
+        m_chassisSpeedFactory = new ChassisSpeedFactory(ahrsclass::getRedundantGyroRate, kVeeringCorrection);
 
         SwerveModuleCollection modules = SwerveModuleCollectionFactory.get(identity, m_config.kDriveCurrentLimit);
         SwerveDrivePoseEstimator poseEstimator = new SwerveDrivePoseEstimator(
@@ -161,9 +166,9 @@ public class RobotContainer implements Sendable {
         myWriter = logFile();
 
         HolonomicDriveController2 controller = new HolonomicDriveController2(
-            controllers.xController,
-            controllers.yController,
-            controllers.thetaController);
+                controllers.xController,
+                controllers.yController,
+                controllers.thetaController);
 
         ////////////////////////////
         // DRIVETRAIN COMMANDS
@@ -185,7 +190,7 @@ public class RobotContainer implements Sendable {
         control.driveSlow(new DriveScaled(control::twist, m_robotDrive, 0.4, 0.5));
         control.driveMedium(new DriveScaled(control::twist, m_robotDrive, 2.0, 0.5));
         control.resetPose(new ResetPose(m_robotDrive, 0, 0, 0));
-        control.tapeDetect(new DriveToRetroReflectiveTape(m_robotDrive));
+        control.tapeDetect(new DriveToRetroReflectiveTape(m_robotDrive, m_chassisSpeedFactory));
         control.rotate0(new Rotate(m_robotDrive, speedLimits, controllers.rotateController, new Timer(), 0));
 
         control.moveConeWidthLeft(new MoveConeWidth(m_robotDrive, 1));
@@ -257,7 +262,14 @@ public class RobotContainer implements Sendable {
     }
 
     public Command getAutonomousCommand2(int routine) {
-        return new Autonomous(m_robotDrive, armController, manipulator, ahrsclass, m_indicator, routine);
+        return new Autonomous(
+                m_robotDrive,
+                m_chassisSpeedFactory,
+                armController,
+                manipulator,
+                ahrsclass,
+                m_indicator,
+                routine);
     }
 
     public void runTest() {

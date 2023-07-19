@@ -113,14 +113,6 @@ public class SwerveDriveSubsystem extends SubsystemBase implements SwerveDriveSu
         setChassisSpeeds(targetChassisSpeeds);
     }
 
-    /**
-     * @param twist Robot coordinate velocities in meters and radians per second.
-     */
-    public void driveInRobotCoords(Twist2d twist) {
-        ChassisSpeeds targetChassisSpeeds = new ChassisSpeeds(twist.dx, twist.dy, twist.dtheta);
-        setChassisSpeeds(targetChassisSpeeds);
-    }
-
     /** Sets the wheels to make an "X" pattern */
     public void defense() {
         SwerveModuleState[] states = new SwerveModuleState[4];

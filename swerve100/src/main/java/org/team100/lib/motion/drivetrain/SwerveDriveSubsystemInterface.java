@@ -11,5 +11,5 @@ public interface SwerveDriveSubsystemInterface extends Subsystem {
 
     void stop();
 
-    void driveInRobotCoords(Twist2d twist2d);
+    void driveInFieldCoords(Twist2d twist2d);
 }

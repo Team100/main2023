@@ -71,7 +71,7 @@ public class Rotate extends CommandBase {
         double controllerOutput = m_controller.calculate(measurement, reference.getX()); // radians
         error.set(m_controller.getPositionError());
         double totalOutput = feedForward + controllerOutput;
-        m_robotDrive.driveInRobotCoords(new Twist2d(0, 0, totalOutput));
+        m_robotDrive.driveInFieldCoords(new Twist2d(0, 0, totalOutput));
     }
 
     @Override

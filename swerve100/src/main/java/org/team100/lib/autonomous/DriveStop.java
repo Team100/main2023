@@ -2,7 +2,6 @@ package org.team100.lib.autonomous;
 
 import org.team100.lib.motion.drivetrain.SwerveDriveSubsystem;
 
-import edu.wpi.first.math.geometry.Twist2d;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 
 /** Stops the drivetrain. */
@@ -16,6 +15,6 @@ public class DriveStop extends CommandBase {
 
     @Override
     public void execute() {
-        m_robotDrive.driveInRobotCoords(new Twist2d(0, 0, 0));
+        m_robotDrive.stop();
     }
 }

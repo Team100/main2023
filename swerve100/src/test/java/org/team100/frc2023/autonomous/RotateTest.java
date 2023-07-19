@@ -43,7 +43,7 @@ public class RotateTest {
         }
 
         @Override
-        public void driveInRobotCoords(Twist2d twist2d) {
+        public void driveInFieldCoords(Twist2d twist2d) {
             output = twist2d.dtheta;
         }
     }
@@ -87,7 +87,7 @@ public class RotateTest {
 
         assertEquals(0, timer.time, kDelta); // now the timer is reset
         assertEquals(0, rotate.profile.start().getX(), kDelta);
-        assertEquals(Math.PI/2, rotate.profile.end().getX(), kDelta);
+        assertEquals(Math.PI / 2, rotate.profile.end().getX(), kDelta);
         assertEquals(2.571, rotate.profile.duration(), kDelta);
 
         rotate.execute();

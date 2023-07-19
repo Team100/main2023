@@ -8,6 +8,8 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 /**
  * Replacement for the static methods in wpilib ChassisSpeeds. Supports
  * lag correction.
+ * 
+ * TODO: call this something else, like about coordinates.
  */
 public class ChassisSpeedFactory {
     private final DoubleSupplier gyroRateRadS;
@@ -66,13 +68,15 @@ public class ChassisSpeedFactory {
         robotAngle = robotAngle.plus(new Rotation2d(gyroRate));
         return new ChassisSpeeds(
                 vxMetersPerSecond * robotAngle.getCos() + vyMetersPerSecond * robotAngle.getSin(),
-                -vxMetersPerSecond * robotAngle.getSin() + vyMetersPerSecond * robotAngle.getCos(),
+                -1.0 * vxMetersPerSecond * robotAngle.getSin() + vyMetersPerSecond * robotAngle.getCos(),
                 omegaRadiansPerSecond);
     }
 
     /**
      * Converts a user provided field-relative ChassisSpeeds object into a
      * robot-relative ChassisSpeeds object.
+     * 
+     * TODO: make this accept a twist
      *
      * @param fieldRelativeSpeeds The ChassisSpeeds object representing the speeds
      *                            in the field frame
@@ -94,5 +98,30 @@ public class ChassisSpeedFactory {
                 fieldRelativeSpeeds.vyMetersPerSecond,
                 fieldRelativeSpeeds.omegaRadiansPerSecond,
                 robotAngle);
+    }
+
+    /**
+     * Convert robot-relative speeds to field-relative speeds.
+     * 
+     * Does not do veering correction. TODO: veering correction.
+     * 
+     * TODO: make this return a twist
+     * 
+     * @param vxMetersPerSecond robot-relative
+     * @param vyMetersPerSecond robot-relative
+     * @param omegaRadiansPerSecond robot-relative
+     * @return ChassisSpeeds representing field-relative motion.
+     */
+    public ChassisSpeeds toFieldRelativeSpeeds(
+            double vxMetersPerSecond,
+            double vyMetersPerSecond,
+            double omegaRadiansPerSecond,
+            Rotation2d robotAngle) {
+        // it's just the opposite rotation
+        return new ChassisSpeeds(
+                vxMetersPerSecond * robotAngle.getCos() + -1.0 * vyMetersPerSecond * robotAngle.getSin(),
+                vxMetersPerSecond * robotAngle.getSin() + vyMetersPerSecond * robotAngle.getCos(),
+                omegaRadiansPerSecond);
+
     }
 }

@@ -43,7 +43,7 @@ public class DriveToThreshold extends CommandBase {
 
     @Override
     public void end(boolean interrupted) {
-        m_robotDrive.driveInRobotCoords(new Twist2d(0, 0, 0));
+        m_robotDrive.stop();
     }
 
 }
