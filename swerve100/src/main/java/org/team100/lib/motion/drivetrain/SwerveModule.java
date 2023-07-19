@@ -1,156 +1,71 @@
 package org.team100.lib.motion.drivetrain;
 
-import org.team100.lib.encoder.turning.TurningEncoder;
-import org.team100.lib.motor.turning.TurningMotor;
-import org.team100.lib.encoder.drive.DriveEncoder;
-import org.team100.lib.motor.drive.DriveMotor;
-
-import edu.wpi.first.math.MathUtil;
-import edu.wpi.first.math.controller.PIDController;
-import edu.wpi.first.math.controller.ProfiledPIDController;
-import edu.wpi.first.math.controller.SimpleMotorFeedforward;
-import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
-import edu.wpi.first.math.util.Units;
-import edu.wpi.first.util.sendable.Sendable;
-import edu.wpi.first.util.sendable.SendableBuilder;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
-public class SwerveModule implements Sendable {
-    public static class Config {
-        public double kSteeringDeadband = 0.03;
-        public double kDriveDeadband = 0.03;
-    }
-
-    private final Config m_config = new Config();
-
-    private final String m_name;
-    private final DriveMotor m_driveMotor;
-    private final TurningMotor m_turningMotor;
-    private final DriveEncoder m_driveEncoder;
-    private final TurningEncoder m_turningEncoder;
-    private final PIDController m_driveController;
-    private final ProfiledPIDController m_turningController;
-    private final SimpleMotorFeedforward m_turningFeedforward;
-    private final SimpleMotorFeedforward m_driveFeedforward;
-
-    public double turningFeedForwardOutput;
-    public double driveFeedForwardOutput;
-    public double turningMotorControllerOutput;
-    public double driveMotorControllerOutput;
-
-    // for calculating acceleration
-    private double previousSpeedMetersPerSecond = 0;
+/** Feedforward and feedback control of a single module. */
+public class SwerveModule {
+    private final DriveServo m_driveServo;
+    private final TurningServo m_turningServo;
 
     public SwerveModule(
-            String name,
-            DriveMotor driveMotor,
-            TurningMotor turningMotor,
-            DriveEncoder driveEncoder,
-            TurningEncoder turningEncoder,
-            PIDController driveController,
-            ProfiledPIDController turningController,
-            SimpleMotorFeedforward driveFeedforward,
-            SimpleMotorFeedforward turningFeedforward) {
-        m_name = name;
-        m_driveMotor = driveMotor;
-        m_turningMotor = turningMotor;
-        m_driveEncoder = driveEncoder;
-        m_turningEncoder = turningEncoder;
-        m_driveController = driveController;
-        m_turningController = turningController;
-        m_driveFeedforward = driveFeedforward;
-        m_turningFeedforward = turningFeedforward;
-        SmartDashboard.putData(String.format("Swerve Module %s", m_name), this);
-    }
-
-    public SwerveModuleState getState() {
-        return new SwerveModuleState(getDriveSpeedMS(), getTurningRotation());
-    }
-
-    public SwerveModulePosition getPosition() {
-        return new SwerveModulePosition(m_driveEncoder.getDistance(), getTurningRotation());
+            DriveServo driveServo,
+            TurningServo turningServo) {
+        m_driveServo = driveServo;
+        m_turningServo = turningServo;
     }
 
     public void setDesiredState(SwerveModuleState desiredState) {
-        SwerveModuleState state = SwerveModuleState.optimize(desiredState, getTurningRotation());
-        driveMotorControllerOutput = m_driveController.calculate(getDriveSpeedMS(), state.speedMetersPerSecond);
-        turningMotorControllerOutput = m_turningController.calculate(getTurningAngleRad(), state.angle.getRadians());
-        turningFeedForwardOutput = m_turningFeedforward.calculate(getTurnSetpointVelocityRadS(), 0);
-        double accelMetersPerSecondPerSecond = (state.speedMetersPerSecond - previousSpeedMetersPerSecond) / 0.02;
-        previousSpeedMetersPerSecond = state.speedMetersPerSecond;
-        driveFeedForwardOutput = m_driveFeedforward.calculate(
-                state.speedMetersPerSecond,
-                accelMetersPerSecondPerSecond);
-        setOutput(driveMotorControllerOutput + driveFeedForwardOutput,
-                turningMotorControllerOutput + turningFeedForwardOutput);
+        SwerveModuleState state = SwerveModuleState.optimize(desiredState, m_turningServo.getTurningRotation());
+        m_driveServo.setDrive(state);
+        m_turningServo.setTurning(state);
+    }
+
+    /////////////////////////////////////////////////////////////
+
+    /**
+     * Package private for SwerveModuleCollection.states only.
+     */
+    SwerveModuleState getState() {
+        return new SwerveModuleState(m_driveServo.getDriveSpeedMS(), m_turningServo.getTurningRotation());
     }
 
     /**
-     * Applies a 3% deadband to prevent shivering.
-     * 
-     * @param driveOutput in range [-1, 1]
-     * @param turnOutput  in range [-1, 1]
+     * Package private for SwerveModuleCollection.positions only.
      */
-    public void setOutput(double driveOutput, double turnOutput) {
-        m_driveMotor.set(MathUtil.applyDeadband(driveOutput, m_config.kDriveDeadband));
-        m_turningMotor.set(MathUtil.applyDeadband(turnOutput, m_config.kSteeringDeadband));
+    SwerveModulePosition getPosition() {
+        return new SwerveModulePosition(m_driveServo.getDriveDistanceM(), m_turningServo.getTurningRotation());
     }
 
-    /** Reset distance and angle to zero. */
-    public void resetEncoders() {
-        m_driveEncoder.reset();
-        m_turningEncoder.reset();
+    /**
+     * Package private for SwerveModuleCollection.stop only.
+     * This is low-level shutoff, not generally useful.
+     * Most clients should use setDesiredState.
+     */
+    void stop() {
+        m_driveServo.set(0);
+        m_turningServo.set(0);
     }
 
-    /** Reset just distance to zero, leave angle alone. */
-    public void resetDriveEncoders() {
-        m_driveEncoder.reset();
+    /**
+     * Package private for SwerveModuleCollection.test only.
+     * This is exact direct control, only useful for testing.
+     */
+    void test(double[] output) {
+        m_driveServo.set(output[0]);
+        m_turningServo.set(output[1]);
     }
 
-    private double getDriveSpeedMS() {
-        return m_driveEncoder.getRate();
-    }
+    // do we need this?
+    // /** Reset just distance to zero, leave angle alone. */
+    // public void resetDriveEncoders() {
+    // m_driveEncoder.reset();
+    // }
 
-    private double getTurnSetpointVelocityRadS() {
-        return m_turningController.getSetpoint().velocity;
-    }
-
-    private double getTurningAngleRad() {
-        return m_turningEncoder.getAngle();
-    }
-
-    private Rotation2d getTurningRotation() {
-        return new Rotation2d(getTurningAngleRad());
-    }
-
-    @Override
-    public void initSendable(SendableBuilder builder) {
-        builder.setSmartDashboardType(String.format("SwerveModule %s", m_name));
-        // Measurements
-        builder.addDoubleProperty("Drive position (m)", () -> getPosition().distanceMeters, null);
-        builder.addDoubleProperty("Drive Speed (m/s)", () -> getDriveSpeedMS(), null);
-        builder.addDoubleProperty("Turning Angle (rad)", () -> getTurningAngleRad(), null);
-        builder.addDoubleProperty("Turning Angle (deg)", () -> Units.radiansToDegrees(getTurningAngleRad()), null);
-
-        // Turning
-        builder.addDoubleProperty("Turning Goal (rad)", () -> m_turningController.getGoal().position, null);
-        builder.addDoubleProperty("Turning Setpoint (rad)", () -> m_turningController.getSetpoint().position, null);
-        builder.addDoubleProperty("Turning Setpoint Velocity (rad/s)", this::getTurnSetpointVelocityRadS, null);
-        builder.addDoubleProperty("Turning Position Error (rad)", () -> m_turningController.getPositionError(), null);
-        builder.addDoubleProperty("Turning Velocity Error (rad/s)", () -> m_turningController.getVelocityError(), null);
-        builder.addDoubleProperty("Turning Controller Output", () -> turningMotorControllerOutput, null);
-        builder.addDoubleProperty("Turning Feed Forward Output", () -> turningFeedForwardOutput, null);
-        builder.addDoubleProperty("Turning Motor Output [-1, 1]", () -> m_turningMotor.get(), null);
-
-        // Drive
-        builder.addDoubleProperty("Drive Setpoint (m/s)", () -> m_driveController.getSetpoint(), null);
-        builder.addDoubleProperty("Drive Speed Error (m/s)", () -> m_driveController.getPositionError(), null);
-        builder.addDoubleProperty("Drive Accel Error (m/s/s)", () -> m_driveController.getVelocityError(), null);
-        builder.addDoubleProperty("Drive Controller Output", () -> driveMotorControllerOutput, null);
-        builder.addDoubleProperty("Drive Feed Forward Output", () -> driveFeedForwardOutput, null);
-        builder.addDoubleProperty("Drive Motor Output [-1, 1]", () -> m_driveMotor.get(), null);
-
-    }
+    // do we need this?
+    // /** Reset distance and angle to zero. */
+    // public void resetEncoders() {
+    // m_driveEncoder.reset();
+    // m_turningEncoder.reset();
+    // }
 }

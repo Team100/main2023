@@ -51,18 +51,18 @@ public class SwerveModuleCollection {
     }
 
     public void stop() {
-        m_frontLeft.setOutput(0, 0);
-        m_frontRight.setOutput(0, 0);
-        m_rearLeft.setOutput(0, 0);
-        m_rearRight.setOutput(0, 0);
+        m_frontLeft.stop();
+        m_frontRight.stop();
+        m_rearLeft.stop();
+        m_rearRight.stop();
     }
 
     /** Test and log. */
     public void test(double[][] desiredOutputs, FileWriter writer) {
-        m_frontLeft.setOutput(desiredOutputs[0][0], desiredOutputs[0][1]);
-        m_frontRight.setOutput(desiredOutputs[1][0], desiredOutputs[1][1]);
-        m_rearLeft.setOutput(desiredOutputs[2][0], desiredOutputs[2][1]);
-        m_rearRight.setOutput(desiredOutputs[3][0], desiredOutputs[3][1]);
+        m_frontLeft.test(desiredOutputs[0]);
+        m_frontRight.test(desiredOutputs[1]);
+        m_rearLeft.test(desiredOutputs[2]);
+        m_rearRight.test(desiredOutputs[3]);
         try {
             if (writer != null) {
                 writer.write("Timestamp: " + Timer.getFPGATimestamp() +

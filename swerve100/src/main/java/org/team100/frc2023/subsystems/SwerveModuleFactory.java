@@ -4,7 +4,9 @@ import org.team100.lib.encoder.drive.FalconDriveEncoder;
 import org.team100.lib.motor.drive.FalconDriveMotor;
 import org.team100.lib.motor.turning.FalconTurningMotor;
 import org.team100.lib.motor.turning.PWMTurningMotor;
+import org.team100.lib.motion.drivetrain.DriveServo;
 import org.team100.lib.motion.drivetrain.SwerveModule;
+import org.team100.lib.motion.drivetrain.TurningServo;
 import org.team100.lib.encoder.turning.AnalogTurningEncoder;
 
 import edu.wpi.first.math.controller.PIDController;
@@ -63,8 +65,11 @@ public class SwerveModuleFactory {
                 0.003, // kV: from experiment; higher than AM modules, less reduction gear
                 0); // kA: I have no idea what this value should be
 
-        return new SwerveModule(name, driveMotor, turningMotor, driveEncoder, turningEncoder,
-                driveController, turningController, driveFeedforward, turningFeedforward);
+        DriveServo driveServo = new DriveServo(name, driveMotor, driveEncoder, driveController, driveFeedforward);
+        TurningServo turningServo = new TurningServo(name, turningMotor, turningEncoder, turningController,
+                turningFeedforward);
+
+        return new SwerveModule(driveServo, turningServo);
     }
 
     public static SwerveModule AMModule(
@@ -112,7 +117,10 @@ public class SwerveModuleFactory {
                 0.003, // kV
                 0); // kA
 
-        return new SwerveModule(name, driveMotor, turningMotor, driveEncoder, turningEncoder,
-                driveController, turningController, driveFeedforward, turningFeedforward);
+        DriveServo driveServo = new DriveServo(name, driveMotor, driveEncoder, driveController, driveFeedforward);
+        TurningServo turningServo = new TurningServo(name, turningMotor, turningEncoder, turningController,
+                turningFeedforward);
+
+        return new SwerveModule(driveServo, turningServo);
     }
 }

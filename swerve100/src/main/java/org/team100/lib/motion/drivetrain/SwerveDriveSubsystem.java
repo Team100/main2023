@@ -113,7 +113,11 @@ public class SwerveDriveSubsystem extends SubsystemBase implements SwerveDriveSu
         setChassisSpeeds(targetChassisSpeeds);
     }
 
-    /** Sets the wheels to make an "X" pattern */
+    /**
+     * Sets the wheels to make an "X" pattern
+     * TODO: let the drivetrain decide to do this when it's stopped for more than
+     * 0.25 s
+     */
     public void defense() {
         SwerveModuleState[] states = new SwerveModuleState[4];
         states[0] = new SwerveModuleState(0, new Rotation2d(Math.PI / 4));
