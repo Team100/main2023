@@ -4,9 +4,9 @@ import java.util.List;
 
 import org.team100.frc2023.LQRManager;
 import org.team100.frc2023.commands.GoalOffset;
+import org.team100.lib.motion.drivetrain.SwerveDriveSubsystem;
+import org.team100.lib.motion.drivetrain.VeeringCorrection;
 import org.team100.lib.sensors.RedundantGyro;
-import org.team100.lib.subsystems.SwerveDriveSubsystem;
-import org.team100.lib.subsystems.VeeringCorrection;
 
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.Nat;

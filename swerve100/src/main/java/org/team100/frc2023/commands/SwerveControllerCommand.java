@@ -4,7 +4,7 @@ import java.util.function.Supplier;
 
 import org.team100.frc2023.autonomous.HolonomicDriveController2;
 import org.team100.lib.controller.DriveControllers;
-import org.team100.lib.subsystems.SwerveDriveSubsystem;
+import org.team100.lib.motion.drivetrain.SwerveDriveSubsystem;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;

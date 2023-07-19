@@ -1,10 +1,10 @@
 package org.team100.frc2023.autonomous;
 
+import org.team100.lib.motion.drivetrain.SpeedLimits;
+import org.team100.lib.motion.drivetrain.SwerveDriveSubsystemInterface;
 import org.team100.lib.profile.MotionProfile;
 import org.team100.lib.profile.MotionProfileGenerator;
 import org.team100.lib.profile.MotionState;
-import org.team100.lib.subsystems.SpeedLimits;
-import org.team100.lib.subsystems.SwerveDriveSubsystemInterface;
 
 // replaced with our own versions
 // import com.acmerobotics.roadrunner.profile.MotionProfile;

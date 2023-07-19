@@ -1,6 +1,6 @@
 package org.team100.frc2023.commands;
 
-import org.team100.lib.subsystems.SwerveDriveSubsystem;
+import org.team100.lib.motion.drivetrain.SwerveDriveSubsystem;
 
 import edu.wpi.first.math.Nat;
 import edu.wpi.first.math.VecBuilder;

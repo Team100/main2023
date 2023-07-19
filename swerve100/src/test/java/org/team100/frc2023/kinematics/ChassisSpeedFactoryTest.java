@@ -4,7 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import org.junit.jupiter.api.Test;
-import org.team100.lib.kinematics.ChassisSpeedFactory;
+import org.team100.lib.motion.drivetrain.kinematics.ChassisSpeedFactory;
 
 import edu.wpi.first.math.geometry.Rotation2d;
 

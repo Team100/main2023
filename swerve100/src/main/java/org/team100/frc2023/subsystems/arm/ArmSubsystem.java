@@ -1,8 +1,8 @@
 package org.team100.frc2023.subsystems.arm;
 
-import org.team100.lib.motors.FRCNEO;
-import org.team100.lib.subsystems.arm.ArmAngles;
-import org.team100.lib.subsystems.arm.ArmKinematics;
+import org.team100.lib.motion.arm.ArmKinematics;
+import org.team100.lib.motor.FRCNEO;
+import org.team100.lib.motion.arm.ArmAngles;
 
 import com.revrobotics.CANSparkMax.IdleMode;
 

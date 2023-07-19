@@ -3,7 +3,7 @@ package org.team100.frc2023.commands.arm;
 import java.util.function.Supplier;
 
 import org.team100.frc2023.subsystems.arm.ArmSubsystem;
-import org.team100.lib.subsystems.arm.ArmKinematics;
+import org.team100.lib.motion.arm.ArmKinematics;
 
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj2.command.CommandBase;

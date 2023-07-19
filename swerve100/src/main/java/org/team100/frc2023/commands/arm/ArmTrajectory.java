@@ -2,7 +2,7 @@ package org.team100.frc2023.commands.arm;
 
 import org.team100.frc2023.subsystems.arm.ArmPosition;
 import org.team100.frc2023.subsystems.arm.ArmSubsystem;
-import org.team100.lib.subsystems.arm.ArmAngles;
+import org.team100.lib.motion.arm.ArmAngles;
 
 import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.math.trajectory.Trajectory.State;

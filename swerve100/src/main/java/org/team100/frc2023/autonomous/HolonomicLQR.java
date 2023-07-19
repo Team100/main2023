@@ -1,12 +1,12 @@
 package org.team100.frc2023.autonomous;
 
 import org.team100.frc2023.LQRManager;
+import org.team100.lib.motion.drivetrain.SwerveDriveSubsystem;
+import org.team100.lib.motion.drivetrain.VeeringCorrection;
 import org.team100.lib.profile.MotionProfile;
 import org.team100.lib.profile.MotionProfileGenerator;
 import org.team100.lib.profile.MotionState;
 import org.team100.lib.sensors.RedundantGyro;
-import org.team100.lib.subsystems.SwerveDriveSubsystem;
-import org.team100.lib.subsystems.VeeringCorrection;
 
 // these are replaced by our own versions
 // import com.acmerobotics.roadrunner.profile.MotionProfile;

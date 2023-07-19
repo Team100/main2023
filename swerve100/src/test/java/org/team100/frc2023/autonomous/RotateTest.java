@@ -5,9 +5,9 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.junit.jupiter.api.Test;
-import org.team100.lib.subsystems.HeadingInterface;
-import org.team100.lib.subsystems.SpeedLimits;
-import org.team100.lib.subsystems.SwerveDriveSubsystemInterface;
+import org.team100.lib.motion.drivetrain.HeadingInterface;
+import org.team100.lib.motion.drivetrain.SpeedLimits;
+import org.team100.lib.motion.drivetrain.SwerveDriveSubsystemInterface;
 
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Pose2d;
