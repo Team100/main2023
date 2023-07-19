@@ -13,42 +13,38 @@ import org.team100.lib.subsystems.SwerveDriveSubsystemInterface;
 
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Twist2d;
-import edu.wpi.first.util.sendable.SendableBuilder;
+import edu.wpi.first.networktables.DoublePublisher;
+import edu.wpi.first.networktables.NetworkTable;
+import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.Timer;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 
 /**
  * Uses a timed profile, which avoids the bad ProfiledPidController behavior of
- * staying behind.  Also demonstrates Roadrunner MotionProfiles.
+ * staying behind. Also demonstrates Roadrunner MotionProfiles.
  */
 public class Rotate extends CommandBase {
     private final SwerveDriveSubsystemInterface m_robotDrive;
-    private final SpeedLimits speedLimits;
-    private final PIDController controller;
+    private final SpeedLimits m_speedLimits;
+    private final PIDController m_controller;
     private final Timer m_timer;
-    private final MotionState goalState;
+    private final MotionState m_goalState;
     MotionProfile profile; // set in initialize(), package private for testing
     MotionState reference; // updated in execute(), package private for testing.
 
     public Rotate(
             SwerveDriveSubsystemInterface drivetrain,
             SpeedLimits speedLimits,
-            PIDController newController,
+            PIDController controller,
             Timer timer,
             double targetAngleRadians) {
         m_robotDrive = drivetrain;
-        this.speedLimits = speedLimits;
-        controller = newController;
-
+        m_speedLimits = speedLimits;
+        m_controller = controller;
         m_timer = timer;
-
-        goalState = new MotionState(targetAngleRadians, 0);
-        if (drivetrain != null)
-            addRequirements(drivetrain);
-
+        m_goalState = new MotionState(targetAngleRadians, 0);
         reference = new MotionState(0, 0);
-        SmartDashboard.putData("ROTATE COMMAND", this);
+        addRequirements(drivetrain);
     }
 
     @Override
@@ -57,26 +53,30 @@ public class Rotate extends CommandBase {
         MotionState start = new MotionState(m_robotDrive.getPose().getRotation().getRadians(), 0);
         profile = MotionProfileGenerator.generateSimpleMotionProfile(
                 start,
-                goalState,
-                speedLimits.kMaxAngularSpeedRadiansPerSecond,
-                speedLimits.kMaxAngularAccelRad_SS,
-                speedLimits.kMaxAngularJerkRadiansPerSecondCubed);
+                m_goalState,
+                m_speedLimits.kMaxAngularSpeedRadiansPerSecond,
+                m_speedLimits.kMaxAngularAccelRad_SS,
+                m_speedLimits.kMaxAngularJerkRadiansPerSecondCubed);
         m_timer.reset();
     }
 
     @Override
     public void execute() {
         double measurement = m_robotDrive.getPose().getRotation().getRadians();
+        measurementPub.set(measurement);
         reference = profile.get(m_timer.get());
+        refX.set(reference.getX());
+        refV.set(reference.getV());
         double feedForward = reference.getV(); // this is radians/sec
-        double controllerOutput = controller.calculate(measurement, reference.getX()); // radians
+        double controllerOutput = m_controller.calculate(measurement, reference.getX()); // radians
+        error.set(m_controller.getPositionError());
         double totalOutput = feedForward + controllerOutput;
-        m_robotDrive.driveMetersPerSec(new Twist2d(0, 0, totalOutput), false);
+        m_robotDrive.driveInRobotCoords(new Twist2d(0, 0, totalOutput));
     }
 
     @Override
     public boolean isFinished() {
-        return m_timer.get() > profile.duration() && controller.atSetpoint();
+        return m_timer.get() > profile.duration() && m_controller.atSetpoint();
     }
 
     @Override
@@ -84,13 +84,11 @@ public class Rotate extends CommandBase {
         m_robotDrive.stop();
     }
 
-    @Override
-    public void initSendable(SendableBuilder builder) {
-        super.initSendable(builder);
-        builder.addDoubleProperty("Error", () -> controller.getPositionError(), null);
-        builder.addDoubleProperty("Measurement", () -> m_robotDrive.getPose().getRotation().getRadians(), null);
-        builder.addDoubleProperty("Reference Position", () -> reference.getX(), null);
-        builder.addDoubleProperty("Reference Velocity", () -> reference.getV(), null);
-        builder.addDoubleProperty("Setpoint", () -> controller.getSetpoint(), null);
-    }
+    private final NetworkTableInstance inst = NetworkTableInstance.getDefault();
+    private final NetworkTable table = inst.getTable("rotate");
+    private final DoublePublisher error = table.getDoubleTopic("error").publish();
+    private final DoublePublisher measurementPub = table.getDoubleTopic("measurement").publish();
+    private final DoublePublisher refX = table.getDoubleTopic("refX").publish();
+    private final DoublePublisher refV = table.getDoubleTopic("refV").publish();
+
 }

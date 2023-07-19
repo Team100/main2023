@@ -1,12 +1,11 @@
 package org.team100.frc2023.autonomous;
 
 import java.util.List;
-import java.util.function.Supplier;
 
 import org.team100.frc2023.commands.SwerveControllerCommand;
+import org.team100.lib.controller.DriveControllers;
 import org.team100.lib.localization.AprilTagFieldLayoutWithCorrectOrientation;
 import org.team100.lib.sensors.RedundantGyro;
-import org.team100.lib.controller.DriveControllers;
 import org.team100.lib.subsystems.SwerveDriveSubsystem;
 
 import edu.wpi.first.math.geometry.Pose2d;
@@ -23,26 +22,25 @@ public class MoveToAprilTag extends CommandBase {
         public double accelerationMetersPerSecondSquared = 1;
     }
 
-   private final SwerveControllerCommand m_swerveController;
+    private final Config m_config = new Config();
+
+    private final SwerveControllerCommand m_swerveController;
 
     public MoveToAprilTag(
-            Config config,
             SwerveDriveSubsystem m_robotDrive,
             SwerveDriveKinematics kinematics,
             DriveControllers controllers,
             AprilTagFieldLayoutWithCorrectOrientation layout,
-            Supplier<Pose2d> getPose,
             int tagID,
             RedundantGyro gyro) {
-                m_swerveController = new SwerveControllerCommand(
-                genTrajectory(config, m_robotDrive, kinematics, layout, getPose, tagID),
-                m_robotDrive::getPose,
+        Trajectory trajectory = genTrajectory(m_robotDrive, kinematics, layout, tagID);
+        m_swerveController = new SwerveControllerCommand(
+                m_robotDrive,
+                trajectory,
                 kinematics,
                 controllers,
                 () -> new Rotation2d(),
-                m_robotDrive::setModuleStates,
-                gyro,
-                m_robotDrive);
+                gyro);
         addRequirements(m_robotDrive);
     }
 
@@ -66,23 +64,21 @@ public class MoveToAprilTag extends CommandBase {
         m_swerveController.end(interrupted);
     }
 
-    private static Trajectory genTrajectory(
-            Config config,
+    private Trajectory genTrajectory(
             SwerveDriveSubsystem m_robotDrive,
             SwerveDriveKinematics kinematics,
             AprilTagFieldLayoutWithCorrectOrientation layout,
-            Supplier<Pose2d> getPose,
             int tagID) {
 
         TrajectoryConfig trajectoryConfig = new TrajectoryConfig(
-                config.speedMetersPerSecond,
-                config.accelerationMetersPerSecondSquared)
+                m_config.speedMetersPerSecond,
+                m_config.accelerationMetersPerSecondSquared)
                 .setKinematics(kinematics);
 
         Pose2d aprilPose = layout.getTagPose(tagID).get().toPose2d();
 
         Trajectory exampleTrajectory = TrajectoryGenerator.generateTrajectory(
-                getPose.get(),
+                m_robotDrive.getPose(),
                 List.of(),
                 new Pose2d(
                         aprilPose.getX() - 1,

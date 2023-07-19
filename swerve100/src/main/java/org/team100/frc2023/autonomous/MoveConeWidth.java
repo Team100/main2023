@@ -45,6 +45,6 @@ private final Config m_config = new Config();
                 m_robotDrive.getPose().getRotation().getRadians(),
                 m_config.goalRotation);
         double outputY = yController.calculate(m_robotDrive.getPose().getY(), goalY);
-        m_robotDrive.driveMetersPerSec(new Twist2d(0, outputY, outputRot), true);
+        m_robotDrive.driveInFieldCoords(new Twist2d(0, outputY, outputRot));
     }
 }

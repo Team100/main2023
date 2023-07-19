@@ -30,6 +30,6 @@ public class DriveScaled extends CommandBase {
     @Override
     public void execute() {
         Twist2d twistM_S = DriveUtil.scale(twistSupplier.get(), kMaxSpeed, kMaxRot);
-        m_robotDrive.driveMetersPerSec(twistM_S, true);
+        m_robotDrive.driveInFieldCoords(twistM_S);
     }
 }

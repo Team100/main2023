@@ -22,22 +22,26 @@ public class IshanAutonomous extends CommandBase {
         public double accelerationMetersPerSecondSquared = 1;
     }
 
+    private final Config m_config = new Config();
+    private final SwerveDriveSubsystem m_robotDrive;
+    private final SwerveDriveKinematics m_kinematics;
     private final SwerveControllerCommand m_swerveController;
 
     public IshanAutonomous(
-            Config m_config,
-            SwerveDriveSubsystem m_robotDrive,
+            SwerveDriveSubsystem robotDrive,
             SwerveDriveKinematics kinematics,
             DriveControllers controllers,
             RedundantGyro gyro) {
-        m_swerveController = new SwerveControllerCommand(genTrajectory(m_config, m_robotDrive, kinematics),
-                m_robotDrive::getPose,
+        m_robotDrive = robotDrive;
+        m_kinematics = kinematics;
+        Trajectory trajectory = genTrajectory();
+        m_swerveController = new SwerveControllerCommand(
+                m_robotDrive,
+                trajectory,
                 kinematics,
                 controllers,
                 () -> new Rotation2d(),
-                m_robotDrive::setModuleStates,
-                gyro,
-                m_robotDrive);
+                gyro);
     }
 
     @Override
@@ -60,12 +64,11 @@ public class IshanAutonomous extends CommandBase {
         m_swerveController.end(interrupted);
     }
 
-    private static Trajectory genTrajectory(Config config, SwerveDriveSubsystem m_robotDrive,
-            SwerveDriveKinematics kinematics) {
+    private Trajectory genTrajectory() {
         TrajectoryConfig kTrajectoryConfig = new TrajectoryConfig(
-                config.speedMetersPerSecond,
-                config.accelerationMetersPerSecondSquared)
-                .setKinematics(kinematics);
+                m_config.speedMetersPerSecond,
+                m_config.accelerationMetersPerSecondSquared)
+                .setKinematics(m_kinematics);
         double controlPointAngle = Math.atan2(
                 (1.071626 - m_robotDrive.getPose().getY()),
                 (14.513558 - m_robotDrive.getPose().getX()));

@@ -13,14 +13,14 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.math.trajectory.TrajectoryUtil;
-import edu.wpi.first.util.sendable.SendableBuilder;
+import edu.wpi.first.networktables.DoublePublisher;
+import edu.wpi.first.networktables.NetworkTable;
+import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Filesystem;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 
 public class VasiliWaypointTrajectory extends CommandBase {
-    private double isRunning = 5;
     private final SwerveControllerCommand m_swerveController;
 
     public VasiliWaypointTrajectory(
@@ -31,17 +31,15 @@ public class VasiliWaypointTrajectory extends CommandBase {
             RedundantGyro gyro,
             String path) {
 
+        Trajectory trajectory = genTrajectory(path);
         m_swerveController = new SwerveControllerCommand(
-                genTrajectory(path),
-                m_robotDrive::getPose,
+                m_robotDrive,
+                trajectory,
                 kinematics,
                 controllers,
                 desiredRotation,
-                m_robotDrive::setModuleStates,
-                gyro,
-                m_robotDrive);
+                gyro);
         addRequirements(m_robotDrive);
-        SmartDashboard.putData("Move From Starting Pose To Game Piece", this);
     }
 
     @Override
@@ -52,7 +50,7 @@ public class VasiliWaypointTrajectory extends CommandBase {
     @Override
     public void execute() {
         m_swerveController.execute();
-        isRunning = 5;
+        running.set(5);
     }
 
     @Override
@@ -63,10 +61,12 @@ public class VasiliWaypointTrajectory extends CommandBase {
     @Override
     public void end(boolean interrupted) {
         m_swerveController.end(interrupted);
-        isRunning = 0;
+        running.set(0);
     }
 
-    private static Trajectory genTrajectory(String path) {
+    //////////////////////////////////////////////////////////
+
+    private Trajectory genTrajectory(String path) {
         try {
             Path trajectoryPath = Filesystem.getDeployDirectory().toPath().resolve(path);
             return TrajectoryUtil.fromPathweaverJson(trajectoryPath);
@@ -76,9 +76,7 @@ public class VasiliWaypointTrajectory extends CommandBase {
         return new Trajectory();
     }
 
-    @Override
-    public void initSendable(SendableBuilder builder) {
-        super.initSendable(builder);
-        builder.addDoubleProperty("IsRunning", () -> isRunning, null);
-    }
+    private final NetworkTableInstance inst = NetworkTableInstance.getDefault();
+    private final NetworkTable table = inst.getTable("waypoint");
+    private final DoublePublisher running = table.getDoubleTopic("running").publish();
 }

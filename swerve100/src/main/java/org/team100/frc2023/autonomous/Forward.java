@@ -21,15 +21,14 @@ public class Forward extends CommandBase {
 
     public Forward(SwerveDriveSubsystem m_robotDrive, SwerveDriveKinematics kinematics,
             DriveControllers controllers, double x, RedundantGyro gyro) {
-                m_swerveController = new SwerveControllerCommand(
-                genTrajectory(m_robotDrive, kinematics, x),
-                m_robotDrive::getPose,
+        Trajectory trajectory = genTrajectory(m_robotDrive, kinematics, x);
+        m_swerveController = new SwerveControllerCommand(
+                m_robotDrive,
+                trajectory,
                 kinematics,
                 controllers,
                 () -> new Rotation2d(),
-                m_robotDrive::setModuleStates,
-                gyro,
-                m_robotDrive);
+                gyro);
     }
 
     @Override
@@ -52,7 +51,9 @@ public class Forward extends CommandBase {
         m_swerveController.end(interrupted);
     }
 
-    private static Trajectory genTrajectory(SwerveDriveSubsystem m_robotDrive, SwerveDriveKinematics kinematics,
+    private static Trajectory genTrajectory(
+            SwerveDriveSubsystem m_robotDrive,
+            SwerveDriveKinematics kinematics,
             double x) {
         Pose2d currentRobotPose = m_robotDrive.getPose();
         double xRobot = currentRobotPose.getX();

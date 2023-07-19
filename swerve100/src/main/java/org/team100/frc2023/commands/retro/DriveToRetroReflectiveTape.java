@@ -13,6 +13,7 @@ import edu.wpi.first.math.filter.LinearFilter;
 import edu.wpi.first.math.geometry.Twist2d;
 import edu.wpi.first.math.trajectory.TrapezoidProfile.Constraints;
 import edu.wpi.first.networktables.DoublePublisher;
+import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.RawSubscriber;
 import edu.wpi.first.wpilibj2.command.CommandBase;
@@ -29,19 +30,6 @@ public class DriveToRetroReflectiveTape extends CommandBase {
     private final LinearFilter xFilter;
     private final LinearFilter yFilter;
     private final ObjectMapper object_mapper;
-
-    private final NetworkTableInstance inst;
-    private final DoublePublisher setpointX;
-    private final DoublePublisher setpointY;
-    private final DoublePublisher measurmentX;
-    private final DoublePublisher measurmentY;
-    private final DoublePublisher errorX;
-    private final DoublePublisher errorY;
-    private final DoublePublisher tagView;
-    private final DoublePublisher xOutputPub;
-    private final DoublePublisher yOutputPub;
-    private final RawSubscriber tapeSubscriber;
-
     private final ProfiledPIDController yController;
     private final ProfiledPIDController xController;
 
@@ -52,17 +40,7 @@ public class DriveToRetroReflectiveTape extends CommandBase {
         xFilter = LinearFilter.singlePoleIIR(m_config.filterTimeConstantS, m_config.filterPeriodS);
         yFilter = LinearFilter.singlePoleIIR(m_config.filterTimeConstantS, m_config.filterPeriodS);
         object_mapper = new ObjectMapper(new MessagePackFactory());
-        inst = NetworkTableInstance.getDefault();
-        setpointX = inst.getTable("Retro Tape").getDoubleTopic("Setpoint X").publish();
-        setpointY = inst.getTable("Retro Tape").getDoubleTopic("Setpoint Y").publish();
-        measurmentX = inst.getTable("Retro Tape").getDoubleTopic("Measurment X").publish();
-        measurmentY = inst.getTable("Retro Tape").getDoubleTopic("Measurment Y").publish();
-        errorX = inst.getTable("Retro Tape").getDoubleTopic("Error X").publish();
-        errorY = inst.getTable("Retro Tape").getDoubleTopic("Error Y").publish();
-        tagView = inst.getTable("Retro Tape").getDoubleTopic("Tag View").publish();
-        xOutputPub = inst.getTable("Retro Tape").getDoubleTopic("X Ouput View").publish();
-        yOutputPub = inst.getTable("Retro Tape").getDoubleTopic("Y Output View").publish();
-        tapeSubscriber = inst.getTable("RetroVision").getRawTopic("tapes").subscribe("raw", new byte[0]);
+
         yController = new ProfiledPIDController(1, 0, 0, new Constraints(0.25, 0.5));
         xController = new ProfiledPIDController(1.2, 0, 0, new Constraints(0.25, 0.5));
         xController.setTolerance(0.03);
@@ -102,9 +80,9 @@ public class DriveToRetroReflectiveTape extends CommandBase {
 
                 errorX.set(xController.getPositionError());
                 errorY.set(yController.getPositionError());
-                m_robotDrive.driveMetersPerSec(new Twist2d(xOutput, yOutput, 0), false);
+                m_robotDrive.driveInRobotCoords(new Twist2d(xOutput, yOutput, 0));
             } else {
-                m_robotDrive.driveMetersPerSec(new Twist2d(0, 0, 0), false);
+                m_robotDrive.driveInRobotCoords(new Twist2d(0, 0, 0));
                 tagView.set(2);
             }
 
@@ -115,4 +93,20 @@ public class DriveToRetroReflectiveTape extends CommandBase {
             e.printStackTrace();
         }
     }
+
+    //////////////////////////////////////////////////////////////
+
+    private final NetworkTableInstance inst = NetworkTableInstance.getDefault();
+    private final NetworkTable table = inst.getTable("Retro Tape");
+    private final DoublePublisher setpointX = table.getDoubleTopic("Setpoint X").publish();
+    private final DoublePublisher setpointY = table.getDoubleTopic("Setpoint Y").publish();
+    private final DoublePublisher measurmentX = table.getDoubleTopic("Measurment X").publish();
+    private final DoublePublisher measurmentY = table.getDoubleTopic("Measurment Y").publish();
+    private final DoublePublisher errorX = table.getDoubleTopic("Error X").publish();
+    private final DoublePublisher errorY = table.getDoubleTopic("Error Y").publish();
+    private final DoublePublisher tagView = table.getDoubleTopic("Tag View").publish();
+    private final DoublePublisher xOutputPub = table.getDoubleTopic("X Ouput View").publish();
+    private final DoublePublisher yOutputPub = table.getDoubleTopic("Y Output View").publish();
+    private final NetworkTable vision = inst.getTable("Retro Vision");
+    private final RawSubscriber tapeSubscriber = vision.getRawTopic("tapes").subscribe("raw", new byte[0]);
 }

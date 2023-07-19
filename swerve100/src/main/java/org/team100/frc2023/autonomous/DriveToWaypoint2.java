@@ -15,15 +15,13 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Twist2d;
-import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
-import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.trajectory.Trajectory;
+import edu.wpi.first.math.trajectory.Trajectory.State;
 import edu.wpi.first.math.trajectory.TrajectoryConfig;
 import edu.wpi.first.math.trajectory.TrajectoryGenerator;
 import edu.wpi.first.math.trajectory.TrajectoryParameterizer.TrajectoryGenerationException;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
-import edu.wpi.first.math.trajectory.Trajectory.State;
 import edu.wpi.first.networktables.DoublePublisher;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
@@ -36,7 +34,6 @@ public class DriveToWaypoint2 extends CommandBase {
     }
 
     private final Config m_config = new Config();
-    private final RedundantGyro m_gyro;
     private final VeeringCorrection m_veering;
     private final Pose2d m_goal;
     private final SwerveDriveSubsystem m_swerve;
@@ -55,15 +52,19 @@ public class DriveToWaypoint2 extends CommandBase {
     private Trajectory m_trajectory;
     private boolean isFinished = false;
 
-    public DriveToWaypoint2(Pose2d goal, double yOffset, Supplier<GoalOffset> offsetSupplier,
-            SwerveDriveSubsystem drivetrain, SwerveDriveKinematics kinematics, RedundantGyro gyro,
+    public DriveToWaypoint2(
+            Pose2d goal,
+            double yOffset,
+            Supplier<GoalOffset> offsetSupplier,
+            SwerveDriveSubsystem drivetrain,
+            SwerveDriveKinematics kinematics,
+            RedundantGyro gyro,
             Supplier<Double> gamePieceOffsetSupplier) {
         m_goal = goal;
         m_yOffset = yOffset;
         m_swerve = drivetrain;
         m_kinematics = kinematics;
-        m_gyro = gyro;
-        m_veering = new VeeringCorrection(m_gyro);
+        m_veering = new VeeringCorrection(gyro);
         m_goalOffsetSupplier = offsetSupplier;
         m_gamePieceOffsetSupplier = gamePieceOffsetSupplier;
         m_timer = new Timer();
@@ -81,42 +82,13 @@ public class DriveToWaypoint2 extends CommandBase {
         yController.setIntegratorRange(-0.3, 0.3);
         yController.setTolerance(0.00000001);
 
-        m_controller = new HolonomicDriveController2(xController, yController, m_rotationController, m_gyro);
+        m_controller = new HolonomicDriveController2(xController, yController, m_rotationController);
 
         translationConfig = new TrajectoryConfig(5, 4.5).setKinematics(kinematics);
         addRequirements(drivetrain);
     }
 
-    private Trajectory makeTrajectory(GoalOffset goalOffset, double startVelocity) {
-        Pose2d currentPose = m_swerve.getPose();
-        Translation2d currentTranslation = currentPose.getTranslation();
-        Transform2d goalTransform = new Transform2d();
-        if (goalOffset == GoalOffset.left) {
-            goalTransform = new Transform2d(new Translation2d(0, -m_yOffset - m_gamePieceOffsetSupplier.get()),
-                    new Rotation2d());
-        }
-        if (goalOffset == GoalOffset.right) {
-            goalTransform = new Transform2d(new Translation2d(0, m_yOffset - m_gamePieceOffsetSupplier.get()),
-                    new Rotation2d());
-        }
-        Pose2d transformedGoal = m_goal.plus(goalTransform);
-        Translation2d goalTranslation = transformedGoal.getTranslation();
-        Translation2d translationToGoal = goalTranslation.minus(currentTranslation);
-        Rotation2d angleToGoal = translationToGoal.getAngle();
-        TrajectoryConfig withStartVelocityConfig = new TrajectoryConfig(5, 2).setKinematics(m_kinematics);
-        withStartVelocityConfig.setStartVelocity(startVelocity);
 
-        try {
-            return TrajectoryGenerator.generateTrajectory(
-                    new Pose2d(currentTranslation, angleToGoal),
-                    List.of(),
-                    new Pose2d(goalTranslation, angleToGoal),
-                    translationConfig);
-        } catch (TrajectoryGenerationException e) {
-            isFinished = true;
-            return null;
-        }
-    }
 
     @Override
     public void initialize() {
@@ -156,37 +128,54 @@ public class DriveToWaypoint2 extends CommandBase {
         desiredRotPublisher.set(m_goal.getRotation().getRadians());
 
         Pose2d currentPose = m_swerve.getPose();
+
         Twist2d fieldRelativeTarget = m_controller.calculate(
                 currentPose,
                 desiredState,
                 m_goal.getRotation());
 
-        Rotation2d rotation2 = m_veering.correct(currentPose.getRotation());
+        m_swerve.driveInFieldCoords(fieldRelativeTarget);
+    }
 
-        ChassisSpeeds targetChassisSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(
-                fieldRelativeTarget.dx, fieldRelativeTarget.dy, fieldRelativeTarget.dtheta, rotation2);
+    ///////////////////////////////////////////////////////////////
 
-        SwerveModuleState[] targetModuleStates = m_kinematics.toSwerveModuleStates(targetChassisSpeeds);
+    private Trajectory makeTrajectory(GoalOffset goalOffset, double startVelocity) {
+        Pose2d currentPose = m_swerve.getPose();
+        Translation2d currentTranslation = currentPose.getTranslation();
+        Transform2d goalTransform = new Transform2d();
+        if (goalOffset == GoalOffset.left) {
+            goalTransform = new Transform2d(new Translation2d(0, -m_yOffset - m_gamePieceOffsetSupplier.get()),
+                    new Rotation2d());
+        }
+        if (goalOffset == GoalOffset.right) {
+            goalTransform = new Transform2d(new Translation2d(0, m_yOffset - m_gamePieceOffsetSupplier.get()),
+                    new Rotation2d());
+        }
+        Pose2d transformedGoal = m_goal.plus(goalTransform);
+        Translation2d goalTranslation = transformedGoal.getTranslation();
+        Translation2d translationToGoal = goalTranslation.minus(currentTranslation);
+        Rotation2d angleToGoal = translationToGoal.getAngle();
+        TrajectoryConfig withStartVelocityConfig = new TrajectoryConfig(5, 2).setKinematics(m_kinematics);
+        withStartVelocityConfig.setStartVelocity(startVelocity);
 
-        rotSetpoint.set(m_rotationController.getSetpoint().position);
-
-        poseXErrorPublisher.set(xController.getPositionError());
-        poseYErrorPublisher.set(yController.getPositionError());
-
-        m_swerve.setModuleStates(targetModuleStates);
+        try {
+            return TrajectoryGenerator.generateTrajectory(
+                    new Pose2d(currentTranslation, angleToGoal),
+                    List.of(),
+                    new Pose2d(goalTranslation, angleToGoal),
+                    translationConfig);
+        } catch (TrajectoryGenerationException e) {
+            isFinished = true;
+            return null;
+        }
     }
 
     private final NetworkTableInstance inst = NetworkTableInstance.getDefault();
-    private final NetworkTable table = inst.getTable("Drive To Waypoint");
 
     // desired pose
     private final NetworkTable desired = inst.getTable("desired pose");
     private final DoublePublisher desiredXPublisher = desired.getDoubleTopic("x").publish();
     private final DoublePublisher desiredYPublisher = desired.getDoubleTopic("y").publish();
     private final DoublePublisher desiredRotPublisher = desired.getDoubleTopic("theta").publish();
-
-    private final DoublePublisher poseXErrorPublisher = table.getDoubleTopic("Error X PUB").publish();
-    private final DoublePublisher poseYErrorPublisher = table.getDoubleTopic("Error Y PUB").publish();
-    private final DoublePublisher rotSetpoint = table.getDoubleTopic("Rot Setpoint").publish();
 
 }

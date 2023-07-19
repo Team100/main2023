@@ -79,7 +79,7 @@ public class DriveWithLQR extends CommandBase {
 
         double u = m_loop.getU(0);
 
-        m_robotDrive.driveMetersPerSec(new Twist2d(u, 0, 0), true);
+        m_robotDrive.driveInFieldCoords(new Twist2d(u, 0, 0));
 
     }
 

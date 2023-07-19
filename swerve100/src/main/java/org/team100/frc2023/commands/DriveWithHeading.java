@@ -79,7 +79,7 @@ public class DriveWithHeading extends CommandBase {
             desiredRotation = currentRads;
         }
         Twist2d twistM_S = new Twist2d(twist.dx * maxSpeedM_S, twist.dy * maxSpeedM_S, thetaOuput);
-        m_robotDrive.driveMetersPerSec(twistM_S, true);
+        m_robotDrive.driveInFieldCoords(twistM_S);
         lastRotationSetpoint = new Rotation2d(desiredRotation);
     }
 

@@ -38,13 +38,13 @@ public class RotateTest {
         }
 
         @Override
-        public void driveMetersPerSec(Twist2d twist, boolean fieldRelative) {
-            output = twist.dtheta;
+        public void stop() {
+            stopped = true;
         }
 
         @Override
-        public void stop() {
-            stopped = true;
+        public void driveInRobotCoords(Twist2d twist2d) {
+            output = twist2d.dtheta;
         }
     }
 

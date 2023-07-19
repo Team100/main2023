@@ -30,7 +30,7 @@ public class DriveToThreshold extends CommandBase {
     @Override
     public void execute() {
         if (m_robotDrive.getPose().getX() > m_config.kEdgeOfRampMeters) {
-            m_robotDrive.driveMetersPerSec(new Twist2d(m_config.kXSpeedM_S, 0, 0), true);
+            m_robotDrive.driveInFieldCoords(new Twist2d(m_config.kXSpeedM_S, 0, 0));
         } else {
             done = true;
         }
@@ -43,7 +43,7 @@ public class DriveToThreshold extends CommandBase {
 
     @Override
     public void end(boolean interrupted) {
-        m_robotDrive.driveMetersPerSec(new Twist2d(0, 0, 0), false);
+        m_robotDrive.driveInRobotCoords(new Twist2d(0, 0, 0));
     }
 
 }

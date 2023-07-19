@@ -16,6 +16,6 @@ public class DriveStop extends CommandBase {
 
     @Override
     public void execute() {
-        m_robotDrive.driveMetersPerSec(new Twist2d(0, 0, 0), false);
+        m_robotDrive.driveInRobotCoords(new Twist2d(0, 0, 0));
     }
 }

@@ -1,7 +1,6 @@
 package org.team100.lib.subsystems;
 
 import java.io.FileWriter;
-import java.io.IOException;
 
 import org.team100.lib.config.Identity;
 import org.team100.lib.sensors.RedundantGyro;
@@ -19,23 +18,18 @@ import edu.wpi.first.networktables.DoublePublisher;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StringPublisher;
-import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class SwerveDriveSubsystem extends SubsystemBase implements SwerveDriveSubsystemInterface {
-
     private final Heading m_heading;
     private final SpeedLimits m_speedLimits;
-    private final SwerveDriveKinematics m_DriveKinematics = SwerveDriveKinematicsFactory.get(Identity.get());
+    private final SwerveDriveKinematics m_DriveKinematics;
     private final SwerveModuleCollection m_modules;
     private final SwerveDrivePoseEstimator m_poseEstimator;
     private final RedundantGyro m_gyro;
     private final Field2d m_field;
     private final VeeringCorrection m_veering;
-
-    private ChassisSpeeds desiredChassisSpeeds = new ChassisSpeeds();
-    private ChassisSpeeds actualChassisSpeeds = new ChassisSpeeds();
 
     // TODO: this looks broken
     public double keyList = -1;
@@ -47,22 +41,19 @@ public class SwerveDriveSubsystem extends SubsystemBase implements SwerveDriveSu
             SwerveModuleCollection modules,
             SwerveDrivePoseEstimator poseEstimator,
             RedundantGyro gyro,
-            Field2d field)
-            throws IOException {
+            Field2d field) {
         m_heading = heading;
         m_speedLimits = speedLimits;
+        m_DriveKinematics = SwerveDriveKinematicsFactory.get(Identity.get());
         m_modules = modules;
         m_poseEstimator = poseEstimator;
         m_gyro = gyro;
         m_field = field;
-
         m_veering = new VeeringCorrection(m_gyro);
     }
 
     public void updateOdometry() {
-        m_poseEstimator.update(
-                m_heading.getHeading(),
-                m_modules.positions());
+        m_poseEstimator.update(m_heading.getHeading(), m_modules.positions());
         // {
         // if (m_pose.aprilPresent()) {
         // m_poseEstimator.addVisionMeasurement(
@@ -97,10 +88,6 @@ public class SwerveDriveSubsystem extends SubsystemBase implements SwerveDriveSu
         return m_poseEstimator.getEstimatedPosition();
     }
 
-    public double getRadians() {
-        return m_poseEstimator.getEstimatedPosition().getRotation().getRadians();
-    }
-
     public void resetPose(Pose2d robotPose) {
         m_poseEstimator.resetPosition(m_heading.getHeading(), m_modules.positions(), robotPose);
     }
@@ -116,98 +103,35 @@ public class SwerveDriveSubsystem extends SubsystemBase implements SwerveDriveSu
     }
 
     /**
-     * Calibrated inputs
-     * 
-     * TODO: replace this logic with the ChassisSpeedFactory logic
-     * 
-     * @param twist meters and radians per second
+     * @param twist Field coordinate velocities in meters and radians per second.
      */
-    @Override
-    public void driveMetersPerSec(Twist2d twist, boolean fieldRelative) {
-        if (fieldRelative) {
-            driveInFieldCoords(twist.dx, twist.dy, twist.dtheta);
-        } else {
-            driveInRobotCoords(twist.dx, twist.dy, twist.dtheta);
-        }
-    }
-
-    /** Field coordinates in meters and radians per second.  */
-    public void driveInFieldCoords(
-            double vxMetersPerSecond,
-            double vyMetersPerSecond,
-            double omegaRadiansPerSecond) {
+    public void driveInFieldCoords(Twist2d twist) {
         Rotation2d robotAngle = m_veering.correct(getPose().getRotation());
         ChassisSpeeds targetChassisSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(
-                vxMetersPerSecond,
-                vyMetersPerSecond,
-                omegaRadiansPerSecond,
-                robotAngle);
+                twist.dx, twist.dy, twist.dtheta, robotAngle);
         setChassisSpeeds(targetChassisSpeeds);
     }
 
-    /** Robot coordinates in meters and radians per second. */
-    public void driveInRobotCoords(
-            double vxMetersPerSecond,
-            double vyMetersPerSecond,
-            double omegaRadiansPerSecond) {
-        ChassisSpeeds targetChassisSpeeds = new ChassisSpeeds(
-                vxMetersPerSecond,
-                vyMetersPerSecond,
-                omegaRadiansPerSecond);
+    /**
+     * @param twist Robot coordinate velocities in meters and radians per second.
+     */
+    public void driveInRobotCoords(Twist2d twist) {
+        ChassisSpeeds targetChassisSpeeds = new ChassisSpeeds(twist.dx, twist.dy, twist.dtheta);
         setChassisSpeeds(targetChassisSpeeds);
     }
 
-    /** @param targetChassisSpeeds speeds in robot coordinates. */
-    public void setChassisSpeeds(ChassisSpeeds targetChassisSpeeds) {
-        desiredChassisSpeeds = targetChassisSpeeds;
-
-        SwerveModuleState[] swerveModuleStates = m_DriveKinematics.toSwerveModuleStates(targetChassisSpeeds);
-        setModuleStates(swerveModuleStates);
-
-        speedXPublisher.set(desiredChassisSpeeds.vxMetersPerSecond);
-        speedYPublisher.set(desiredChassisSpeeds.vyMetersPerSecond);
-        speedRotPublisher.set(desiredChassisSpeeds.omegaRadiansPerSecond);
-    }
-
-    public void setModuleStates(SwerveModuleState[] desiredStates) {
-        SwerveDriveKinematics.desaturateWheelSpeeds(desiredStates, m_speedLimits.kMaxSpeedMetersPerSecond);
-        getRobotVelocity(desiredStates);
-        m_modules.setDesiredStates(desiredStates);
-    }
-
-    public void getRobotVelocity(SwerveModuleState[] desiredStates) {
-        actualChassisSpeeds = m_DriveKinematics.toChassisSpeeds(desiredStates[0], desiredStates[1],
-                desiredStates[2], desiredStates[3]);
-        speedXPublisher.set(actualChassisSpeeds.vxMetersPerSecond);
-        speedYPublisher.set(actualChassisSpeeds.vyMetersPerSecond);
-        speedRotPublisher.set(actualChassisSpeeds.omegaRadiansPerSecond);
-        movingPublisher.set(isMoving());
-    }
-
-    private boolean isMoving() {
-        return (actualChassisSpeeds.vxMetersPerSecond >= 0.1
-                || actualChassisSpeeds.vyMetersPerSecond >= 0.1
-                || actualChassisSpeeds.omegaRadiansPerSecond >= 0.1);
+    /** Sets the wheels to make an "X" pattern */
+    public void defense() {
+        SwerveModuleState[] states = new SwerveModuleState[4];
+        states[0] = new SwerveModuleState(0, new Rotation2d(Math.PI / 4));
+        states[1] = new SwerveModuleState(0, new Rotation2d(7 * Math.PI / 4));
+        states[2] = new SwerveModuleState(0, new Rotation2d(3 * Math.PI / 4));
+        states[3] = new SwerveModuleState(0, new Rotation2d(5 * Math.PI / 4));
+        setModuleStates(states);
     }
 
     public void test(double[][] desiredOutputs, FileWriter writer) {
-        m_modules.test(desiredOutputs);
-        try {
-            if (writer != null) {
-                writer.write("Timestamp: " + Timer.getFPGATimestamp() +
-                        ", P" + m_modules.positions()[0].distanceMeters
-                        + ", " + m_modules.states()[0].speedMetersPerSecond + "\n");
-                writer.flush();
-            }
-        } catch (IOException e) {
-            System.out.println("An error occurred.");
-            e.printStackTrace();
-        }
-    }
-
-    /** Resets the drive encoders to currently read a position of 0. */
-    public void resetEncoders() {
-        m_modules.resetEncoders();
+        m_modules.test(desiredOutputs, writer);
     }
 
     @Override
@@ -215,8 +139,48 @@ public class SwerveDriveSubsystem extends SubsystemBase implements SwerveDriveSu
         m_modules.stop();
     }
 
-    // for observers
+    ///////////////////////////////////////////////////////////
 
+    /** @param targetChassisSpeeds speeds in robot coordinates. */
+    private void setChassisSpeeds(ChassisSpeeds targetChassisSpeeds) {
+        desiredSpeedXPublisher.set(targetChassisSpeeds.vxMetersPerSecond);
+        desiredSpeedYPublisher.set(targetChassisSpeeds.vyMetersPerSecond);
+        desiredSpeedRotPublisher.set(targetChassisSpeeds.omegaRadiansPerSecond);
+        SwerveModuleState[] targetModuleStates = m_DriveKinematics.toSwerveModuleStates(targetChassisSpeeds);
+        setModuleStates(targetModuleStates);
+    }
+
+    private void setModuleStates(SwerveModuleState[] targetModuleStates) {
+        SwerveDriveKinematics.desaturateWheelSpeeds(targetModuleStates, m_speedLimits.kMaxSpeedMetersPerSecond);
+        publishImpliedChassisSpeeds(targetModuleStates);
+        m_modules.setDesiredStates(targetModuleStates);
+    }
+
+    /** publish chassis speeds implied by the module settings */
+    private void publishImpliedChassisSpeeds(SwerveModuleState[] targetModuleStates) {
+        ChassisSpeeds targetChassisSpeeds = m_DriveKinematics.toChassisSpeeds(
+                targetModuleStates[0],
+                targetModuleStates[1],
+                targetModuleStates[2],
+                targetModuleStates[3]);
+        speedXPublisher.set(targetChassisSpeeds.vxMetersPerSecond);
+        speedYPublisher.set(targetChassisSpeeds.vyMetersPerSecond);
+        speedRotPublisher.set(targetChassisSpeeds.omegaRadiansPerSecond);
+        movingPublisher.set(isMoving(targetChassisSpeeds));
+    }
+
+    private static boolean isMoving(ChassisSpeeds speeds) {
+        return (speeds.vxMetersPerSecond >= 0.1
+                || speeds.vyMetersPerSecond >= 0.1
+                || speeds.omegaRadiansPerSecond >= 0.1);
+    }
+
+    // Do we need this?
+    // private void resetEncoders() {
+    // m_modules.resetEncoders();
+    // }
+
+    // observers
     private final NetworkTableInstance inst = NetworkTableInstance.getDefault();
 
     // current pose

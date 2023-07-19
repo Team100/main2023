@@ -52,7 +52,7 @@ public class AutoLevel extends CommandBase {
 
                 Twist2d twist = new Twist2d(xSpeed, ySpeed, 0);
                 Twist2d twistM_S = DriveUtil.scale(twist, m_config.kMaxSpeed, m_config.kMaxRot);
-                m_robotDrive.driveMetersPerSec(twistM_S, false);
+                m_robotDrive.driveInRobotCoords(twistM_S);
             } else {
                 count++;
             }
@@ -63,13 +63,13 @@ public class AutoLevel extends CommandBase {
 
                     Twist2d twist = new Twist2d(xSpeed, -ySpeed, 0);
                     Twist2d twistM_S = DriveUtil.scale(twist, m_config.kMaxSpeed, m_config.kMaxRot);
-                    m_robotDrive.driveMetersPerSec(twistM_S, false);
+                    m_robotDrive.driveInRobotCoords(twistM_S);
                 } else {
                     count++;
                 }
             } else {
                 Twist2d twistM_S = new Twist2d(m_config.kCruiseSpeed, 0, 0);
-                m_robotDrive.driveMetersPerSec(twistM_S, true);
+                m_robotDrive.driveInFieldCoords(twistM_S);
             }
         }
     }

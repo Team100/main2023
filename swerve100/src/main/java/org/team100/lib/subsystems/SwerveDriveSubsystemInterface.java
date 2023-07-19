@@ -9,7 +9,7 @@ public interface SwerveDriveSubsystemInterface extends Subsystem {
 
     Pose2d getPose();
 
-    void driveMetersPerSec(Twist2d twist, boolean fieldRelative);
-
     void stop();
+
+    void driveInRobotCoords(Twist2d twist2d);
 }

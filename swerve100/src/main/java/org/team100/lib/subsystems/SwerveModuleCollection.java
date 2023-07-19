@@ -1,7 +1,11 @@
 package org.team100.lib.subsystems;
 
+import java.io.FileWriter;
+import java.io.IOException;
+
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.wpilibj.Timer;
 
 /** Represents the modules in the drivetrain. */
 public class SwerveModuleCollection {
@@ -53,17 +57,30 @@ public class SwerveModuleCollection {
         m_rearRight.setOutput(0, 0);
     }
 
-    public void test(double[][] desiredOutputs) {
+    /** Test and log. */
+    public void test(double[][] desiredOutputs, FileWriter writer) {
         m_frontLeft.setOutput(desiredOutputs[0][0], desiredOutputs[0][1]);
         m_frontRight.setOutput(desiredOutputs[1][0], desiredOutputs[1][1]);
         m_rearLeft.setOutput(desiredOutputs[2][0], desiredOutputs[2][1]);
         m_rearRight.setOutput(desiredOutputs[3][0], desiredOutputs[3][1]);
+        try {
+            if (writer != null) {
+                writer.write("Timestamp: " + Timer.getFPGATimestamp() +
+                        ", P" + positions()[0].distanceMeters
+                        + ", " + states()[0].speedMetersPerSecond + "\n");
+                writer.flush();
+            }
+        } catch (IOException e) {
+            System.out.println("An error occurred.");
+            e.printStackTrace();
+        }
     }
 
-    public void resetEncoders() {
-        m_frontLeft.resetDriveEncoders();
-        m_frontRight.resetDriveEncoders();
-        m_rearLeft.resetDriveEncoders();
-        m_rearRight.resetDriveEncoders();
-    }
+    // TODO: do we need this?
+    // public void resetEncoders() {
+    //     m_frontLeft.resetDriveEncoders();
+    //     m_frontRight.resetDriveEncoders();
+    //     m_rearLeft.resetDriveEncoders();
+    //     m_rearRight.resetDriveEncoders();
+    // }
 }

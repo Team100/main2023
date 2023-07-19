@@ -26,7 +26,7 @@ public class DriveRotation extends CommandBase {
         if (Math.abs(rot) <= 0.15) {
             rot = 0;
         }
-        m_robotDrive.driveMetersPerSec(new Twist2d(0, 0, rot), true);
+        m_robotDrive.driveInFieldCoords(new Twist2d(0, 0, rot));
     }
 
     @Override
