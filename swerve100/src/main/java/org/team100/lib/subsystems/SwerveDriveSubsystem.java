@@ -13,14 +13,14 @@ import edu.wpi.first.math.geometry.Twist2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.networktables.BooleanPublisher;
 import edu.wpi.first.networktables.DoubleArrayPublisher;
+import edu.wpi.first.networktables.DoublePublisher;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StringPublisher;
-import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class SwerveDriveSubsystem extends SubsystemBase implements SwerveDriveSubsystemInterface {
@@ -32,14 +32,10 @@ public class SwerveDriveSubsystem extends SubsystemBase implements SwerveDriveSu
     private final SwerveDrivePoseEstimator m_poseEstimator;
     private final RedundantGyro m_gyro;
     private final Field2d m_field;
-
     private final VeeringCorrection m_veering;
 
-    // for observers
-    private final DoubleArrayPublisher robotPosePub;
-    private final StringPublisher fieldTypePub;
     private ChassisSpeeds desiredChassisSpeeds = new ChassisSpeeds();
-    private ChassisSpeeds actualChassisSpeeds= new ChassisSpeeds();
+    private ChassisSpeeds actualChassisSpeeds = new ChassisSpeeds();
 
     // TODO: this looks broken
     public double keyList = -1;
@@ -61,15 +57,6 @@ public class SwerveDriveSubsystem extends SubsystemBase implements SwerveDriveSu
         m_field = field;
 
         m_veering = new VeeringCorrection(m_gyro);
-
-        // Sets up Field2d pose tracking for glass.
-        NetworkTableInstance inst = NetworkTableInstance.getDefault();
-        NetworkTable fieldTable = inst.getTable("field");
-        robotPosePub = fieldTable.getDoubleArrayTopic("robotPose").publish();
-        fieldTypePub = fieldTable.getStringTopic(".type").publish();
-        fieldTypePub.set("Field2d");
-
-        SmartDashboard.putData("Drive Subsystem", this);
     }
 
     public void updateOdometry() {
@@ -90,6 +77,9 @@ public class SwerveDriveSubsystem extends SubsystemBase implements SwerveDriveSu
                 newEstimate.getY(),
                 newEstimate.getRotation().getDegrees()
         });
+        poseXPublisher.set(newEstimate.getX());
+        poseYPublisher.set(newEstimate.getY());
+        poseRotPublisher.set(newEstimate.getRotation().getRadians());
     }
 
     @Override
@@ -134,12 +124,49 @@ public class SwerveDriveSubsystem extends SubsystemBase implements SwerveDriveSu
      */
     @Override
     public void driveMetersPerSec(Twist2d twist, boolean fieldRelative) {
-        Rotation2d rotation2 = m_veering.correct(getPose().getRotation());
-        desiredChassisSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(twist.dx, twist.dy, twist.dtheta, rotation2);
-        ChassisSpeeds targetChassisSpeeds = fieldRelative ? desiredChassisSpeeds
-                : new ChassisSpeeds(twist.dx, twist.dy, twist.dtheta);
+        if (fieldRelative) {
+            driveInFieldCoords(twist.dx, twist.dy, twist.dtheta);
+        } else {
+            driveInRobotCoords(twist.dx, twist.dy, twist.dtheta);
+        }
+    }
+
+    /** Field coordinates in meters and radians per second.  */
+    public void driveInFieldCoords(
+            double vxMetersPerSecond,
+            double vyMetersPerSecond,
+            double omegaRadiansPerSecond) {
+        Rotation2d robotAngle = m_veering.correct(getPose().getRotation());
+        ChassisSpeeds targetChassisSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(
+                vxMetersPerSecond,
+                vyMetersPerSecond,
+                omegaRadiansPerSecond,
+                robotAngle);
+        setChassisSpeeds(targetChassisSpeeds);
+    }
+
+    /** Robot coordinates in meters and radians per second. */
+    public void driveInRobotCoords(
+            double vxMetersPerSecond,
+            double vyMetersPerSecond,
+            double omegaRadiansPerSecond) {
+        ChassisSpeeds targetChassisSpeeds = new ChassisSpeeds(
+                vxMetersPerSecond,
+                vyMetersPerSecond,
+                omegaRadiansPerSecond);
+        setChassisSpeeds(targetChassisSpeeds);
+    }
+
+    /** @param targetChassisSpeeds speeds in robot coordinates. */
+    public void setChassisSpeeds(ChassisSpeeds targetChassisSpeeds) {
+        desiredChassisSpeeds = targetChassisSpeeds;
+
         SwerveModuleState[] swerveModuleStates = m_DriveKinematics.toSwerveModuleStates(targetChassisSpeeds);
         setModuleStates(swerveModuleStates);
+
+        speedXPublisher.set(desiredChassisSpeeds.vxMetersPerSecond);
+        speedYPublisher.set(desiredChassisSpeeds.vyMetersPerSecond);
+        speedRotPublisher.set(desiredChassisSpeeds.omegaRadiansPerSecond);
     }
 
     public void setModuleStates(SwerveModuleState[] desiredStates) {
@@ -151,6 +178,10 @@ public class SwerveDriveSubsystem extends SubsystemBase implements SwerveDriveSu
     public void getRobotVelocity(SwerveModuleState[] desiredStates) {
         actualChassisSpeeds = m_DriveKinematics.toChassisSpeeds(desiredStates[0], desiredStates[1],
                 desiredStates[2], desiredStates[3]);
+        speedXPublisher.set(actualChassisSpeeds.vxMetersPerSecond);
+        speedYPublisher.set(actualChassisSpeeds.vyMetersPerSecond);
+        speedRotPublisher.set(actualChassisSpeeds.omegaRadiansPerSecond);
+        movingPublisher.set(isMoving());
     }
 
     private boolean isMoving() {
@@ -184,20 +215,34 @@ public class SwerveDriveSubsystem extends SubsystemBase implements SwerveDriveSu
         m_modules.stop();
     }
 
-    @Override
-    public void initSendable(SendableBuilder builder) {
-        super.initSendable(builder);
+    // for observers
 
-        builder.addDoubleProperty("Pose X", () -> getPose().getX(), null);
-        builder.addDoubleProperty("Pose Y", () -> getPose().getY(), null);
-        builder.addDoubleProperty("Pose Theta", () -> getPose().getRotation().getRadians(), null);
+    private final NetworkTableInstance inst = NetworkTableInstance.getDefault();
 
-        builder.addDoubleProperty("Actual Speed X", () -> actualChassisSpeeds.vxMetersPerSecond, null);
-        builder.addDoubleProperty("Actual Speed Y", () -> actualChassisSpeeds.vyMetersPerSecond, null);
-        builder.addDoubleProperty("Actual Speed Theta", () -> actualChassisSpeeds.omegaRadiansPerSecond, null);
-        builder.addBooleanProperty("Actually Moving", () -> isMoving(), null);
+    // current pose
+    private final NetworkTable pose = inst.getTable("current pose");
+    private final DoublePublisher poseXPublisher = pose.getDoubleTopic("x").publish();
+    private final DoublePublisher poseYPublisher = pose.getDoubleTopic("y").publish();
+    private final DoublePublisher poseRotPublisher = pose.getDoubleTopic("theta").publish();
 
-        builder.addDoubleProperty("Desired Speed X", () -> desiredChassisSpeeds.vxMetersPerSecond, null);
-        builder.addDoubleProperty("Desired Speed Y", () -> desiredChassisSpeeds.vyMetersPerSecond, null);
+    // desired speed
+    private final NetworkTable desired = inst.getTable("desired speed");
+    private final DoublePublisher desiredSpeedXPublisher = desired.getDoubleTopic("x").publish();
+    private final DoublePublisher desiredSpeedYPublisher = desired.getDoubleTopic("y").publish();
+    private final DoublePublisher desiredSpeedRotPublisher = desired.getDoubleTopic("theta").publish();
+
+    // actual speed
+    private final NetworkTable speed = inst.getTable("actual speed");
+    private final DoublePublisher speedXPublisher = speed.getDoubleTopic("x").publish();
+    private final DoublePublisher speedYPublisher = speed.getDoubleTopic("y").publish();
+    private final DoublePublisher speedRotPublisher = speed.getDoubleTopic("theta").publish();
+    private final BooleanPublisher movingPublisher = speed.getBooleanTopic("moving").publish();
+
+    // current pose in format that field2d can use
+    private final NetworkTable field = inst.getTable("field");
+    private final DoubleArrayPublisher robotPosePub = field.getDoubleArrayTopic("robotPose").publish();
+    private final StringPublisher fieldTypePub = field.getStringTopic(".type").publish();
+    {
+        fieldTypePub.set("Field2d");
     }
 }

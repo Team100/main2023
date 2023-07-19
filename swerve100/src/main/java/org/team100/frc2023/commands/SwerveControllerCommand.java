@@ -10,10 +10,12 @@ import org.team100.lib.subsystems.VeeringCorrection;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Twist2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.trajectory.Trajectory;
+import edu.wpi.first.math.trajectory.Trajectory.State;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 
@@ -41,7 +43,8 @@ public class SwerveControllerCommand {
         m_trajectory = trajectory;
         m_pose = pose;
         m_kinematics = kinematics;
-        m_controller = new HolonomicDriveController2(controllers.xController, controllers.yController, controllers.thetaController, gyro);
+        m_controller = new HolonomicDriveController2(controllers.xController, controllers.yController,
+                controllers.thetaController, gyro);
         m_gyro = gyro;
         m_veering = new VeeringCorrection(m_gyro);
         m_desiredRotation = rotationSupplier;
@@ -49,10 +52,20 @@ public class SwerveControllerCommand {
     }
 
     public void execute() {
-        double curTime = m_timer.get();
-        var desiredState = m_trajectory.sample(curTime);
-        Rotation2d rotation2 = m_veering.correct(m_desiredRotation.get());
-        ChassisSpeeds targetChassisSpeeds = m_controller.calculate(m_pose.get(), desiredState, rotation2);
+
+        State desiredState = m_trajectory.sample(m_timer.get());
+
+        Pose2d currentPose = m_pose.get();
+        
+        Twist2d fieldRelativeTarget = m_controller.calculate(
+                currentPose,
+                desiredState,
+                m_desiredRotation.get());
+
+        Rotation2d rotation2 = m_veering.correct(currentPose.getRotation());
+
+        ChassisSpeeds targetChassisSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(
+                fieldRelativeTarget.dx, fieldRelativeTarget.dy, fieldRelativeTarget.dtheta, rotation2);
         SwerveModuleState[] targetModuleStates = m_kinematics.toSwerveModuleStates(targetChassisSpeeds);
         m_outputModuleStates.accept(targetModuleStates);
     }

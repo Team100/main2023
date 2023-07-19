@@ -6,6 +6,7 @@ import java.util.function.Supplier;
 import org.team100.frc2023.commands.GoalOffset;
 import org.team100.lib.sensors.RedundantGyro;
 import org.team100.lib.subsystems.SwerveDriveSubsystem;
+import org.team100.lib.subsystems.VeeringCorrection;
 
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
@@ -13,6 +14,7 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.geometry.Twist2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
@@ -23,6 +25,7 @@ import edu.wpi.first.math.trajectory.TrajectoryParameterizer.TrajectoryGeneratio
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.trajectory.Trajectory.State;
 import edu.wpi.first.networktables.DoublePublisher;
+import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.CommandBase;
@@ -34,22 +37,14 @@ public class DriveToWaypoint2 extends CommandBase {
 
     private final Config m_config = new Config();
     private final RedundantGyro m_gyro;
+    private final VeeringCorrection m_veering;
     private final Pose2d m_goal;
     private final SwerveDriveSubsystem m_swerve;
     private final SwerveDriveKinematics m_kinematics;
     private final Supplier<GoalOffset> m_goalOffsetSupplier;
     private final Supplier<Double> m_gamePieceOffsetSupplier;
     private final Timer m_timer;
-    private final NetworkTableInstance inst;
-    private final DoublePublisher desiredXPublisher;
-    private final DoublePublisher desiredYPublisher;
-    private final DoublePublisher poseXPublisher;
-    private final DoublePublisher poseYPublisher;
-    private final DoublePublisher poseRotPublisher;
-    private final DoublePublisher desiredRotPublisher;
-    private final DoublePublisher poseXErrorPublisher;
-    private final DoublePublisher poseYErrorPublisher;
-    private final DoublePublisher rotSetpoint;
+
     private final TrajectoryConfig translationConfig;
     private final ProfiledPIDController m_rotationController;
     private final PIDController xController;
@@ -61,26 +56,17 @@ public class DriveToWaypoint2 extends CommandBase {
     private boolean isFinished = false;
 
     public DriveToWaypoint2(Pose2d goal, double yOffset, Supplier<GoalOffset> offsetSupplier,
-            SwerveDriveSubsystem drivetrain, SwerveDriveKinematics kinematics, RedundantGyro gyro, Supplier<Double> gamePieceOffsetSupplier) {
+            SwerveDriveSubsystem drivetrain, SwerveDriveKinematics kinematics, RedundantGyro gyro,
+            Supplier<Double> gamePieceOffsetSupplier) {
         m_goal = goal;
         m_yOffset = yOffset;
         m_swerve = drivetrain;
         m_kinematics = kinematics;
         m_gyro = gyro;
+        m_veering = new VeeringCorrection(m_gyro);
         m_goalOffsetSupplier = offsetSupplier;
         m_gamePieceOffsetSupplier = gamePieceOffsetSupplier;
         m_timer = new Timer();
-
-        inst = NetworkTableInstance.getDefault();
-        desiredXPublisher = inst.getTable("Drive To Waypoint").getDoubleTopic("Desired X PUB").publish();
-        desiredYPublisher = inst.getTable("Drive To Waypoint").getDoubleTopic("Desired Y PUB").publish();
-        poseXPublisher = inst.getTable("Drive To Waypoint").getDoubleTopic("Pose X PUB").publish();
-        poseYPublisher = inst.getTable("Drive To Waypoint").getDoubleTopic("Pose Y PUB").publish();
-        poseRotPublisher = inst.getTable("Drive To Waypoint").getDoubleTopic("Pose Rot PUB").publish();
-        desiredRotPublisher = inst.getTable("Drive To Waypoint").getDoubleTopic("Desired Rot PUB").publish();
-        poseXErrorPublisher = inst.getTable("Drive To Waypoint").getDoubleTopic("Error X PUB").publish();
-        poseYErrorPublisher = inst.getTable("Drive To Waypoint").getDoubleTopic("Error Y PUB").publish();
-        rotSetpoint = inst.getTable("Drive To Waypoint").getDoubleTopic("Rot Setpoint").publish();
 
         previousOffset = m_goalOffsetSupplier.get();
 
@@ -162,21 +148,45 @@ public class DriveToWaypoint2 extends CommandBase {
         if (m_trajectory == null) {
             return;
         }
+
         State desiredState = m_trajectory.sample(m_timer.get());
-        ChassisSpeeds targetChassisSpeeds = m_controller.calculate(m_swerve.getPose(), desiredState,
-                m_goal.getRotation());
-        SwerveModuleState[] targetModuleStates = m_kinematics.toSwerveModuleStates(targetChassisSpeeds);
 
         desiredXPublisher.set(desiredState.poseMeters.getX());
         desiredYPublisher.set(desiredState.poseMeters.getY());
-        poseXPublisher.set(m_swerve.getPose().getX());
-        poseYPublisher.set(m_swerve.getPose().getY());
         desiredRotPublisher.set(m_goal.getRotation().getRadians());
+
+        Pose2d currentPose = m_swerve.getPose();
+        Twist2d fieldRelativeTarget = m_controller.calculate(
+                currentPose,
+                desiredState,
+                m_goal.getRotation());
+
+        Rotation2d rotation2 = m_veering.correct(currentPose.getRotation());
+
+        ChassisSpeeds targetChassisSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(
+                fieldRelativeTarget.dx, fieldRelativeTarget.dy, fieldRelativeTarget.dtheta, rotation2);
+
+        SwerveModuleState[] targetModuleStates = m_kinematics.toSwerveModuleStates(targetChassisSpeeds);
+
         rotSetpoint.set(m_rotationController.getSetpoint().position);
-        poseRotPublisher.set(m_swerve.getPose().getRotation().getRadians());
+
         poseXErrorPublisher.set(xController.getPositionError());
         poseYErrorPublisher.set(yController.getPositionError());
 
         m_swerve.setModuleStates(targetModuleStates);
     }
+
+    private final NetworkTableInstance inst = NetworkTableInstance.getDefault();
+    private final NetworkTable table = inst.getTable("Drive To Waypoint");
+
+    // desired pose
+    private final NetworkTable desired = inst.getTable("desired pose");
+    private final DoublePublisher desiredXPublisher = desired.getDoubleTopic("x").publish();
+    private final DoublePublisher desiredYPublisher = desired.getDoubleTopic("y").publish();
+    private final DoublePublisher desiredRotPublisher = desired.getDoubleTopic("theta").publish();
+
+    private final DoublePublisher poseXErrorPublisher = table.getDoubleTopic("Error X PUB").publish();
+    private final DoublePublisher poseYErrorPublisher = table.getDoubleTopic("Error Y PUB").publish();
+    private final DoublePublisher rotSetpoint = table.getDoubleTopic("Rot Setpoint").publish();
+
 }

@@ -7,6 +7,7 @@ import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Twist2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.math.util.Units;
@@ -60,7 +61,15 @@ public class HolonomicDriveController2 {
                 && Math.abs(eRotate.getRadians()) < tolRotate.getRadians();
     }
 
-    public ChassisSpeeds calculate(
+    /**
+     * TODO: combine the cartesian and heading parts of the reference state.
+     * 
+     * @param currentPose    robot's current pose in field coordinates
+     * @param desiredState   cartesian part of the reference
+     * @param desiredHeading heading part of the reference
+     * @return field-relative twist, meters and radians per second
+     */
+    public Twist2d calculate(
             Pose2d currentPose,
             Trajectory.State desiredState,
             Rotation2d desiredHeading) {
@@ -91,8 +100,9 @@ public class HolonomicDriveController2 {
 
         xFBPublisher.set(xFeedback);
         yFBPublisher.set(yFeedback);
-        Rotation2d rotation2 = m_veering.correct(currentPose.getRotation());
-        return ChassisSpeeds.fromFieldRelativeSpeeds(
-                xFF + xFeedback, yFF + yFeedback, thetaFF, rotation2);
+
+        Twist2d fieldRelativeTarget = new Twist2d(xFF + xFeedback, yFF + yFeedback, thetaFF);
+
+        return fieldRelativeTarget;
     }
 }

@@ -6,6 +6,7 @@ import org.team100.frc2023.LQRManager;
 import org.team100.frc2023.commands.GoalOffset;
 import org.team100.lib.sensors.RedundantGyro;
 import org.team100.lib.subsystems.SwerveDriveSubsystem;
+import org.team100.lib.subsystems.VeeringCorrection;
 
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.Nat;
@@ -18,6 +19,8 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.geometry.Twist2d;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N2;
@@ -28,7 +31,9 @@ import edu.wpi.first.math.trajectory.TrajectoryConfig;
 import edu.wpi.first.math.trajectory.TrajectoryGenerator;
 import edu.wpi.first.math.trajectory.TrajectoryParameterizer.TrajectoryGenerationException;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
+import edu.wpi.first.math.trajectory.Trajectory.State;
 import edu.wpi.first.networktables.DoublePublisher;
+import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.CommandBase;
@@ -48,21 +53,13 @@ public class DriveToWaypoint3 extends CommandBase {
     }
 
     private final Config m_config = new Config();
-    //  private final RedundantGyro m_gyro;
+    // private final RedundantGyro m_gyro;
+    private final VeeringCorrection m_veering;
     private final Pose2d m_goal;
     private final SwerveDriveSubsystem m_swerve;
     private final SwerveDriveKinematics m_kinematics;
     private final Timer m_timer;
-    private final NetworkTableInstance inst;
-    private final DoublePublisher desiredXPublisher;
-    private final DoublePublisher desiredYPublisher;
-    private final DoublePublisher poseXPublisher;
-    private final DoublePublisher poseYPublisher;
-    private final DoublePublisher poseRotPublisher;
-    private final DoublePublisher desiredRotPublisher;
-    private final DoublePublisher poseXErrorPublisher;
-    private final DoublePublisher poseYErrorPublisher;
-    private final DoublePublisher rotSetpoint;
+
     private final TrajectoryConfig translationConfig;
     private final ProfiledPIDController m_rotationController;
 
@@ -93,24 +90,15 @@ public class DriveToWaypoint3 extends CommandBase {
 
     // private State desiredStateGlobal;
 
-    public DriveToWaypoint3(Pose2d goal, SwerveDriveSubsystem drivetrain, SwerveDriveKinematics kinematics, RedundantGyro gyro) {
+    public DriveToWaypoint3(Pose2d goal, SwerveDriveSubsystem drivetrain, SwerveDriveKinematics kinematics,
+            RedundantGyro gyro) {
         m_goal = goal;
         m_swerve = drivetrain;
-        m_kinematics= kinematics;
-        //  m_gyro = gyro;
-        m_timer = new Timer();
-        System.out.println("CONSTRUCTOR****************************************************");
+        m_kinematics = kinematics;
 
-        inst = NetworkTableInstance.getDefault();
-        desiredXPublisher = inst.getTable("Drive To Waypoint").getDoubleTopic("Desired X PUB").publish();
-        desiredYPublisher = inst.getTable("Drive To Waypoint").getDoubleTopic("Desired Y PUB").publish();
-        poseXPublisher = inst.getTable("Drive To Waypoint").getDoubleTopic("Pose X PUB").publish();
-        poseYPublisher = inst.getTable("Drive To Waypoint").getDoubleTopic("Pose Y PUB").publish();
-        poseRotPublisher = inst.getTable("Drive To Waypoint").getDoubleTopic("Pose Rot PUB").publish();
-        desiredRotPublisher = inst.getTable("Drive To Waypoint").getDoubleTopic("Desired Rot PUB").publish();
-        poseXErrorPublisher = inst.getTable("Drive To Waypoint").getDoubleTopic("Error X PUB").publish();
-        poseYErrorPublisher = inst.getTable("Drive To Waypoint").getDoubleTopic("Error Y PUB").publish();
-        rotSetpoint = inst.getTable("Drive To Waypoint").getDoubleTopic("Rot Setpoint").publish();
+        // m_gyro = gyro;
+        m_veering = new VeeringCorrection(gyro);
+        m_timer = new Timer();
 
         m_rotationController = new ProfiledPIDController(6.5, 0, 1, m_config.rotationConstraints);
         m_rotationController.setTolerance(Math.PI / 180);
@@ -177,7 +165,7 @@ public class DriveToWaypoint3 extends CommandBase {
         Translation2d goalTranslation = transformedGoal.getTranslation();
         Translation2d translationToGoal = goalTranslation.minus(currentTranslation);
         Rotation2d angleToGoal = translationToGoal.getAngle();
-        TrajectoryConfig withStartVelocityConfig = new TrajectoryConfig(5, 2)    .setKinematics(m_kinematics);
+        TrajectoryConfig withStartVelocityConfig = new TrajectoryConfig(5, 2).setKinematics(m_kinematics);
         withStartVelocityConfig.setStartVelocity(startVelocity);
 
         try {
@@ -230,9 +218,20 @@ public class DriveToWaypoint3 extends CommandBase {
         // return;
         // }
         double curTime = m_timer.get();
-        var desiredState = m_trajectory.sample(curTime);
-        var targetChassisSpeeds = m_controller.calculate(m_swerve.getPose(), desiredState, m_goal.getRotation());
-        var targetModuleStates = m_kinematics.toSwerveModuleStates(targetChassisSpeeds);
+        State desiredState = m_trajectory.sample(curTime);
+
+        Pose2d currentPose = m_swerve.getPose();
+        Twist2d fieldRelativeTarget = m_controller.calculate(
+                currentPose,
+                desiredState,
+                m_goal.getRotation());
+
+        Rotation2d rotation2 = m_veering.correct(currentPose.getRotation());
+
+        ChassisSpeeds targetChassisSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(
+                fieldRelativeTarget.dx, fieldRelativeTarget.dy, fieldRelativeTarget.dtheta, rotation2);
+
+        m_swerve.setChassisSpeeds(targetChassisSpeeds);
 
         desiredXPublisher.set(desiredState.poseMeters.getX());
         desiredYPublisher.set(desiredState.poseMeters.getY());
@@ -243,9 +242,18 @@ public class DriveToWaypoint3 extends CommandBase {
         poseRotPublisher.set(m_swerve.getPose().getRotation().getRadians());
         poseXErrorPublisher.set(xController.getPositionError());
         poseYErrorPublisher.set(yController.getPositionError());
-
-        m_swerve.setModuleStates(targetModuleStates);
-
     }
+
+    private final NetworkTableInstance inst = NetworkTableInstance.getDefault();
+    private final NetworkTable table = inst.getTable("drive to waypoint");
+    private final DoublePublisher desiredXPublisher = table.getDoubleTopic("Desired X").publish();
+    private final DoublePublisher desiredYPublisher = table.getDoubleTopic("Desired Y").publish();
+    private final DoublePublisher poseXPublisher = table.getDoubleTopic("Pose X").publish();
+    private final DoublePublisher poseYPublisher = table.getDoubleTopic("Pose Y").publish();
+    private final DoublePublisher poseRotPublisher = table.getDoubleTopic("Pose Rot").publish();
+    private final DoublePublisher desiredRotPublisher = table.getDoubleTopic("Desired Rot").publish();
+    private final DoublePublisher poseXErrorPublisher = table.getDoubleTopic("Error X").publish();
+    private final DoublePublisher poseYErrorPublisher = table.getDoubleTopic("Error Y").publish();
+    private final DoublePublisher rotSetpoint = table.getDoubleTopic("Rot Setpoint").publish();
 
 }
