@@ -101,8 +101,14 @@ public class SwerveDriveSubsystem extends SubsystemBase implements SwerveDriveSu
 
     /**
      * Give the controller a new reference state.
+     * 
+     * TODO: add omega here
+     * TODO: include dx and dy here
+     * TODO: use a different type, not State.
      */
-    public void setDesiredState(State desiredState, Rotation2d desiredHeading) {
+    public void setDesiredState(
+        State desiredState,
+     Rotation2d desiredHeading) {
         m_desiredState = desiredState;
         m_desiredHeading = desiredHeading;
     }

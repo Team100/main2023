@@ -12,12 +12,15 @@ import org.team100.lib.profile.MotionState;
 // import com.acmerobotics.roadrunner.profile.MotionState;
 
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Twist2d;
 import edu.wpi.first.networktables.DoublePublisher;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.CommandBase;
+import edu.wpi.first.math.trajectory.Trajectory.State;
 
 /**
  * Uses a timed profile, which avoids the bad ProfiledPidController behavior of
@@ -72,6 +75,13 @@ public class Rotate extends CommandBase {
         error.set(m_controller.getPositionError());
         double totalOutput = feedForward + controllerOutput;
         m_robotDrive.driveInFieldCoords(new Twist2d(0, 0, totalOutput));
+
+        Pose2d currentPose = m_robotDrive.getPose();
+        State newState = new State();
+        newState.poseMeters = currentPose;
+        newState.velocityMetersPerSecond = 0;
+        Rotation2d newHeading = new Rotation2d(reference.getX());
+
     }
 
     @Override
