@@ -12,6 +12,7 @@ import org.team100.frc2023.autonomous.Rotate;
 import org.team100.frc2023.commands.Defense;
 import org.team100.frc2023.commands.DriveScaled;
 import org.team100.frc2023.commands.DriveWithHeading;
+import org.team100.frc2023.commands.DriveWithSetpointGenerator;
 import org.team100.frc2023.commands.RumbleOn;
 import org.team100.frc2023.commands.arm.ArmTrajectory;
 import org.team100.frc2023.commands.arm.ManualArm;
@@ -130,7 +131,9 @@ public class RobotContainer implements Sendable {
         SwerveModuleCollection modules = SwerveModuleCollectionFactory.get(identity, m_config.kDriveCurrentLimit);
         SwerveDrivePoseEstimator poseEstimator = new SwerveDrivePoseEstimator(
                 m_kinematics,
+
                 m_heading.getHeadingNWU(),
+
                 modules.positions(),
                 new Pose2d(),
                 VecBuilder.fill(0.5, 0.5, 0.5),
@@ -155,6 +158,7 @@ public class RobotContainer implements Sendable {
             controllers.xController,
             controllers.yController,
             controllers.thetaController);
+
 
         m_robotDrive = new SwerveDriveSubsystem(
                 m_heading,
@@ -203,6 +207,7 @@ public class RobotContainer implements Sendable {
 
         control.driveWithLQR(new DriveToWaypoint3(new Pose2d(5, 0, new Rotation2d()), m_robotDrive, m_kinematics));
 
+
         ///////////////////////////
         // MANIPULATOR COMMANDS
         // control.open(new Open(manipulator));
@@ -243,14 +248,11 @@ public class RobotContainer implements Sendable {
                             speedLimits.kMaxAngularSpeedRadiansPerSecond));
         } else {
             m_robotDrive.setDefaultCommand(
-                    new DriveWithHeading(
+                    new DriveWithSetpointGenerator(
                             control::twist,
                             m_robotDrive,
-                            controllers,
                             speedLimits.kMaxSpeedMetersPerSecond,
-                            speedLimits.kMaxAngularSpeedRadiansPerSecond,
-                            control::desiredRotation,
-                            ahrsclass));
+                            speedLimits.kMaxAngularSpeedRadiansPerSecond));
         }
 
         /////////////////////////
