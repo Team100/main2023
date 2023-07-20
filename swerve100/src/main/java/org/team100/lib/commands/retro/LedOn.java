@@ -2,9 +2,9 @@ package org.team100.lib.commands.retro;
 
 import org.team100.lib.retro.Illuminator;
 
-import edu.wpi.first.wpilibj2.command.CommandBase;
+import edu.wpi.first.wpilibj2.command.Command;
 
-public class LedOn extends CommandBase {
+public class LedOn extends Command {
     private final Illuminator illuminator;
 
     public LedOn(Illuminator i) {

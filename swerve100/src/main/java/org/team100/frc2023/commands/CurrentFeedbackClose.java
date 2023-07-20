@@ -2,9 +2,9 @@ package org.team100.frc2023.commands;
 
 import org.team100.frc2023.subsystems.Manipulator;
 
-import edu.wpi.first.wpilibj2.command.CommandBase;
+import edu.wpi.first.wpilibj2.command.Command;
 
-public class CurrentFeedbackClose extends CommandBase {
+public class CurrentFeedbackClose extends Command {
     private final double closedCurrent;
     private final double force;
     private boolean finishedFlag;

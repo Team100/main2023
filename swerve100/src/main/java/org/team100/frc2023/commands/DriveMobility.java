@@ -5,9 +5,9 @@ import org.team100.lib.motion.drivetrain.SwerveState;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Twist2d;
-import edu.wpi.first.wpilibj2.command.CommandBase;
+import edu.wpi.first.wpilibj2.command.Command;
 
-public class DriveMobility extends CommandBase {
+public class DriveMobility extends Command {
     public static class Config {
         public double kCommunitySizeMeters = 5.8;
         public double kXSpeedM_S = 1.5;

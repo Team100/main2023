@@ -29,12 +29,12 @@ import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.Subsystem;
 
 /**
  * Extracts robot pose estimates from camera input.
  */
-public class VisionDataProvider extends SubsystemBase implements TableEventListener {
+public class VisionDataProvider extends Subsystem implements TableEventListener {
     public static class Config {
         /**
          * If the tag is closer than this threshold, then the camera's estimate of tag

@@ -20,9 +20,9 @@ import edu.wpi.first.networktables.DoublePublisher;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.Timer;
-import edu.wpi.first.wpilibj2.command.CommandBase;
+import edu.wpi.first.wpilibj2.command.Command;
 
-public class DriveWithHeading extends CommandBase {
+public class DriveWithHeading extends Command {
     private final Supplier<Twist2d> m_twistSupplier;
     private final SwerveDriveSubsystem m_robotDrive;
     private final HeadingInterface m_heading;

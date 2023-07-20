@@ -23,9 +23,9 @@ import edu.wpi.first.networktables.DoublePublisher;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.Timer;
-import edu.wpi.first.wpilibj2.command.CommandBase;
+import edu.wpi.first.wpilibj2.command.Command;
 
-public class DriveToAprilTag extends CommandBase {
+public class DriveToAprilTag extends Command {
     private final Pose2d m_goal;
     private final SwerveDriveSubsystem m_swerve;
     private final SwerveDriveKinematics m_kinematics;

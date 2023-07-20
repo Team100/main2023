@@ -4,10 +4,10 @@ import org.team100.lib.motion.drivetrain.SwerveDriveSubsystem;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.wpilibj2.command.CommandBase;
+import edu.wpi.first.wpilibj2.command.Command;
 
 /** Reset the rotation of the robot pose to the specified rotation. */
-public class ResetRotation extends CommandBase {
+public class ResetRotation extends Command {
     private final SwerveDriveSubsystem robotDrive;
     private final Rotation2d robotRotation;
     private boolean done = false;

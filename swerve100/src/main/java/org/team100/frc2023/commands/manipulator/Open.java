@@ -2,10 +2,10 @@ package org.team100.frc2023.commands.manipulator;
 
 import org.team100.frc2023.subsystems.Manipulator;
 
-import edu.wpi.first.wpilibj2.command.CommandBase;
+import edu.wpi.first.wpilibj2.command.Command;
 
 // TODO: looks like obsolete?
-public class Open extends CommandBase {
+public class Open extends Command {
     private final Manipulator m_manipulator;
 
     public Open(Manipulator manipulator) {

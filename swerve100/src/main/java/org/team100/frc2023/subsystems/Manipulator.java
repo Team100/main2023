@@ -8,9 +8,9 @@ import com.ctre.phoenix.motorcontrol.NeutralMode;
 
 import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.Subsystem;
 
-public class Manipulator extends SubsystemBase {
+public class Manipulator extends Subsystem {
     private final FRCTalonSRX m_motor;
     private final GamepieceLocator gamepieceLocator;
 

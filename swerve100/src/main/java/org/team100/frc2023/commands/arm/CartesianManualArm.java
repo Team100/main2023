@@ -6,10 +6,10 @@ import org.team100.frc2023.subsystems.arm.ArmSubsystem;
 import org.team100.lib.motion.arm.ArmKinematics;
 
 import edu.wpi.first.math.geometry.Translation2d;
-import edu.wpi.first.wpilibj2.command.CommandBase;
+import edu.wpi.first.wpilibj2.command.Command;
 
 /** Manual arm control in cartesian coordinates. */
-public class CartesianManualArm extends CommandBase {
+public class CartesianManualArm extends Command {
     private final ArmSubsystem m_arm;
     private final ArmKinematics m_armKinematicsM;
     private final Supplier<Double> m_dxM_S;

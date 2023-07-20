@@ -5,7 +5,7 @@ import org.team100.lib.math.RandomVector;
 import org.team100.lib.math.Variance;
 import org.team100.lib.system.NonlinearPlant;
 
-import edu.wpi.first.math.Drake;
+import edu.wpi.first.math.DARE;
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.Nat;
 import edu.wpi.first.math.Num;
@@ -57,7 +57,7 @@ public class GainCalculator<States extends Num, Inputs extends Num, Outputs exte
             throw new IllegalArgumentException(builder.toString());
         }
 
-        var S = Drake.discreteAlgebraicRiccatiEquation(discA, discB, m_Q, m_R);
+        var S = DARE.dare(discA, discB, m_Q, m_R);
 
         // K = (BᵀSB + R)⁻¹BᵀSA
         m_K = discB
