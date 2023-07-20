@@ -18,9 +18,9 @@ import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StringPublisher;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
-import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.Subsystem;
 
-public class SwerveDriveSubsystem extends SubsystemBase implements SwerveDriveSubsystemInterface {
+public class SwerveDriveSubsystem extends Subsystem implements SwerveDriveSubsystemInterface {
     private final Heading m_heading;
     private final SwerveDrivePoseEstimator m_poseEstimator;
     private final Field2d m_field;
@@ -84,6 +84,11 @@ public class SwerveDriveSubsystem extends SubsystemBase implements SwerveDriveSu
 
     public void setTolerance(double cartesian, double rotation) {
         m_controller.setTolerance(cartesian, rotation);
+    }
+
+    // this is for testing
+    public SwerveDriveSubsystem get() {
+        return this;
     }
 
     ////////////////////////////////////////////////////////////////////

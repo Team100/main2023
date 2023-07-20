@@ -10,9 +10,9 @@ import edu.wpi.first.math.trajectory.TrajectoryConfig;
 import edu.wpi.first.networktables.DoublePublisher;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.Timer;
-import edu.wpi.first.wpilibj2.command.CommandBase;
+import edu.wpi.first.wpilibj2.command.Command;
 
-public class ArmTrajectory extends CommandBase {
+public class ArmTrajectory extends Command {
     public static class Config {
         public double oscillatorFrequencyHz = 2;
         /** amplitude (each way) of oscillation in encoder units */

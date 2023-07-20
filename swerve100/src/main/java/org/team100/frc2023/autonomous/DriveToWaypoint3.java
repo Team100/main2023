@@ -34,7 +34,7 @@ import edu.wpi.first.networktables.DoublePublisher;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.Timer;
-import edu.wpi.first.wpilibj2.command.CommandBase;
+import edu.wpi.first.wpilibj2.command.Command;
 
 /**
  * This is a simpler way to drive to a waypoint. It's just like
@@ -44,7 +44,7 @@ import edu.wpi.first.wpilibj2.command.CommandBase;
  * Trigger.whileTrue().
  */
 
-public class DriveToWaypoint3 extends CommandBase {
+public class DriveToWaypoint3 extends Command {
     public static class Config {
 
         public TrapezoidProfile.Constraints rotationConstraints = new TrapezoidProfile.Constraints(8, 12);

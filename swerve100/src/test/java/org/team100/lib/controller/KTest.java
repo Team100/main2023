@@ -4,7 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import org.junit.jupiter.api.Test;
 
-import edu.wpi.first.math.Drake;
+import edu.wpi.first.math.DARE;
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.Nat;
 import edu.wpi.first.math.StateSpaceUtil;
@@ -40,7 +40,7 @@ public class KTest {
             throw new IllegalArgumentException(builder.toString());
         }
 
-        var S = Drake.discreteAlgebraicRiccatiEquation(discA, discB, Q, R);
+        var S = DARE.dare(discA, discB, Q, R);
 
         // K = (BᵀSB + R)⁻¹BᵀSA
         Matrix<N1, N2> m_K = discB

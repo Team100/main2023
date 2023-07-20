@@ -20,9 +20,9 @@ import edu.wpi.first.networktables.DoublePublisher;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.RawSubscriber;
-import edu.wpi.first.wpilibj2.command.CommandBase;
+import edu.wpi.first.wpilibj2.command.Command;
 
-public class DriveToRetroReflectiveTape extends CommandBase {
+public class DriveToRetroReflectiveTape extends Command {
     public static class Config {
         public double filterTimeConstantS = 0.06;
         public double filterPeriodS = 0.02;

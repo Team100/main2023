@@ -5,9 +5,9 @@ import org.team100.lib.motion.drivetrain.SwerveState;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Twist2d;
-import edu.wpi.first.wpilibj2.command.CommandBase;
+import edu.wpi.first.wpilibj2.command.Command;
 
-public class DriveToThreshold extends CommandBase {
+public class DriveToThreshold extends Command {
     public static class Config {
         public double kEdgeOfRampMeters = 4.1;
         public double kXSpeedM_S = -2.0;

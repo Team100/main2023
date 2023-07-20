@@ -4,9 +4,9 @@ import org.team100.frc2023.subsystems.arm.ArmSubsystem;
 import org.team100.lib.indicator.LEDIndicator;
 import org.team100.lib.indicator.LEDIndicator.State;
 
-import edu.wpi.first.wpilibj2.command.CommandBase;
+import edu.wpi.first.wpilibj2.command.Command;
 
-public class SetConeMode extends CommandBase {
+public class SetConeMode extends Command {
     private final ArmSubsystem m_arm;
     private final LEDIndicator m_indicator;
 

@@ -9,10 +9,10 @@ import org.team100.lib.motion.drivetrain.SwerveState;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Twist2d;
-import edu.wpi.first.wpilibj2.command.CommandBase;
+import edu.wpi.first.wpilibj2.command.Command;
 
 /** Accepts [-1,1] input and scales it to the specified maximum speeds. */
-public class DriveScaled extends CommandBase {
+public class DriveScaled extends Command {
     private final Supplier<Twist2d> m_twistSupplier;
     private final SwerveDriveSubsystem m_robotDrive;
     private final SpeedLimits m_speedLimits;

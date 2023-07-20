@@ -7,6 +7,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.api.Test;
 import org.team100.lib.motion.drivetrain.HeadingInterface;
 import org.team100.lib.motion.drivetrain.SpeedLimits;
+import org.team100.lib.motion.drivetrain.SwerveDriveSubsystem;
 import org.team100.lib.motion.drivetrain.SwerveDriveSubsystemInterface;
 import org.team100.lib.motion.drivetrain.SwerveState;
 
@@ -54,6 +55,11 @@ public class RotateTest {
         @Override
         public void truncate() {
             stop();
+        }
+
+        @Override
+        public SwerveDriveSubsystem get() {
+            return null;
         }
     }
 

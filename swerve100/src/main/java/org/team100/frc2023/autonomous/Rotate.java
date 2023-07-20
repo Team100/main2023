@@ -14,13 +14,13 @@ import edu.wpi.first.networktables.DoublePublisher;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.Timer;
-import edu.wpi.first.wpilibj2.command.CommandBase;
+import edu.wpi.first.wpilibj2.command.Command;
 
 /**
  * Uses a timed profile, which avoids the bad ProfiledPidController behavior of
  * staying behind. Also demonstrates Roadrunner MotionProfiles.
  */
-public class Rotate extends CommandBase {
+public class Rotate extends Command {
     public static class Config {
         public double xToleranceRad = 0.003;
         public double vToleranceRad_S = 0.003;
@@ -49,7 +49,8 @@ public class Rotate extends CommandBase {
         m_timer = timer;
         m_goalState = new MotionState(targetAngleRadians, 0);
         refTheta = new MotionState(0, 0);
-        addRequirements(drivetrain);
+        if (drivetrain.get() != null)
+            addRequirements(drivetrain.get());
     }
 
     @Override

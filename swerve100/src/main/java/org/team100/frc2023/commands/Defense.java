@@ -2,9 +2,9 @@ package org.team100.frc2023.commands;
 
 import org.team100.lib.motion.drivetrain.SwerveDriveSubsystem;
 
-import edu.wpi.first.wpilibj2.command.CommandBase;
+import edu.wpi.first.wpilibj2.command.Command;
 
-public class Defense extends CommandBase {
+public class Defense extends Command {
     private final SwerveDriveSubsystem m_robotDrive;
 
     public Defense(SwerveDriveSubsystem swerveDriveSubsystem) {

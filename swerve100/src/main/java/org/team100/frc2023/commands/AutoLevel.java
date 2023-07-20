@@ -10,9 +10,9 @@ import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Twist2d;
-import edu.wpi.first.wpilibj2.command.CommandBase;
+import edu.wpi.first.wpilibj2.command.Command;
 
-public class AutoLevel extends CommandBase {
+public class AutoLevel extends Command {
     public static class Config {
         public double kMaxSpeed = 4.5;
         public double kMaxRot = 5;

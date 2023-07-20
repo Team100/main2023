@@ -13,9 +13,9 @@ import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.math.trajectory.TrajectoryConfig;
 import edu.wpi.first.math.trajectory.TrajectoryGenerator;
-import edu.wpi.first.wpilibj2.command.CommandBase;
+import edu.wpi.first.wpilibj2.command.Command;
 
-public class MoveToAprilTag extends CommandBase {
+public class MoveToAprilTag extends Command {
     public static class Config {
         public double speedMetersPerSecond = 2;
         public double accelerationMetersPerSecondSquared = 1;

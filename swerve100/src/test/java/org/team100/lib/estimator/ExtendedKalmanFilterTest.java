@@ -4,7 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 
 import org.junit.jupiter.api.Test;
 
-import edu.wpi.first.math.Drake;
+import edu.wpi.first.math.DARE;
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.Nat;
 import edu.wpi.first.math.Pair;
@@ -201,7 +201,7 @@ public class ExtendedKalmanFilterTest {
         Matrix<N2, N2> discR = Discretization.discretizeR(m_contR, dtSeconds);
         if (kPrint)
             System.out.println("discR " + discR);
-        Matrix<N2, N2> m_P = Drake.discreteAlgebraicRiccatiEquation(discA.transpose(), C.transpose(), discQ, discR);
+        Matrix<N2, N2> m_P = DARE.dare(discA.transpose(), C.transpose(), discQ, discR);
         if (kPrint)
             System.out.println("m_P " + m_P);
 
@@ -300,7 +300,7 @@ public class ExtendedKalmanFilterTest {
 
         Matrix<N2, N2> discR = Discretization.discretizeR(m_contR, dtSeconds);
 
-        Matrix<N2, N2> m_P = Drake.discreteAlgebraicRiccatiEquation(discA.transpose(), C.transpose(), discQ, discR);
+        Matrix<N2, N2> m_P = DARE.dare(discA.transpose(), C.transpose(), discQ, discR);
 
         Matrix<N2, N2> S = C.times(m_P).times(C.transpose()).plus(discR);
 

@@ -12,12 +12,12 @@ import edu.wpi.first.math.filter.LinearFilter;
 import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.AnalogEncoder;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.Subsystem;
 
 /**
  * Arm servo. Subsystem runs *all the time*, commands feed it references.
  */
-public class ArmSubsystem extends SubsystemBase {
+public class ArmSubsystem extends Subsystem {
     public static class Config {
         public double softStop = -0.594938;
         public double kUpperArmLengthM = 0.92;
