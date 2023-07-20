@@ -132,7 +132,7 @@ public class SwerveLocal {
     ///////////////////////////////////////////////////////////
 
     private void setModuleStates(SwerveModuleState[] targetModuleStates) {
-        SwerveDriveKinematics.desaturateWheelSpeeds(targetModuleStates, m_speedLimits.kMaxSpeedMetersPerSecond);
+        SwerveDriveKinematics.desaturateWheelSpeeds(targetModuleStates, m_speedLimits.speedM_S);
         publishImpliedChassisSpeeds(targetModuleStates);
         m_modules.setDesiredStates(targetModuleStates);
     }

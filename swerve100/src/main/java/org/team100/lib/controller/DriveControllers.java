@@ -6,19 +6,15 @@ import edu.wpi.first.math.controller.ProfiledPIDController;
 public class DriveControllers {
     public final PIDController xController;
     public final PIDController yController;
-    // TODO i suspect there are duplicate controllers here
-    public final ProfiledPIDController headingController; // only used by DriveWithHeading.
-    public final ProfiledPIDController thetaController; // used by several commands
+    public final ProfiledPIDController thetaController;
 
     public DriveControllers(
             PIDController xController,
             PIDController yController,
-            ProfiledPIDController headingController,
             ProfiledPIDController thetaController
             ) {
         this.xController = xController;
         this.yController = yController;
-        this.headingController = headingController;
         this.thetaController = thetaController;
     }
 }

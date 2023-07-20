@@ -180,9 +180,11 @@ public class RedundantGyro implements Sendable {
         return (redundGyroZ) / tmpInputs;
     }
 
-    public boolean getGyroWorking() {
-        return gyrosWorking;
-    }
+    // if the gyro isn't working we're in deep trouble, i don't think this is worth
+    // dealing with.
+    // public boolean getGyroWorking() {
+    // return gyrosWorking;
+    // }
 
     public void initSendable(SendableBuilder builder) {
         builder.addDoubleProperty("Gyro Redundant Roll (deg)", () -> getRedundantRoll(), null);

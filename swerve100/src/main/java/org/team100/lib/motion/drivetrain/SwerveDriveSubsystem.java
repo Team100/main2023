@@ -123,6 +123,7 @@ public class SwerveDriveSubsystem extends SubsystemBase implements SwerveDriveSu
     /**
      * @param twist Field coordinate velocities in meters and radians per second.
      */
+    @Deprecated
     public void driveInFieldCoords(Twist2d twist) {
         ChassisSpeeds targetChassisSpeeds = m_frameTransform.fromFieldRelativeSpeeds(
                 twist.dx, twist.dy, twist.dtheta, getPose().getRotation());

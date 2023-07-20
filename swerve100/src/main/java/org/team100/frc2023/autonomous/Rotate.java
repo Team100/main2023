@@ -59,9 +59,9 @@ public class Rotate extends CommandBase {
         profile = MotionProfileGenerator.generateSimpleMotionProfile(
                 start,
                 m_goalState,
-                m_speedLimits.kMaxAngularSpeedRadiansPerSecond,
-                m_speedLimits.kMaxAngularAccelRad_SS,
-                m_speedLimits.kMaxAngularJerkRadiansPerSecondCubed);
+                m_speedLimits.angleSpeedRad_S,
+                m_speedLimits.angleAccelRad_S2,
+                m_speedLimits.angleJerkRad_S3);
         m_timer.reset();
     }
 
