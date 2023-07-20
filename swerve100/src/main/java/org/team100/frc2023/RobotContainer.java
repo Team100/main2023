@@ -149,17 +149,23 @@ public class RobotContainer implements Sendable {
         visionDataProvider.updateTimestamp(); // this is just to keep lint from complaining
 
         SwerveLocal swerveLocal = new SwerveLocal(speedLimits, m_kinematics, modules);
+        
+        controllers = new DriveControllersFactory().get(identity, speedLimits);
+        HolonomicDriveController2 controller = new HolonomicDriveController2(
+            controllers.xController,
+            controllers.yController,
+            controllers.thetaController);
+
         m_robotDrive = new SwerveDriveSubsystem(
                 m_heading,
                 poseEstimator,
                 m_frameTransform,
                 swerveLocal,
+                controller,
                 m_field);
         manipulator = new Manipulator();
         armController = new ArmSubsystem();
         illuminator = new Illuminator(25);
-
-        controllers = new DriveControllersFactory().get(identity, speedLimits);
 
         // TODO: control selection using names
         // control = new DualXboxControl();
@@ -167,10 +173,7 @@ public class RobotContainer implements Sendable {
 
         myWriter = logFile();
 
-        HolonomicDriveController2 controller = new HolonomicDriveController2(
-                controllers.xController,
-                controllers.yController,
-                controllers.thetaController);
+
 
         ////////////////////////////
         // DRIVETRAIN COMMANDS
@@ -355,9 +358,7 @@ public class RobotContainer implements Sendable {
                 yOffset,
                 control::goalOffset,
                 m_robotDrive,
-                controller,
                 m_kinematics,
-                controllers,
                 layout,
                 () -> 0.0);
     }

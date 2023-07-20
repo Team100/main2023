@@ -28,7 +28,6 @@ public class IshanAutonomous extends CommandBase {
 
     public IshanAutonomous(
             SwerveDriveSubsystem robotDrive,
-            HolonomicDriveController2 controller,
             SwerveDriveKinematics kinematics,
             RedundantGyro gyro) {
         m_robotDrive = robotDrive;
@@ -37,7 +36,6 @@ public class IshanAutonomous extends CommandBase {
 
         m_swerveController = new SwerveControllerCommand(
                 m_robotDrive,
-                controller,
                 trajectory,
                 () -> new Rotation2d());
     }

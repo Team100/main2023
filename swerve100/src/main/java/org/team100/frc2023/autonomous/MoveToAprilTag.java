@@ -27,7 +27,6 @@ public class MoveToAprilTag extends CommandBase {
 
     public MoveToAprilTag(
             SwerveDriveSubsystem m_robotDrive,
-            HolonomicDriveController2 controller,
             SwerveDriveKinematics kinematics,
             AprilTagFieldLayoutWithCorrectOrientation layout,
             int tagID,
@@ -35,7 +34,6 @@ public class MoveToAprilTag extends CommandBase {
         Trajectory trajectory = genTrajectory(m_robotDrive, kinematics, layout, tagID);
         m_swerveController = new SwerveControllerCommand(
                 m_robotDrive,
-                controller,
                 trajectory,
                 () -> new Rotation2d());
         addRequirements(m_robotDrive);

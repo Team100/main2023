@@ -20,14 +20,12 @@ public class Forward extends CommandBase {
 
     public Forward(
             SwerveDriveSubsystem m_robotDrive,
-            HolonomicDriveController2 controller,
             SwerveDriveKinematics kinematics,
             double x,
             RedundantGyro gyro) {
         Trajectory trajectory = genTrajectory(m_robotDrive, kinematics, x);
         m_swerveController = new SwerveControllerCommand(
                 m_robotDrive,
-                controller,
                 trajectory,
                 () -> new Rotation2d());
     }
