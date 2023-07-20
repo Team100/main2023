@@ -24,7 +24,6 @@ public class VasiliWaypointTrajectory extends CommandBase {
 
     public VasiliWaypointTrajectory(
             SwerveDriveSubsystem m_robotDrive,
-            HolonomicDriveController2 controller,
             SwerveDriveKinematics kinematics,
             Supplier<Rotation2d> desiredRotation,
             RedundantGyro gyro,
@@ -34,7 +33,6 @@ public class VasiliWaypointTrajectory extends CommandBase {
 
         m_swerveController = new SwerveControllerCommand(
                 m_robotDrive,
-                controller,
                 trajectory,
                 desiredRotation);
         addRequirements(m_robotDrive);

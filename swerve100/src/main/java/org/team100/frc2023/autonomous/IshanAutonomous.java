@@ -3,9 +3,8 @@ package org.team100.frc2023.autonomous;
 import java.util.List;
 
 import org.team100.frc2023.commands.SwerveControllerCommand;
-import org.team100.lib.sensors.RedundantGyro;
-import org.team100.lib.controller.DriveControllers;
 import org.team100.lib.motion.drivetrain.SwerveDriveSubsystem;
+import org.team100.lib.sensors.RedundantGyro;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -29,7 +28,6 @@ public class IshanAutonomous extends CommandBase {
 
     public IshanAutonomous(
             SwerveDriveSubsystem robotDrive,
-            HolonomicDriveController2 controller,
             SwerveDriveKinematics kinematics,
             RedundantGyro gyro) {
         m_robotDrive = robotDrive;
@@ -38,7 +36,6 @@ public class IshanAutonomous extends CommandBase {
 
         m_swerveController = new SwerveControllerCommand(
                 m_robotDrive,
-                controller,
                 trajectory,
                 () -> new Rotation2d());
     }

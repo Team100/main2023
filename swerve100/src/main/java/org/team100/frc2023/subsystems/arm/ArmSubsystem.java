@@ -2,6 +2,7 @@ package org.team100.frc2023.subsystems.arm;
 
 import org.team100.lib.motion.arm.ArmKinematics;
 import org.team100.lib.motor.FRCNEO;
+import org.team100.lib.controller.State100;
 import org.team100.lib.motion.arm.ArmAngles;
 
 import com.revrobotics.CANSparkMax.IdleMode;
@@ -33,6 +34,25 @@ public class ArmSubsystem extends SubsystemBase {
         public double normalUpperI = 0.2;
         public double normalUpperD = 0.05;
         public double tolerance = 0.001;
+    }
+
+    // TODO: do something with this
+    public static class ArmState {
+        private final State100 m_lower;
+        private final State100 m_upper;
+
+        public ArmState(State100 lower, State100 upper) {
+            m_lower = lower;
+            m_upper = upper;
+        }
+
+        public State100 lower() {
+            return m_lower;
+        }
+
+        public State100 upper() {
+            return m_upper;
+        }
     }
 
     private final Config m_config = new Config();

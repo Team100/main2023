@@ -3,7 +3,6 @@ package org.team100.frc2023.autonomous;
 import java.util.List;
 
 import org.team100.frc2023.commands.SwerveControllerCommand;
-import org.team100.lib.controller.DriveControllers;
 import org.team100.lib.localization.AprilTagFieldLayoutWithCorrectOrientation;
 import org.team100.lib.motion.drivetrain.SwerveDriveSubsystem;
 import org.team100.lib.sensors.RedundantGyro;
@@ -28,7 +27,6 @@ public class MoveToAprilTag extends CommandBase {
 
     public MoveToAprilTag(
             SwerveDriveSubsystem m_robotDrive,
-            HolonomicDriveController2 controller,
             SwerveDriveKinematics kinematics,
             AprilTagFieldLayoutWithCorrectOrientation layout,
             int tagID,
@@ -36,7 +34,6 @@ public class MoveToAprilTag extends CommandBase {
         Trajectory trajectory = genTrajectory(m_robotDrive, kinematics, layout, tagID);
         m_swerveController = new SwerveControllerCommand(
                 m_robotDrive,
-                controller,
                 trajectory,
                 () -> new Rotation2d());
         addRequirements(m_robotDrive);

@@ -4,16 +4,15 @@ import java.util.List;
 import java.util.function.Supplier;
 
 import org.team100.frc2023.commands.GoalOffset;
-import org.team100.lib.controller.DriveControllers;
 import org.team100.lib.controller.PidGains;
 import org.team100.lib.localization.AprilTagFieldLayoutWithCorrectOrientation;
 import org.team100.lib.motion.drivetrain.SwerveDriveSubsystem;
+import org.team100.lib.motion.drivetrain.SwerveState;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
-import edu.wpi.first.math.geometry.Twist2d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.math.trajectory.Trajectory.State;
@@ -36,7 +35,6 @@ public class DriveToAprilTag extends CommandBase {
 
     private final TrajectoryConfig translationConfig;
 
-    private final HolonomicDriveController2 m_controller;
     private final double m_yOffset;
     private GoalOffset previousOffset;
     private Trajectory m_trajectory;
@@ -48,9 +46,7 @@ public class DriveToAprilTag extends CommandBase {
             double yOffset,
             Supplier<GoalOffset> offsetSupplier,
             SwerveDriveSubsystem drivetrain,
-            HolonomicDriveController2 controller,
             SwerveDriveKinematics kinematics,
-            DriveControllers controllers,
             AprilTagFieldLayoutWithCorrectOrientation layout,
             Supplier<Double> gamePieceOffsetSupplier) {
         m_goal = goal(tagID, xOffset, layout);
@@ -63,8 +59,6 @@ public class DriveToAprilTag extends CommandBase {
 
         previousOffset = m_goalOffsetSupplier.get();
 
-        m_controller = controller;
-
         translationConfig = new TrajectoryConfig(5, 4.5).setKinematics(kinematics);
         addRequirements(drivetrain);
 
@@ -75,9 +69,9 @@ public class DriveToAprilTag extends CommandBase {
         isFinished = false;
         m_timer.restart();
         m_trajectory = makeTrajectory(previousOffset, 0);
-        m_controller.setGains(new PidGains(2, 0, 0), new PidGains(6.5, 0, 1));
-        m_controller.setIRange(0.3);
-        m_controller.setTolerance(0.00000001, Math.PI / 180);
+        m_swerve.setGains(new PidGains(2, 0, 0), new PidGains(6.5, 0, 1));
+        m_swerve.setIRange(0.3);
+        m_swerve.setTolerance(0.00000001, Math.PI / 180);
     }
 
     @Override
@@ -104,20 +98,17 @@ public class DriveToAprilTag extends CommandBase {
             return;
         }
 
+        // TODO: combine xy and theta
         State desiredState = m_trajectory.sample(m_timer.get());
+        Rotation2d desiredRot = m_goal.getRotation();
 
-        desiredXPublisher.set(desiredState.poseMeters.getX());
-        desiredYPublisher.set(desiredState.poseMeters.getY());
-        desiredRotPublisher.set(m_goal.getRotation().getRadians());
+        SwerveState desiredSwerveState = SwerveState.fromState(desiredState, desiredRot);
 
-        Pose2d currentPose = m_swerve.getPose();
+        desiredXPublisher.set(desiredSwerveState.x().x());
+        desiredYPublisher.set(desiredSwerveState.y().x());
+        desiredRotPublisher.set(desiredSwerveState.theta().x());
 
-        Twist2d fieldRelativeTarget = m_controller.calculate(
-                currentPose,
-                desiredState,
-                m_goal.getRotation());
-
-        m_swerve.driveInFieldCoords(fieldRelativeTarget);
+        m_swerve.setDesiredState(desiredSwerveState);
     }
 
     ///////////////////////////////////////////////////////////////

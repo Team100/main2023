@@ -2,6 +2,9 @@ package org.team100.lib.motion.drivetrain;
 
 import java.io.FileWriter;
 
+import org.team100.frc2023.autonomous.HolonomicDriveController2;
+import org.team100.lib.controller.PidGains;
+import org.team100.lib.controller.State100;
 import org.team100.lib.motion.drivetrain.kinematics.FrameTransform;
 
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
@@ -21,23 +24,38 @@ public class SwerveDriveSubsystem extends SubsystemBase implements SwerveDriveSu
     private final SwerveDrivePoseEstimator m_poseEstimator;
     private final Field2d m_field;
     private final FrameTransform m_frameTransform;
-
     private final SwerveLocal m_swerveLocal;
+    private final HolonomicDriveController2 m_controller;
 
     // TODO: this looks broken
     public double keyList = -1;
+
+    private SwerveState m_desiredState;
 
     public SwerveDriveSubsystem(
             Heading heading,
             SwerveDrivePoseEstimator poseEstimator,
             FrameTransform frameTransform,
             SwerveLocal swerveLocal,
+            HolonomicDriveController2 controller,
             Field2d field) {
         m_heading = heading;
         m_poseEstimator = poseEstimator;
         m_field = field;
         m_frameTransform = frameTransform;
         m_swerveLocal = swerveLocal;
+        m_controller = controller;
+        truncate();
+    }
+
+    /** Set desired states to current states and stop. */
+    public void truncate() {
+        stop();
+        Pose2d currentPose = getPose();
+        m_desiredState = new SwerveState(
+                new State100(currentPose.getX(), 0, 0),
+                new State100(currentPose.getY(), 0, 0),
+                new State100(currentPose.getRotation().getRadians(), 0, 0));
     }
 
     public void updateOdometry() {
@@ -50,7 +68,7 @@ public class SwerveDriveSubsystem extends SubsystemBase implements SwerveDriveSu
         // }
 
         // Update the Field2d widget
-        Pose2d newEstimate = m_poseEstimator.getEstimatedPosition();
+        Pose2d newEstimate = getPose();
         robotPosePub.set(new double[] {
                 newEstimate.getX(),
                 newEstimate.getY(),
@@ -61,34 +79,43 @@ public class SwerveDriveSubsystem extends SubsystemBase implements SwerveDriveSu
         poseRotPublisher.set(newEstimate.getRotation().getRadians());
     }
 
+    /** Drive to the desired state. */
     @Override
     public void periodic() {
         updateOdometry();
-        m_field.setRobotPose(m_poseEstimator.getEstimatedPosition());
+        driveToReference();
+        m_field.setRobotPose(getPose());
+    }
+
+    private void driveToReference() {
+        // TODO: pose should be a full state, with velocity and acceleration.
+        Pose2d currentPose = getPose();
+
+        Twist2d fieldRelativeTarget = m_controller.calculate(currentPose, m_desiredState);
+        driveInFieldCoords(fieldRelativeTarget);
     }
 
     /**
-     * Note this doesn't include the gyro reading directly, the estimate is
-     * considerably massaged by the odometry logic.
+     * Give the controller a new reference state.
      */
-    @Override
-    public Pose2d getPose() {
-        return m_poseEstimator.getEstimatedPosition();
+    public void setDesiredState(SwerveState desiredState) {
+        m_desiredState = desiredState;
     }
 
-    public void resetPose(Pose2d robotPose) {
-        m_poseEstimator.resetPosition(m_heading.getHeadingNWU(), m_swerveLocal.positions(), robotPose);
+    public void setGains(PidGains cartesian, PidGains rotation) {
+        m_controller.setGains(cartesian, rotation);
     }
 
-    // TODO: this looks broken
-    public void setKeyList() {
-        keyList = NetworkTableInstance.getDefault().getTable("Vision").getKeys().size();
+    public void setIRange(double cartesian) {
+        m_controller.setIRange(cartesian);
     }
 
-    // TODO: this looks broken
-    public double getVisionSize() {
-        return keyList;
+    public void setTolerance(double cartesian, double rotation) {
+        m_controller.setTolerance(cartesian, rotation);
     }
+
+    ////////////////////////////
+    // TODO: push the stuff below down
 
     /**
      * @param twist Field coordinate velocities in meters and radians per second.
@@ -110,6 +137,35 @@ public class SwerveDriveSubsystem extends SubsystemBase implements SwerveDriveSu
     @Override
     public void stop() {
         m_swerveLocal.stop();
+    }
+
+    ////////////////////////////////////////
+    // pose estimator stuff
+
+    /**
+     * Note this doesn't include the gyro reading directly, the estimate is
+     * considerably massaged by the odometry logic.
+     */
+    @Override
+    public Pose2d getPose() {
+        return m_poseEstimator.getEstimatedPosition();
+    }
+
+    public void resetPose(Pose2d robotPose) {
+        m_poseEstimator.resetPosition(m_heading.getHeadingNWU(), m_swerveLocal.positions(), robotPose);
+    }
+
+    ///////////////////////////////
+    // TODO: move this somewhere else
+
+    // TODO: this looks broken
+    public void setKeyList() {
+        keyList = NetworkTableInstance.getDefault().getTable("Vision").getKeys().size();
+    }
+
+    // TODO: this looks broken
+    public double getVisionSize() {
+        return keyList;
     }
 
     ///////////////////////////////////////////////////////////

@@ -26,7 +26,6 @@ public class VasiliAutonomous extends SequentialCommandGroup {
     public VasiliAutonomous(
             SwerveDriveSubsystem drive,
             FrameTransform chassisSpeedFactory,
-            HolonomicDriveController2 controller,
             SwerveDriveKinematics kinematics, 
             RedundantGyro gyro,
             ArmSubsystem arm,
@@ -93,7 +92,6 @@ public class VasiliAutonomous extends SequentialCommandGroup {
 
                 new VasiliWaypointTrajectory(
                         drive,
-                        controller,
                         kinematics,
                         () -> new Rotation2d(Math.PI),
                         gyro,
