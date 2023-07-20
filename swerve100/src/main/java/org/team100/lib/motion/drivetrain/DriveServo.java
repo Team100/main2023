@@ -29,6 +29,9 @@ public class DriveServo implements Sendable {
     // for calculating acceleration
     private double previousSpeedM_S = 0;
 
+    //private double m_driveOutput;
+
+
     public DriveServo(
             String name,
             DriveMotor driveMotor,
@@ -50,11 +53,17 @@ public class DriveServo implements Sendable {
         driveFeedForwardOutput = m_driveFeedforward.calculate(speedM_S, accelM_S2);
         double driveOutput = driveMotorControllerOutput + driveFeedForwardOutput;
         // output deadband to prevent shivering.
-        m_driveMotor.set(MathUtil.applyDeadband(driveOutput, m_config.kDriveDeadband));
+        set(MathUtil.applyDeadband(driveOutput, m_config.kDriveDeadband));
     }
 
     void set(double output) {
         m_driveMotor.set(output);
+        // this is vasili's code which breaks other hardware
+        // TODO: find a way for it to coexist with other hardware
+        // m_driveOutput = output * 1351.68/6.6;
+        // m_driveMotor.setPID(ControlMode.Velocity, output * 1351.68);
+
+
     }
 
     double getDriveDistanceM() {
@@ -78,6 +87,8 @@ public class DriveServo implements Sendable {
         builder.addDoubleProperty("Feed Forward Output", () -> driveFeedForwardOutput, null);
 
         builder.addDoubleProperty("Drive Motor Output [-1, 1]", () -> m_driveMotor.get(), null);
+
+        //builder.addDoubleProperty("m_driveOutput", () -> m_driveOutput, null);
 
     }
 

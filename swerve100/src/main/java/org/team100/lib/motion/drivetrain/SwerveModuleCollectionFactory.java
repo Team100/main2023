@@ -69,33 +69,33 @@ public class SwerveModuleCollectionFactory {
                                 currentLimit));
             case SWERVE_ONE:
                 return new SwerveModuleCollection(
-                        SwerveModuleFactory.AMModule(
+                        SwerveModuleFactory.AMCANModule(
                                 "Front Left",
                                 11, // drive CAN
-                                0, // turn PWM0
-                                3, // turn encoder
-                                0.69, // turn offset
+                                5, // turn PWM0
+                                2, // turn encoder
+                                0.693222, // turn offset
                                 currentLimit),
-                        SwerveModuleFactory.AMModule(
+                        SwerveModuleFactory.AMCANModule(
                                 "Front Right",
                                 12, // drive CAN
                                 2, // turn PWM
                                 0, // turn encoder
-                                0.72, // turn offset
+                                0.718255, // turn offset
                                 currentLimit),
-                        SwerveModuleFactory.AMModule(
+                        SwerveModuleFactory.AMCANModule(
                                 "Rear Left",
                                 21, // drive CAN
-                                1, // turn PWM
-                                2, // turn encoder
-                                0.37, // turn offset
+                                3, // turn PWM
+                                3, // turn encoder
+                                0.372198, // turn offset
                                 currentLimit),
-                        SwerveModuleFactory.AMModule(
+                        SwerveModuleFactory.AMCANModule(
                                 "Rear Right",
                                 22, // drive CAN
-                                3, // turn PWM
+                                1, // turn PWM
                                 1, // turn encoder
-                                0.976726, // turn offset
+                                0.943363, // turn offset
                                 currentLimit));
             case BLANK:
                 return new SwerveModuleCollection(

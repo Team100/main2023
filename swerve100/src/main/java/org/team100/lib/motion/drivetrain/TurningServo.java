@@ -28,6 +28,8 @@ public class TurningServo implements Sendable {
     public double turningFeedForwardOutput;
     public double turningMotorControllerOutput;
 
+    // private double m_turnOutput;
+
     public TurningServo(
             String name,
             TurningMotor turningMotor,
@@ -46,11 +48,18 @@ public class TurningServo implements Sendable {
         turningFeedForwardOutput = m_turningFeedforward.calculate(getTurnSetpointVelocityRadS(), 0);
         double turnOutput = turningMotorControllerOutput + turningFeedForwardOutput;
         // output deadband to prevent shivering.
-        m_turningMotor.set(MathUtil.applyDeadband(turnOutput, m_config.kSteeringDeadband));
+        set(MathUtil.applyDeadband(turnOutput, m_config.kSteeringDeadband));
+        // this is vasili's code, which breaks other hardware
+        // TODO: find a way to make it coexist with the other hardware
+        // set(state.angle.getRotations());
     }
 
     void set(double output) {
         m_turningMotor.set(output);
+        // this is vasili's code, which breaks other hardware
+        // TODO: find a way to make it coexist with the other hardware
+        // m_turningMotor.setPID(ControlMode.Position, output);
+
     }
 
     double getTurnSetpointVelocityRadS() {
@@ -80,6 +89,9 @@ public class TurningServo implements Sendable {
         builder.addDoubleProperty("Feed Forward Output", () -> turningFeedForwardOutput, null);
 
         builder.addDoubleProperty("Turning Motor Output [-1, 1]", () -> m_turningMotor.get(), null);
+
+      // builder.addDoubleProperty("m_turnOutput", () -> m_turnOutput, null);
+
 
     }
 

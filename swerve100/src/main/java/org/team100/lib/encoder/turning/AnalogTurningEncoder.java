@@ -33,6 +33,10 @@ public class AnalogTurningEncoder implements TurningEncoder, Sendable {
         return m_encoder.getDistance();
     }
 
+    public double get() {
+        return m_encoder.get();
+    }
+
     @Override
     public void reset() {
         m_encoder.reset();
@@ -43,7 +47,7 @@ public class AnalogTurningEncoder implements TurningEncoder, Sendable {
         builder.setSmartDashboardType("AnalogTurningEncoder");
         builder.addDoubleProperty("Channel", () -> m_encoder.getChannel(), null);
         builder.addDoubleProperty("Angle", this::getAngle, null);
-        builder.addDoubleProperty("Turns", () -> m_encoder.get(), null);
+        builder.addDoubleProperty("Turns", () -> this.get(), null);
         builder.addDoubleProperty("absolute", () -> m_encoder.getAbsolutePosition(), null);
         builder.addDoubleProperty("Volts", () -> m_input.getVoltage(), null);
     }

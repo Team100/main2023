@@ -1,5 +1,6 @@
 package org.team100.lib.motor.turning;
 
+import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
@@ -32,6 +33,10 @@ public class NeoTurningMotor implements TurningMotor, Sendable {
         m_motor.set(output);
     }
 
+    //THIS DOES NOT ACTUALLY SET PID This is just here for the CAN turning motor
+    public void setPID(ControlMode control, double output) {
+        this.set(output);
+    }
     @Override
     public void initSendable(SendableBuilder builder) {
         builder.setSmartDashboardType("NeoTurningMotor");
