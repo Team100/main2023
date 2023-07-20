@@ -58,41 +58,12 @@ public class SwerveDriveSubsystem extends SubsystemBase implements SwerveDriveSu
                 new State100(currentPose.getRotation().getRadians(), 0, 0));
     }
 
-    public void updateOdometry() {
-        m_poseEstimator.update(m_heading.getHeadingNWU(), m_swerveLocal.positions());
-        // {
-        // if (m_pose.aprilPresent()) {
-        // m_poseEstimator.addVisionMeasurement(
-        // m_pose.getRobotPose(0),
-        // Timer.getFPGATimestamp() - 0.3);
-        // }
-
-        // Update the Field2d widget
-        Pose2d newEstimate = getPose();
-        robotPosePub.set(new double[] {
-                newEstimate.getX(),
-                newEstimate.getY(),
-                newEstimate.getRotation().getDegrees()
-        });
-        poseXPublisher.set(newEstimate.getX());
-        poseYPublisher.set(newEstimate.getY());
-        poseRotPublisher.set(newEstimate.getRotation().getRadians());
-    }
-
     /** Drive to the desired state. */
     @Override
     public void periodic() {
         updateOdometry();
         driveToReference();
         m_field.setRobotPose(getPose());
-    }
-
-    private void driveToReference() {
-        // TODO: pose should be a full state, with velocity and acceleration.
-        Pose2d currentPose = getPose();
-
-        Twist2d fieldRelativeTarget = m_controller.calculate(currentPose, m_desiredState);
-        driveInFieldCoords(fieldRelativeTarget);
     }
 
     /**
@@ -113,6 +84,38 @@ public class SwerveDriveSubsystem extends SubsystemBase implements SwerveDriveSu
     public void setTolerance(double cartesian, double rotation) {
         m_controller.setTolerance(cartesian, rotation);
     }
+
+    ////////////////////////////////////////////////////////////////////
+
+    private void updateOdometry() {
+        m_poseEstimator.update(m_heading.getHeadingNWU(), m_swerveLocal.positions());
+        // {
+        // if (m_pose.aprilPresent()) {
+        // m_poseEstimator.addVisionMeasurement(
+        // m_pose.getRobotPose(0),
+        // Timer.getFPGATimestamp() - 0.3);
+        // }
+
+        // Update the Field2d widget
+        Pose2d newEstimate = getPose();
+        robotPosePub.set(new double[] {
+                newEstimate.getX(),
+                newEstimate.getY(),
+                newEstimate.getRotation().getDegrees()
+        });
+        poseXPublisher.set(newEstimate.getX());
+        poseYPublisher.set(newEstimate.getY());
+        poseRotPublisher.set(newEstimate.getRotation().getRadians());
+    }
+
+    private void driveToReference() {
+        // TODO: pose should be a full state, with velocity and acceleration.
+        Pose2d currentPose = getPose();
+
+        Twist2d fieldRelativeTarget = m_controller.calculate(currentPose, m_desiredState);
+        driveInFieldCoords(fieldRelativeTarget);
+    }
+
 
     ////////////////////////////
     // TODO: push the stuff below down

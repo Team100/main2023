@@ -20,10 +20,6 @@ public class DriveControllersFactory {
         public double swerveOneHeadingTolerance = 0.002;
         public double swerveTwoHeadingTolerance = 0.002;
 
-        public PidGains compBotRotateGain = new PidGains(1.0, 0, 0);
-        public PidGains swerveOneRotateGain = new PidGains(1.0, 0, 0);
-        public PidGains swerveTwoRotateGain = new PidGains(1.0, 0, 0.15);
-
         public PidGains thetaGain = new PidGains(3.0, 0, 0);
 
         public PidGains compBotCartesianGain = new PidGains(0.15, 0, 0);
@@ -31,7 +27,6 @@ public class DriveControllersFactory {
         public PidGains swerveTwoCartesianGain = new PidGains(2.0, 0.1, 0.15);
 
         public double swerveTwoCartesianIntegratorRange = 0.5;
-        public double rotateTolerance = 0.003;
 
         public double compBotCartesianTolerance = 0.01;
         public double swerveOneCartesianTolerance = 0.2;
@@ -52,13 +47,6 @@ public class DriveControllersFactory {
                         m_config.compBotHeadingIntegratorRange * -1.0,
                         m_config.compBotHeadingIntegratorRange);
                 headingController.setTolerance(m_config.compBotHeadingTolerance);
-
-                var rotateController = new PIDController(
-                        m_config.compBotRotateGain.p,
-                        m_config.compBotRotateGain.i,
-                        m_config.compBotRotateGain.d);
-                rotateController.enableContinuousInput(-Math.PI, Math.PI);
-                rotateController.setTolerance(m_config.rotateTolerance, m_config.rotateTolerance);
                 
                 var xController = new PIDController(
                         m_config.compBotCartesianGain.p,
@@ -77,9 +65,7 @@ public class DriveControllersFactory {
                         m_config.thetaGain.i,
                         m_config.thetaGain.d,
                         speedLimits.constraints());
-
-                return new DriveControllers(xController, yController, headingController, thetaController,
-                        rotateController);
+                return new DriveControllers(xController, yController, headingController, thetaController);
             case SWERVE_ONE:
                 headingController = new ProfiledPIDController(
                         m_config.swerveOneHeadingGain.p,
@@ -90,13 +76,6 @@ public class DriveControllersFactory {
                         m_config.swerveOneHeadingIntegratorRange * -1.0,
                         m_config.swerveOneHeadingIntegratorRange);
                 headingController.setTolerance(m_config.swerveOneHeadingTolerance);
-
-                rotateController = new PIDController(
-                        m_config.swerveOneRotateGain.p,
-                        m_config.swerveOneRotateGain.i,
-                        m_config.swerveOneRotateGain.d);
-                rotateController.enableContinuousInput(-Math.PI, Math.PI);
-                rotateController.setTolerance(m_config.rotateTolerance, m_config.rotateTolerance);
 
                 xController = new PIDController(
                         m_config.swerveOneCartesianGain.p,
@@ -115,8 +94,7 @@ public class DriveControllersFactory {
                         m_config.thetaGain.i,
                         m_config.thetaGain.d,
                         speedLimits.constraints());
-                return new DriveControllers(xController, yController, headingController, thetaController,
-                        rotateController);
+                return new DriveControllers(xController, yController, headingController, thetaController);
             case SWERVE_TWO:
                 headingController = new ProfiledPIDController(
                         m_config.swerveTwoHeadingGain.p,
@@ -127,13 +105,6 @@ public class DriveControllersFactory {
                         m_config.swerveTwoHeadingIntegratorRange * -1.0,
                         m_config.swerveTwoHeadingIntegratorRange);
                 headingController.setTolerance(m_config.swerveTwoHeadingTolerance);
-
-                rotateController = new PIDController(
-                        m_config.swerveTwoRotateGain.p,
-                        m_config.swerveTwoRotateGain.i,
-                        m_config.swerveTwoRotateGain.d);
-                rotateController.enableContinuousInput(-Math.PI, Math.PI);
-                rotateController.setTolerance(m_config.rotateTolerance, m_config.rotateTolerance);
 
                 xController = new PIDController(
                         m_config.swerveTwoCartesianGain.p,
@@ -158,19 +129,15 @@ public class DriveControllersFactory {
                         m_config.thetaGain.i,
                         m_config.thetaGain.d,
                         speedLimits.constraints());
-                return new DriveControllers(xController, yController, headingController, thetaController,
-                        rotateController);
+                return new DriveControllers(xController, yController, headingController, thetaController);
 
             default:
                 // these RoboRIO's are have no drivetrains
                 headingController = new ProfiledPIDController(1, 0, 0, speedLimits.constraints());
-                rotateController = new PIDController(1, 0, 0);
                 xController = new PIDController(1, 0.0, 0.0);
                 yController = new PIDController(1, 0.0, 0.0);
                 thetaController = new ProfiledPIDController(1, 0.0, 0.0, speedLimits.constraints());
-                return new DriveControllers(xController, yController, headingController, thetaController,
-                        rotateController);
+                return new DriveControllers(xController, yController, headingController, thetaController);
         }
     }
-
 }

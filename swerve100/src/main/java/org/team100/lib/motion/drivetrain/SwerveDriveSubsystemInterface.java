@@ -11,5 +11,10 @@ public interface SwerveDriveSubsystemInterface extends Subsystem {
 
     void stop();
 
+    public void setDesiredState(SwerveState desiredState);
+
+    @Deprecated
     void driveInFieldCoords(Twist2d twist2d);
+
+    void truncate();
 }

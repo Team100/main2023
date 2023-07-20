@@ -66,9 +66,9 @@ public class HolonomicDriveController2 {
             m_firstRun = false;
         }
 
-        double xFF = desiredState.x().v();
-        double yFF = desiredState.y().v();
-        double thetaFF = desiredState.theta().v();
+        double xFF = desiredState.x().v(); // m/s
+        double yFF = desiredState.y().v(); // m/s
+        double thetaFF = desiredState.theta().v(); // rad/s
 
         xFFPublisher.set(xFF);
         yFFPublisher.set(yFF);
