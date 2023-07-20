@@ -114,18 +114,9 @@ public class DriveWithHeading extends CommandBase {
 
         } else {
             // if we're not in snap mode then it's just pure manual
-
-
             Twist2d twistM_S = DriveUtil.scale(twist1_1, m_speedLimits.speedM_S, m_speedLimits.angleSpeedRad_S);
-            Twist2d twistM = DriveUtil.scale(twistM_S, 0.02, 0.02);
-            Pose2d ref = currentPose.exp(twistM);
-
-            // TODO something about accel here
-            m_robotDrive.setDesiredState(
-                    new SwerveState(
-                            new State100(ref.getX(), twistM_S.dx, 0),
-                            new State100(ref.getY(), twistM_S.dy, 0),
-                            new State100(ref.getRotation().getRadians(), twistM_S.dtheta, 0)));
+            SwerveState manualState = SwerveDriveSubsystem.incremental(currentPose, twistM_S);
+            m_robotDrive.setDesiredState(manualState);
         }
 
         // publish what we did

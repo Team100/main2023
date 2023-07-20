@@ -1,9 +1,11 @@
 package org.team100.frc2023.autonomous;
 
 import org.team100.lib.motion.drivetrain.SwerveDriveSubsystem;
+import org.team100.lib.motion.drivetrain.SwerveState;
 
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Twist2d;
 import edu.wpi.first.math.trajectory.TrapezoidProfile.Constraints;
 import edu.wpi.first.wpilibj2.command.CommandBase;
@@ -45,6 +47,15 @@ private final Config m_config = new Config();
                 m_robotDrive.getPose().getRotation().getRadians(),
                 m_config.goalRotation);
         double outputY = yController.calculate(m_robotDrive.getPose().getY(), goalY);
-        m_robotDrive.driveInFieldCoords(new Twist2d(0, outputY, outputRot));
+        Twist2d fieldRelative = new Twist2d(0, outputY, outputRot);
+
+        Pose2d currentPose = m_robotDrive.getPose();
+        SwerveState manualState = SwerveDriveSubsystem.incremental(currentPose, fieldRelative);
+        m_robotDrive.setDesiredState(manualState);
+    }
+
+    @Override
+    public void end(boolean interrupted) {
+        m_robotDrive.truncate();
     }
 }

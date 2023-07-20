@@ -3,6 +3,7 @@ package org.team100.lib.motion.drivetrain;
 import java.io.FileWriter;
 
 import org.team100.frc2023.autonomous.HolonomicDriveController2;
+import org.team100.lib.commands.DriveUtil;
 import org.team100.lib.controller.PidGains;
 import org.team100.lib.controller.State100;
 import org.team100.lib.motion.drivetrain.kinematics.FrameTransform;
@@ -58,7 +59,7 @@ public class SwerveDriveSubsystem extends SubsystemBase implements SwerveDriveSu
                 new State100(currentPose.getRotation().getRadians(), 0, 0));
     }
 
-    /** Drive to the desired state. */
+    /** Drive to the desired reference. */
     @Override
     public void periodic() {
         updateOdometry();
@@ -116,18 +117,36 @@ public class SwerveDriveSubsystem extends SubsystemBase implements SwerveDriveSu
         driveInFieldCoords(fieldRelativeTarget);
     }
 
-
     ////////////////////////////
     // TODO: push the stuff below down
 
     /**
      * @param twist Field coordinate velocities in meters and radians per second.
      */
-    @Deprecated
-    public void driveInFieldCoords(Twist2d twist) {
+    private void driveInFieldCoords(Twist2d twist) {
         ChassisSpeeds targetChassisSpeeds = m_frameTransform.fromFieldRelativeSpeeds(
                 twist.dx, twist.dy, twist.dtheta, getPose().getRotation());
         m_swerveLocal.setChassisSpeeds(targetChassisSpeeds);
+    }
+
+    /**
+     * Helper for incremental driving.
+     * 
+     * Note the returned state has zero acceleration, which is wrong.
+     * 
+     * TODO: correct acceleration.
+     * 
+     * @param twistM_S incremental input in m/s and rad/s
+     * @return SwerveState representing 0.02 sec of twist applied to the current pose.
+     */
+    public static SwerveState incremental(Pose2d currentPose, Twist2d twistM_S) {
+        Twist2d twistM = DriveUtil.scale(twistM_S, 0.02, 0.02);
+        Pose2d ref = currentPose.exp(twistM);
+        return new SwerveState(
+                new State100(ref.getX(), twistM_S.dx, 0),
+                new State100(ref.getY(), twistM_S.dy, 0),
+                new State100(ref.getRotation().getRadians(), twistM_S.dtheta, 0));
+
     }
 
     public void defense() {

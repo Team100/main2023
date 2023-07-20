@@ -57,6 +57,7 @@ public class HolonomicLQR {
 
     Timer m_timer = new Timer();
 
+    // TODO: get rid of this profiled pid controller, use a MotionProfile instead.
     private final ProfiledPIDController m_thetaController;
 
     // private boolean m_firstRun = true;

@@ -5,7 +5,9 @@ import java.util.function.Supplier;
 import org.team100.lib.commands.DriveUtil;
 import org.team100.lib.motion.drivetrain.SpeedLimits;
 import org.team100.lib.motion.drivetrain.SwerveDriveSubsystem;
+import org.team100.lib.motion.drivetrain.SwerveState;
 
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Twist2d;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 
@@ -31,6 +33,13 @@ public class DriveWithSetpointGenerator extends CommandBase {
                 m_twistSupplier.get(),
                 m_speedLimits.speedM_S,
                 m_speedLimits.angleSpeedRad_S);
-        m_robotDrive.driveInFieldCoords(twistM_S);
+        Pose2d currentPose = m_robotDrive.getPose();
+        SwerveState manualState = SwerveDriveSubsystem.incremental(currentPose, twistM_S);
+        m_robotDrive.setDesiredState(manualState);
+    }
+
+    @Override
+    public void end(boolean interrupted) {
+        m_robotDrive.truncate();
     }
 }

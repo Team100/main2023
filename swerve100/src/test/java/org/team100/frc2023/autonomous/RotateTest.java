@@ -12,7 +12,6 @@ import org.team100.lib.motion.drivetrain.SwerveState;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Twist2d;
 import edu.wpi.first.wpilibj.Timer;
 
 /** Example of mock objects for testing. */
@@ -45,11 +44,6 @@ public class RotateTest {
         @Override
         public void stop() {
             stopped = true;
-        }
-
-        @Override
-        public void driveInFieldCoords(Twist2d twist2d) {
-            throw new RuntimeException();
         }
 
         @Override

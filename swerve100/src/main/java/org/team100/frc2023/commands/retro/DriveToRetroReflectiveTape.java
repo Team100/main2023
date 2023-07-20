@@ -5,12 +5,14 @@ import java.io.IOException;
 import org.msgpack.jackson.dataformat.MessagePackFactory;
 import org.team100.lib.localization.Tapes;
 import org.team100.lib.motion.drivetrain.SwerveDriveSubsystem;
+import org.team100.lib.motion.drivetrain.SwerveState;
 import org.team100.lib.motion.drivetrain.kinematics.FrameTransform;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.filter.LinearFilter;
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Twist2d;
 import edu.wpi.first.math.trajectory.TrapezoidProfile.Constraints;
@@ -92,8 +94,10 @@ public class DriveToRetroReflectiveTape extends CommandBase {
                 Twist2d twistM_S = new Twist2d(xOutput, yOutput, 0);
                 Twist2d fieldRelative = m_chassisSpeedFactory.toFieldRelativeSpeeds(
                         twistM_S.dx, twistM_S.dy, twistM_S.dtheta, rot);
-                        
-                m_robotDrive.driveInFieldCoords(fieldRelative);
+
+                Pose2d currentPose = m_robotDrive.getPose();
+                SwerveState manualState = SwerveDriveSubsystem.incremental(currentPose, fieldRelative);
+                m_robotDrive.setDesiredState(manualState);
             } else {
                 m_robotDrive.stop();
                 tagView.set(2);
@@ -105,6 +109,11 @@ public class DriveToRetroReflectiveTape extends CommandBase {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    @Override
+    public void end(boolean interrupted) {
+        m_robotDrive.truncate();
     }
 
     //////////////////////////////////////////////////////////////

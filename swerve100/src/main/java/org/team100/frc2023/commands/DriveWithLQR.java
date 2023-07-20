@@ -1,11 +1,13 @@
 package org.team100.frc2023.commands;
 
 import org.team100.lib.motion.drivetrain.SwerveDriveSubsystem;
+import org.team100.lib.motion.drivetrain.SwerveState;
 
 import edu.wpi.first.math.Nat;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.controller.LinearQuadraticRegulator;
 import edu.wpi.first.math.estimator.KalmanFilter;
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Twist2d;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N2;
@@ -61,7 +63,7 @@ public class DriveWithLQR extends CommandBase {
         goal = new TrapezoidProfile.State(m_robotDrive.getPose().getX() + 1, 0.0);
 
         m_lastProfiledReference = new TrapezoidProfile.State(m_robotDrive.getPose().getX(), 0);
-
+        done = false;
     }
 
     @Override
@@ -79,17 +81,20 @@ public class DriveWithLQR extends CommandBase {
 
         double u = m_loop.getU(0);
 
-        m_robotDrive.driveInFieldCoords(new Twist2d(u, 0, 0));
+        Twist2d fieldRelative = new Twist2d(u, 0, 0);
 
-    }
-
-    @Override
-    public void end(boolean interrupted) {
-        done = false;
+        Pose2d currentPose = m_robotDrive.getPose();
+        SwerveState manualState = SwerveDriveSubsystem.incremental(currentPose, fieldRelative);
+        m_robotDrive.setDesiredState(manualState);
     }
 
     @Override
     public boolean isFinished() {
         return done;
+    }
+
+    @Override
+    public void end(boolean interrupted) {
+        m_robotDrive.truncate();
     }
 }

@@ -5,6 +5,7 @@ import java.util.List;
 import org.team100.frc2023.LQRManager;
 import org.team100.frc2023.commands.GoalOffset;
 import org.team100.lib.motion.drivetrain.SwerveDriveSubsystem;
+import org.team100.lib.motion.drivetrain.SwerveState;
 
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.Nat;
@@ -187,18 +188,6 @@ public class DriveToWaypoint3 extends CommandBase {
 
     }
 
-    @Override
-    public boolean isFinished() {
-        return isFinished; // keep trying until the button is released
-    }
-
-    @Override
-    public void end(boolean interrupted) {
-        // System.out.println("END");
-        m_timer.stop();
-
-    }
-
     public void execute() {
         // if (m_trajectory == null) {
         // return;
@@ -221,7 +210,8 @@ public class DriveToWaypoint3 extends CommandBase {
                 desiredState,
                 m_goal.getRotation());
 
-        m_swerve.driveInFieldCoords(fieldRelativeTarget);
+        SwerveState manualState = SwerveDriveSubsystem.incremental(currentPose, fieldRelativeTarget);
+        m_swerve.setDesiredState(manualState);
 
         desiredXPublisher.set(desiredState.poseMeters.getX());
         desiredYPublisher.set(desiredState.poseMeters.getY());
@@ -233,6 +223,20 @@ public class DriveToWaypoint3 extends CommandBase {
         poseXErrorPublisher.set(xController.getPositionError());
         poseYErrorPublisher.set(yController.getPositionError());
     }
+
+    @Override
+    public boolean isFinished() {
+        return isFinished; // keep trying until the button is released
+    }
+
+    @Override
+    public void end(boolean interrupted) {
+        // System.out.println("END");
+        m_timer.stop();
+        m_swerve.truncate();
+    }
+
+    //////////////////////////////////////////////////////////////////////
 
     private final NetworkTableInstance inst = NetworkTableInstance.getDefault();
     private final NetworkTable table = inst.getTable("drive to waypoint");
