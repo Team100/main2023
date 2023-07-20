@@ -1,6 +1,7 @@
 package org.team100.lib.motor.drive;
 
 import com.ctre.phoenix.ErrorCode;
+import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.StatorCurrentLimitConfiguration;
 import com.ctre.phoenix.motorcontrol.SupplyCurrentLimitConfiguration;
@@ -47,10 +48,21 @@ public class FalconDriveMotor implements DriveMotor, Sendable {
         m_motor = new WPI_TalonFX(canId);
         m_motor.configFactoryDefault();
         m_motor.setNeutralMode(NeutralMode.Brake);
+
         m_motor.configStatorCurrentLimit(new StatorCurrentLimitConfiguration(true, currentLimit, currentLimit, 0));
         m_motor.configSupplyCurrentLimit(new SupplyCurrentLimitConfiguration(true, currentLimit, currentLimit, 0));
         m_motor.configVelocityMeasurementPeriod(SensorVelocityMeasPeriod.Period_10Ms);
         m_motor.configVelocityMeasurementWindow(8);
+
+        m_motor.configNominalOutputForward(0);
+        m_motor.configNominalOutputReverse(0);
+        m_motor.configPeakOutputForward(1);
+        m_motor.configPeakOutputReverse(-1);
+        m_motor.config_kF(0, 0.05);
+        m_motor.config_kP(0, 0.05);
+        m_motor.config_kI(0, 0);
+        m_motor.config_kD(0, 0);
+
         SmartDashboard.putData(String.format("Falcon Drive Motor %s", name), this);
     }
 
@@ -67,6 +79,10 @@ public class FalconDriveMotor implements DriveMotor, Sendable {
     @Override
     public void set(double output) {
         m_motor.setVoltage(10 * MathUtil.clamp(output, -1.3, 1.3));
+    }
+
+    public void setPID(ControlMode control, double output) {
+        m_motor.set(control, output * 110 / 6.6);
     }
 
     @Override

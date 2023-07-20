@@ -1,5 +1,7 @@
 package org.team100.lib.motor.turning;
 
+import com.ctre.phoenix.motorcontrol.ControlMode;
+
 import edu.wpi.first.util.sendable.Sendable;
 import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.motorcontrol.PWMMotorController;
@@ -24,11 +26,16 @@ public class PWMTurningMotor implements TurningMotor, Sendable {
         m_motor.set(output);
     }
 
+    // THIS DOES NOT ACTUALLY SET PID This is just here for the CAN turning motor
+    public void setPID(ControlMode control, double output) {
+        this.set(output);
+    }
+
     @Override
     public void initSendable(SendableBuilder builder) {
         builder.setSmartDashboardType("PWMTurningMotor");
         builder.addDoubleProperty("Device ID", () -> m_motor.getChannel(), null);
         builder.addDoubleProperty("Output", this::get, null);
     }
-    
+
 }

@@ -1,5 +1,6 @@
 package org.team100.lib.motor.turning;
 
+import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.InvertType;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.StatorCurrentLimitConfiguration;
@@ -33,6 +34,11 @@ public class FalconTurningMotor implements TurningMotor, Sendable {
     @Override
     public double get() {
         return m_motor.get();
+    }
+
+    //THIS DOES NOT ACTUALLY SET PID This is just here for the CAN turning motor
+    public void setPID(ControlMode control, double output) {
+        this.set(output);
     }
 
     @Override
