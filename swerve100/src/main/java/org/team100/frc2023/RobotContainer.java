@@ -207,7 +207,6 @@ public class RobotContainer implements Sendable {
 
         control.driveWithLQR(new DriveToWaypoint3(new Pose2d(5, 0, new Rotation2d()), m_robotDrive, m_kinematics));
 
-
         ///////////////////////////
         // MANIPULATOR COMMANDS
         // control.open(new Open(manipulator));
