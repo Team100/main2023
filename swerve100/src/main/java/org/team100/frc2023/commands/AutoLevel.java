@@ -2,10 +2,12 @@ package org.team100.frc2023.commands;
 
 import org.team100.lib.commands.DriveUtil;
 import org.team100.lib.motion.drivetrain.SwerveDriveSubsystem;
+import org.team100.lib.motion.drivetrain.SwerveState;
 import org.team100.lib.motion.drivetrain.kinematics.FrameTransform;
 import org.team100.lib.sensors.RedundantGyro;
 
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Twist2d;
 import edu.wpi.first.wpilibj2.command.CommandBase;
@@ -64,7 +66,10 @@ public class AutoLevel extends CommandBase {
                 Twist2d twistM_S = DriveUtil.scale(twist, m_config.kMaxSpeed, m_config.kMaxRot);
                 Twist2d fieldRelative = m_chassisSpeedFactory.toFieldRelativeSpeeds(
                         twistM_S.dx, twistM_S.dy, twistM_S.dtheta, rot);
-                m_robotDrive.driveInFieldCoords(fieldRelative);
+
+                Pose2d currentPose = m_robotDrive.getPose();
+                SwerveState manualState = SwerveDriveSubsystem.incremental(currentPose, fieldRelative);
+                m_robotDrive.setDesiredState(manualState);
             } else {
                 count++;
             }
@@ -77,13 +82,19 @@ public class AutoLevel extends CommandBase {
                     Twist2d twistM_S = DriveUtil.scale(twist, m_config.kMaxSpeed, m_config.kMaxRot);
                     Twist2d fieldRelative = m_chassisSpeedFactory.toFieldRelativeSpeeds(
                             twistM_S.dx, twistM_S.dy, twistM_S.dtheta, rot);
-                    m_robotDrive.driveInFieldCoords(fieldRelative);
+
+                    Pose2d currentPose = m_robotDrive.getPose();
+                    SwerveState manualState = SwerveDriveSubsystem.incremental(currentPose, fieldRelative);
+                    m_robotDrive.setDesiredState(manualState);
                 } else {
                     count++;
                 }
             } else {
                 Twist2d twistM_S = new Twist2d(m_config.kCruiseSpeed, 0, 0);
-                m_robotDrive.driveInFieldCoords(twistM_S);
+
+                Pose2d currentPose = m_robotDrive.getPose();
+                SwerveState manualState = SwerveDriveSubsystem.incremental(currentPose, twistM_S);
+                m_robotDrive.setDesiredState(manualState);
             }
         }
     }
@@ -91,5 +102,10 @@ public class AutoLevel extends CommandBase {
     @Override
     public boolean isFinished() {
         return count >= 20;
+    }
+
+    @Override
+    public void end(boolean interrupted) {
+        m_robotDrive.truncate();
     }
 }

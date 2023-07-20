@@ -47,7 +47,8 @@ public class SwerveLocal {
     };
     private SwerveSetpoint prevSetpoint = new SwerveSetpoint(c254, s254);
 
-    private com.team254.lib.swerve.ChassisSpeeds desiredChassisSpeeds2 = new com.team254.lib.swerve.ChassisSpeeds();
+    // TODO: what is this?
+    // private com.team254.lib.swerve.ChassisSpeeds desiredChassisSpeeds2 = new com.team254.lib.swerve.ChassisSpeeds();
 
     public SwerveLocal(
             SpeedLimits speedLimits,
@@ -131,7 +132,7 @@ public class SwerveLocal {
     ///////////////////////////////////////////////////////////
 
     private void setModuleStates(SwerveModuleState[] targetModuleStates) {
-        SwerveDriveKinematics.desaturateWheelSpeeds(targetModuleStates, m_speedLimits.kMaxSpeedMetersPerSecond);
+        SwerveDriveKinematics.desaturateWheelSpeeds(targetModuleStates, m_speedLimits.speedM_S);
         publishImpliedChassisSpeeds(targetModuleStates);
         m_modules.setDesiredStates(targetModuleStates);
     }

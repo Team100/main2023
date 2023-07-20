@@ -1,7 +1,9 @@
 package org.team100.frc2023.autonomous;
 
 import org.team100.lib.motion.drivetrain.SwerveDriveSubsystem;
+import org.team100.lib.motion.drivetrain.SwerveState;
 
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Twist2d;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 
@@ -13,7 +15,7 @@ public class DriveToThreshold extends CommandBase {
 
     private final Config m_config = new Config();
     private final SwerveDriveSubsystem m_robotDrive;
-    
+
     private boolean done;
 
     /** Drive back to the edge of the charge station. */
@@ -30,7 +32,11 @@ public class DriveToThreshold extends CommandBase {
     @Override
     public void execute() {
         if (m_robotDrive.getPose().getX() > m_config.kEdgeOfRampMeters) {
-            m_robotDrive.driveInFieldCoords(new Twist2d(m_config.kXSpeedM_S, 0, 0));
+            Twist2d fieldRelative = new Twist2d(m_config.kXSpeedM_S, 0, 0);
+
+            Pose2d currentPose = m_robotDrive.getPose();
+            SwerveState manualState = SwerveDriveSubsystem.incremental(currentPose, fieldRelative);
+            m_robotDrive.setDesiredState(manualState);
         } else {
             done = true;
         }
@@ -43,7 +49,6 @@ public class DriveToThreshold extends CommandBase {
 
     @Override
     public void end(boolean interrupted) {
-        m_robotDrive.stop();
+        m_robotDrive.truncate();
     }
-
 }

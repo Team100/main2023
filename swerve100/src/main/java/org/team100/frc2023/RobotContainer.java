@@ -79,6 +79,8 @@ public class RobotContainer implements Sendable {
         //////////////////////////////////////
 
         public double kDriveCurrentLimit = SHOW_MODE ? 20 : 60;
+
+        public boolean useSetpointGenerator = true;
     }
 
     private final Config m_config = new Config();
@@ -196,11 +198,13 @@ public class RobotContainer implements Sendable {
         control.defense(new Defense(m_robotDrive));
         control.resetRotation0(new ResetRotation(m_robotDrive, new Rotation2d(0)));
         control.resetRotation180(new ResetRotation(m_robotDrive, Rotation2d.fromDegrees(180)));
-        control.driveSlow(new DriveScaled(control::twist, m_robotDrive, 0.4, 0.5));
-        control.driveMedium(new DriveScaled(control::twist, m_robotDrive, 2.0, 0.5));
+        SpeedLimits slow = new SpeedLimits(0.4, 1.0, 0.5, 1.0);
+        control.driveSlow(new DriveScaled(control::twist, m_robotDrive, slow));
+        SpeedLimits medium = new SpeedLimits(2.0, 2.0, 0.5, 1.0);
+        control.driveMedium(new DriveScaled(control::twist, m_robotDrive, medium));
         control.resetPose(new ResetPose(m_robotDrive, 0, 0, 0));
         control.tapeDetect(new DriveToRetroReflectiveTape(m_robotDrive, m_frameTransform));
-        control.rotate0(new Rotate(m_robotDrive, speedLimits, controllers.rotateController, new Timer(), 0));
+        control.rotate0(new Rotate(m_robotDrive, m_heading, speedLimits, new Timer(), 0));
 
         control.moveConeWidthLeft(new MoveConeWidth(m_robotDrive, 1));
         control.moveConeWidthRight(new MoveConeWidth(m_robotDrive, -1));
@@ -243,15 +247,24 @@ public class RobotContainer implements Sendable {
                     new DriveScaled(
                             control::twist,
                             m_robotDrive,
-                            speedLimits.kMaxSpeedMetersPerSecond,
-                            speedLimits.kMaxAngularSpeedRadiansPerSecond));
+                            speedLimits));
         } else {
+            if (m_config.useSetpointGenerator) {
             m_robotDrive.setDefaultCommand(
                     new DriveWithSetpointGenerator(
                             control::twist,
                             m_robotDrive,
-                            speedLimits.kMaxSpeedMetersPerSecond,
-                            speedLimits.kMaxAngularSpeedRadiansPerSecond));
+                            speedLimits));
+            } else {
+                m_robotDrive.setDefaultCommand(
+                    new DriveWithHeading(
+                            control::twist,
+                            m_robotDrive,
+                            m_heading,
+                            speedLimits,
+                            new Timer(),
+                            control::desiredRotation));
+            }
         }
 
         /////////////////////////

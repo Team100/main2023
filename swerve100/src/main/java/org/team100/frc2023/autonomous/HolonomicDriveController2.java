@@ -21,6 +21,7 @@ public class HolonomicDriveController2 {
 
     private final PIDController m_xController;
     private final PIDController m_yController;
+    // TODO: not profiled; caller has a profile.
     private final ProfiledPIDController m_thetaController;
 
     private boolean m_firstRun = true;
@@ -66,9 +67,9 @@ public class HolonomicDriveController2 {
             m_firstRun = false;
         }
 
-        double xFF = desiredState.x().v();
-        double yFF = desiredState.y().v();
-        double thetaFF = desiredState.theta().v();
+        double xFF = desiredState.x().v(); // m/s
+        double yFF = desiredState.y().v(); // m/s
+        double thetaFF = desiredState.theta().v(); // rad/s
 
         xFFPublisher.set(xFF);
         yFFPublisher.set(yFF);
