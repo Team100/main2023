@@ -2,6 +2,7 @@ package org.team100.frc2023;
 
 import java.io.IOException;
 
+import org.team100.frc2023.commands.DriveWithSetpointGenerator;
 import org.team100.lib.config.Identity;
 
 import edu.wpi.first.networktables.NetworkTableInstance;
@@ -17,7 +18,7 @@ import edu.wpi.first.wpilibj2.command.CommandScheduler;
 
 public class Robot extends TimedRobot {
     private Command m_autonomousCommand;
-
+    
     private final DigitalInput auto1 = new DigitalInput(0);
     private final DigitalInput auto2 = new DigitalInput(1);
     private final DigitalInput auto4 = new DigitalInput(2);
@@ -146,6 +147,7 @@ public class Robot extends TimedRobot {
 
     @Override
     public void teleopPeriodic() {
+
     }
 
     @Override

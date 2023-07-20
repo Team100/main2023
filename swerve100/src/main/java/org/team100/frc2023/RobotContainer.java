@@ -11,6 +11,7 @@ import org.team100.frc2023.autonomous.Rotate;
 import org.team100.frc2023.commands.Defense;
 import org.team100.frc2023.commands.DriveScaled;
 import org.team100.frc2023.commands.DriveWithHeading;
+import org.team100.frc2023.commands.DriveWithSetpointGenerator;
 import org.team100.frc2023.commands.RumbleOn;
 import org.team100.frc2023.commands.Arm.ArmTrajectory;
 import org.team100.frc2023.commands.Arm.ManualArm;
@@ -120,7 +121,7 @@ public class RobotContainer implements Sendable {
 
         SwerveModuleCollection modules = SwerveModuleCollectionFactory.get(identity, m_config.kDriveCurrentLimit);
         SwerveDrivePoseEstimator poseEstimator = new SwerveDrivePoseEstimator(
-            m_kinematics,
+                m_kinematics,
                 m_heading.getHeading(),
                 modules.positions(),
                 new Pose2d(),
@@ -138,7 +139,6 @@ public class RobotContainer implements Sendable {
                 poseEstimator,
                 poseEstimator::getEstimatedPosition);
         visionDataProvider.updateTimestamp(); // this is just to keep lint from complaining
-
 
         m_robotDrive = new SwerveDriveSubsystem(
                 m_heading,
@@ -186,7 +186,8 @@ public class RobotContainer implements Sendable {
         control.moveConeWidthLeft(new MoveConeWidth(m_robotDrive, 1));
         control.moveConeWidthRight(new MoveConeWidth(m_robotDrive, -1));
 
-        control.driveWithLQR(new DriveToWaypoint3(new Pose2d(5, 0, new Rotation2d()), m_robotDrive, m_kinematics, ahrsclass));
+        control.driveWithLQR(
+                new DriveToWaypoint3(new Pose2d(5, 0, new Rotation2d()), m_robotDrive, m_kinematics, ahrsclass));
 
         ///////////////////////////
         // MANIPULATOR COMMANDS
@@ -228,14 +229,11 @@ public class RobotContainer implements Sendable {
                             speedLimits.kMaxAngularSpeedRadiansPerSecond));
         } else {
             m_robotDrive.setDefaultCommand(
-                    new DriveWithHeading(
+                    new DriveWithSetpointGenerator(
                             control::twist,
                             m_robotDrive,
-                            controllers,
                             speedLimits.kMaxSpeedMetersPerSecond,
-                            speedLimits.kMaxAngularSpeedRadiansPerSecond,
-                            control::desiredRotation,
-                            ahrsclass));
+                            speedLimits.kMaxAngularSpeedRadiansPerSecond));
         }
 
         /////////////////////////

@@ -4,11 +4,16 @@ import java.io.FileWriter;
 import java.io.IOException;
 
 import org.team100.lib.config.Identity;
+import org.team100.lib.kinematics.SwerveKinematics;
 import org.team100.lib.sensors.RedundantGyro;
+
+import com.team254.lib.swerve.SwerveSetpoint;
+import com.team254.lib.swerve.SwerveSetpointGenerator;
 
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Twist2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
@@ -28,6 +33,24 @@ public class SwerveDriveSubsystem extends SubsystemBase implements SwerveDriveSu
     private final Heading m_heading;
     private final SpeedLimits m_speedLimits;
     private final SwerveDriveKinematics m_DriveKinematics = SwerveDriveKinematicsFactory.get(Identity.get());
+    private final double kWheelBase = .765;
+    private final double kTrackWidth = .491;
+    private final SwerveKinematics m_DriveKinematics2 = new SwerveKinematics(
+            new Translation2d(kWheelBase / 2, kTrackWidth / 2),
+            new Translation2d(kWheelBase / 2, -kTrackWidth / 2),
+            new Translation2d(-kWheelBase / 2, kTrackWidth / 2),
+            new Translation2d(-kWheelBase / 2, -kTrackWidth / 2));
+    private final SwerveSetpointGenerator m_SwerveSetpointGenerator = new SwerveSetpointGenerator(
+            m_DriveKinematics2.as254());
+    private SwerveSetpointGenerator.KinematicLimits limits = new SwerveSetpointGenerator.KinematicLimits();
+    com.team254.lib.swerve.ChassisSpeeds c254 = new com.team254.lib.swerve.ChassisSpeeds();
+    com.team254.lib.swerve.SwerveModuleState[] s254 = new com.team254.lib.swerve.SwerveModuleState[] {
+            new com.team254.lib.swerve.SwerveModuleState(0, 0, com.team254.lib.geometry.Rotation2d.kIdentity),
+            new com.team254.lib.swerve.SwerveModuleState(0, 0, com.team254.lib.geometry.Rotation2d.kIdentity),
+            new com.team254.lib.swerve.SwerveModuleState(0, 0, com.team254.lib.geometry.Rotation2d.kIdentity),
+            new com.team254.lib.swerve.SwerveModuleState(0, 0, com.team254.lib.geometry.Rotation2d.kIdentity)
+    };
+    private SwerveSetpoint prevSetpoint = new SwerveSetpoint(c254, s254);
     private final SwerveModuleCollection m_modules;
     private final SwerveDrivePoseEstimator m_poseEstimator;
     private final RedundantGyro m_gyro;
@@ -39,7 +62,8 @@ public class SwerveDriveSubsystem extends SubsystemBase implements SwerveDriveSu
     private final DoubleArrayPublisher robotPosePub;
     private final StringPublisher fieldTypePub;
     private ChassisSpeeds desiredChassisSpeeds = new ChassisSpeeds();
-    private ChassisSpeeds actualChassisSpeeds= new ChassisSpeeds();
+    private com.team254.lib.swerve.ChassisSpeeds desiredChassisSpeeds2 = new com.team254.lib.swerve.ChassisSpeeds();
+    private ChassisSpeeds actualChassisSpeeds = new ChassisSpeeds();
 
     // TODO: this looks broken
     public double keyList = -1;
@@ -59,6 +83,9 @@ public class SwerveDriveSubsystem extends SubsystemBase implements SwerveDriveSu
         m_poseEstimator = poseEstimator;
         m_gyro = gyro;
         m_field = field;
+        limits.kMaxDriveVelocity = 5;
+        limits.kMaxDriveAcceleration = 3;
+        limits.kMaxSteeringVelocity = 5;
 
         m_veering = new VeeringCorrection(m_gyro);
 
@@ -139,6 +166,28 @@ public class SwerveDriveSubsystem extends SubsystemBase implements SwerveDriveSu
         ChassisSpeeds targetChassisSpeeds = fieldRelative ? desiredChassisSpeeds
                 : new ChassisSpeeds(twist.dx, twist.dy, twist.dtheta);
         SwerveModuleState[] swerveModuleStates = m_DriveKinematics.toSwerveModuleStates(targetChassisSpeeds);
+        setModuleStates(swerveModuleStates);
+    }
+
+    public void driveMetersPerSec2(Twist2d twist, boolean fieldRelative) {
+        Rotation2d rotation2 = m_veering.correct(getPose().getRotation());
+        com.team254.lib.geometry.Rotation2d rotation254 = new com.team254.lib.geometry.Rotation2d(rotation2.getRadians(), true);
+        desiredChassisSpeeds2 = com.team254.lib.swerve.ChassisSpeeds.fromFieldRelativeSpeeds(twist.dx, twist.dy, twist.dtheta, rotation254);
+        com.team254.lib.swerve.ChassisSpeeds targetChassisSpeeds = fieldRelative ? desiredChassisSpeeds2
+                : new com.team254.lib.swerve.ChassisSpeeds(twist.dx, twist.dy, twist.dtheta);
+        SwerveSetpoint setpoint = m_SwerveSetpointGenerator.generateSetpoint(limits, prevSetpoint, targetChassisSpeeds, .05);
+        System.out.println(setpoint);
+        prevSetpoint = setpoint;
+        com.team254.lib.swerve.SwerveModuleState[] swerveModuleStates254 = m_DriveKinematics2.as254().toSwerveModuleStates(setpoint.mChassisSpeeds);
+        Rotation2d thetafl = new Rotation2d(swerveModuleStates254[0].angle.getRadians());
+        Rotation2d thetafr = new Rotation2d(swerveModuleStates254[1].angle.getRadians());
+        Rotation2d thetabl = new Rotation2d(swerveModuleStates254[2].angle.getRadians());
+        Rotation2d thetabr = new Rotation2d(swerveModuleStates254[3].angle.getRadians());
+        SwerveModuleState fl = new SwerveModuleState(swerveModuleStates254[0].speedMetersPerSecond, thetafl);
+        SwerveModuleState fr = new SwerveModuleState(swerveModuleStates254[1].speedMetersPerSecond, thetafr);
+        SwerveModuleState bl = new SwerveModuleState(swerveModuleStates254[2].speedMetersPerSecond, thetabl);
+        SwerveModuleState br = new SwerveModuleState(swerveModuleStates254[3].speedMetersPerSecond, thetabr);
+        SwerveModuleState[] swerveModuleStates = new SwerveModuleState[]{fl, fr, bl, br};
         setModuleStates(swerveModuleStates);
     }
 
