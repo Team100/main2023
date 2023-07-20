@@ -3,6 +3,7 @@ package org.team100.frc2023.commands;
 import java.util.function.Supplier;
 
 import org.team100.lib.motion.drivetrain.SwerveDriveSubsystem;
+import org.team100.lib.motion.drivetrain.SwerveState;
 
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.trajectory.Trajectory;
@@ -33,7 +34,10 @@ public class SwerveControllerCommand {
     public void execute() {
         State desiredState = m_trajectory.sample(m_timer.get());
         Rotation2d desiredHeading = m_desiredRotation.get();
-        m_robotDrive.setDesiredState(desiredState, desiredHeading);
+
+        SwerveState desiredSwerveState = SwerveState.fromState(desiredState,desiredHeading);
+
+        m_robotDrive.setDesiredState(desiredSwerveState);
     }
 
     public void end(boolean interrupted) {

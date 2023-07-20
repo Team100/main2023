@@ -4,14 +4,13 @@ import java.io.FileWriter;
 
 import org.team100.frc2023.autonomous.HolonomicDriveController2;
 import org.team100.lib.controller.PidGains;
+import org.team100.lib.controller.State100;
 import org.team100.lib.motion.drivetrain.kinematics.FrameTransform;
 
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Twist2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
-import edu.wpi.first.math.trajectory.Trajectory.State;
 import edu.wpi.first.networktables.DoubleArrayPublisher;
 import edu.wpi.first.networktables.DoublePublisher;
 import edu.wpi.first.networktables.NetworkTable;
@@ -31,8 +30,7 @@ public class SwerveDriveSubsystem extends SubsystemBase implements SwerveDriveSu
     // TODO: this looks broken
     public double keyList = -1;
 
-    private State m_desiredState;
-    private Rotation2d m_desiredHeading;
+    private SwerveState m_desiredState;
 
     public SwerveDriveSubsystem(
             Heading heading,
@@ -54,11 +52,10 @@ public class SwerveDriveSubsystem extends SubsystemBase implements SwerveDriveSu
     public void truncate() {
         stop();
         Pose2d currentPose = getPose();
-        if (m_desiredState == null)
-            m_desiredState = new State();
-        m_desiredState.poseMeters = currentPose;
-        m_desiredState.velocityMetersPerSecond = 0;
-        m_desiredHeading = currentPose.getRotation();
+        m_desiredState = new SwerveState(
+                new State100(currentPose.getX(), 0, 0),
+                new State100(currentPose.getY(), 0, 0),
+                new State100(currentPose.getRotation().getRadians(), 0, 0));
     }
 
     public void updateOdometry() {
@@ -91,26 +88,18 @@ public class SwerveDriveSubsystem extends SubsystemBase implements SwerveDriveSu
     }
 
     private void driveToReference() {
+        // TODO: pose should be a full state, with velocity and acceleration.
         Pose2d currentPose = getPose();
-        Twist2d fieldRelativeTarget = m_controller.calculate(
-                currentPose,
-                m_desiredState,
-                m_desiredHeading);
+
+        Twist2d fieldRelativeTarget = m_controller.calculate(currentPose, m_desiredState);
         driveInFieldCoords(fieldRelativeTarget);
     }
 
     /**
      * Give the controller a new reference state.
-     * 
-     * TODO: add omega here
-     * TODO: include dx and dy here
-     * TODO: use a different type, not State.
      */
-    public void setDesiredState(
-        State desiredState,
-     Rotation2d desiredHeading) {
+    public void setDesiredState(SwerveState desiredState) {
         m_desiredState = desiredState;
-        m_desiredHeading = desiredHeading;
     }
 
     public void setGains(PidGains cartesian, PidGains rotation) {

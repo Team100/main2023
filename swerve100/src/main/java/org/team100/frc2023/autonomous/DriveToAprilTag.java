@@ -7,6 +7,7 @@ import org.team100.frc2023.commands.GoalOffset;
 import org.team100.lib.controller.PidGains;
 import org.team100.lib.localization.AprilTagFieldLayoutWithCorrectOrientation;
 import org.team100.lib.motion.drivetrain.SwerveDriveSubsystem;
+import org.team100.lib.motion.drivetrain.SwerveState;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -101,11 +102,13 @@ public class DriveToAprilTag extends CommandBase {
         State desiredState = m_trajectory.sample(m_timer.get());
         Rotation2d desiredRot = m_goal.getRotation();
 
-        desiredXPublisher.set(desiredState.poseMeters.getX());
-        desiredYPublisher.set(desiredState.poseMeters.getY());
-        desiredRotPublisher.set(desiredRot.getRadians());
+        SwerveState desiredSwerveState = SwerveState.fromState(desiredState, desiredRot);
 
-        m_swerve.setDesiredState(desiredState, desiredRot);
+        desiredXPublisher.set(desiredSwerveState.x().x());
+        desiredYPublisher.set(desiredSwerveState.y().x());
+        desiredRotPublisher.set(desiredSwerveState.theta().x());
+
+        m_swerve.setDesiredState(desiredSwerveState);
     }
 
     ///////////////////////////////////////////////////////////////
