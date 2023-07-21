@@ -6,7 +6,6 @@ import java.io.IOException;
 import org.team100.frc2023.autonomous.Autonomous;
 import org.team100.frc2023.autonomous.DriveToAprilTag;
 import org.team100.frc2023.autonomous.DriveToWaypoint3;
-import org.team100.frc2023.autonomous.HolonomicDriveController2;
 import org.team100.frc2023.autonomous.MoveConeWidth;
 import org.team100.frc2023.autonomous.Rotate;
 import org.team100.frc2023.commands.Defense;
@@ -30,9 +29,13 @@ import org.team100.frc2023.subsystems.arm.ArmSubsystem;
 import org.team100.lib.commands.ResetPose;
 import org.team100.lib.commands.ResetRotation;
 import org.team100.lib.commands.retro.LedOn;
+import org.team100.lib.config.AllianceSelector;
+import org.team100.lib.config.AutonSelector;
 import org.team100.lib.config.Identity;
 import org.team100.lib.controller.DriveControllers;
 import org.team100.lib.controller.DriveControllersFactory;
+import org.team100.lib.controller.HolonomicDriveController2;
+import org.team100.lib.experiments.Experiments;
 import org.team100.lib.indicator.LEDIndicator;
 import org.team100.lib.indicator.LEDIndicator.State;
 import org.team100.lib.localization.AprilTagFieldLayoutWithCorrectOrientation;
@@ -57,7 +60,6 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.util.sendable.Sendable;
 import edu.wpi.first.util.sendable.SendableBuilder;
-import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.XboxController;
@@ -85,13 +87,9 @@ public class RobotContainer implements Sendable {
     }
 
     private final Config m_config = new Config();
-    private final DigitalInput auto1;
-    private final DigitalInput auto2;
-    private final DigitalInput auto4;
-    private final DigitalInput auto8;
-    private final DigitalInput alliance1;
-    private final DigitalInput alliance2;
-    private final int m_routine;
+
+    private final AutonSelector m_autonSelector;
+    private final AllianceSelector m_allianceSelector;
 
     // CONFIG
     private final DriverStation.Alliance m_alliance;
@@ -121,21 +119,9 @@ public class RobotContainer implements Sendable {
 
     public RobotContainer() throws IOException {
 
-        auto1 = new DigitalInput(0);
-        auto2 = new DigitalInput(1);
-        auto4 = new DigitalInput(2);
-        auto8 = new DigitalInput(3);
-
-        m_routine = getAutoSwitchValue();
-
-        alliance1 = new DigitalInput(4);
-        alliance2 = new DigitalInput(5);
-
-        if (getAlliance() == true) {
-            m_alliance = DriverStation.Alliance.Blue;
-        } else {
-            m_alliance = DriverStation.Alliance.Red;
-        }
+        m_autonSelector = new AutonSelector();
+        m_allianceSelector = new AllianceSelector();
+        m_alliance = m_allianceSelector.alliance();
 
         m_indicator = new LEDIndicator(8);
         ahrsclass = new RedundantGyro();
@@ -171,7 +157,8 @@ public class RobotContainer implements Sendable {
                 poseEstimator::getEstimatedPosition);
         visionDataProvider.updateTimestamp(); // this is just to keep lint from complaining
 
-        SwerveLocal swerveLocal = new SwerveLocal(speedLimits, m_kinematics, m_modules);
+        Experiments experiments = new Experiments(identity);
+        SwerveLocal swerveLocal = new SwerveLocal(experiments, speedLimits, m_kinematics, m_modules);
 
         DriveControllers controllers = new DriveControllersFactory().get(identity, speedLimits);
         HolonomicDriveController2 controller = new HolonomicDriveController2(controllers);
@@ -258,7 +245,7 @@ public class RobotContainer implements Sendable {
                 manipulator,
                 ahrsclass,
                 m_indicator,
-                m_routine);
+                m_autonSelector.routine());
 
         ///////////////////////////
         // DRIVE
@@ -308,33 +295,7 @@ public class RobotContainer implements Sendable {
         m_auton.cancel();
     }
 
-    public int getAutoSwitchValue() {
-        int val = 0;
-        if (auto8.get())
-            val += 8;
-        if (auto4.get())
-            val += 4;
-        if (auto2.get())
-            val += 2;
-        if (auto1.get())
-            val += 1;
-        return 15 - val;
-    }
 
-    // TODO: use RED and BLUE here
-    // TODO: important, make this complain if neither bit is set
-    private boolean getAlliance() {
-        int val = 0;
-        if (alliance2.get())
-            val += 2;
-        if (alliance1.get())
-            val += 1;
-        // 0 is redAlliance
-        if (val == 3) {
-            return false;
-        }
-        return true;
-    }
 
     public void runTest() {
         XboxController controller0 = new XboxController(0);
@@ -375,7 +336,7 @@ public class RobotContainer implements Sendable {
     }
 
     public double getRoutine() {
-        return m_routine;
+        return m_autonSelector.routine();
     }
 
     public void ledStart() {
@@ -421,12 +382,8 @@ public class RobotContainer implements Sendable {
 
     // this keeps the tests from conflicting via the use of simulated HAL ports.
     public void close() {
-        auto1.close();
-        auto2.close();
-        auto4.close();
-        auto8.close();
-        alliance1.close();
-        alliance2.close();
+        m_autonSelector.close();
+        m_allianceSelector.close();
         m_indicator.close();
         m_modules.close();
         m_arm.close();
