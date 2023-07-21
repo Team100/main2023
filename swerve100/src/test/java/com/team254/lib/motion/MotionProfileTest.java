@@ -12,6 +12,7 @@ import java.util.Optional;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+
 public class MotionProfileTest {
     List<MotionSegment> segments;
     List<MotionSegment> segments_reversed;
@@ -81,7 +82,8 @@ public class MotionProfileTest {
     public void appendControl() {
         MotionProfile a = new MotionProfile(segments);
 
-        // 3 second trapezoid traveling a displacement of 2 units. Peak velocity of 1.0 units/s.
+        // 3 second trapezoid traveling a displacement of 2 units. Peak velocity of 1.0
+        // units/s.
         a.appendControl(1.0, 1.0);
         a.appendControl(0.0, 1.0);
         a.appendControl(-1.0, 1.0);
@@ -99,7 +101,8 @@ public class MotionProfileTest {
     public void appendSegment() {
         MotionProfile a = new MotionProfile(segments);
 
-        // 3 second trapezoid traveling a displacement of 2 units. Peak velocity of 1.0 units/s.
+        // 3 second trapezoid traveling a displacement of 2 units. Peak velocity of 1.0
+        // units/s.
         a.appendSegment(new MotionSegment(new MotionState(3.0, 2.0, 0.0, 1.0), new MotionState(4.0, 2.5, 1.0, 1.0)));
         a.appendSegment(new MotionSegment(new MotionState(4.0, 2.5, 1.0, 0.0), new MotionState(5.0, 3.5, 1.0, 0.0)));
         a.appendSegment(new MotionSegment(new MotionState(5.0, 3.5, 1.0, -1.0), new MotionState(6.0, 4.0, 0.0, -1.0)));

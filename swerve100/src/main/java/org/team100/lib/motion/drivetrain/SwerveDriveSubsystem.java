@@ -67,6 +67,11 @@ public class SwerveDriveSubsystem extends Subsystem implements SwerveDriveSubsys
         m_field.setRobotPose(getPose());
     }
 
+    /** The speed implied by the module states. */
+    public ChassisSpeeds speeds() {
+        return m_swerveLocal.speeds();
+    }
+
     /**
      * Give the controller a new reference state.
      */

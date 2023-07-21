@@ -18,7 +18,6 @@ import com.team254.lib.swerve.SwerveSetpoint;
 import com.team254.lib.swerve.SwerveSetpointGenerator;
 import edu.wpi.first.math.geometry.Translation2d;
 
-
 /**
  * The swerve drive in local, or robot, reference frame. This class knows
  * nothing about the outside world, it just accepts chassis speeds.
@@ -48,7 +47,8 @@ public class SwerveLocal {
     private SwerveSetpoint prevSetpoint = new SwerveSetpoint(c254, s254);
 
     // TODO: what is this?
-    // private com.team254.lib.swerve.ChassisSpeeds desiredChassisSpeeds2 = new com.team254.lib.swerve.ChassisSpeeds();
+    // private com.team254.lib.swerve.ChassisSpeeds desiredChassisSpeeds2 = new
+    // com.team254.lib.swerve.ChassisSpeeds();
 
     public SwerveLocal(
             SpeedLimits speedLimits,
@@ -76,21 +76,29 @@ public class SwerveLocal {
     }
 
     public void setChassisSpeeds2(ChassisSpeeds targetChassisSpeeds2) {
-    // public void driveMetersPerSec2(Twist2d twist, boolean fieldRelative) {
+        // public void driveMetersPerSec2(Twist2d twist, boolean fieldRelative) {
         // this is handled by the caller.
         // Rotation2d rotation2 = m_veering.correct(getPose().getRotation());
 
-        // com.team254.lib.geometry.Rotation2d rotation254 = new com.team254.lib.geometry.Rotation2d(rotation2.getRadians(), true);
-        // desiredChassisSpeeds2 = com.team254.lib.swerve.ChassisSpeeds.fromFieldRelativeSpeeds(twist.dx, twist.dy, twist.dtheta, rotation254);
-        // com.team254.lib.swerve.ChassisSpeeds targetChassisSpeeds = fieldRelative ? desiredChassisSpeeds2
-                // : new com.team254.lib.swerve.ChassisSpeeds(twist.dx, twist.dy, twist.dtheta);
-    
-        com.team254.lib.swerve.ChassisSpeeds targetChassisSpeeds = new com.team254.lib.swerve.ChassisSpeeds(targetChassisSpeeds2.vxMetersPerSecond, targetChassisSpeeds2.vyMetersPerSecond, targetChassisSpeeds2.omegaRadiansPerSecond);
+        // com.team254.lib.geometry.Rotation2d rotation254 = new
+        // com.team254.lib.geometry.Rotation2d(rotation2.getRadians(), true);
+        // desiredChassisSpeeds2 =
+        // com.team254.lib.swerve.ChassisSpeeds.fromFieldRelativeSpeeds(twist.dx,
+        // twist.dy, twist.dtheta, rotation254);
+        // com.team254.lib.swerve.ChassisSpeeds targetChassisSpeeds = fieldRelative ?
+        // desiredChassisSpeeds2
+        // : new com.team254.lib.swerve.ChassisSpeeds(twist.dx, twist.dy, twist.dtheta);
 
-        SwerveSetpoint setpoint = m_SwerveSetpointGenerator.generateSetpoint(limits, prevSetpoint, targetChassisSpeeds, .05);
+        com.team254.lib.swerve.ChassisSpeeds targetChassisSpeeds = new com.team254.lib.swerve.ChassisSpeeds(
+                targetChassisSpeeds2.vxMetersPerSecond, targetChassisSpeeds2.vyMetersPerSecond,
+                targetChassisSpeeds2.omegaRadiansPerSecond);
+
+        SwerveSetpoint setpoint = m_SwerveSetpointGenerator.generateSetpoint(limits, prevSetpoint, targetChassisSpeeds,
+                .05);
         System.out.println(setpoint);
         prevSetpoint = setpoint;
-        com.team254.lib.swerve.SwerveModuleState[] swerveModuleStates254 = m_DriveKinematics2.as254().toSwerveModuleStates(setpoint.mChassisSpeeds);
+        com.team254.lib.swerve.SwerveModuleState[] swerveModuleStates254 = m_DriveKinematics2.as254()
+                .toSwerveModuleStates(setpoint.mChassisSpeeds);
         Rotation2d thetafl = new Rotation2d(swerveModuleStates254[0].angle.getRadians());
         Rotation2d thetafr = new Rotation2d(swerveModuleStates254[1].angle.getRadians());
         Rotation2d thetabl = new Rotation2d(swerveModuleStates254[2].angle.getRadians());
@@ -99,10 +107,9 @@ public class SwerveLocal {
         SwerveModuleState fr = new SwerveModuleState(swerveModuleStates254[1].speedMetersPerSecond, thetafr);
         SwerveModuleState bl = new SwerveModuleState(swerveModuleStates254[2].speedMetersPerSecond, thetabl);
         SwerveModuleState br = new SwerveModuleState(swerveModuleStates254[3].speedMetersPerSecond, thetabr);
-        SwerveModuleState[] swerveModuleStates = new SwerveModuleState[]{fl, fr, bl, br};
+        SwerveModuleState[] swerveModuleStates = new SwerveModuleState[] { fl, fr, bl, br };
         setModuleStates(swerveModuleStates);
     }
-
 
     /**
      * Sets the wheels to make an "X" pattern.
@@ -115,6 +122,16 @@ public class SwerveLocal {
         states[2] = new SwerveModuleState(0, new Rotation2d(3 * Math.PI / 4));
         states[3] = new SwerveModuleState(0, new Rotation2d(5 * Math.PI / 4));
         setModuleStates(states);
+    }
+
+    public SwerveModuleState[] states() {
+        return m_modules.states();
+    }
+
+    /** The speed implied by the module states. */
+    public ChassisSpeeds speeds() {
+        SwerveModuleState[] states = states();
+        return impliedSpeed(states);
     }
 
     public SwerveModulePosition[] positions() {
@@ -142,15 +159,21 @@ public class SwerveLocal {
      * the desired speed might be caused by, for example, desaturation.
      */
     private void publishImpliedChassisSpeeds(SwerveModuleState[] actualModuleState) {
+        ChassisSpeeds actualChassisSpeeds = impliedSpeed(actualModuleState);
+        speedXPublisher.set(actualChassisSpeeds.vxMetersPerSecond);
+        speedYPublisher.set(actualChassisSpeeds.vyMetersPerSecond);
+        speedRotPublisher.set(actualChassisSpeeds.omegaRadiansPerSecond);
+        movingPublisher.set(isMoving(actualChassisSpeeds));
+    }
+
+    /** The speed implied by the module states. */
+    private ChassisSpeeds impliedSpeed(SwerveModuleState[] actualModuleState) {
         ChassisSpeeds actualChassisSpeeds = m_DriveKinematics.toChassisSpeeds(
                 actualModuleState[0],
                 actualModuleState[1],
                 actualModuleState[2],
                 actualModuleState[3]);
-        speedXPublisher.set(actualChassisSpeeds.vxMetersPerSecond);
-        speedYPublisher.set(actualChassisSpeeds.vyMetersPerSecond);
-        speedRotPublisher.set(actualChassisSpeeds.omegaRadiansPerSecond);
-        movingPublisher.set(isMoving(actualChassisSpeeds));
+        return actualChassisSpeeds;
     }
 
     private static boolean isMoving(ChassisSpeeds speeds) {
