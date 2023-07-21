@@ -33,6 +33,7 @@ import org.team100.lib.commands.retro.LedOn;
 import org.team100.lib.config.Identity;
 import org.team100.lib.controller.DriveControllers;
 import org.team100.lib.controller.DriveControllersFactory;
+import org.team100.lib.experiments.Experiments;
 import org.team100.lib.indicator.LEDIndicator;
 import org.team100.lib.indicator.LEDIndicator.State;
 import org.team100.lib.localization.AprilTagFieldLayoutWithCorrectOrientation;
@@ -121,13 +122,14 @@ public class RobotContainer implements Sendable {
 
     public RobotContainer() throws IOException {
 
+        // TODO: make a class for these
         auto1 = new DigitalInput(0);
         auto2 = new DigitalInput(1);
         auto4 = new DigitalInput(2);
         auto8 = new DigitalInput(3);
-
         m_routine = getAutoSwitchValue();
 
+        // TODO: make a class for these
         alliance1 = new DigitalInput(4);
         alliance2 = new DigitalInput(5);
 
@@ -171,7 +173,8 @@ public class RobotContainer implements Sendable {
                 poseEstimator::getEstimatedPosition);
         visionDataProvider.updateTimestamp(); // this is just to keep lint from complaining
 
-        SwerveLocal swerveLocal = new SwerveLocal(speedLimits, m_kinematics, m_modules);
+        Experiments experiments = new Experiments(identity);
+        SwerveLocal swerveLocal = new SwerveLocal(experiments, speedLimits, m_kinematics, m_modules);
 
         DriveControllers controllers = new DriveControllersFactory().get(identity, speedLimits);
         HolonomicDriveController2 controller = new HolonomicDriveController2(controllers);

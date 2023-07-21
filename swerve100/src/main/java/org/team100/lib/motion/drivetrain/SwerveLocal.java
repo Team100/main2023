@@ -2,6 +2,8 @@ package org.team100.lib.motion.drivetrain;
 
 import java.io.FileWriter;
 
+import org.team100.lib.experiments.Experiment;
+import org.team100.lib.experiments.Experiments;
 import org.team100.lib.motion.drivetrain.kinematics.SwerveKinematics;
 
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -23,6 +25,7 @@ import edu.wpi.first.math.geometry.Translation2d;
  * nothing about the outside world, it just accepts chassis speeds.
  */
 public class SwerveLocal {
+    private final Experiments m_experiments;
     private final SpeedLimits m_speedLimits;
     private final SwerveDriveKinematics m_DriveKinematics;
     private final SwerveModuleCollection m_modules;
@@ -51,9 +54,11 @@ public class SwerveLocal {
     // com.team254.lib.swerve.ChassisSpeeds();
 
     public SwerveLocal(
+            Experiments experiments,
             SpeedLimits speedLimits,
             SwerveDriveKinematics driveKinematics,
             SwerveModuleCollection modules) {
+        m_experiments = experiments;
         m_speedLimits = speedLimits;
         m_DriveKinematics = driveKinematics;
         m_modules = modules;
@@ -68,6 +73,14 @@ public class SwerveLocal {
      * @param targetChassisSpeeds speeds in robot coordinates.
      */
     public void setChassisSpeeds(ChassisSpeeds targetChassisSpeeds) {
+        if (m_experiments.enabled(Experiment.UseSetpointGenerator)) {
+            setChassisSpeedsNormally(targetChassisSpeeds);
+        } else {
+            setChassisSpeedsWithSetpointGenerator(targetChassisSpeeds);
+        }
+    }
+
+    private void setChassisSpeedsNormally(ChassisSpeeds targetChassisSpeeds) {
         desiredSpeedXPublisher.set(targetChassisSpeeds.vxMetersPerSecond);
         desiredSpeedYPublisher.set(targetChassisSpeeds.vyMetersPerSecond);
         desiredSpeedRotPublisher.set(targetChassisSpeeds.omegaRadiansPerSecond);
@@ -75,7 +88,7 @@ public class SwerveLocal {
         setModuleStates(targetModuleStates);
     }
 
-    public void setChassisSpeeds2(ChassisSpeeds targetChassisSpeeds2) {
+    private void setChassisSpeedsWithSetpointGenerator(ChassisSpeeds targetChassisSpeeds2) {
         // public void driveMetersPerSec2(Twist2d twist, boolean fieldRelative) {
         // this is handled by the caller.
         // Rotation2d rotation2 = m_veering.correct(getPose().getRotation());
