@@ -33,4 +33,8 @@ public class TalonSRXTurningEncoder implements TurningEncoder, Sendable{
         builder.setSmartDashboardType("TalonSRXTurningEncoder");
         builder.addDoubleProperty("Angle", () -> this.getAngle(), null);
     }
+
+    @Override
+    public void close() {
+    }
 }

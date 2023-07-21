@@ -68,4 +68,8 @@ public class SwerveModule {
     // m_driveEncoder.reset();
     // m_turningEncoder.reset();
     // }
+
+    public void close() {
+        m_turningServo.close();
+    }
 }

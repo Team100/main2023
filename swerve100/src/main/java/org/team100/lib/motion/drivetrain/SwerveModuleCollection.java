@@ -50,6 +50,13 @@ public class SwerveModuleCollection {
         m_rearRight.setDesiredState(swerveModuleStates[3]);
     }
 
+    public void close() {
+        m_frontLeft.close();
+        m_frontRight.close();
+        m_rearLeft.close();
+        m_rearRight.close();
+    }
+
     void stop() {
         m_frontLeft.stop();
         m_frontRight.stop();

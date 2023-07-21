@@ -42,6 +42,11 @@ public class AnalogTurningEncoder implements TurningEncoder, Sendable {
         m_encoder.reset();
     }
 
+    public void close() {
+        m_input.close();
+        m_encoder.close();
+    }
+
     @Override
     public void initSendable(SendableBuilder builder) {
         builder.setSmartDashboardType("AnalogTurningEncoder");
