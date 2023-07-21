@@ -13,6 +13,7 @@ import org.team100.lib.motion.drivetrain.SwerveState;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.Timer;
 
 /** Example of mock objects for testing. */
@@ -61,6 +62,11 @@ public class RotateTest {
         public SwerveDriveSubsystem get() {
             return null;
         }
+
+        @Override
+        public ChassisSpeeds speeds() {
+            return new ChassisSpeeds();
+        }
     }
 
     class MockTimer extends Timer {
@@ -99,9 +105,9 @@ public class RotateTest {
         rotate.initialize();
 
         assertEquals(0, timer.time, kDelta); // now the timer is reset
-        assertEquals(0, rotate.profile.start().getX(), kDelta);
-        assertEquals(Math.PI / 2, rotate.profile.end().getX(), kDelta);
-        assertEquals(2.571, rotate.profile.duration(), kDelta);
+        assertEquals(0, rotate.m_profile.start().getX(), kDelta);
+        assertEquals(Math.PI / 2, rotate.m_profile.end().getX(), kDelta);
+        assertEquals(2.571, rotate.m_profile.duration(), kDelta);
 
         rotate.execute();
 

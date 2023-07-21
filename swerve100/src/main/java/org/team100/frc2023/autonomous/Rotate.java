@@ -10,6 +10,7 @@ import org.team100.lib.profile.MotionProfileGenerator;
 import org.team100.lib.profile.MotionState;
 
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.networktables.DoublePublisher;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
@@ -32,10 +33,10 @@ public class Rotate extends Command {
     private final SpeedLimits m_speedLimits;
     private final Timer m_timer;
     private final MotionState m_goalState;
-    MotionProfile profile; // set in initialize(), package private for testing
+    MotionProfile m_profile; // set in initialize(), package private for testing
     MotionState refTheta; // updated in execute(), package private for testing.
-    double headingMeasurement; // updated in execute()
-    double headingRate;
+    private double headingMeasurement; // updated in execute()
+    private double headingRate;
 
     public Rotate(
             SwerveDriveSubsystemInterface drivetrain,
@@ -55,9 +56,9 @@ public class Rotate extends Command {
 
     @Override
     public void initialize() {
-        // TODO: nonzero start velocity
-        MotionState start = new MotionState(m_robotDrive.getPose().getRotation().getRadians(), 0);
-        profile = MotionProfileGenerator.generateSimpleMotionProfile(
+        ChassisSpeeds initialSpeeds = m_robotDrive.speeds();
+        MotionState start = new MotionState(m_robotDrive.getPose().getRotation().getRadians(), initialSpeeds.omegaRadiansPerSecond);
+        m_profile = MotionProfileGenerator.generateSimpleMotionProfile(
                 start,
                 m_goalState,
                 m_speedLimits.angleSpeedRad_S,
@@ -69,7 +70,7 @@ public class Rotate extends Command {
     @Override
     public void execute() {
         // reference
-        refTheta = profile.get(m_timer.get());
+        refTheta = m_profile.get(m_timer.get());
         // measurement
         Pose2d currentPose = m_robotDrive.getPose();
 
@@ -97,7 +98,7 @@ public class Rotate extends Command {
 
     @Override
     public boolean isFinished() {
-        return m_timer.get() > profile.duration() && atSetpoint();
+        return m_timer.get() > m_profile.duration() && atSetpoint();
     }
 
     @Override

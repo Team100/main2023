@@ -206,8 +206,8 @@ public class RobotContainer implements Sendable {
         control.tapeDetect(new DriveToRetroReflectiveTape(m_robotDrive, speedLimits));
         control.rotate0(new Rotate(m_robotDrive, m_heading, speedLimits, new Timer(), 0));
 
-        control.moveConeWidthLeft(new MoveConeWidth(m_robotDrive, 1));
-        control.moveConeWidthRight(new MoveConeWidth(m_robotDrive, -1));
+        control.moveConeWidthLeft(new MoveConeWidth(m_robotDrive, speedLimits, new Timer(), true));
+        control.moveConeWidthRight(new MoveConeWidth(m_robotDrive, speedLimits, new Timer(), false));
 
         control.driveWithLQR(new DriveToWaypoint3(new Pose2d(5, 0, new Rotation2d()), m_robotDrive, m_kinematics));
 

@@ -1,6 +1,7 @@
 package org.team100.lib.motion.drivetrain;
 
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
 
 /** Minimal interface makes testing easier. */
 public interface SwerveDriveSubsystemInterface {
@@ -10,6 +11,8 @@ public interface SwerveDriveSubsystemInterface {
     void stop();
 
     void setDesiredState(SwerveState desiredState);
+
+    ChassisSpeeds speeds();
 
     void truncate();
 
