@@ -101,8 +101,6 @@ public class RobotContainer implements Sendable {
     private final ArmSubsystem armController;
     private final Illuminator illuminator;
 
-    // CONTROLLERS
-    private final DriveControllers controllers;
 
     // HID CONTROL
     private final Control control;
@@ -154,13 +152,9 @@ public class RobotContainer implements Sendable {
         visionDataProvider.updateTimestamp(); // this is just to keep lint from complaining
 
         SwerveLocal swerveLocal = new SwerveLocal(speedLimits, m_kinematics, modules);
-        
-        controllers = new DriveControllersFactory().get(identity, speedLimits);
-        HolonomicDriveController2 controller = new HolonomicDriveController2(
-            controllers.xController,
-            controllers.yController,
-            controllers.thetaController);
 
+        DriveControllers controllers = new DriveControllersFactory().get(identity, speedLimits);
+        HolonomicDriveController2 controller = new HolonomicDriveController2(controllers);
 
         m_robotDrive = new SwerveDriveSubsystem(
                 m_heading,
@@ -178,8 +172,6 @@ public class RobotContainer implements Sendable {
         control = new JoystickControl();
 
         myWriter = logFile();
-
-
 
         ////////////////////////////
         // DRIVETRAIN COMMANDS
@@ -250,20 +242,20 @@ public class RobotContainer implements Sendable {
                             speedLimits));
         } else {
             if (m_config.useSetpointGenerator) {
-            m_robotDrive.setDefaultCommand(
-                    new DriveWithSetpointGenerator(
-                            control::twist,
-                            m_robotDrive,
-                            speedLimits));
+                m_robotDrive.setDefaultCommand(
+                        new DriveWithSetpointGenerator(
+                                control::twist,
+                                m_robotDrive,
+                                speedLimits));
             } else {
                 m_robotDrive.setDefaultCommand(
-                    new DriveWithHeading(
-                            control::twist,
-                            m_robotDrive,
-                            m_heading,
-                            speedLimits,
-                            new Timer(),
-                            control::desiredRotation));
+                        new DriveWithHeading(
+                                control::twist,
+                                m_robotDrive,
+                                m_heading,
+                                speedLimits,
+                                new Timer(),
+                                control::desiredRotation));
             }
         }
 
@@ -380,25 +372,8 @@ public class RobotContainer implements Sendable {
     @Override
     public void initSendable(SendableBuilder builder) {
         builder.setSmartDashboardType("container");
-        builder.addDoubleProperty("theta controller error",
-                () -> controllers.thetaController.getPositionError(), null);
-        builder.addDoubleProperty("x controller error",
-                () -> controllers.xController.getPositionError(), null);
-        builder.addDoubleProperty("y controller error",
-                () -> controllers.yController.getPositionError(), null);
         builder.addBooleanProperty("Is Blue Alliance", () -> isBlueAlliance(), null);
         builder.addDoubleProperty("Routine", () -> getRoutine(), null);
-
-        builder.addDoubleProperty("Theta Controller Error", () -> controllers.thetaController.getPositionError(), null);
-        builder.addDoubleProperty("Theta Controller Setpoint", () -> controllers.thetaController.getSetpoint().position,
-                null);
-
-        builder.addDoubleProperty("X controller Error (m)", () -> controllers.xController.getPositionError(), null);
-        builder.addDoubleProperty("X controller Setpoint", () -> controllers.xController.getSetpoint(), null);
-
-        builder.addDoubleProperty("Y controller Error (m)", () -> controllers.yController.getPositionError(), null);
-        builder.addDoubleProperty("Y controller Setpoint", () -> controllers.yController.getSetpoint(), null);
-
         builder.addDoubleProperty("Heading Degrees", () -> m_heading.getHeadingNWU().getDegrees(), null);
         builder.addDoubleProperty("Heading Radians", () -> m_heading.getHeadingNWU().getRadians(), null);
 

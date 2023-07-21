@@ -69,7 +69,9 @@ public class DriveToAprilTag extends Command {
         isFinished = false;
         m_timer.restart();
         m_trajectory = makeTrajectory(previousOffset, 0);
-        m_swerve.setGains(new PidGains(2, 0, 0), new PidGains(6.5, 0, 1));
+        m_swerve.setGains(
+                new PidGains(2, 0, 0, 0, 0.01, false),
+                new PidGains(6.5, 0, 1, 0, 0.01, true));
         m_swerve.setIRange(0.3);
         m_swerve.setTolerance(0.00000001, Math.PI / 180);
     }
