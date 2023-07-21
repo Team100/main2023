@@ -44,4 +44,8 @@ public class Illuminator {
         double outputVolts = clampedValue * m_config.kMaxVoltage;
         led.setVoltage(outputVolts);
     }
+
+    public void close() {
+        led.close();
+    }
 }

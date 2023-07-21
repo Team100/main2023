@@ -74,6 +74,10 @@ public class TurningServo implements Sendable {
         return new Rotation2d(getTurningAngleRad());
     }
 
+    public void close() {
+        m_turningEncoder.close();
+    }
+
     @Override
     public void initSendable(SendableBuilder builder) {
         builder.addDoubleProperty("Turning Angle (rad)", () -> getTurningAngleRad(), null);
@@ -90,8 +94,7 @@ public class TurningServo implements Sendable {
 
         builder.addDoubleProperty("Turning Motor Output [-1, 1]", () -> m_turningMotor.get(), null);
 
-      // builder.addDoubleProperty("m_turnOutput", () -> m_turnOutput, null);
-
+        // builder.addDoubleProperty("m_turnOutput", () -> m_turnOutput, null);
 
     }
 

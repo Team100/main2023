@@ -57,6 +57,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.util.sendable.Sendable;
 import edu.wpi.first.util.sendable.SendableBuilder;
+import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.XboxController;
@@ -84,6 +85,13 @@ public class RobotContainer implements Sendable {
     }
 
     private final Config m_config = new Config();
+    private final DigitalInput auto1;
+    private final DigitalInput auto2;
+    private final DigitalInput auto4;
+    private final DigitalInput auto8;
+    private final DigitalInput alliance1;
+    private final DigitalInput alliance2;
+    private final int m_routine;
 
     // CONFIG
     private final DriverStation.Alliance m_alliance;
@@ -95,27 +103,39 @@ public class RobotContainer implements Sendable {
     private final Field2d m_field;
     private final AprilTagFieldLayoutWithCorrectOrientation layout;
     private final SwerveDriveSubsystem m_robotDrive;
+    private final SwerveModuleCollection m_modules;
     private final SwerveDriveKinematics m_kinematics;
     private final FrameTransform m_frameTransform;
     private final Manipulator manipulator;
-    private final ArmSubsystem armController;
+    private final ArmSubsystem m_arm;
     private final Illuminator illuminator;
-
-    // CONTROLLERS
-    private final DriveControllers controllers;
 
     // HID CONTROL
     private final Control control;
 
+    // LOGGING
     private final FileWriter myWriter;
-    public static boolean enabled = false;
-    public double m_routine = -1;
 
-    public DriveToWaypoint3 driveLQR;
+    // AUTON
+    private final Command m_auton;
 
-    public RobotContainer(DriverStation.Alliance alliance) throws IOException {
-        // m_alliance = DriverStation.getAlliance();
-        m_alliance = alliance;
+    public RobotContainer() throws IOException {
+
+        auto1 = new DigitalInput(0);
+        auto2 = new DigitalInput(1);
+        auto4 = new DigitalInput(2);
+        auto8 = new DigitalInput(3);
+
+        m_routine = getAutoSwitchValue();
+
+        alliance1 = new DigitalInput(4);
+        alliance2 = new DigitalInput(5);
+
+        if (getAlliance() == true) {
+            m_alliance = DriverStation.Alliance.Blue;
+        } else {
+            m_alliance = DriverStation.Alliance.Red;
+        }
 
         m_indicator = new LEDIndicator(8);
         ahrsclass = new RedundantGyro();
@@ -130,18 +150,16 @@ public class RobotContainer implements Sendable {
 
         m_frameTransform = new FrameTransform(veering);
 
-        SwerveModuleCollection modules = SwerveModuleCollectionFactory.get(identity, m_config.kDriveCurrentLimit);
+        m_modules = SwerveModuleCollectionFactory.get(identity, m_config.kDriveCurrentLimit);
         SwerveDrivePoseEstimator poseEstimator = new SwerveDrivePoseEstimator(
                 m_kinematics,
-
                 m_heading.getHeadingNWU(),
-
-                modules.positions(),
+                m_modules.positions(),
                 new Pose2d(),
                 VecBuilder.fill(0.5, 0.5, 0.5),
                 VecBuilder.fill(0.4, 0.4, 0.4)); // note tight rotation variance here, used to be MAX_VALUE
 
-        if (alliance == DriverStation.Alliance.Blue) {
+        if (m_alliance == DriverStation.Alliance.Blue) {
             layout = AprilTagFieldLayoutWithCorrectOrientation.blueLayout();
         } else { // red
             layout = AprilTagFieldLayoutWithCorrectOrientation.redLayout();
@@ -153,14 +171,10 @@ public class RobotContainer implements Sendable {
                 poseEstimator::getEstimatedPosition);
         visionDataProvider.updateTimestamp(); // this is just to keep lint from complaining
 
-        SwerveLocal swerveLocal = new SwerveLocal(speedLimits, m_kinematics, modules);
-        
-        controllers = new DriveControllersFactory().get(identity, speedLimits);
-        HolonomicDriveController2 controller = new HolonomicDriveController2(
-            controllers.xController,
-            controllers.yController,
-            controllers.thetaController);
+        SwerveLocal swerveLocal = new SwerveLocal(speedLimits, m_kinematics, m_modules);
 
+        DriveControllers controllers = new DriveControllersFactory().get(identity, speedLimits);
+        HolonomicDriveController2 controller = new HolonomicDriveController2(controllers);
 
         m_robotDrive = new SwerveDriveSubsystem(
                 m_heading,
@@ -170,7 +184,7 @@ public class RobotContainer implements Sendable {
                 controller,
                 m_field);
         manipulator = new Manipulator();
-        armController = new ArmSubsystem();
+        m_arm = new ArmSubsystem();
         illuminator = new Illuminator(25);
 
         // TODO: control selection using names
@@ -178,8 +192,6 @@ public class RobotContainer implements Sendable {
         control = new JoystickControl();
 
         myWriter = logFile();
-
-
 
         ////////////////////////////
         // DRIVETRAIN COMMANDS
@@ -203,11 +215,11 @@ public class RobotContainer implements Sendable {
         SpeedLimits medium = new SpeedLimits(2.0, 2.0, 0.5, 1.0);
         control.driveMedium(new DriveScaled(control::twist, m_robotDrive, medium));
         control.resetPose(new ResetPose(m_robotDrive, 0, 0, 0));
-        control.tapeDetect(new DriveToRetroReflectiveTape(m_robotDrive, m_frameTransform));
+        control.tapeDetect(new DriveToRetroReflectiveTape(m_robotDrive, speedLimits));
         control.rotate0(new Rotate(m_robotDrive, m_heading, speedLimits, new Timer(), 0));
 
-        control.moveConeWidthLeft(new MoveConeWidth(m_robotDrive, 1));
-        control.moveConeWidthRight(new MoveConeWidth(m_robotDrive, -1));
+        control.moveConeWidthLeft(new MoveConeWidth(m_robotDrive, speedLimits, new Timer(), true));
+        control.moveConeWidthRight(new MoveConeWidth(m_robotDrive, speedLimits, new Timer(), false));
 
         control.driveWithLQR(new DriveToWaypoint3(new Pose2d(5, 0, new Rotation2d()), m_robotDrive, m_kinematics));
 
@@ -220,17 +232,17 @@ public class RobotContainer implements Sendable {
 
         ////////////////////////////
         // ARM COMMANDS
-        control.armHigh(new ArmTrajectory(ArmPosition.HIGH, armController, false));
-        control.armSafe(new ArmTrajectory(ArmPosition.SAFE, armController, false));
-        control.armSubstation(new ArmTrajectory(ArmPosition.SUB, armController, false));
-        control.coneMode(new SetConeMode(armController, m_indicator));
-        control.cubeMode(new SetCubeMode(armController, m_indicator));
-        control.armLow(new ArmTrajectory(ArmPosition.MID, armController, false));
-        control.armSafeBack(new ArmTrajectory(ArmPosition.SAFEBACK, armController, false));
-        control.armToSub(new ArmTrajectory(ArmPosition.SUBTOCUBE, armController, false));
-        control.safeWaypoint(new ArmTrajectory(ArmPosition.SAFEWAYPOINT, armController, false));
+        control.armHigh(new ArmTrajectory(ArmPosition.HIGH, m_arm, false));
+        control.armSafe(new ArmTrajectory(ArmPosition.SAFE, m_arm, false));
+        control.armSubstation(new ArmTrajectory(ArmPosition.SUB, m_arm, false));
+        control.coneMode(new SetConeMode(m_arm, m_indicator));
+        control.cubeMode(new SetCubeMode(m_arm, m_indicator));
+        control.armLow(new ArmTrajectory(ArmPosition.MID, m_arm, false));
+        control.armSafeBack(new ArmTrajectory(ArmPosition.SAFEBACK, m_arm, false));
+        control.armToSub(new ArmTrajectory(ArmPosition.SUBTOCUBE, m_arm, false));
+        control.safeWaypoint(new ArmTrajectory(ArmPosition.SAFEWAYPOINT, m_arm, false));
         // control.oscillate(new Oscillate(armController));
-        control.oscillate(new ArmTrajectory(ArmPosition.SUB, armController, true));
+        control.oscillate(new ArmTrajectory(ArmPosition.SUB, m_arm, true));
         // control.armSafeSequential(armSafeWaypoint, armSafe);
         // control.armMid(new ArmTrajectory(ArmPosition.LOW, armController));
 
@@ -238,6 +250,15 @@ public class RobotContainer implements Sendable {
         // MISC COMMANDS
         control.ledOn(new LedOn(illuminator));
         control.rumbleTrigger(new RumbleOn(control));
+
+        m_auton = new Autonomous(
+                m_robotDrive,
+                m_frameTransform,
+                m_arm,
+                manipulator,
+                ahrsclass,
+                m_indicator,
+                m_routine);
 
         ///////////////////////////
         // DRIVE
@@ -250,20 +271,20 @@ public class RobotContainer implements Sendable {
                             speedLimits));
         } else {
             if (m_config.useSetpointGenerator) {
-            m_robotDrive.setDefaultCommand(
-                    new DriveWithSetpointGenerator(
-                            control::twist,
-                            m_robotDrive,
-                            speedLimits));
+                m_robotDrive.setDefaultCommand(
+                        new DriveWithSetpointGenerator(
+                                control::twist,
+                                m_robotDrive,
+                                speedLimits));
             } else {
                 m_robotDrive.setDefaultCommand(
-                    new DriveWithHeading(
-                            control::twist,
-                            m_robotDrive,
-                            m_heading,
-                            speedLimits,
-                            new Timer(),
-                            control::desiredRotation));
+                        new DriveWithHeading(
+                                control::twist,
+                                m_robotDrive,
+                                m_heading,
+                                speedLimits,
+                                new Timer(),
+                                control::desiredRotation));
             }
         }
 
@@ -275,19 +296,44 @@ public class RobotContainer implements Sendable {
 
         ////////////////////////
         // ARM
-        armController.setDefaultCommand(new ManualArm(armController, control::lowerSpeed, control::upperSpeed));
+        m_arm.setDefaultCommand(new ManualArm(m_arm, control::lowerSpeed, control::upperSpeed));
         SmartDashboard.putData("Robot Container", this);
     }
 
-    public Command getAutonomousCommand2(int routine) {
-        return new Autonomous(
-                m_robotDrive,
-                m_frameTransform,
-                armController,
-                manipulator,
-                ahrsclass,
-                m_indicator,
-                routine);
+    public void scheduleAuton() {
+        m_auton.schedule();
+    }
+
+    public void cancelAuton() {
+        m_auton.cancel();
+    }
+
+    public int getAutoSwitchValue() {
+        int val = 0;
+        if (auto8.get())
+            val += 8;
+        if (auto4.get())
+            val += 4;
+        if (auto2.get())
+            val += 2;
+        if (auto1.get())
+            val += 1;
+        return 15 - val;
+    }
+
+    // TODO: use RED and BLUE here
+    // TODO: important, make this complain if neither bit is set
+    private boolean getAlliance() {
+        int val = 0;
+        if (alliance2.get())
+            val += 2;
+        if (alliance1.get())
+            val += 1;
+        // 0 is redAlliance
+        if (val == 3) {
+            return false;
+        }
+        return true;
     }
 
     public void runTest() {
@@ -322,10 +368,6 @@ public class RobotContainer implements Sendable {
         };
         m_robotDrive.test(desiredOutputs, myWriter);
 
-    }
-
-    public static boolean isEnabled() {
-        return enabled;
     }
 
     public boolean isBlueAlliance() {
@@ -377,28 +419,25 @@ public class RobotContainer implements Sendable {
                 () -> 0.0);
     }
 
+    // this keeps the tests from conflicting via the use of simulated HAL ports.
+    public void close() {
+        auto1.close();
+        auto2.close();
+        auto4.close();
+        auto8.close();
+        alliance1.close();
+        alliance2.close();
+        m_indicator.close();
+        m_modules.close();
+        m_arm.close();
+        illuminator.close();
+    }
+
     @Override
     public void initSendable(SendableBuilder builder) {
         builder.setSmartDashboardType("container");
-        builder.addDoubleProperty("theta controller error",
-                () -> controllers.thetaController.getPositionError(), null);
-        builder.addDoubleProperty("x controller error",
-                () -> controllers.xController.getPositionError(), null);
-        builder.addDoubleProperty("y controller error",
-                () -> controllers.yController.getPositionError(), null);
         builder.addBooleanProperty("Is Blue Alliance", () -> isBlueAlliance(), null);
         builder.addDoubleProperty("Routine", () -> getRoutine(), null);
-
-        builder.addDoubleProperty("Theta Controller Error", () -> controllers.thetaController.getPositionError(), null);
-        builder.addDoubleProperty("Theta Controller Setpoint", () -> controllers.thetaController.getSetpoint().position,
-                null);
-
-        builder.addDoubleProperty("X controller Error (m)", () -> controllers.xController.getPositionError(), null);
-        builder.addDoubleProperty("X controller Setpoint", () -> controllers.xController.getSetpoint(), null);
-
-        builder.addDoubleProperty("Y controller Error (m)", () -> controllers.yController.getPositionError(), null);
-        builder.addDoubleProperty("Y controller Setpoint", () -> controllers.yController.getSetpoint(), null);
-
         builder.addDoubleProperty("Heading Degrees", () -> m_heading.getHeadingNWU().getDegrees(), null);
         builder.addDoubleProperty("Heading Radians", () -> m_heading.getHeadingNWU().getRadians(), null);
 

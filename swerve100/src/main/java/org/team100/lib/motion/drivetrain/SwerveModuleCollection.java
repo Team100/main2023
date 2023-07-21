@@ -25,6 +25,15 @@ public class SwerveModuleCollection {
         m_rearRight = rearRight;
     }
 
+    public SwerveModuleState[] states() {
+        return new SwerveModuleState[] {
+            m_frontLeft.getState(),
+            m_frontRight.getState(),
+            m_rearLeft.getState(),
+            m_rearRight.getState()
+        };
+    }
+
     public SwerveModulePosition[] positions() {
         return new SwerveModulePosition[] {
                 m_frontLeft.getPosition(),
@@ -39,6 +48,13 @@ public class SwerveModuleCollection {
         m_frontRight.setDesiredState(swerveModuleStates[1]);
         m_rearLeft.setDesiredState(swerveModuleStates[2]);
         m_rearRight.setDesiredState(swerveModuleStates[3]);
+    }
+
+    public void close() {
+        m_frontLeft.close();
+        m_frontRight.close();
+        m_rearLeft.close();
+        m_rearRight.close();
     }
 
     void stop() {

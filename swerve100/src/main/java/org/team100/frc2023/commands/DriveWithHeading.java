@@ -31,9 +31,9 @@ public class DriveWithHeading extends Command {
     private final Supplier<Rotation2d> m_desiredRotation;
 
     private boolean snapMode = false;
-    private MotionState m_goalState;
-    private MotionProfile profile;
-    private MotionState refTheta;
+    private MotionState m_goal;
+    private MotionProfile m_profile;
+    private MotionState m_ref;
 
     /**
      * @param twistSupplier [-1,1]
@@ -73,12 +73,12 @@ public class DriveWithHeading extends Command {
             MotionState start = new MotionState(currentRads, m_heading.getHeadingRateNWU());
 
             // the new goal is simply the pov rotation with zero velocity
-            m_goalState = new MotionState(MathUtil.angleModulus(pov.getRadians()), 0);
+            m_goal = new MotionState(MathUtil.angleModulus(pov.getRadians()), 0);
 
             // new profile obeys the speed limits
-            profile = MotionProfileGenerator.generateSimpleMotionProfile(
+            m_profile = MotionProfileGenerator.generateSimpleMotionProfile(
                     start,
-                    m_goalState,
+                    m_goal,
                     m_speedLimits.angleSpeedRad_S,
                     m_speedLimits.angleAccelRad_S2,
                     m_speedLimits.angleJerkRad_S3);
@@ -94,12 +94,12 @@ public class DriveWithHeading extends Command {
 
         if (snapMode) {
             // in snap mode we take dx and dy from the user, and use the profile for dtheta.
-            refTheta = profile.get(m_timer.get());
+            m_ref = m_profile.get(m_timer.get());
 
             // this is user input
             Twist2d twistM_S = DriveUtil.scale(twist1_1, m_speedLimits.speedM_S, m_speedLimits.angleSpeedRad_S);
             // the snap overrides the user input for omega.
-            Twist2d twistWithSnapM_S = new Twist2d(twistM_S.dx, twistM_S.dy, refTheta.getV());
+            Twist2d twistWithSnapM_S = new Twist2d(twistM_S.dx, twistM_S.dy, m_ref.getV());
             Twist2d twistM = DriveUtil.scale(twistWithSnapM_S, 0.02, 0.02);
 
             Pose2d ref = currentPose.exp(twistM);
@@ -110,7 +110,7 @@ public class DriveWithHeading extends Command {
                     new SwerveState(
                             new State100(ref.getX(), twistM_S.dx, 0),
                             new State100(ref.getY(), twistM_S.dy, 0),
-                            new State100(refTheta.getX(), refTheta.getV(), refTheta.getA())));
+                            new State100(m_ref.getX(), m_ref.getV(), m_ref.getA())));
 
         } else {
             // if we're not in snap mode then it's just pure manual
@@ -122,12 +122,12 @@ public class DriveWithHeading extends Command {
         // publish what we did
         double headingMeasurement = currentPose.getRotation().getRadians();
         double headingRate = m_heading.getHeadingRateNWU();
-        refX.set(refTheta.getX());
-        refV.set(refTheta.getV());
+        refX.set(m_ref.getX());
+        refV.set(m_ref.getV());
         measurementX.set(headingMeasurement);
         measurementV.set(headingRate);
-        errorX.set(refTheta.getX() - headingMeasurement);
-        errorV.set(refTheta.getV() - headingRate);
+        errorX.set(m_ref.getX() - headingMeasurement);
+        errorV.set(m_ref.getV() - headingRate);
     }
 
     @Override

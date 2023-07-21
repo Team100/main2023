@@ -1,39 +1,32 @@
 package org.team100.frc2023.autonomous;
 
+import org.team100.lib.controller.DriveControllers;
 import org.team100.lib.controller.PidGains;
 import org.team100.lib.motion.drivetrain.SwerveState;
 
 import edu.wpi.first.math.controller.PIDController;
-import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Twist2d;
-import edu.wpi.first.math.util.Units;
 import edu.wpi.first.networktables.DoublePublisher;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
 
 public class HolonomicDriveController2 {
+    private final PIDController m_xController;
+    private final PIDController m_yController;
+    private final PIDController m_thetaController;
+
     private double xErr = 0;
     private double yErr = 0;
     private Rotation2d m_rotationError = new Rotation2d();
     private Pose2d m_poseTolerance = new Pose2d();
 
-    private final PIDController m_xController;
-    private final PIDController m_yController;
-    // TODO: not profiled; caller has a profile.
-    private final ProfiledPIDController m_thetaController;
-
-    private boolean m_firstRun = true;
-
     public HolonomicDriveController2(
-            PIDController xController,
-            PIDController yController,
-            ProfiledPIDController thetaController) {
-        m_xController = xController;
-        m_yController = yController;
-        m_thetaController = thetaController;
-        m_thetaController.enableContinuousInput(0, Units.degreesToRadians(360.0));
+        DriveControllers controllers) {
+        m_xController = controllers.xController;
+        m_yController = controllers.yController;
+        m_thetaController = controllers.thetaController;
     }
 
     /**
@@ -62,10 +55,6 @@ public class HolonomicDriveController2 {
             Pose2d currentPose,
             SwerveState desiredState) {
         Rotation2d currentRotation = currentPose.getRotation();
-        if (m_firstRun) {
-            m_thetaController.reset(currentRotation.getRadians());
-            m_firstRun = false;
-        }
 
         double xFF = desiredState.x().v(); // m/s
         double yFF = desiredState.y().v(); // m/s
@@ -74,7 +63,6 @@ public class HolonomicDriveController2 {
         xFFPublisher.set(xFF);
         yFFPublisher.set(yFF);
         thetaFFPublisher.set(thetaFF);
-        rotSetpoint.set(m_thetaController.getSetpoint().position);
 
         xErr = desiredState.x().x() - currentPose.getX();
         yErr = desiredState.y().x() - currentPose.getY();
@@ -85,8 +73,12 @@ public class HolonomicDriveController2 {
         double yFeedback = m_yController.calculate(currentPose.getY(), desiredState.y().x());
         double thetaFeedback = m_thetaController.calculate(currentRotation.getRadians(), desiredState.theta().x());
 
+        xSetPublisher.set(m_xController.getSetpoint());
+        ySetPublisher.set(m_yController.getSetpoint());
+        thetaSetPublisher.set(m_thetaController.getSetpoint());
         poseXErrorPublisher.set(m_xController.getPositionError());
         poseYErrorPublisher.set(m_yController.getPositionError());
+        thetaErrorPublisher.set(m_thetaController.getPositionError());
         xFBPublisher.set(xFeedback);
         yFBPublisher.set(yFeedback);
         thetaFBPublisher.set(thetaFeedback);
@@ -113,14 +105,20 @@ public class HolonomicDriveController2 {
 
     private final NetworkTableInstance inst = NetworkTableInstance.getDefault();
     private final NetworkTable table = inst.getTable("Holonomic2");
+
+    private final DoublePublisher xSetPublisher = table.getDoubleTopic("xSet").publish();
     private final DoublePublisher xFFPublisher = table.getDoubleTopic("xFF").publish();
     private final DoublePublisher xFBPublisher = table.getDoubleTopic("xFB").publish();
+    private final DoublePublisher poseXErrorPublisher = table.getDoubleTopic("xErr").publish();
+
+    private final DoublePublisher ySetPublisher = table.getDoubleTopic("ySet").publish();
     private final DoublePublisher yFFPublisher = table.getDoubleTopic("yFF").publish();
     private final DoublePublisher yFBPublisher = table.getDoubleTopic("yFB").publish();
+    private final DoublePublisher poseYErrorPublisher = table.getDoubleTopic("yErr").publish();
+
+    private final DoublePublisher thetaSetPublisher = table.getDoubleTopic("thetaSet").publish();
     private final DoublePublisher thetaFFPublisher = table.getDoubleTopic("thetaFF").publish();
     private final DoublePublisher thetaFBPublisher = table.getDoubleTopic("thetaFB").publish();
-    private final DoublePublisher poseXErrorPublisher = table.getDoubleTopic("xErr").publish();
-    private final DoublePublisher poseYErrorPublisher = table.getDoubleTopic("yErr").publish();
-    private final DoublePublisher rotSetpoint = table.getDoubleTopic("Rot Setpoint").publish();
+    private final DoublePublisher thetaErrorPublisher = table.getDoubleTopic("thetaErr").publish();
 
 }

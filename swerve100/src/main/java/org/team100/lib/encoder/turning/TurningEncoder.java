@@ -12,4 +12,6 @@ public interface TurningEncoder {
      * Resets angle to zero.
      */
     void reset();
+
+    void close();
 }

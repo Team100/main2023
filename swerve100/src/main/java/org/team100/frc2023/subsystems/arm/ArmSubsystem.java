@@ -11,6 +11,7 @@ import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.filter.LinearFilter;
 import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.AnalogEncoder;
+import edu.wpi.first.wpilibj.AnalogInput;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 
@@ -65,6 +66,8 @@ public class ArmSubsystem extends Subsystem {
     private final PIDController m_upperController;
     private final FRCNEO lowerArmMotor;
     private final FRCNEO upperArmMotor;
+    private final AnalogInput lowerArmInput;
+    private final AnalogInput upperArmInput;
     private final AnalogEncoder lowerArmEncoder;
     private final AnalogEncoder upperArmEncoder;
 
@@ -104,8 +107,10 @@ public class ArmSubsystem extends Subsystem {
                 .withForwardSoftLimitEnabled(false)
                 .build();
 
-        lowerArmEncoder = new AnalogEncoder(6);
-        upperArmEncoder = new AnalogEncoder(5);
+        lowerArmInput = new AnalogInput(6);
+        lowerArmEncoder = new AnalogEncoder(lowerArmInput);
+        upperArmInput = new AnalogInput(5);
+        upperArmEncoder = new AnalogEncoder(upperArmInput);
 
         m_reference = getMeasurement();
 
@@ -148,7 +153,15 @@ public class ArmSubsystem extends Subsystem {
     public void setControlSafe() {
         m_lowerController.setPID(m_config.safeP, m_config.safeI, m_config.safeD);
         m_upperController.setPID(m_config.safeP, m_config.safeI, m_config.safeD);
+    }
 
+    public void close() {
+        lowerArmMotor.motor.close();
+        upperArmMotor.motor.close();
+        lowerArmEncoder.close();
+        upperArmEncoder.close();
+        lowerArmInput.close();
+        upperArmInput.close();
     }
 
     ///////////////////////////////////////////////////////////////////////////////

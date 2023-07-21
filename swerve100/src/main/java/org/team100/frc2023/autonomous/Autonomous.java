@@ -31,7 +31,7 @@ public class Autonomous extends SequentialCommandGroup {
 
     private final Config m_config = new Config();
     private final SwerveDriveSubsystem m_robotDrive;
-    private final FrameTransform m_chassisSpeedFactory;
+    private final FrameTransform m_transform;
     private final ArmSubsystem m_arm;
     private final Manipulator m_manipulator;
     private final RedundantGyro m_gyro;
@@ -40,14 +40,14 @@ public class Autonomous extends SequentialCommandGroup {
     // TODO: make routine an enum
     public Autonomous(
             SwerveDriveSubsystem robotDrive,
-            FrameTransform chassisSpeedFactory,
+            FrameTransform transform,
             ArmSubsystem arm,
             Manipulator manipulator,
             RedundantGyro gyro,
             LEDIndicator indicator,
             int routine) {
         m_robotDrive = robotDrive;
-        m_chassisSpeedFactory = chassisSpeedFactory;
+        m_transform = transform;
         m_arm = arm;
         m_manipulator = manipulator;
         m_gyro = gyro;
@@ -85,7 +85,7 @@ public class Autonomous extends SequentialCommandGroup {
 
     private void autoLevel(boolean reversed) {
         addCommands(
-                new AutoLevel(reversed, m_robotDrive, m_gyro, m_chassisSpeedFactory));
+                new AutoLevel(reversed, m_robotDrive, m_gyro, m_transform));
     }
 
     // TODO: why do we need a timeout?

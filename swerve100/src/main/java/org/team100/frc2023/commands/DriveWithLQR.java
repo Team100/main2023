@@ -68,7 +68,7 @@ public class DriveWithLQR extends Command {
             12.0, 0.020);
 
     private MotionState m_goal;
-    private MotionProfile profile;
+    private MotionProfile m_profile;
     private MotionState m_ref;
 
     public DriveWithLQR(SwerveDriveSubsystem robotDrive, SpeedLimits speedLimits, Timer timer) {
@@ -90,7 +90,7 @@ public class DriveWithLQR extends Command {
         MotionState start = new MotionState(currentX, 0);
         m_goal = new MotionState(goalX, 0);
 
-        profile = MotionProfileGenerator.generateSimpleMotionProfile(
+        m_profile = MotionProfileGenerator.generateSimpleMotionProfile(
                 start,
                 m_goal,
                 Math.min(m_config.speedM_S, m_speedLimits.speedM_S),
@@ -102,7 +102,7 @@ public class DriveWithLQR extends Command {
 
     @Override
     public void execute() {
-        m_ref = profile.get(m_timer.get());
+        m_ref = m_profile.get(m_timer.get());
 
         m_loop.setNextR(m_ref.getX(), m_ref.getV());
 
