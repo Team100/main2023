@@ -10,6 +10,7 @@ import org.team100.lib.motion.drivetrain.DriveServo;
 import org.team100.lib.motion.drivetrain.SwerveModule;
 import org.team100.lib.motion.drivetrain.TurningServo;
 import org.team100.lib.encoder.turning.AnalogTurningEncoder;
+import org.team100.lib.experiments.Experiments;
 
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
@@ -17,14 +18,20 @@ import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 
 public class SwerveModuleFactory {
+    private final Experiments experiments;
+    private final double currentLimit;
 
-    public static SwerveModule WCPModule(
+    public SwerveModuleFactory(Experiments experiments, double currentLimit) {
+        this.experiments = experiments;
+        this.currentLimit = currentLimit;
+    }
+
+    public SwerveModule WCPModule(
             String name,
             int driveMotorCanId,
             int turningMotorCanId,
             int turningEncoderChannel,
-            double turningOffset,
-            double currentLimit) {
+            double turningOffset) {
         final double kWheelDiameterMeters = 0.1015; // WCP 4 inch wheel
         final double kDriveReduction = 5.50; // see wcproducts.com, this is the "fast" ratio.
         final double driveEncoderDistancePerTurn = kWheelDiameterMeters * Math.PI / kDriveReduction;
@@ -67,21 +74,31 @@ public class SwerveModuleFactory {
                 0.003, // kV: from experiment; higher than AM modules, less reduction gear
                 0); // kA: I have no idea what this value should be
 
-        DriveServo driveServo = new DriveServo(name, driveMotor, driveEncoder, driveController, driveFeedforward);
-        TurningServo turningServo = new TurningServo(name, turningMotor, turningEncoder, turningController,
+        DriveServo driveServo = new DriveServo(
+                experiments,
+                name,
+                driveMotor,
+                driveEncoder,
+                driveController,
+                driveFeedforward);
+        TurningServo turningServo = new TurningServo(
+                experiments,
+                name,
+                turningMotor,
+                turningEncoder,
+                turningController,
                 turningFeedforward);
 
         return new SwerveModule(driveServo, turningServo);
     }
 
     // for 8048's config and new Offloaded PID
-    public static SwerveModule AMCANModule(
+    public SwerveModule AMCANModule(
             String name,
             int driveMotorCanId,
             int turningMotorCanId,
             int turningEncoderChannel,
-            double turningOffset,
-            double currentLimit) {
+            double turningOffset) {
         final double kWheelDiameterMeters = 0.1016; // AndyMark Swerve & Steer has 4 inch wheel
         final double kDriveReduction = 6.67; // see andymark.com/products/swerve-and-steer
         final double driveEncoderDistancePerTurn = kWheelDiameterMeters * Math.PI / kDriveReduction;
@@ -127,21 +144,31 @@ public class SwerveModuleFactory {
         // 0.35, // kV: from experiment; higher than AM modules, less reduction gear
         // 0.08); // kA: I have no idea what this value should be
 
-        DriveServo driveServo = new DriveServo(name, driveMotor, driveEncoder, driveController, driveFeedforward);
-        TurningServo turningServo = new TurningServo(name, turningMotor, turningEncoder2, turningController,
+        DriveServo driveServo = new DriveServo(
+                experiments,
+                name,
+                driveMotor,
+                driveEncoder,
+                driveController,
+                driveFeedforward);
+        TurningServo turningServo = new TurningServo(
+                experiments,
+                name,
+                turningMotor,
+                turningEncoder2,
+                turningController,
                 turningFeedforward);
 
         return new SwerveModule(driveServo, turningServo);
 
     }
 
-    public static SwerveModule AMModule(
+    public SwerveModule AMModule(
             String name,
             int driveMotorCanId,
             int turningMotorChannel,
             int turningEncoderChannel,
-            double turningOffset,
-            double currentLimit) {
+            double turningOffset) {
         final double kWheelDiameterMeters = 0.092; // AndyMark Swerve & Steer has 4 inch wheel
         final double kDriveReduction = 6.67; // see andymark.com/products/swerve-and-steer
         final double driveEncoderDistancePerTurn = kWheelDiameterMeters * Math.PI / kDriveReduction;
@@ -180,8 +207,19 @@ public class SwerveModuleFactory {
                 0.003, // kV
                 0); // kA
 
-        DriveServo driveServo = new DriveServo(name, driveMotor, driveEncoder, driveController, driveFeedforward);
-        TurningServo turningServo = new TurningServo(name, turningMotor, turningEncoder, turningController,
+        DriveServo driveServo = new DriveServo(
+                experiments,
+                name,
+                driveMotor,
+                driveEncoder,
+                driveController,
+                driveFeedforward);
+        TurningServo turningServo = new TurningServo(
+                experiments,
+                name,
+                turningMotor,
+                turningEncoder,
+                turningController,
                 turningFeedforward);
 
         return new SwerveModule(driveServo, turningServo);

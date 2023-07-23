@@ -1,7 +1,11 @@
 package org.team100.lib.motion.drivetrain;
 
 import org.team100.lib.encoder.drive.DriveEncoder;
+import org.team100.lib.experiments.Experiment;
+import org.team100.lib.experiments.Experiments;
 import org.team100.lib.motor.drive.DriveMotor;
+
+import com.ctre.phoenix.motorcontrol.ControlMode;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
@@ -18,6 +22,7 @@ public class DriveServo implements Sendable {
     }
 
     private final Config m_config = new Config();
+    private final Experiments m_experiments;
     private final DriveMotor m_driveMotor;
     private final DriveEncoder m_driveEncoder;
     private final PIDController m_driveController;
@@ -29,15 +34,16 @@ public class DriveServo implements Sendable {
     // for calculating acceleration
     private double previousSpeedM_S = 0;
 
-    //private double m_driveOutput;
-
+    private double m_driveSpeed;
 
     public DriveServo(
+            Experiments experiments,
             String name,
             DriveMotor driveMotor,
             DriveEncoder driveEncoder,
             PIDController driveController,
             SimpleMotorFeedforward driveFeedforward) {
+        m_experiments = experiments;
         m_driveMotor = driveMotor;
         m_driveEncoder = driveEncoder;
         m_driveController = driveController;
@@ -47,6 +53,23 @@ public class DriveServo implements Sendable {
 
     void setDrive(SwerveModuleState state) {
         double speedM_S = state.speedMetersPerSecond;
+        if (m_experiments.enabled(Experiment.UseClosedLoopDrive)) {
+            offboard(speedM_S);
+        } else {
+            onboard(speedM_S);
+        }
+    }
+
+    void set(double output) {
+        m_driveMotor.set(output);
+    }
+
+    void offboard(double speedM_S) {
+        m_driveSpeed = speedM_S * 1351.68 / 6.6;
+        m_driveMotor.setPID(ControlMode.Velocity, speedM_S * 1351.68);
+    }
+
+    void onboard(double speedM_S) {
         double accelM_S2 = (speedM_S - previousSpeedM_S) / 0.02; // TODO: measured dt
         previousSpeedM_S = speedM_S;
         driveMotorControllerOutput = m_driveController.calculate(getDriveSpeedMS(), speedM_S);
@@ -54,16 +77,6 @@ public class DriveServo implements Sendable {
         double driveOutput = driveMotorControllerOutput + driveFeedForwardOutput;
         // output deadband to prevent shivering.
         set(MathUtil.applyDeadband(driveOutput, m_config.kDriveDeadband));
-    }
-
-    void set(double output) {
-        m_driveMotor.set(output);
-        // this is vasili's code which breaks other hardware
-        // TODO: find a way for it to coexist with other hardware
-        // m_driveOutput = output * 1351.68/6.6;
-        // m_driveMotor.setPID(ControlMode.Velocity, output * 1351.68);
-
-
     }
 
     double getDriveDistanceM() {
@@ -88,7 +101,7 @@ public class DriveServo implements Sendable {
 
         builder.addDoubleProperty("Drive Motor Output [-1, 1]", () -> m_driveMotor.get(), null);
 
-        //builder.addDoubleProperty("m_driveOutput", () -> m_driveOutput, null);
+        builder.addDoubleProperty("m_driveSpeed", () -> m_driveSpeed, null);
 
     }
 
