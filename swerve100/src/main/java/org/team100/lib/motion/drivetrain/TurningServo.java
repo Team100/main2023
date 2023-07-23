@@ -1,7 +1,11 @@
 package org.team100.lib.motion.drivetrain;
 
 import org.team100.lib.encoder.turning.TurningEncoder;
+import org.team100.lib.experiments.Experiment;
+import org.team100.lib.experiments.Experiments;
 import org.team100.lib.motor.turning.TurningMotor;
+
+import com.ctre.phoenix.motorcontrol.ControlMode;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.ProfiledPIDController;
@@ -20,6 +24,7 @@ public class TurningServo implements Sendable {
     }
 
     private final Config m_config = new Config();
+    private final Experiments m_experiments;
     private final TurningMotor m_turningMotor;
     private final TurningEncoder m_turningEncoder;
     private final ProfiledPIDController m_turningController;
@@ -31,11 +36,13 @@ public class TurningServo implements Sendable {
     // private double m_turnOutput;
 
     public TurningServo(
+            Experiments experiments,
             String name,
             TurningMotor turningMotor,
             TurningEncoder turningEncoder,
             ProfiledPIDController turningController,
             SimpleMotorFeedforward turningFeedforward) {
+        m_experiments = experiments;
         m_turningMotor = turningMotor;
         m_turningEncoder = turningEncoder;
         m_turningController = turningController;
@@ -44,22 +51,27 @@ public class TurningServo implements Sendable {
     }
 
     void setTurning(SwerveModuleState state) {
+        if (m_experiments.enabled(Experiment.UseClosedLoopSteering)) {
+            offboard(state.angle.getRotations());
+        } else {
+            onboard(state);
+        }
+    }
+
+    void offboard(double angleRotations) {
+        m_turningMotor.setPID(ControlMode.Position, angleRotations);
+    }
+
+    void onboard(SwerveModuleState state) {
         turningMotorControllerOutput = m_turningController.calculate(getTurningAngleRad(), state.angle.getRadians());
         turningFeedForwardOutput = m_turningFeedforward.calculate(getTurnSetpointVelocityRadS(), 0);
         double turnOutput = turningMotorControllerOutput + turningFeedForwardOutput;
         // output deadband to prevent shivering.
         set(MathUtil.applyDeadband(turnOutput, m_config.kSteeringDeadband));
-        // this is vasili's code, which breaks other hardware
-        // TODO: find a way to make it coexist with the other hardware
-        // set(state.angle.getRotations());
     }
 
     void set(double output) {
         m_turningMotor.set(output);
-        // this is vasili's code, which breaks other hardware
-        // TODO: find a way to make it coexist with the other hardware
-        // m_turningMotor.setPID(ControlMode.Position, output);
-
     }
 
     double getTurnSetpointVelocityRadS() {

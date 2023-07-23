@@ -136,7 +136,12 @@ public class RobotContainer implements Sendable {
 
         m_frameTransform = new FrameTransform(veering);
 
-        m_modules = SwerveModuleCollectionFactory.get(identity, m_config.kDriveCurrentLimit);
+        Experiments experiments = new Experiments(identity);
+
+        m_modules = new SwerveModuleCollectionFactory(
+                experiments,
+                identity,
+                m_config.kDriveCurrentLimit).get();
         SwerveDrivePoseEstimator poseEstimator = new SwerveDrivePoseEstimator(
                 m_kinematics,
                 m_heading.getHeadingNWU(),
@@ -157,7 +162,6 @@ public class RobotContainer implements Sendable {
                 poseEstimator::getEstimatedPosition);
         visionDataProvider.updateTimestamp(); // this is just to keep lint from complaining
 
-        Experiments experiments = new Experiments(identity);
         SwerveLocal swerveLocal = new SwerveLocal(experiments, speedLimits, m_kinematics, m_modules);
 
         DriveControllers controllers = new DriveControllersFactory().get(identity, speedLimits);
@@ -294,8 +298,6 @@ public class RobotContainer implements Sendable {
     public void cancelAuton() {
         m_auton.cancel();
     }
-
-
 
     public void runTest() {
         XboxController controller0 = new XboxController(0);
