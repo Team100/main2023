@@ -1,12 +1,15 @@
 package org.team100.lib.motors;
 
-import com.ctre.phoenix.motorcontrol.*;
+import com.ctre.phoenix.motorcontrol.ControlMode;
+import com.ctre.phoenix.motorcontrol.InvertType;
+import com.ctre.phoenix.motorcontrol.NeutralMode;
+import com.ctre.phoenix.motorcontrol.SensorCollection;
+import com.ctre.phoenix.motorcontrol.StatusFrameEnhanced;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 import com.ctre.phoenix.sensors.SensorVelocityMeasPeriod;
 
 import edu.wpi.first.util.sendable.Sendable;
 import edu.wpi.first.util.sendable.SendableBuilder;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 /**
  * An abstraction for the Talon SRX for debugging information
@@ -55,75 +58,6 @@ public class FRCTalonSRX implements Sendable {
 
     public double getSelectedSensorPosition() {
         return this.motor.getSelectedSensorPosition();
-    }
-
-    public void updateSmartDashboard() {
-        if (this.isSmartDashboardPutEnabled()) {
-
-            SmartDashboard.putNumber(this.getSmartDashboardPath() + "/percentOutput",
-                    this.motor.getMotorOutputPercent());
-
-            SmartDashboard.putNumber(this.getSmartDashboardPath() + "/allowableClosedLoopError",
-                    this.getAllowableClosedLoopError());
-            SmartDashboard.putBoolean(this.getSmartDashboardPath() + "/auxPIDPolarity", this.isAuxPIDPolarity());
-            SmartDashboard.putNumber(this.getSmartDashboardPath() + "/canID", this.getCanID());
-            SmartDashboard.putNumber(this.getSmartDashboardPath() + "/closedLoopRampRate",
-                    this.getClosedLoopRampRate());
-            SmartDashboard.putNumber(this.getSmartDashboardPath() + "/currentLimit", this.getCurrentLimit());
-            SmartDashboard.putBoolean(this.getSmartDashboardPath() + "/currentLimitEnabled",
-                    this.isCurrentLimitEnabled());
-            SmartDashboard.putBoolean(this.getSmartDashboardPath() + "/feedbackNotContinuous",
-                    this.isFeedbackNotContinuous());
-            SmartDashboard.putNumber(this.getSmartDashboardPath() + "/feedbackPort", this.getFeedbackPort());
-            SmartDashboard.putBoolean(this.getSmartDashboardPath() + "/forwardSoftLimitEnabled",
-                    this.isForwardSoftLimitEnabled());
-            SmartDashboard.putNumber(this.getSmartDashboardPath() + "/forwardSoftLimitThreshold",
-                    this.getForwardSoftLimitThreshold());
-            SmartDashboard.putBoolean(this.getSmartDashboardPath() + "/inverted", this.isInverted());
-            SmartDashboard.putString(this.getSmartDashboardPath() + "/invertType", this.getInvertType().toString());
-            SmartDashboard.putNumber(this.getSmartDashboardPath() + "/kP", this.getkP());
-            SmartDashboard.putNumber(this.getSmartDashboardPath() + "/kI", this.getkI());
-            SmartDashboard.putNumber(this.getSmartDashboardPath() + "/kD", this.getkD());
-            SmartDashboard.putNumber(this.getSmartDashboardPath() + "/kF", this.getkF());
-            SmartDashboard.putNumber(this.getSmartDashboardPath() + "/motionAcceleration",
-                    this.getMotionAcceleration());
-            SmartDashboard.putNumber(this.getSmartDashboardPath() + "/motionCruiseVelocity",
-                    this.getMotionCruiseVelocity());
-            SmartDashboard.putNumber(this.getSmartDashboardPath() + "/motionCurveStrength",
-                    this.getMotionCurveStrength());
-            SmartDashboard.putNumber(this.getSmartDashboardPath() + "/motionProfileTrajectoryPeriod",
-                    this.motionProfileTrajectoryPeriod);
-            SmartDashboard.putNumber(this.getSmartDashboardPath() + "/neutralDeadband", this.getNeutralDeadband());
-            SmartDashboard.putBoolean(this.getSmartDashboardPath() + "/neutralDeadband",
-                    (this.getNeutralMode() == NeutralMode.Coast) ? false : true);
-            SmartDashboard.putNumber(this.getSmartDashboardPath() + "/nominalOutputForward",
-                    this.getNominalOutputForward());
-            SmartDashboard.putNumber(this.getSmartDashboardPath() + "/nominalOutputReverse",
-                    this.getNominalOutputReverse());
-            SmartDashboard.putNumber(this.getSmartDashboardPath() + "/openLoopRampRate", this.getOpenLoopRampRate());
-            SmartDashboard.putNumber(this.getSmartDashboardPath() + "/peakOutputForward", this.getPeakOutputForward());
-            SmartDashboard.putNumber(this.getSmartDashboardPath() + "/peakOutputReverse", this.getPeakOutputReverse());
-            SmartDashboard.putBoolean(this.getSmartDashboardPath() + "/reverseSoftLimitEnabled",
-                    this.isReverseSoftLimitEnabled());
-            SmartDashboard.putNumber(this.getSmartDashboardPath() + "/reverseSoftLimitThreshold",
-                    this.getReverseSoftLimitThreshold());
-            SmartDashboard.putBoolean(this.getSmartDashboardPath() + "/sensorPhase", this.isSensorPhase());
-            SmartDashboard.putString(this.getSmartDashboardPath() + "/SmartDashboardPath",
-                    this.getSmartDashboardPath());
-
-            SmartDashboard.putNumber(this.getSmartDashboardPath() + "/statusFrame", this.getStatusFrame());
-            SmartDashboard.putString(this.getSmartDashboardPath() + "/statusFrameType",
-                    this.getStatusFrameType().toString());
-            SmartDashboard.putNumber(this.getSmartDashboardPath() + "/timeout", this.getTimeout());
-            SmartDashboard.putString(this.getSmartDashboardPath() + "/velocityMeasurementPeriod",
-                    this.getVelocityMeasurementPeriod().toString());
-            SmartDashboard.putNumber(this.getSmartDashboardPath() + "/velocityMeasurementWindow",
-                    this.getVelocityMeasurementWindow());
-            SmartDashboard.putNumber(this.getSmartDashboardPath() + "/voltageCompensationSaturation",
-                    this.getVoltageCompensationSaturation());
-
-        }
-
     }
 
     ///////////////////////////////////////////////////////////////////////////

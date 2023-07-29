@@ -6,7 +6,7 @@ import java.io.IOException;
 
 import org.junit.jupiter.api.Test;
 import org.team100.frc2023.autonomous.DriveToAprilTag;
-import org.team100.frc2023.localization.AprilTagFieldLayoutWithCorrectOrientation;
+import org.team100.lib.localization.AprilTagFieldLayoutWithCorrectOrientation;
 
 import edu.wpi.first.math.geometry.Pose2d;
 

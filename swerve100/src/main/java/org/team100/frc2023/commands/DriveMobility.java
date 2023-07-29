@@ -1,63 +1,45 @@
 package org.team100.frc2023.commands;
 
-import org.team100.frc2023.subsystems.SwerveDriveSubsystem;
+import org.team100.lib.subsystems.SwerveDriveSubsystem;
 
-import edu.wpi.first.math.controller.ProfiledPIDController;
+import edu.wpi.first.math.geometry.Twist2d;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 
 public class DriveMobility extends CommandBase {
-  /** Creates a new DriveMobility. */
-  boolean done = false;
-  SwerveDriveSubsystem m_robotDrive;
-  ProfiledPIDController m_headingController;
-  public DriveMobility(SwerveDriveSubsystem driveSubsystem) {
-    // Use addRequirements() here to declare subsystem dependencies.
-    m_headingController = driveSubsystem.headingController;
-    m_headingController.enableContinuousInput(-Math.PI, Math.PI);
+    private static final double kCommunitySizeMeters = 5.8;
+    private static final double kXSpeedM_S = 1.5;
 
-    m_robotDrive = driveSubsystem;
-    addRequirements(m_robotDrive);
+    private final SwerveDriveSubsystem m_robotDrive;
 
-  }
+    private boolean done;
 
-  // Called when the command is initially scheduled.
-  @Override
-  public void initialize() {}
-
-  // Called every time the scheduler runs while the command is scheduled.
-  @Override
-  public void execute() {
-
-    if(m_robotDrive.getPose().getX() < 5.8){
-
-        // Pose2d currentPose = m_robotDrive.getPose();
-
-        
-        // double currentRads = MathUtil.angleModulus(currentPose.getRotation().getRadians());
-
-        // double thetaControllerOutput = m_headingController.calculate(currentRads, 0);
-        // m_robotDrive.resetPose(currentPose.getX(), currentPose.getY(), ;
-        m_robotDrive.drive(0.3, 0, 0, true); //make false 
-
-
-    } else {
-      m_robotDrive.drive(0, 0, 0, true);
-      done = true;
+    /** Drive forward, exiting the community area. */
+    public DriveMobility(SwerveDriveSubsystem robotDrive) {
+        m_robotDrive = robotDrive;
+        addRequirements(m_robotDrive);
     }
 
-  }
+    @Override
+    public void initialize() {
+        done = false;
+    }
 
-  // Called once the command ends or is interrupted.
-  @Override
-  public void end(boolean interrupted) {
-    System.out.println("+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++");
-    m_robotDrive.drive(0, 0, 0, true);
+    @Override
+    public void execute() {
+        if (m_robotDrive.getPose().getX() < kCommunitySizeMeters) {
+            m_robotDrive.driveMetersPerSec(new Twist2d(kXSpeedM_S, 0, 0), true);
+        } else {
+            done = true;
+        }
+    }
 
-  }
+    @Override
+    public boolean isFinished() {
+        return done;
+    }
 
-  // Returns true when the command should end.
-  @Override
-  public boolean isFinished() {
-    return done;
-  }
+    @Override
+    public void end(boolean interrupted) {
+        m_robotDrive.driveMetersPerSec(new Twist2d(0, 0, 0), false);
+    }
 }

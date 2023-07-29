@@ -1,11 +1,11 @@
 package org.team100.frc2023.subsystems;
 
-import org.team100.frc2023.subsystems.drive.FalconDriveEncoder;
-import org.team100.frc2023.subsystems.drive.FalconDriveMotor;
-import org.team100.frc2023.subsystems.turning.AnalogTurningEncoder;
-import org.team100.frc2023.subsystems.turning.CANTurningMotor;
-import org.team100.frc2023.subsystems.turning.FalconTurningMotor;
-import org.team100.frc2023.subsystems.turning.PWMTurningMotor;
+import org.team100.lib.subsystems.SwerveModule;
+import org.team100.lib.subsystems.drive.FalconDriveEncoder;
+import org.team100.lib.subsystems.drive.FalconDriveMotor;
+import org.team100.lib.subsystems.turning.AnalogTurningEncoder;
+import org.team100.lib.subsystems.turning.FalconTurningMotor;
+import org.team100.lib.subsystems.turning.PWMTurningMotor;
 
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
@@ -28,11 +28,9 @@ public class SwerveModuleFactory {
 
         FalconDriveMotor driveMotor = new FalconDriveMotor(name, driveMotorCanId, currentLimit);
         FalconDriveEncoder driveEncoder = new FalconDriveEncoder(name, driveMotor, driveEncoderDistancePerTurn);
-        
+
         FalconTurningMotor turningMotor = new FalconTurningMotor(name, turningMotorCanId);
 
-        // NeoTurningMotor turningMotor = new NeoTurningMotor(name, turningMotorCanId);
-        
         AnalogTurningEncoder turningEncoder = new AnalogTurningEncoder(name, turningEncoderChannel, turningOffset,
                 turningGearRatio);
 
@@ -55,79 +53,18 @@ public class SwerveModuleFactory {
 
         // DRIVE FF
         SimpleMotorFeedforward driveFeedforward = new SimpleMotorFeedforward( //
-                0.06, // kS: from experiment; overcome friction for low-effort moves
-                .3, // kV
-                0.025);
+                0.06, // kS
+                0.3, // kV
+                0.025); // kA
 
         // TURNING FF
         SimpleMotorFeedforward turningFeedforward = new SimpleMotorFeedforward( //
                 0.05, // kS: friction is unimportant
-                0.003,// kV: from experiment; higher than AM modules, less reduction gear
+                0.003, // kV: from experiment; higher than AM modules, less reduction gear
                 0); // kA: I have no idea what this value should be
 
-        SimpleMotorFeedforward headingDriveFeedForward = new SimpleMotorFeedforward( //
-                0.01, // kS: friction is unimportant
-                0.25,// kV: from experiment; higher than AM modules, less reduction gear
-                0); // kA: I have no idea what this value should be
-
-
         return new SwerveModule(name, driveMotor, turningMotor, driveEncoder, turningEncoder,
-                driveController, turningController, driveFeedforward, turningFeedforward, headingDriveFeedForward);
-    }
-
-    // for 8048's config
-    public static SwerveModule AMCANModule(
-            String name,
-            int driveMotorCanId,
-            int turningMotorCanId,
-            int turningEncoderChannel,
-            double turningOffset,
-            double currentLimit) {
-        final double kWheelDiameterMeters = 0.1016; // AndyMark Swerve & Steer has 4 inch wheel
-        final double kDriveReduction = 6.67; // see andymark.com/products/swerve-and-steer
-        final double driveEncoderDistancePerTurn = kWheelDiameterMeters * Math.PI / kDriveReduction;
-        final double turningGearRatio = 1.0; // andymark ma3 encoder is 1:1
-
-        FalconDriveMotor driveMotor = new FalconDriveMotor(name, driveMotorCanId, currentLimit);
-        FalconDriveEncoder driveEncoder = new FalconDriveEncoder(name, driveMotor, driveEncoderDistancePerTurn);
-        CANTurningMotor turningMotor = new CANTurningMotor(name, turningMotorCanId);
-        AnalogTurningEncoder turningEncoder = new AnalogTurningEncoder(name, turningEncoderChannel, turningOffset,
-                turningGearRatio);
-
-        // DRIVE PID
-        PIDController driveController = new PIDController( //
-                0.1, // kP
-                0, // kI
-                0); // kD
-
-        // TURNING PID
-        ProfiledPIDController turningController = new ProfiledPIDController( //
-                0.5, // kP
-                0, // kI
-                0, // kD
-                new TrapezoidProfile.Constraints(
-                        20 * Math.PI, // speed rad/s
-                        20 * Math.PI)); // accel rad/s/s
-        turningController.enableContinuousInput(0, 2 * Math.PI);
-
-        // DRIVE FF
-        SimpleMotorFeedforward driveFeedforward = new SimpleMotorFeedforward( //
-                0.0, // kS
-                .5); // kV
-
-        // TURNING FF
-        SimpleMotorFeedforward turningFeedforward = new SimpleMotorFeedforward( //
-                0.1, // kS
-                0.005); // kV
-
-        SimpleMotorFeedforward headingDriveFeedForward = new SimpleMotorFeedforward( //
-                0.05, // kS: friction is unimportant
-                0.35,// kV: from experiment; higher than AM modules, less reduction gear
-                0.08); // kA: I have no idea what this value should be
-
-
-        return new SwerveModule(name, driveMotor, turningMotor, driveEncoder, turningEncoder,
-                driveController, turningController, driveFeedforward, turningFeedforward, headingDriveFeedForward);
+                driveController, turningController, driveFeedforward, turningFeedforward);
     }
 
     public static SwerveModule AMModule(
@@ -175,13 +112,7 @@ public class SwerveModuleFactory {
                 0.003, // kV
                 0); // kA
 
-        SimpleMotorFeedforward headingDriveFeedForward = new SimpleMotorFeedforward( //
-                0.06, // kS: friction is unimportant //0.06
-                0.25,// kV: from experiment; higher than AM modules, less reduction gear //0.25
-                0.02); // kA: I have no idea what this value should be //0.06
-
-
         return new SwerveModule(name, driveMotor, turningMotor, driveEncoder, turningEncoder,
-                driveController, turningController, driveFeedforward, turningFeedforward, headingDriveFeedForward);
+                driveController, turningController, driveFeedforward, turningFeedforward);
     }
 }

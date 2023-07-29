@@ -1,7 +1,3 @@
-// Copyright (c) FIRST and other WPILib contributors.
-// Open Source Software; you can modify and/or share it under the terms of
-// the WPILib BSD license file in the root directory of this project.
-
 package org.team100.frc2023;
 
 import edu.wpi.first.math.Matrix;
@@ -16,9 +12,8 @@ import edu.wpi.first.math.system.LinearSystem;
 import edu.wpi.first.math.system.LinearSystemLoop;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 
-/** Add your docs here. */
+// TODO: what is this?
 public class LQRManager {
-
     private LinearSystem<N2, N1, N1> m_plant;
     private KalmanFilter<N2, N1, N1> m_observer;
     private LinearQuadraticRegulator<N2, N1, N1> m_controller;
@@ -54,6 +49,4 @@ public class LQRManager {
     public void createFeedforward(){
         feedforward = new LinearPlantInversionFeedforward<>(matrixA, matrixB, 0.020);
     }
-
-    
 }

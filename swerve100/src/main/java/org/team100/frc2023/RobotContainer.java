@@ -1,6 +1,5 @@
 package org.team100.frc2023;
 
-import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 
@@ -9,360 +8,238 @@ import org.team100.frc2023.autonomous.DriveToAprilTag;
 import org.team100.frc2023.autonomous.DriveToWaypoint3;
 import org.team100.frc2023.autonomous.MoveConeWidth;
 import org.team100.frc2023.autonomous.Rotate;
-import org.team100.frc2023.commands.AutoLevel;
 import org.team100.frc2023.commands.Defense;
-import org.team100.frc2023.commands.DriveManually;
-import org.team100.frc2023.commands.DriveMedium;
-import org.team100.frc2023.commands.DriveRotation;
-import org.team100.frc2023.commands.DriveSlow;
+import org.team100.frc2023.commands.DriveScaled;
 import org.team100.frc2023.commands.DriveWithHeading;
-import org.team100.frc2023.commands.GripManually;
-import org.team100.frc2023.commands.ResetPose;
-import org.team100.frc2023.commands.ResetRotation;
 import org.team100.frc2023.commands.RumbleOn;
 import org.team100.frc2023.commands.Arm.ArmTrajectory;
 import org.team100.frc2023.commands.Arm.ManualArm;
 import org.team100.frc2023.commands.Arm.Oscillate;
 import org.team100.frc2023.commands.Arm.SetConeMode;
 import org.team100.frc2023.commands.Arm.SetCubeMode;
-import org.team100.frc2023.commands.Manipulator.Close;
 import org.team100.frc2023.commands.Manipulator.CloseSlow;
+import org.team100.frc2023.commands.Manipulator.Eject;
 import org.team100.frc2023.commands.Manipulator.Home;
-import org.team100.frc2023.commands.Manipulator.Open;
 import org.team100.frc2023.commands.Retro.DriveToRetroReflectiveTape;
-import org.team100.frc2023.commands.Retro.LedOn;
-import org.team100.frc2023.control.DualXboxControl;
-import org.team100.frc2023.retro.Illuminator;
-import org.team100.frc2023.subsystems.AHRSClass;
+import org.team100.frc2023.control.Control;
+import org.team100.frc2023.control.JoystickControl;
 import org.team100.frc2023.subsystems.Manipulator;
-import org.team100.frc2023.subsystems.SwerveDriveSubsystem;
 import org.team100.frc2023.subsystems.arm.ArmController;
 import org.team100.frc2023.subsystems.arm.ArmPosition;
 
+import org.team100.lib.commands.ResetPose;
+import org.team100.lib.commands.ResetRotation;
+import org.team100.lib.commands.Retro.LedOn;
+import org.team100.lib.config.Identity;
+import org.team100.lib.controller.DriveControllersFactory;
+import org.team100.lib.indicator.LEDIndicator;
+import org.team100.lib.localization.AprilTagFieldLayoutWithCorrectOrientation;
+import org.team100.lib.localization.VisionDataProvider;
+import org.team100.lib.retro.Illuminator;
+import org.team100.lib.sensors.RedundantGyro;
+import org.team100.lib.controller.DriveControllers;
+import org.team100.lib.subsystems.Heading;
+import org.team100.lib.subsystems.SpeedLimits;
+import org.team100.lib.subsystems.SpeedLimitsFactory;
+import org.team100.lib.subsystems.SwerveDriveSubsystem;
+import org.team100.lib.subsystems.SwerveModuleCollection;
+import org.team100.lib.subsystems.SwerveModuleCollectionFactory;
+
+import edu.wpi.first.math.VecBuilder;
+import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.util.sendable.Sendable;
 import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 
-@SuppressWarnings("unused")
 public class RobotContainer implements Sendable {
-    
+    //////////////////////////////////////
+    // SHOW MODE
+    //
+    // Show mode is for younger drivers to drive the robot slowly.
+    //
+    // TODO: make a physical show mode switch.
+    private static final boolean SHOW_MODE = false;
+    //
+    //////////////////////////////////////
+
+    private static final double kDriveCurrentLimit = SHOW_MODE ? 20 : 60;
 
     // CONFIG
-
-    
-    public DriverStation.Alliance m_alliance;
+    private final DriverStation.Alliance m_alliance;
 
     // SUBSYSTEMS
-    public final SwerveDriveSubsystem m_robotDrive;
+    private final Heading m_heading;
+    private final LEDIndicator m_indicator;
+    private final RedundantGyro ahrsclass;
+    private final Field2d m_field;
+    private final AprilTagFieldLayoutWithCorrectOrientation layout;
+    private final SwerveDriveSubsystem m_robotDrive;
     private final Manipulator manipulator;
     private final ArmController armController;
-    private final AHRSClass 
-    ahrsclass;
-
-    // CONTROL
-    private final DualXboxControl control;
-
-    // COMMANDS
-    private final AutoLevel autoLevel;
-    private final DriveManually driveManually;
-    private final GripManually gripManually;
-    private final ManualArm manualArm;
-
-
-    private final DriveWithHeading driveWithHeading;
-    private final DriveRotation driveRotation;
-    private final Defense defense;
-    private final ResetRotation resetRotation0;
-    private final ResetRotation resetRotation180;
-
-    File myObj;
-    FileWriter myWriter;
-
-    private final DriveToAprilTag driveToSubstation, driveToLeftGrid, driveToCenterGrid, driveToRightGrid;
-
-    private final ArmTrajectory armHigh;
-    private final ArmTrajectory armSafe;
-    private final ArmTrajectory armSubstation;
-    private final ArmTrajectory armLow;
-    private final ArmTrajectory armSafeBack;
-    private final ArmTrajectory armToSub;
-    private final ArmTrajectory armMid;
-    private final ArmTrajectory armSafeWaypoint;
-    private final Oscillate oscillate;
-    // private final ArmTrajectory armSafeWaypoint;
-
     private final Illuminator illuminator;
 
-    private final LedOn ledOn;
-    private final DriveToRetroReflectiveTape retroTape;
+    // CONTROLLERS
+    private final DriveControllers controllers;
 
-    private final SetCubeMode setCubeMode; 
-    private final SetConeMode setConeMode; 
+    // HID CONTROL
+    private final Control control;
 
-
-    private final Home homeCommand;
-    private final Close closeCommand;
-    private final Open openCommand;
-    private final CloseSlow closeSlowCommand;
-
-    private final DriveSlow driveSlow;
-
-    private final MoveConeWidth moveConeWidthLeft;
-    private final MoveConeWidth moveConeWidthRight;
-
-    public final static Field2d m_field = new Field2d();
-
-    public final RumbleOn rumbleOn;
-
-    public final Rotate rotateCommand;
-
+    private final FileWriter myWriter;
     public static boolean enabled = false;
-
-    public DriveMedium driveMediumCommand;
-
     public double m_routine = -1;
 
     public DriveToWaypoint3 driveLQR;
 
-
-    
-
-
-
     public RobotContainer(DriverStation.Alliance alliance) throws IOException {
-        // THIS IS BABY MODE
-        final double kDriveCurrentLimit = 20;
-        ahrsclass = new AHRSClass();
-        manipulator = new Manipulator();
-        armController = new ArmController();
-        illuminator = new Illuminator();
-
-        // // NEW CONTROL
-        control = new DualXboxControl();
-
-        myObj = new File("/home/lvuser/logs.txt");
-        myWriter = new FileWriter("/home/lvuser/logs.txt", true);
-
-
         // m_alliance = DriverStation.getAlliance();
         m_alliance = alliance;
 
-        m_robotDrive = new SwerveDriveSubsystem(m_alliance, kDriveCurrentLimit, ahrsclass, control);
+        m_indicator = new LEDIndicator(8);
+        ahrsclass = new RedundantGyro();
+        m_heading = new Heading(ahrsclass);
+        m_field = new Field2d();
+        SpeedLimits speedLimits = SpeedLimitsFactory.get(Identity.get(), SHOW_MODE);
+        SwerveModuleCollection modules = SwerveModuleCollectionFactory.get(Identity.get(), kDriveCurrentLimit);
+        SwerveDrivePoseEstimator poseEstimator = new SwerveDrivePoseEstimator(
+                SwerveDriveSubsystem.kDriveKinematics,
+                m_heading.getHeading(),
+                modules.positions(),
+                new Pose2d(),
+                VecBuilder.fill(0.5, 0.5, 0.5),
+                VecBuilder.fill(0.4, 0.4, 0.4)); // note tight rotation variance here, used to be MAX_VALUE
 
-        if (m_alliance == DriverStation.Alliance.Blue) {
-            // driveToLeftGrid = DriveToAprilTag.newDriveToAprilTag(6, 0.95, .55, control::goalOffset, m_robotDrive, ahrsclass);
-            driveToLeftGrid = DriveToAprilTag.newDriveToAprilTag(6, 1.25, 0, control::goalOffset, m_robotDrive,  ahrsclass, () -> 0.0);
-
-            driveToCenterGrid = DriveToAprilTag.newDriveToAprilTag(7, 0.95, .55, control::goalOffset, m_robotDrive, ahrsclass, () -> 0.0);
-            driveToRightGrid = DriveToAprilTag.newDriveToAprilTag(8, 0.95, .55, control::goalOffset, m_robotDrive, ahrsclass, () -> 0.0);
-            driveToSubstation = DriveToAprilTag.newDriveToAprilTag(4, 0.53, -0.749, control::goalOffset, m_robotDrive, ahrsclass, () -> 0.0);
-        } else {
-            driveToLeftGrid = DriveToAprilTag.newDriveToAprilTag(1, 0.95, .55, control::goalOffset, m_robotDrive, ahrsclass, () -> 0.0);
-            driveToCenterGrid = DriveToAprilTag.newDriveToAprilTag(2, 0.95, .55, control::goalOffset, m_robotDrive, ahrsclass, () -> 0.0);
-            driveToRightGrid = DriveToAprilTag.newDriveToAprilTag(3, 0.95, .55, control::goalOffset, m_robotDrive, ahrsclass,() -> 0.0);
-            // driveToSubstation = DriveToAprilTag.newDriveToAprilTag(5, 0.53, -0.749, control::goalOffset, m_robotDrive, ahrsclass);
-            driveToSubstation = DriveToAprilTag.newDriveToAprilTag(5, 0.9, -0.72, control::goalOffset, m_robotDrive, ahrsclass, () -> 0.0);
-
+        if (alliance == DriverStation.Alliance.Blue) {
+            layout = AprilTagFieldLayoutWithCorrectOrientation.blueLayout();
+        } else { // red
+            layout = AprilTagFieldLayoutWithCorrectOrientation.redLayout();
         }
 
-        // if (m_alliance == DriverStation.Alliance.Blue) {
-        //     // driveToLeftGrid = DriveToAprilTag.newDriveToAprilTag(6, 0.95, .55, control::goalOffset, m_robotDrive, ahrsclass);
-        //     driveToLeftGrid = DriveToAprilTag.newDriveToAprilTag(6, 1.25, 0, control::goalOffset, m_robotDrive,  ahrsclass, () -> manipulator.getGamePieceOffset());
+        VisionDataProvider visionDataProvider = new VisionDataProvider(
+                layout,
+                poseEstimator,
+                poseEstimator::getEstimatedPosition);
+        visionDataProvider.updateTimestamp(); // this is just to keep lint from complaining
 
-        //     driveToCenterGrid = DriveToAprilTag.newDriveToAprilTag(7, 0.95, .55, control::goalOffset, m_robotDrive, ahrsclass, () -> manipulator.getGamePieceOffset());
-        //     driveToRightGrid = DriveToAprilTag.newDriveToAprilTag(8, 0.95, .55, control::goalOffset, m_robotDrive, ahrsclass, () -> manipulator.getGamePieceOffset());
-        //     driveToSubstation = DriveToAprilTag.newDriveToAprilTag(4, 0.53, -0.749, control::goalOffset, m_robotDrive, ahrsclass, () -> manipulator.getGamePieceOffset());
-        // } else {
-        //     driveToLeftGrid = DriveToAprilTag.newDriveToAprilTag(1, 0.95, .55, control::goalOffset, m_robotDrive, ahrsclass, () -> manipulator.getGamePieceOffset());
-        //     driveToCenterGrid = DriveToAprilTag.newDriveToAprilTag(2, 0.95, .55, control::goalOffset, m_robotDrive, ahrsclass, () -> manipulator.getGamePieceOffset());
-        //     driveToRightGrid = DriveToAprilTag.newDriveToAprilTag(3, 0.95, .55, control::goalOffset, m_robotDrive, ahrsclass, () -> manipulator.getGamePieceOffset());
-        //     // driveToSubstation = DriveToAprilTag.newDriveToAprilTag(5, 0.53, -0.749, control::goalOffset, m_robotDrive, ahrsclass);
-        //     driveToSubstation = DriveToAprilTag.newDriveToAprilTag(5, 0.9, -0.72, control::goalOffset, m_robotDrive, ahrsclass,() -> manipulator.getGamePieceOffset());
-
-        // }
-
-        
-        armHigh = new ArmTrajectory(ArmPosition.HIGH, armController);
-
-        armSafe = new ArmTrajectory(ArmPosition.SAFE, armController);
-
-        armSubstation = new ArmTrajectory(ArmPosition.SUB, armController);
-
-        oscillate = new Oscillate(armController);
-
-        ResetRotation resetRotation = new ResetRotation(m_robotDrive, new Rotation2d());
-        autoLevel = new AutoLevel(false, m_robotDrive, ahrsclass);
-
-        ResetPose resetPose = new ResetPose(m_robotDrive, 0, 0, 0);
-
-        homeCommand = new Home(manipulator);
-
-        openCommand = new Open(manipulator);
-
-        closeCommand = new Close(manipulator);
-
-        setCubeMode = new SetCubeMode(armController, m_robotDrive);
-        
-        setConeMode = new SetConeMode(armController, m_robotDrive);
-
-        driveSlow = new DriveSlow(m_robotDrive, control);
-
-        resetRotation0 = new ResetRotation(m_robotDrive, new Rotation2d(0));
-
-        resetRotation180 = new ResetRotation(m_robotDrive, Rotation2d.fromDegrees(180));
-
-        armLow = new ArmTrajectory(ArmPosition.MID, armController);
-
-        armToSub = new ArmTrajectory(ArmPosition.SUBTOCUBE, armController);
-
-        armMid = new ArmTrajectory(ArmPosition.LOW, armController);
-
-        retroTape = new DriveToRetroReflectiveTape(m_robotDrive);
-
-        closeSlowCommand = new CloseSlow(manipulator);
-
-        rotateCommand = new Rotate(m_robotDrive, 0);
-
-        armSafeWaypoint = new ArmTrajectory(ArmPosition.SAFEWAYPOINT, armController);
-
-
-        driveWithHeading = new DriveWithHeading(
-                m_robotDrive,
-                control::xSpeed,
-                control::ySpeed,
-                control::desiredRotation,
-                control::rotSpeed,
-                "",
+        m_robotDrive = new SwerveDriveSubsystem(
+                m_heading,
+                speedLimits,
+                modules,
+                poseEstimator,
+                kDriveCurrentLimit,
                 ahrsclass,
-                armController);
+                m_field);
+        manipulator = new Manipulator();
+        armController = new ArmController();
+        illuminator = new Illuminator(25);
+          
 
-        driveRotation = new DriveRotation(m_robotDrive, control::rotSpeed);
+        controllers = DriveControllersFactory.get(Identity.get(), speedLimits);
 
-        defense = new Defense(m_robotDrive);
+        // TODO: control selection using names
+        // control = new DualXboxControl();
+        control = new JoystickControl();
 
-        manualArm = new ManualArm(armController, control);
+        myWriter = logFile();
 
-        armSafeBack = new ArmTrajectory(ArmPosition.SAFEBACK, armController);
+        ////////////////////////////
+        // DRIVETRAIN COMMANDS
+        // control.autoLevel(new AutoLevel(false, m_robotDrive, ahrsclass));
+        if (m_alliance == DriverStation.Alliance.Blue) {
+            control.driveToLeftGrid(toTag(6, 1.25, 0));
+            control.driveToCenterGrid(toTag(7, 0.95, .55));
+            control.driveToRightGrid(toTag(8, 0.95, .55));
+            control.driveToSubstation(toTag(4, 0.53, -0.749));
+        } else {
+            control.driveToLeftGrid(toTag(1, 0.95, .55));
+            control.driveToCenterGrid(toTag(2, 0.95, .55));
+            control.driveToRightGrid(toTag(3, 0.95, .55));
+            control.driveToSubstation(toTag(5, 0.9, -0.72));
+        }
+        control.defense(new Defense(m_robotDrive));
+        control.resetRotation0(new ResetRotation(m_robotDrive, new Rotation2d(0)));
+        control.resetRotation180(new ResetRotation(m_robotDrive, Rotation2d.fromDegrees(180)));
+        control.driveSlow(new DriveScaled(control::twist, m_robotDrive, 0.4, 0.5));
+        control.driveMedium(new DriveScaled(control::twist, m_robotDrive, 2.0, 0.5));
+        control.resetPose(new ResetPose(m_robotDrive, 0, 0, 0));
+        control.tapeDetect(new DriveToRetroReflectiveTape(m_robotDrive));
+        control.rotate0(new Rotate(m_robotDrive, speedLimits, controllers.rotateController, new Timer(), 0));
 
-        ledOn = new LedOn(illuminator);
+        control.moveConeWidthLeft(new MoveConeWidth(m_robotDrive, 1));
+        control.moveConeWidthRight(new MoveConeWidth(m_robotDrive, -1));
+      
+        control.driveWithLQR(new DriveToWaypoint3(new Pose2d(5, 0, new Rotation2d()), m_robotDrive, ahrsclass));
 
-        rumbleOn = new RumbleOn(control);
+        ///////////////////////////
+        // MANIPULATOR COMMANDS
+        // control.open(new Open(manipulator));
+        control.close(new Eject(manipulator));
+        control.home(new Home(manipulator));
+        control.closeSlow(new CloseSlow(manipulator));
 
-        driveMediumCommand = new DriveMedium(m_robotDrive, control);
-
-        moveConeWidthLeft = new MoveConeWidth(m_robotDrive, 1);
-        moveConeWidthRight = new MoveConeWidth(m_robotDrive, -1);
-
-        driveLQR = new DriveToWaypoint3(new Pose2d(5, 0, new Rotation2d()), m_robotDrive, ahrsclass);
-
-
-        // control.autoLevel(autoLevel);
-        control.driveToLeftGrid(driveToLeftGrid);
-        control.driveToCenterGrid(driveToCenterGrid);
-        control.driveToRightGrid(driveToRightGrid);
-        control.driveToSubstation(driveToSubstation);
-        control.defense(defense);
-        
-        control.resetRotation0(resetRotation0);
-        control.resetRotation180(resetRotation180);
-
-        control.armHigh(armHigh);
-        control.armSafe(armSafe);
-        // control.armSubstation(armSubstation);
-
-        // control.open(openCommand);
-        control.close(closeCommand);
-        control.home(homeCommand);
-
-        control.coneMode(setConeMode);
-        control.cubeMode(setCubeMode);
-
-        control.driveSlow(driveSlow);
-
-        control.armSubstation(armSubstation);
-
-        control.armLow(armLow);
-
-        control.armSafeBack(armSafeBack);
-
-        control.armToSub(armToSub);
-
-        // control.armMid(armMid);
-
-        control.resetPose(resetPose);
-
-        control.ledOn(ledOn);
-
-        control.tapeDetect(retroTape);
-        
-        control.rumbleTrigger(rumbleOn);
-
-        control.closeSlow(closeSlowCommand);
-
-        control.rotate0(rotateCommand);
-
-        control.driveMedium(driveMediumCommand);
-
-        // control.armSubSafe(armSubSafe);
-        control.armSafe(armSafe);
-
-        control.safeWaypoint(armSafeWaypoint);
-
-        control.oscillate(oscillate);
- 
+        ////////////////////////////
+        // ARM COMMANDS
+        control.armHigh(new ArmTrajectory(ArmPosition.HIGH, armController));
+        control.armSafe(new ArmTrajectory(ArmPosition.SAFE, armController));
+        control.armSubstation(new ArmTrajectory(ArmPosition.SUB, armController));
+        control.coneMode(new SetConeMode(armController, m_indicator));
+        control.cubeMode(new SetCubeMode(armController, m_indicator));
+        control.armLow(new ArmTrajectory(ArmPosition.MID, armController));
+        control.armSafeBack(new ArmTrajectory(ArmPosition.SAFEBACK, armController));
+        control.armToSub(new ArmTrajectory(ArmPosition.SUBTOCUBE, armController));
+        control.safeWaypoint(new ArmTrajectory(ArmPosition.SAFEWAYPOINT, armController));
+        control.oscillate(new Oscillate(armController));
         // control.armSafeSequential(armSafeWaypoint, armSafe);
+        // control.armMid(new ArmTrajectory(ArmPosition.LOW, armController));
 
-        control.moveConeWidthLeft(moveConeWidthLeft);
-        control.moveConeWidthRight(moveConeWidthRight);
+        //////////////////////////
+        // MISC COMMANDS
+        control.ledOn(new LedOn(illuminator));
+        control.rumbleTrigger(new RumbleOn(control));
 
+        ///////////////////////////
+        // DRIVE
 
-        control.driveWithLQR(driveLQR);
+        if (SHOW_MODE) {
+            m_robotDrive.setDefaultCommand(
+                    new DriveScaled(
+                            control::twist,
+                            m_robotDrive,
+                            speedLimits.kMaxSpeedMetersPerSecond,
+                            speedLimits.kMaxAngularSpeedRadiansPerSecond));
+        } else {
+            m_robotDrive.setDefaultCommand(
+                    new DriveWithHeading(
+                            control::twist,
+                            m_robotDrive,
+                            controllers,
+                            speedLimits.kMaxSpeedMetersPerSecond,
+                            speedLimits.kMaxAngularSpeedRadiansPerSecond,
+                            control::desiredRotation,
+                            ahrsclass));
+        }
 
+        /////////////////////////
+        // MANIPULATOR
+        manipulator.setDefaultCommand(new RunCommand(() -> {
+            manipulator.set(0, 30);
+        }, manipulator));
 
-        // DEFAULT COMMANDS
-        // Controller 0 right => cartesian, left => rotation
-        driveManually = new DriveManually(
-                control::xSpeed,
-                control::ySpeed,
-                control::rotSpeed,
-                m_robotDrive);
-
-        m_robotDrive.setDefaultCommand(driveManually);
-
-        // Controller 1 triggers => manipulator open/close
-        gripManually = new GripManually(
-                control::openSpeed,
-                control::closeSpeed,
-                manipulator);
-
-        // manipulator.setDefaultCommand(gripManually);
-
-        manipulator.setDefaultCommand(new RunCommand(() -> { manipulator.pinch(0); }, manipulator));
-
-        armController.setDefaultCommand(manualArm);
-
+        ////////////////////////
+        // ARM
+        armController.setDefaultCommand(new ManualArm(armController, control));
         SmartDashboard.putData("Robot Container", this);
     }
 
-    
-
-    public Command getAutonomousCommand2(int routine, boolean isBlueAlliance) {
-        // return new SequentialCommandGroup(
-        // new IshanAutonomous(m_robotDrive),
-        // new IshanAutonomous(m_robotDrive)
-        // );
-
-        return new Autonomous(m_robotDrive, armController, manipulator, ahrsclass, routine, isBlueAlliance);
-
-        // return new SanjanAutonomous(AutonSelect.BLUE1, m_robotDrive, armController, manipulator);
-        // return new Autonomous(Aut-onSelect.BLUE2, AutonGamePiece.CONE, m_robotDrive, armController, manipulator);
+    public Command getAutonomousCommand2(int routine) {
+        return new Autonomous(m_robotDrive, armController, manipulator, ahrsclass, m_indicator, routine);
     }
 
     public void runTest() {
@@ -381,58 +258,92 @@ public class RobotContainer implements Sendable {
     }
 
     public void runTest2() {
-        
-            XboxController controller0 = new XboxController(0);
-            boolean rearLeft = controller0.getAButton();
-            boolean rearRight = controller0.getBButton();
-            boolean frontLeft = controller0.getXButton();
-            boolean frontRight = controller0.getYButton();
-            double driveControl = controller0.getLeftY();
-            double turnControl = controller0.getLeftX();
-            double[][] desiredOutputs = {
-                    { frontLeft ? driveControl : 0, frontLeft ? turnControl : 0 },
-                    { frontRight ? driveControl : 0, frontRight ? turnControl : 0 },
-                    { rearLeft ? driveControl : 0, rearLeft ? turnControl : 0 },
-                    { rearRight ? driveControl : 0, rearRight ? turnControl : 0 }
-            };
-            m_robotDrive.test(desiredOutputs, myWriter);
-        
-       
+
+        XboxController controller0 = new XboxController(0);
+        boolean rearLeft = controller0.getAButton();
+        boolean rearRight = controller0.getBButton();
+        boolean frontLeft = controller0.getXButton();
+        boolean frontRight = controller0.getYButton();
+        double driveControl = controller0.getLeftY();
+        double turnControl = controller0.getLeftX();
+        double[][] desiredOutputs = {
+                { frontLeft ? driveControl : 0, frontLeft ? turnControl : 0 },
+                { frontRight ? driveControl : 0, frontRight ? turnControl : 0 },
+                { rearLeft ? driveControl : 0, rearLeft ? turnControl : 0 },
+                { rearRight ? driveControl : 0, rearRight ? turnControl : 0 }
+        };
+        m_robotDrive.test(desiredOutputs, myWriter);
+
+    }
+
+    public static boolean isEnabled() {
+        return enabled;
+    }
+
+    public boolean isBlueAlliance() {
+        return m_alliance == DriverStation.Alliance.Blue;
+    }
+
+    public double getRoutine() {
+        return m_routine;
+    }
+
+    public void ledStart() {
+        m_indicator.orange();
+    }
+
+    public void ledStop() {
+        m_indicator.close();
+    }
+
+    public void red() {
+        m_indicator.red();
+    }
+
+    public void green() {
+        m_indicator.green();
+    }
+
+    private static FileWriter logFile() {
+        try {
+            return new FileWriter("/home/lvuser/logs.txt", true);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    private DriveToAprilTag toTag(int tagID, double xOffset, double yOffset) {
+        return DriveToAprilTag.newDriveToAprilTag(tagID, xOffset, yOffset,
+                control::goalOffset, m_robotDrive, layout,
+                ahrsclass, () -> 0.0);
     }
 
     @Override
     public void initSendable(SendableBuilder builder) {
         builder.setSmartDashboardType("container");
-        builder.addDoubleProperty("theta controller error", () -> m_robotDrive.thetaController.getPositionError(),
-                null);
-        builder.addDoubleProperty("x controller error", () -> m_robotDrive.xController.getPositionError(), null);
-        builder.addDoubleProperty("y controller error", () -> m_robotDrive.yController.getPositionError(), null);
+        builder.addDoubleProperty("theta controller error",
+                () -> controllers.thetaController.getPositionError(), null);
+        builder.addDoubleProperty("x controller error",
+                () -> controllers.xController.getPositionError(), null);
+        builder.addDoubleProperty("y controller error",
+                () -> controllers.yController.getPositionError(), null);
         builder.addBooleanProperty("Is Blue Alliance", () -> isBlueAlliance(), null);
         builder.addDoubleProperty("Routine", () -> getRoutine(), null);
 
+        builder.addDoubleProperty("Theta Controller Error", () -> controllers.thetaController.getPositionError(), null);
+        builder.addDoubleProperty("Theta Controller Setpoint", () -> controllers.thetaController.getSetpoint().position,
+                null);
+
+        builder.addDoubleProperty("X controller Error (m)", () -> controllers.xController.getPositionError(), null);
+        builder.addDoubleProperty("X controller Setpoint", () -> controllers.xController.getSetpoint(), null);
+
+        builder.addDoubleProperty("Y controller Error (m)", () -> controllers.yController.getPositionError(), null);
+        builder.addDoubleProperty("Y controller Setpoint", () -> controllers.yController.getSetpoint(), null);
+
+        builder.addDoubleProperty("Heading Degrees", () -> m_heading.getHeading().getDegrees(), null);
+        builder.addDoubleProperty("Heading Radians", () -> m_heading.getHeading().getRadians(), null);
+
     }
 
-    public void ledStart(){
-        m_robotDrive.visionDataProvider.indicator.orange();
-    }
-
-    public void ledStop(){
-        m_robotDrive.visionDataProvider.indicator.close();
-    }
-
-    public static boolean isEnabled(){
-        return enabled;
-    }
-
-    public boolean isBlueAlliance(){
-        if(m_alliance == DriverStation.Alliance.Blue){
-            return true;
-        } 
-        return false;
-        
-    }
-
-    public double getRoutine(){
-        return m_routine;
-    }
 }

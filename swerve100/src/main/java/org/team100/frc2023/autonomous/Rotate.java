@@ -1,73 +1,92 @@
 package org.team100.frc2023.autonomous;
 
-import org.team100.frc2023.subsystems.SwerveDriveSubsystem;
+import org.team100.lib.subsystems.SpeedLimits;
+import org.team100.lib.subsystems.SwerveDriveSubsystemInterface;
 
+import com.acmerobotics.roadrunner.profile.MotionProfile;
+import com.acmerobotics.roadrunner.profile.MotionProfileGenerator;
+import com.acmerobotics.roadrunner.profile.MotionState;
+
+import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.geometry.Twist2d;
 import edu.wpi.first.util.sendable.SendableBuilder;
-// import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj2.command.ProfiledPIDCommand;
+import edu.wpi.first.wpilibj2.command.CommandBase;
 
-/** Add your docs here. */
-public class Rotate extends ProfiledPIDCommand {
-    // private final Timer m_timer = new Timer();
-    SwerveDriveSubsystem m_robotDrive;
+/**
+ * Uses a timed profile, which avoids the bad ProfiledPidController behavior of
+ * staying behind.  Also demonstrates Roadrunner MotionProfiles.
+ */
+public class Rotate extends CommandBase {
+    private final SwerveDriveSubsystemInterface m_robotDrive;
+    private final SpeedLimits speedLimits;
+    private final PIDController controller;
+    private final Timer m_timer;
+    private final MotionState goalState;
+    MotionProfile profile; // set in initialize(), package private for testing
+    MotionState reference; // updated in execute(), package private for testing.
 
-    public Rotate(SwerveDriveSubsystem m_robotDrive, double targetAngleRadians) {
-        super(
-                // new PIDController(1, 0, 0),
-                m_robotDrive.rotateController,
-                () -> m_robotDrive.getPose().getRotation().getRadians(),
-                targetAngleRadians,
-                (output, state) -> m_robotDrive.drive(0, 0, output, false),
-                m_robotDrive);
+    public Rotate(
+            SwerveDriveSubsystemInterface drivetrain,
+            SpeedLimits speedLimits,
+            PIDController newController,
+            Timer timer,
+            double targetAngleRadians) {
+        m_robotDrive = drivetrain;
+        this.speedLimits = speedLimits;
+        controller = newController;
 
-        getController().enableContinuousInput(-Math.PI, Math.PI);
-        getController().setTolerance(0.001);
-        m_robotDrive.thetaController.atSetpoint();
-        this.m_robotDrive = m_robotDrive;
+        m_timer = timer;
 
+        goalState = new MotionState(targetAngleRadians, 0);
+        if (drivetrain != null)
+            addRequirements(drivetrain);
+
+        reference = new MotionState(0, 0);
         SmartDashboard.putData("ROTATE COMMAND", this);
-
     }
 
-    // @Override
-    // public void initialize() {
-    // m_timer.start();
-    // } 
+    @Override
+    public void initialize() {
+        // TODO: nonzero start velocity
+        MotionState start = new MotionState(m_robotDrive.getPose().getRotation().getRadians(), 0);
+        profile = MotionProfileGenerator.generateSimpleMotionProfile(
+                start,
+                goalState,
+                speedLimits.kMaxAngularSpeedRadiansPerSecond,
+                speedLimits.kMaxAngularAccelRad_SS,
+                speedLimits.kMaxAngularJerkRadiansPerSecondCubed);
+        m_timer.reset();
+    }
+
+    @Override
+    public void execute() {
+        double measurement = m_robotDrive.getPose().getRotation().getRadians();
+        reference = profile.get(m_timer.get());
+        double feedForward = reference.getV(); // this is radians/sec
+        double controllerOutput = controller.calculate(measurement, reference.getX()); // radians
+        double totalOutput = feedForward + controllerOutput;
+        m_robotDrive.driveMetersPerSec(new Twist2d(0, 0, totalOutput), false);
+    }
 
     @Override
     public boolean isFinished() {
-        return getController().atGoal();
-
-        
+        return m_timer.get() > profile.duration() && controller.atSetpoint();
     }
 
     @Override
     public void end(boolean isInterupted) {
-        System.out.println("DONEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE");
-        // m_timer.stop();
-
-        m_robotDrive.m_frontLeft.setOutput(0, 0);
-        
-        m_robotDrive.m_frontRight.setOutput(0, 0);
-
-        m_robotDrive.m_rearLeft.setOutput(0, 0);
-
-        m_robotDrive.m_rearRight.setOutput(0, 0);
+        m_robotDrive.stop();
     }
 
     @Override
     public void initSendable(SendableBuilder builder) {
         super.initSendable(builder);
-        builder.addDoubleProperty("Error", () -> getController().getPositionError(), null);
-        builder.addDoubleProperty("Measurment", () -> this.m_robotDrive.getPose().getRotation().getRadians(), null);
-        builder.addDoubleProperty("Goal", () -> getController().getGoal().position, null);
-        builder.addDoubleProperty("GoalVelocity", () -> getController().getGoal().velocity, null);
-        builder.addDoubleProperty("Setpoint", () -> getController().getSetpoint().position, null);
-        // builder.addDoubleProperty("Position Error", () ->
-        // this.m_controller.getPositionError(), null);
-        // builder.addDoubleProperty("Setpoint", () -> getController().getSetpoint(),
-        // null);
-
+        builder.addDoubleProperty("Error", () -> controller.getPositionError(), null);
+        builder.addDoubleProperty("Measurement", () -> m_robotDrive.getPose().getRotation().getRadians(), null);
+        builder.addDoubleProperty("Reference Position", () -> reference.getX(), null);
+        builder.addDoubleProperty("Reference Velocity", () -> reference.getV(), null);
+        builder.addDoubleProperty("Setpoint", () -> controller.getSetpoint(), null);
     }
 }

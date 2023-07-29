@@ -5,25 +5,27 @@ import org.team100.frc2023.autonomous.MoveConeWidth;
 import org.team100.frc2023.autonomous.Rotate;
 import org.team100.frc2023.commands.AutoLevel;
 import org.team100.frc2023.commands.Defense;
-import org.team100.frc2023.commands.DriveMedium;
-import org.team100.frc2023.commands.DriveSlow;
+import org.team100.frc2023.commands.DriveScaled;
 import org.team100.frc2023.commands.GoalOffset;
-import org.team100.frc2023.commands.ResetPose;
-import org.team100.frc2023.commands.ResetRotation;
 import org.team100.frc2023.commands.RumbleOn;
 import org.team100.frc2023.commands.Arm.ArmTrajectory;
 import org.team100.frc2023.commands.Arm.Oscillate;
 import org.team100.frc2023.commands.Arm.SetConeMode;
 import org.team100.frc2023.commands.Arm.SetCubeMode;
-import org.team100.frc2023.commands.Manipulator.Close;
 import org.team100.frc2023.commands.Manipulator.CloseSlow;
+import org.team100.frc2023.commands.Manipulator.Eject;
 import org.team100.frc2023.commands.Manipulator.Home;
 import org.team100.frc2023.commands.Manipulator.Open;
 import org.team100.frc2023.commands.Retro.DriveToRetroReflectiveTape;
-import org.team100.frc2023.commands.Retro.LedOn;
+import org.team100.lib.commands.ResetPose;
+import org.team100.lib.commands.ResetRotation;
+import org.team100.lib.commands.Retro.LedOn;
 
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Twist2d;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 
+/** Implementations should do their own deadbanding, scaling, expo, etc. */
 public interface Control {
 
     ///////////////////////////////
@@ -44,16 +46,15 @@ public interface Control {
 
     void resetRotation180(ResetRotation command);
 
-    /** @return [-1,1] */
-    double xSpeed();
+    /** forward positive, left positive, counterclockwise positive, [-1,1] */
+    Twist2d twist();
 
-    /** @return [-1,1] */
-    double ySpeed();
+    // used for position control
+    Trigger trigger();
 
-    /** @return [-1,1] */
-    double rotSpeed();
+    Trigger thumb();
 
-    void driveSlow(DriveSlow command);
+    void driveSlow(DriveScaled command);
 
     void resetPose(ResetPose command);
 
@@ -71,7 +72,7 @@ public interface Control {
 
     void rotate0(Rotate command);
 
-    void driveMedium(DriveMedium command);
+    void driveMedium(DriveScaled command);
 
     void moveConeWidthLeft(MoveConeWidth command);
 
@@ -115,7 +116,7 @@ public interface Control {
 
     void home(Home command);
 
-    void close(Close command);
+    void close(Eject command);
 
     void cubeMode(SetCubeMode command);
 

@@ -3,8 +3,11 @@ package org.team100.frc2023.autonomous;
 import java.util.List;
 import java.util.function.Supplier;
 
-import org.team100.frc2023.subsystems.AHRSClass;
-import org.team100.frc2023.subsystems.SwerveDriveSubsystem;
+import org.team100.frc2023.commands.SwerveControllerCommand;
+import org.team100.lib.localization.AprilTagFieldLayoutWithCorrectOrientation;
+import org.team100.lib.sensors.RedundantGyro;
+import org.team100.lib.controller.DriveControllers;
+import org.team100.lib.subsystems.SwerveDriveSubsystem;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -12,36 +15,52 @@ import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.math.trajectory.TrajectoryConfig;
 import edu.wpi.first.math.trajectory.TrajectoryGenerator;
 
-/** Add your docs here. */
-public class MoveToAprilTag extends TrajectoryCommand {
+public class MoveToAprilTag extends SwerveControllerCommand {
+    private static final double speedMetersPerSecond = 2;
+    private static final double accelerationMetersPerSecondSquared = 1;
+    private static final TrajectoryConfig trajectoryConfig = new TrajectoryConfig(
+            speedMetersPerSecond,
+            accelerationMetersPerSecondSquared)
+            .setKinematics(SwerveDriveSubsystem.kDriveKinematics);
 
-    public MoveToAprilTag(SwerveDriveSubsystem m_robotDrive, Trajectory trajectory, AHRSClass gyro) {
-        super(m_robotDrive, trajectory, gyro);
+
+    public MoveToAprilTag(
+            SwerveDriveSubsystem m_robotDrive,
+            DriveControllers controllers,
+            AprilTagFieldLayoutWithCorrectOrientation layout,
+            Supplier<Pose2d> getPose,
+            int tagID,
+            RedundantGyro gyro) {
+        super(
+                genTrajectory(m_robotDrive, layout, getPose, tagID),
+                m_robotDrive::getPose,
+                SwerveDriveSubsystem.kDriveKinematics,
+                controllers.xController,
+                controllers.yController,
+                controllers.thetaController,
+                () -> new Rotation2d(),
+                m_robotDrive::setModuleStates,
+                gyro,
+                m_robotDrive);
+        addRequirements(m_robotDrive);
     }
 
-    public static MoveToAprilTag newMoveToAprilTag(SwerveDriveSubsystem m_robotDrive, Supplier<Pose2d> getPose, int tagID, AHRSClass gyro) {
-        // HashTag hashTag = new HashTag();
-        Pose2d aprilPose = m_robotDrive.visionDataProvider.layout.getTagPose(tagID).get().toPose2d();
-        
-        TrajectoryConfig trajectoryConfig = new TrajectoryConfig(
-                2,
-                1)
-                // Add kinematics to ensure max speed is actually obeyed
-                .setKinematics(SwerveDriveSubsystem.kDriveKinematics);
-
-        System.out.println("MOVE TO APRIL TAG****************************************************************");
-
+    private static Trajectory genTrajectory(
+            SwerveDriveSubsystem m_robotDrive,
+            AprilTagFieldLayoutWithCorrectOrientation layout,
+            Supplier<Pose2d> getPose,
+            int tagID) {
+        Pose2d aprilPose = layout.getTagPose(tagID).get().toPose2d();
 
         Trajectory exampleTrajectory = TrajectoryGenerator.generateTrajectory(
-                // Start at the origin facing the +X direction
                 getPose.get(),
                 List.of(),
-                new Pose2d(aprilPose.getX()-1, aprilPose.getY(), new Rotation2d(aprilPose.getRotation().getDegrees())),
+                new Pose2d(
+                        aprilPose.getX() - 1,
+                        aprilPose.getY(),
+                        new Rotation2d(aprilPose.getRotation().getDegrees())),
                 trajectoryConfig);
 
-        return new MoveToAprilTag(m_robotDrive, exampleTrajectory, gyro);
-
+        return exampleTrajectory;
     }
-
-
 }
