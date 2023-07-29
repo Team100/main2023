@@ -29,25 +29,29 @@ import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.Subsystem;
 
 /**
  * Extracts robot pose estimates from camera input.
  */
-public class VisionDataProvider extends SubsystemBase implements TableEventListener {
-    /**
-     * If the tag is closer than this threshold, then the camera's estimate of tag
-     * rotation might be more accurate than the gyro, so we use the camera's
-     * estimate of tag rotation to update the robot pose. If the tag is further away
-     * than this, then the camera-derived rotation is probably less accurate than
-     * the gyro, so we use the gyro instead.
-     * 
-     * Set this to zero to disable tag-derived rotation and always use the gyro.
-     * 
-     * Set this to some large number (e.g. 100) to disable gyro-derived rotation and
-     * always use the camera.
-     */
-    private static final double kTagRotationBeliefThresholdMeters = 1;
+public class VisionDataProvider extends Subsystem implements TableEventListener {
+    public static class Config {
+        /**
+         * If the tag is closer than this threshold, then the camera's estimate of tag
+         * rotation might be more accurate than the gyro, so we use the camera's
+         * estimate of tag rotation to update the robot pose. If the tag is further away
+         * than this, then the camera-derived rotation is probably less accurate than
+         * the gyro, so we use the gyro instead.
+         * 
+         * Set this to zero to disable tag-derived rotation and always use the gyro.
+         * 
+         * Set this to some large number (e.g. 100) to disable gyro-derived rotation and
+         * always use the camera.
+         */
+        public double kTagRotationBeliefThresholdMeters = 1;
+    }
+
+    private final Config m_config = new Config();
     private final Supplier<Pose2d> poseSupplier;
     private final DoublePublisher timestampPublisher;
     private final ObjectMapper objectMapper;
@@ -136,7 +140,7 @@ public class VisionDataProvider extends SubsystemBase implements TableEventListe
                     tagInFieldCordsOptional.get(),
                     blip,
                     robotRotationInFieldCoordsFromGyro,
-                    kTagRotationBeliefThresholdMeters);
+                    m_config.kTagRotationBeliefThresholdMeters);
 
             Translation2d robotTranslationInFieldCoords = robotPoseInFieldCoords.getTranslation().toTranslation2d();
             currentRobotinFieldCoords = new Pose2d(robotTranslationInFieldCoords, gyroRotation);

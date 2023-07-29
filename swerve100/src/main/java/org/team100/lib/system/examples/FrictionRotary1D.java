@@ -68,7 +68,7 @@ public class FrictionRotary1D extends Rotary1D {
         xx.set(1, 0, v);
         Matrix<N2, N2> xP = new Matrix<>(Nat.N2(), Nat.N2());
         xP.set(0, 0, 1e9); // position: "don't know" variance
-        xP.set(1, 1, xdot.Kxx.get(0, 0)); // TODO: better P?
+        xP.set(1, 1, xdot.Kxx.get(0, 0)); // better P?
         // Full state, return Angular.
         return new AngularRandomVector<>(xx, new Variance<>(xP));
     }

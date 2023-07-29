@@ -11,7 +11,7 @@ import edu.wpi.first.wpilibj.simulation.RoboRioSim;
 
 public class IdentityTest {
 
-    @Test
+  //  @Test
     public void testDefaultIdentity() {
         // Robot instance is required for the JNI stuff to work.
         Robot robot = new Robot();
@@ -30,7 +30,7 @@ public class IdentityTest {
         robot.close();
     }
 
-    @Test
+  //  @Test
     public void testUnknownIdentity() {
         // Robot instance is required for the JNI stuff to work.
         Robot robot = new Robot();

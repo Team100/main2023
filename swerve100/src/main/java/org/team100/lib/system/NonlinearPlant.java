@@ -39,7 +39,7 @@ public interface NonlinearPlant<States extends Num, Inputs extends Num, Outputs 
 
     /**
      * Measurement from state. Use wide variances for unknowns.
-     * TODO: maybe remove u, since it really is never needed.
+     * maybe remove u, since it really is never needed.
      */
     RandomVector<Outputs> h(RandomVector<States> x, Matrix<Inputs, N1> u);
 

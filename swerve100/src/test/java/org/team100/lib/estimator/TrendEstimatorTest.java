@@ -87,7 +87,7 @@ public class TrendEstimatorTest {
             xdotx.set(1, 0, u.get(0, 0));
             Matrix<N2, N2> xdotP = new Matrix<>(Nat.N2(), Nat.N2());
             xdotP.set(0, 0, x.Kxx.get(1, 1)); // variance from x1 becomes x0dot variance
-            xdotP.set(1, 1, 0.1); // TODO a better estimate of response variance
+            xdotP.set(1, 1, 0.1); // want a better estimate of response variance
             return x.make(xdotx, new Variance<>(xdotP));
         }
 

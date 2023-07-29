@@ -1,13 +1,13 @@
 package org.team100.lib.commands;
 
-import org.team100.lib.subsystems.SwerveDriveSubsystem;
+import org.team100.lib.motion.drivetrain.SwerveDriveSubsystem;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
-import edu.wpi.first.wpilibj2.command.CommandBase;
+import edu.wpi.first.wpilibj2.command.Command;
 
-public class ResetPose extends CommandBase {
+public class ResetPose extends Command {
     private final SwerveDriveSubsystem m_robotDrive;
     private final Pose2d m_pose;
 

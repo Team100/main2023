@@ -2,9 +2,9 @@ package org.team100.frc2023.commands;
 
 import org.team100.frc2023.subsystems.Manipulator;
 
-import edu.wpi.first.wpilibj2.command.CommandBase;
+import edu.wpi.first.wpilibj2.command.Command;
 
-public class TimedClose extends CommandBase {
+public class TimedClose extends Command {
     int loopCount;
     int duration;
     double force;

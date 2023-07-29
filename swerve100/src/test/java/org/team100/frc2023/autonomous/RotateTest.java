@@ -5,14 +5,15 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.junit.jupiter.api.Test;
-import org.team100.lib.subsystems.HeadingInterface;
-import org.team100.lib.subsystems.SpeedLimits;
-import org.team100.lib.subsystems.SwerveDriveSubsystemInterface;
+import org.team100.lib.motion.drivetrain.HeadingInterface;
+import org.team100.lib.motion.drivetrain.SpeedLimits;
+import org.team100.lib.motion.drivetrain.SwerveDriveSubsystem;
+import org.team100.lib.motion.drivetrain.SwerveDriveSubsystemInterface;
+import org.team100.lib.motion.drivetrain.SwerveState;
 
-import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Twist2d;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.Timer;
 
 /** Example of mock objects for testing. */
@@ -21,8 +22,13 @@ public class RotateTest {
 
     class MockHeading implements HeadingInterface {
         @Override
-        public Rotation2d getHeading() {
+        public Rotation2d getHeadingNWU() {
             return new Rotation2d();
+        }
+
+        @Override
+        public double getHeadingRateNWU() {
+            return 0;
         }
     }
 
@@ -38,13 +44,28 @@ public class RotateTest {
         }
 
         @Override
-        public void driveMetersPerSec(Twist2d twist, boolean fieldRelative) {
-            output = twist.dtheta;
+        public void stop() {
+            stopped = true;
         }
 
         @Override
-        public void stop() {
-            stopped = true;
+        public void setDesiredState(SwerveState desiredState) {
+            output = desiredState.theta().v();
+        }
+
+        @Override
+        public void truncate() {
+            stop();
+        }
+
+        @Override
+        public SwerveDriveSubsystem get() {
+            return null;
+        }
+
+        @Override
+        public ChassisSpeeds speeds() {
+            return new ChassisSpeeds();
         }
     }
 
@@ -68,16 +89,14 @@ public class RotateTest {
     public void testRotate() {
         MockSwerveDriveSubsystem swerveDriveSubsystem = new MockSwerveDriveSubsystem();
         swerveDriveSubsystem.pose = new Pose2d();
+        MockHeading heading = new MockHeading();
         SpeedLimits speedLimits = new SpeedLimits(1, 1, 1, 1);
-        PIDController rotateController = new PIDController(1, 0, 0);
-        rotateController.enableContinuousInput(-Math.PI, Math.PI);
-        rotateController.setTolerance(0.003, 0.003); // one degree, one degree per second
         MockTimer timer = new MockTimer();
         double targetAngle = Math.PI / 2;
         Rotate rotate = new Rotate(
                 swerveDriveSubsystem,
+                heading,
                 speedLimits,
-                rotateController,
                 timer,
                 targetAngle);
 
@@ -86,25 +105,25 @@ public class RotateTest {
         rotate.initialize();
 
         assertEquals(0, timer.time, kDelta); // now the timer is reset
-        assertEquals(0, rotate.profile.start().getX(), kDelta);
-        assertEquals(Math.PI/2, rotate.profile.end().getX(), kDelta);
-        assertEquals(2.571, rotate.profile.duration(), kDelta);
+        assertEquals(0, rotate.m_profile.start().getX(), kDelta);
+        assertEquals(Math.PI / 2, rotate.m_profile.end().getX(), kDelta);
+        assertEquals(2.571, rotate.m_profile.duration(), kDelta);
 
         rotate.execute();
 
-        assertEquals(0, rotate.reference.getX(), kDelta); // at start
+        assertEquals(0, rotate.refTheta.getX(), kDelta); // at start
         assertEquals(0, swerveDriveSubsystem.output, kDelta);
 
         timer.time = 1;
         rotate.execute();
-        assertEquals(0.5, rotate.reference.getX(), kDelta);
-        assertEquals(1.5, swerveDriveSubsystem.output, kDelta);
+        assertEquals(0.5, rotate.refTheta.getX(), kDelta);
+        assertEquals(1.0, swerveDriveSubsystem.output, kDelta);
 
         timer.time = 2;
         swerveDriveSubsystem.pose = new Pose2d(0, 0, new Rotation2d(1));
         rotate.execute();
-        assertEquals(1.408, rotate.reference.getX(), kDelta);
-        assertEquals(0.979, swerveDriveSubsystem.output, kDelta);
+        assertEquals(1.408, rotate.refTheta.getX(), kDelta);
+        assertEquals(0.571, swerveDriveSubsystem.output, kDelta);
 
         timer.time = 3;
         swerveDriveSubsystem.pose = new Pose2d(0, 0, new Rotation2d(Math.PI));

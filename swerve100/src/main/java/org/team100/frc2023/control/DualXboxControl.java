@@ -4,27 +4,7 @@ import static org.team100.lib.control.ControlUtil.clamp;
 import static org.team100.lib.control.ControlUtil.deadband;
 import static org.team100.lib.control.ControlUtil.expo;
 
-import org.team100.frc2023.autonomous.DriveToWaypoint2;
-import org.team100.frc2023.autonomous.DriveToWaypoint3;
-import org.team100.frc2023.autonomous.MoveConeWidth;
-import org.team100.frc2023.autonomous.Rotate;
-import org.team100.frc2023.commands.AutoLevel;
-import org.team100.frc2023.commands.Defense;
-import org.team100.frc2023.commands.DriveScaled;
 import org.team100.frc2023.commands.GoalOffset;
-import org.team100.frc2023.commands.RumbleOn;
-import org.team100.frc2023.commands.Arm.ArmTrajectory;
-import org.team100.frc2023.commands.Arm.Oscillate;
-import org.team100.frc2023.commands.Arm.SetConeMode;
-import org.team100.frc2023.commands.Arm.SetCubeMode;
-import org.team100.frc2023.commands.Manipulator.CloseSlow;
-import org.team100.frc2023.commands.Manipulator.Eject;
-import org.team100.frc2023.commands.Manipulator.Home;
-import org.team100.frc2023.commands.Manipulator.Open;
-import org.team100.frc2023.commands.Retro.DriveToRetroReflectiveTape;
-import org.team100.lib.commands.ResetPose;
-import org.team100.lib.commands.ResetRotation;
-import org.team100.lib.commands.Retro.LedOn;
 
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Twist2d;
@@ -33,22 +13,27 @@ import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
-import edu.wpi.first.wpilibj2.command.button.Trigger;
 
 /**
  * see
  * https://docs.google.com/document/d/1M89x_IiguQdY0VhQlOjqADMa6SYVp202TTuXZ1Ps280/edit#
  */
 public class DualXboxControl implements Control, Sendable {
-    private static final double kDeadband = 0.02;
-    private static final double kExpo = 0.5;
+    public static class Config {
 
-    // private static final double kDtSeconds = 0.02;
-    // private static final double kMaxRotationRateRadiansPerSecond = Math.PI;
-    private static final double kTriggerThreshold = .5;
+        public double kDeadband = 0.02;
+        public double kExpo = 0.5;
+
+        // public double kDtSeconds = 0.02;
+        // public double kMaxRotationRateRadiansPerSecond = Math.PI;
+        public double kTriggerThreshold = .5;
+    }
+
+    private final Config m_config = new Config();
 
     private final CommandXboxController controller0;
     private final CommandXboxController controller1;
@@ -67,71 +52,56 @@ public class DualXboxControl implements Control, Sendable {
     // DRIVER: manual driving and auto navigation controls
 
     @Override
-    public void driveToLeftGrid(DriveToWaypoint2 command) {
+    public void driveToLeftGrid(Command command) {
         // controller0.x().whileTrue(command);
     };
 
     @Override
-    public void autoLevel(AutoLevel command) {
+    public void autoLevel(Command command) {
         // controller0.x().whileTrue(command);
     }
 
     @Override
-    public void driveToCenterGrid(DriveToWaypoint2 command) {
+    public void driveToCenterGrid(Command command) {
         // controller0.a().whileTrue(command);
     };
 
     @Override
-    public void driveToRightGrid(DriveToWaypoint2 command) {
+    public void driveToRightGrid(Command command) {
         // controller0.b().whileTrue(command);
     };
 
     @Override
-    public void driveToSubstation(DriveToWaypoint2 command) {
+    public void driveToSubstation(Command command) {
         // controller0.y().whileTrue(command);
     };
 
     @Override
-    public void resetRotation0(ResetRotation command) {
+    public void resetRotation0(Command command) {
         JoystickButton startButton = new JoystickButton(controller0.getHID(), 7);
         startButton.onTrue(command);
     }
 
     @Override
-    public void resetRotation180(ResetRotation command) {
+    public void resetRotation180(Command command) {
         JoystickButton startButton = new JoystickButton(controller0.getHID(), 8);
         startButton.onTrue(command);
     }
 
     @Override
     public Twist2d twist() {
-        double dx = expo(deadband(-1.0 * clamp(controller0.getRightY(), 1), kDeadband, 1), kExpo);
-        double dy = expo(deadband(-1.0 * clamp(controller0.getRightX(), 1), kDeadband, 1), kExpo);
-        double dtheta = expo(deadband(-1.0 * clamp(controller0.getLeftX(), 1), kDeadband, 1), kExpo);
+        double dx = expo(deadband(-1.0 * clamp(controller0.getRightY(), 1), m_config.kDeadband, 1), m_config.kExpo);
+        double dy = expo(deadband(-1.0 * clamp(controller0.getRightX(), 1), m_config.kDeadband, 1), m_config.kExpo);
+        double dtheta = expo(deadband(-1.0 * clamp(controller0.getLeftX(), 1), m_config.kDeadband, 1), m_config.kExpo);
         return new Twist2d(dx, dy, dtheta);
     }
 
     @Override
-    public Trigger trigger() {
-        return controller0.rightBumper();
-    }
-
-    @Override
-    public Trigger thumb() {
-        return controller0.leftBumper();
-    }
-
-    @Override
-
-    public void driveSlow(DriveScaled command) {
+    public void driveSlow(Command command) {
         controller0.leftBumper().whileTrue(command);
     }
 
-    public XboxController getController0() {
-        return controller0.getHID();
-    }
-
-    public void resetPose(ResetPose command){
+    public void resetPose(Command command) {
         controller0.leftBumper().onTrue(command);
     }
 
@@ -150,20 +120,20 @@ public class DualXboxControl implements Control, Sendable {
     public GoalOffset goalOffset() {
         double left = controller0.getLeftTriggerAxis();
         double right = controller0.getRightTriggerAxis();
-        if (left > kTriggerThreshold) {
-            if (right > kTriggerThreshold) {
+        if (left > m_config.kTriggerThreshold) {
+            if (right > m_config.kTriggerThreshold) {
                 return GoalOffset.center;
             }
             return GoalOffset.left;
         }
-        if (right > kTriggerThreshold) {
+        if (right > m_config.kTriggerThreshold) {
             return GoalOffset.right;
         }
         return GoalOffset.center;
     }
 
     @Override
-    public void defense(Defense defense) {
+    public void defense(Command defense) {
         JoystickButton button = new JoystickButton(controller0.getHID(), 2);
 
         button.whileTrue(defense);
@@ -176,7 +146,7 @@ public class DualXboxControl implements Control, Sendable {
     }
 
     @Override
-    public void rumbleTrigger(RumbleOn command) {
+    public void rumbleTrigger(Command command) {
         controller0.a().whileTrue(command);
     }
 
@@ -188,26 +158,26 @@ public class DualXboxControl implements Control, Sendable {
     }
 
     @Override
-    public void rotate0(Rotate command) {
+    public void rotate0(Command command) {
         JoystickButton button = new JoystickButton(controller0.getHID(), 9);
         button.whileTrue(command);
     }
 
     @Override
-    public void driveMedium(DriveScaled command) {
+    public void driveMedium(Command command) {
         controller0.rightBumper().whileTrue(command);
     }
 
-    public void moveConeWidthLeft(MoveConeWidth command){
+    public void moveConeWidthLeft(Command command) {
         // controller0.y().whileTrue(command);
     }
 
     @Override
-    public void moveConeWidthRight(MoveConeWidth command) {
+    public void moveConeWidthRight(Command command) {
         controller0.a().whileTrue(command);
     }
 
-    public void driveWithLQR(DriveToWaypoint3 command){
+    public void driveWithLQR(Command command) {
         controller0.y().whileTrue(command);
     }
 
@@ -230,50 +200,50 @@ public class DualXboxControl implements Control, Sendable {
     /** @return [-1,1] */
     @Override
     public double lowerSpeed() {
-        return controller1.getRightX();
+        return 0.25 * deadband(controller1.getRightX(), 0.15, 1.0);
     }
 
     /** @return [-1,1] */
     @Override
     public double upperSpeed() {
-        return controller1.getLeftY();
+        return 0.25 * deadband(controller1.getLeftY(), 0.15, 1.0);
     }
 
     @Override
-    public void armHigh(ArmTrajectory command) {
+    public void armHigh(Command command) {
         controller1.povUp().whileTrue(command);
     }
 
     @Override
-    public void armLow(ArmTrajectory command) {
+    public void armLow(Command command) {
         controller1.povLeft().whileTrue(command);
     }
 
     @Override
-    public void armSafe(ArmTrajectory command) {
+    public void armSafe(Command command) {
         controller1.povDown().whileTrue(command);
     }
 
     @Override
-    public void safeWaypoint(ArmTrajectory command) {
+    public void safeWaypoint(Command command) {
         // SequentialCommandGroup commandGroup = new SequentialCommandGroup(command,
         // comman)
         // controller1.rightBumper().whileTrue(command);
     }
 
     @Override
-    public void armSafeSequential(ArmTrajectory command, ArmTrajectory command2) {
+    public void armSafeSequential(Command command, Command command2) {
         SequentialCommandGroup commandGroup = new SequentialCommandGroup(command, command2);
         controller1.povDown().whileTrue(commandGroup);
     }
 
     @Override
-    public void armSafeBack(ArmTrajectory command) {
+    public void armSafeBack(Command command) {
         // controller1.leftBumper().whileTrue(command);
     }
 
     @Override
-    public void closeSlow(CloseSlow command) {
+    public void closeSlow(Command command) {
         // controller1.leftBumper().whileTrue(command);
 
         // controller1.a().whileTrue(command);
@@ -282,43 +252,43 @@ public class DualXboxControl implements Control, Sendable {
     }
 
     @Override
-    public void armSubstation(ArmTrajectory command) {
+    public void armSubstation(Command command) {
         controller1.povRight().whileTrue(command);
     }
 
     @Override
-    public void armMid(ArmTrajectory command) {
+    public void armMid(Command command) {
         JoystickButton button = new JoystickButton(controller0.getHID(), 7);
         button.whileTrue(command);
     }
 
     @Override
-    public void open(Open command) {
+    public void open(Command command) {
         // controller1.a().whileTrue(command);
     }
 
     @Override
-    public void home(Home command) {
+    public void home(Command command) {
         controller1.b().whileTrue(command);
     }
 
     @Override
-    public void close(Eject command) {
+    public void close(Command command) {
         controller1.x().whileTrue(command);
     }
 
     @Override
-    public void cubeMode(SetCubeMode command) {
+    public void cubeMode(Command command) {
         controller1.y().onTrue(command);
     }
 
     @Override
-    public void coneMode(SetConeMode command) {
+    public void coneMode(Command command) {
         controller1.a().onTrue(command);
     }
 
     @Override
-    public void armToSub(ArmTrajectory command) {
+    public void armToSub(Command command) {
         // JoystickButton button = new JoystickButton(controller1.getHID(), 7);
         // button.onTrue(command);
 
@@ -326,22 +296,22 @@ public class DualXboxControl implements Control, Sendable {
     }
 
     @Override
-    public void ledOn(LedOn command) {
+    public void ledOn(Command command) {
         // controller1.rightBumper().whileTrue(command);
     }
 
     @Override
-    public void oscillate(Oscillate command) {
+    public void oscillate(Command command) {
         controller1.rightBumper().whileTrue(command);
     }
 
     @Override
-    public void tapeDetect(DriveToRetroReflectiveTape command) {
+    public void tapeDetect(Command command) {
         // controller1.leftBumper().whileTrue(command);
     }
 
     @Override
-    public void armSubSafe(ArmTrajectory command) {
+    public void armSubSafe(Command command) {
         // controller1.rightBumper().whileTrue(command);
     }
 
@@ -351,9 +321,19 @@ public class DualXboxControl implements Control, Sendable {
         builder.addDoubleProperty("right y", () -> controller0.getRightY(), null);
         builder.addDoubleProperty("right x", () -> controller0.getRightX(), null);
         builder.addDoubleProperty("left x", () -> controller0.getLeftX(), null);
+    }
 
-        // builder.addDoubleProperty("x limited", () -> xLimited(), null);
-        // builder.addDoubleProperty("y limtied", () -> yLimited(), null);
-        // builder.addDoubleProperty("rot Limited", () -> rotLimited(), null);
+    @Override
+    public double armX() {
+        // TODO: wire this up
+        // return 0.2 * deadband(-1.0 * controller1.getLeftY(), 0.15, 1.0);
+        return 0;
+    }
+
+    @Override
+    public double armY() {
+        // TODO: wire this up
+        // return 0.2 * deadband(controller1.getRightX(), 0.15, 1.0);
+        return 0;
     }
 }

@@ -1,18 +1,19 @@
 package org.team100.frc2023.autonomous;
 
 import org.team100.frc2023.commands.AutoLevel;
-import org.team100.frc2023.commands.Arm.ArmTrajectory;
-import org.team100.frc2023.commands.Arm.SetCubeMode;
-import org.team100.frc2023.commands.Manipulator.Eject;
+import org.team100.frc2023.commands.arm.ArmTrajectory;
+import org.team100.frc2023.commands.arm.SetCubeMode;
+import org.team100.frc2023.commands.manipulator.Eject;
 import org.team100.frc2023.subsystems.Manipulator;
-import org.team100.frc2023.subsystems.arm.ArmController;
 import org.team100.frc2023.subsystems.arm.ArmPosition;
+import org.team100.frc2023.subsystems.arm.ArmSubsystem;
 import org.team100.lib.indicator.LEDIndicator;
+import org.team100.lib.motion.drivetrain.SwerveDriveSubsystem;
+import org.team100.lib.motion.drivetrain.kinematics.FrameTransform;
 import org.team100.lib.sensors.RedundantGyro;
-import org.team100.lib.controller.DriveControllers;
-import org.team100.lib.subsystems.SwerveDriveSubsystem;
 
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.spline.Spline;
 import edu.wpi.first.math.trajectory.TrajectoryGenerator.ControlVectorList;
 import edu.wpi.first.wpilibj2.command.ParallelDeadlineGroup;
@@ -23,32 +24,17 @@ public class VasiliAutonomous extends SequentialCommandGroup {
     ControlVectorList controlVectors = new ControlVectorList();
 
     public VasiliAutonomous(
-            SwerveDriveSubsystem m_robotDrive,
-            DriveControllers controllers,
-            RedundantGyro m_gyro,
-            ArmController m_arm,
-            Manipulator m_manipulator,
+            SwerveDriveSubsystem drive,
+            FrameTransform chassisSpeedFactory,
+            SwerveDriveKinematics kinematics, 
+            RedundantGyro gyro,
+            ArmSubsystem arm,
+            Manipulator manipulator,
             LEDIndicator indicator) {
 
-        // Rotation2d desiredRots = new Rotation2d(Math.PI);
-        // SwerveModuleState[] desiredStates = new SwerveModuleState[] {
-        // new SwerveModuleState(0, desiredRots),
-        // new SwerveModuleState(0, desiredRots),
-        // new SwerveModuleState(0, desiredRots),
-        // new SwerveModuleState(0, desiredRots)
-        // };
-        // CommandBase command = new CommandBase() {
-        // @Override
-        // public void initialize() {
-        // m_robotDrive.setModuleStates(desiredStates);
-        // };
-
-        // };
-        // command.addRequirements(m_robotDrive);
-
         controlVectors.add(new Spline.ControlVector(
-                new double[] { m_robotDrive.getPose().getX(), 0, 0 },
-                new double[] { m_robotDrive.getPose().getY(), 0, 0.0 }));
+                new double[] { drive.getPose().getX(), 0, 0 },
+                new double[] { drive.getPose().getY(), 0, 0.0 }));
 
         controlVectors.add(new Spline.ControlVector(
                 new double[] { 5.537, 0, 0 },
@@ -93,24 +79,24 @@ public class VasiliAutonomous extends SequentialCommandGroup {
                 // "output/GoBackToStation(x).wpilib.json")
                 // new Rotate(m_robotDrive, 0)
 
-                new SetCubeMode(m_arm, indicator),
+                new SetCubeMode(arm, indicator),
                 new ParallelDeadlineGroup(
                         new WaitCommand(3),
-                        new ArmTrajectory(ArmPosition.HIGH, m_arm)),
+                        new ArmTrajectory(ArmPosition.HIGH, arm, false)),
                 new ParallelDeadlineGroup(
                         new WaitCommand(2),
-                        new Eject(m_manipulator)),
+                        new Eject(manipulator)),
                 new ParallelDeadlineGroup(
                         new WaitCommand(2),
-                        new ArmTrajectory(ArmPosition.SAFE, m_arm)),
+                        new ArmTrajectory(ArmPosition.SAFE, arm, false)),
 
                 new VasiliWaypointTrajectory(
-                        m_robotDrive,
-                        controllers,
+                        drive,
+                        kinematics,
                         () -> new Rotation2d(Math.PI),
-                        m_gyro,
+                        gyro,
                         "output/BlueLeftExit.wpilib.json"),
 
-                new AutoLevel(true, m_robotDrive, m_gyro));
+                new AutoLevel(true, drive, gyro, chassisSpeedFactory));
     }
 }

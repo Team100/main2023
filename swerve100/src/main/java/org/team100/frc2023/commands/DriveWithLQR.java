@@ -1,31 +1,50 @@
 package org.team100.frc2023.commands;
 
-import org.team100.lib.subsystems.SwerveDriveSubsystem;
+import org.team100.lib.motion.drivetrain.SpeedLimits;
+import org.team100.lib.motion.drivetrain.SwerveDriveSubsystem;
+import org.team100.lib.motion.drivetrain.SwerveState;
+import org.team100.lib.profile.MotionProfile;
+import org.team100.lib.profile.MotionProfileGenerator;
+import org.team100.lib.profile.MotionState;
 
 import edu.wpi.first.math.Nat;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.controller.LinearQuadraticRegulator;
 import edu.wpi.first.math.estimator.KalmanFilter;
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Twist2d;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N2;
 import edu.wpi.first.math.system.LinearSystem;
 import edu.wpi.first.math.system.LinearSystemLoop;
 import edu.wpi.first.math.system.plant.LinearSystemId;
-import edu.wpi.first.math.trajectory.TrapezoidProfile;
-import edu.wpi.first.wpilibj2.command.CommandBase;
+import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj2.command.Command;
 
-public class DriveWithLQR extends CommandBase {
+public class DriveWithLQR extends Command {
+    public static class Config {
+        public double xToleranceM = 0.01;
+        public double vToleranceM_S = 0.01;
+        public double speedM_S = 5.0;
+        public double accelM_S2 = 5.0;
+        public double jerkM_S3 = 5.0;
+    }
+
+    private final Config m_config = new Config();
     private final SwerveDriveSubsystem m_robotDrive;
+    private final SpeedLimits m_speedLimits;
+    private final Timer m_timer;
 
-    TrapezoidProfile.State goal;
+    // TrapezoidProfile.State goal;
 
-    boolean done = false;
+    // boolean done = false;
 
-    private final TrapezoidProfile.Constraints m_constraints = new TrapezoidProfile.Constraints(
-            5,
-            5);
-    private TrapezoidProfile.State m_lastProfiledReference = new TrapezoidProfile.State();
+    // private final TrapezoidProfile.Constraints m_constraints = new
+    // TrapezoidProfile.Constraints(
+    // 5,
+    // 5);
+    // private TrapezoidProfile.State m_lastProfiledReference = new
+    // TrapezoidProfile.State();
 
     private final LinearSystem<N2, N1, N1> m_drivePlant = LinearSystemId.identifyPositionSystem(.5, 0.025);
 
@@ -48,30 +67,44 @@ public class DriveWithLQR extends CommandBase {
     private final LinearSystemLoop<N2, N1, N1> m_loop = new LinearSystemLoop<>(m_drivePlant, m_controller, m_observer,
             12.0, 0.020);
 
-    public DriveWithLQR(SwerveDriveSubsystem robotDrive) {
+    private MotionState m_goal;
+    private MotionProfile m_profile;
+    private MotionState m_ref;
+
+    public DriveWithLQR(SwerveDriveSubsystem robotDrive, SpeedLimits speedLimits, Timer timer) {
         m_robotDrive = robotDrive;
-        done = false;
+        m_speedLimits = speedLimits;
+        m_timer = timer;
         addRequirements(m_robotDrive);
     }
 
     @Override
     public void initialize() {
-        m_loop.reset(VecBuilder.fill(m_robotDrive.getPose().getX(), 0));
+        Pose2d currentPose = m_robotDrive.getPose();
 
-        goal = new TrapezoidProfile.State(m_robotDrive.getPose().getX() + 1, 0.0);
+        m_loop.reset(VecBuilder.fill(currentPose.getX(), 0));
 
-        m_lastProfiledReference = new TrapezoidProfile.State(m_robotDrive.getPose().getX(), 0);
+        double currentX = currentPose.getX();
+        double goalX = currentX + 1;
 
+        MotionState start = new MotionState(currentX, 0);
+        m_goal = new MotionState(goalX, 0);
+
+        m_profile = MotionProfileGenerator.generateSimpleMotionProfile(
+                start,
+                m_goal,
+                Math.min(m_config.speedM_S, m_speedLimits.speedM_S),
+                Math.min(m_config.accelM_S2, m_speedLimits.accelM_S2),
+                Math.min(m_config.jerkM_S3, m_speedLimits.jerkM_S3));
+
+        m_timer.reset();
     }
 
     @Override
     public void execute() {
-        m_lastProfiledReference = (new TrapezoidProfile(m_constraints, goal, m_lastProfiledReference)).calculate(0.020);
+        m_ref = m_profile.get(m_timer.get());
 
-        if (m_lastProfiledReference.position == goal.position) {
-            done = true;
-        }
-        m_loop.setNextR(m_lastProfiledReference.position, m_lastProfiledReference.velocity);
+        m_loop.setNextR(m_ref.getX(), m_ref.getV());
 
         m_loop.correct(VecBuilder.fill(m_robotDrive.getPose().getX()));
 
@@ -79,17 +112,21 @@ public class DriveWithLQR extends CommandBase {
 
         double u = m_loop.getU(0);
 
-        m_robotDrive.driveMetersPerSec(new Twist2d(u, 0, 0), true);
+        Twist2d fieldRelative = new Twist2d(u, 0, 0);
 
-    }
-
-    @Override
-    public void end(boolean interrupted) {
-        done = false;
+        Pose2d currentPose = m_robotDrive.getPose();
+        SwerveState manualState = SwerveDriveSubsystem.incremental(currentPose, fieldRelative);
+        m_robotDrive.setDesiredState(manualState);
     }
 
     @Override
     public boolean isFinished() {
-        return done;
+        return Math.abs(m_ref.getX() - m_goal.getX()) < m_config.xToleranceM
+                && Math.abs(m_ref.getV() - m_goal.getV()) < m_config.vToleranceM_S;
+    }
+
+    @Override
+    public void end(boolean interrupted) {
+        m_robotDrive.truncate();
     }
 }
