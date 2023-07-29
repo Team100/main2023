@@ -168,8 +168,7 @@ public class SwerveModuleFactory {
             int driveMotorCanId,
             int turningMotorChannel,
             int turningEncoderChannel,
-            double turningOffset,
-            double currentLimit) {
+            double turningOffset) {
         final double kWheelDiameterMeters = 0.09628; // AndyMark Swerve & Steer has 4 inch wheel
         final double kDriveReduction = 6.67; // see andymark.com/products/swerve-and-steer
         final double driveEncoderDistancePerTurn = kWheelDiameterMeters * Math.PI / kDriveReduction;
