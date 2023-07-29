@@ -5,6 +5,7 @@ import java.io.FileWriter;
 import org.team100.lib.experiments.Experiment;
 import org.team100.lib.experiments.Experiments;
 import org.team100.lib.motion.drivetrain.kinematics.SwerveKinematics;
+import org.team100.lib.swerve.AsymSwerveSetpointGenerator;
 
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
@@ -17,7 +18,6 @@ import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
 
 import com.team254.lib.swerve.SwerveSetpoint;
-import com.team254.lib.swerve.SwerveSetpointGenerator;
 import edu.wpi.first.math.geometry.Translation2d;
 
 /**
@@ -37,9 +37,9 @@ public class SwerveLocal {
             new Translation2d(kWheelBase / 2, -kTrackWidth / 2),
             new Translation2d(-kWheelBase / 2, kTrackWidth / 2),
             new Translation2d(-kWheelBase / 2, -kTrackWidth / 2));
-    private final SwerveSetpointGenerator m_SwerveSetpointGenerator = new SwerveSetpointGenerator(
+    private final AsymSwerveSetpointGenerator m_SwerveSetpointGenerator = new AsymSwerveSetpointGenerator(
             m_DriveKinematics2.as254());
-    private SwerveSetpointGenerator.KinematicLimits limits = new SwerveSetpointGenerator.KinematicLimits();
+    private AsymSwerveSetpointGenerator.KinematicLimits limits = new AsymSwerveSetpointGenerator.KinematicLimits();
     com.team254.lib.swerve.ChassisSpeeds c254 = new com.team254.lib.swerve.ChassisSpeeds();
     com.team254.lib.swerve.SwerveModuleState[] s254 = new com.team254.lib.swerve.SwerveModuleState[] {
             new com.team254.lib.swerve.SwerveModuleState(0, 0, com.team254.lib.geometry.Rotation2d.kIdentity),
@@ -63,7 +63,8 @@ public class SwerveLocal {
         m_DriveKinematics = driveKinematics;
         m_modules = modules;
         limits.kMaxDriveVelocity = 5;
-        limits.kMaxDriveAcceleration = 3;
+        limits.kMaxDriveAcceleration = 1;
+        limits.kMaxDriveDecceleration = 4;
         limits.kMaxSteeringVelocity = 5;
     }
 
