@@ -49,34 +49,32 @@ public class HolonomicLQR {
 
     private final LQRManager m_xManager;
     private final LQRManager m_yManager;
+    private final LQRManager m_thetaManager;
 
-    MotionState goalX;
-    MotionState goalY;
     private MotionProfile profileX;
     private MotionProfile profileY;
-
+    private MotionProfile profileTheta;
+    double kV_t = 1.15;
+    double kA_t = 0.7;
+    double kV_r = 1.15;
+    double kA_r = .07;
     Timer m_timer = new Timer();
-
-    // TODO: get rid of this profiled pid controller, use a MotionProfile instead.
-    private final ProfiledPIDController m_thetaController;
-
-    // private boolean m_firstRun = true;
 
     SwerveDriveSubsystem m_robotDrive;
 
-    private MotionState m_lastXRef = new MotionState(0, 0);
-    private MotionState m_lastYRef = new MotionState(0, 0);
+    private MotionState m_XRef = new MotionState(0, 0);
+    private MotionState m_YRef = new MotionState(0, 0);
+    private MotionState m_ThetaRef = new MotionState(0, 0);
 
     public HolonomicLQR(
             SwerveDriveSubsystem robotDrive,
             LQRManager xManager,
             LQRManager yManager,
-            ProfiledPIDController thetaController) {
+            LQRManager thetaManager) {
         m_xManager = xManager;
         m_yManager = yManager;
-        m_thetaController = thetaController;
+        m_thetaManager = thetaManager;
         m_robotDrive = robotDrive;
-        m_thetaController.enableContinuousInput(0, Units.degreesToRadians(360.0));
     }
 
     /**
@@ -85,13 +83,13 @@ public class HolonomicLQR {
      * @return True if the pose error is within tolerance of the reference.
      */
     public boolean atReference() {
-        final var eTranslate = m_poseError.getTranslation();
-        final var eRotate = m_rotationError;
-        final var tolTranslate = m_poseTolerance.getTranslation();
-        final var tolRotate = m_poseTolerance.getRotation();
-        return Math.abs(eTranslate.getX()) < tolTranslate.getX()
-                && Math.abs(eTranslate.getY()) < tolTranslate.getY()
-                && Math.abs(eRotate.getRadians()) < tolRotate.getRadians();
+        final var translation_error = m_poseError.getTranslation();
+        final var rotation_error = m_rotationError;
+        final var translation_tolerance = m_poseTolerance.getTranslation();
+        final var rotation_tolerance = m_poseTolerance.getRotation();
+        return Math.abs(translation_error.getX()) < translation_tolerance.getX()
+                && Math.abs(translation_error.getY()) < translation_tolerance.getY()
+                && Math.abs(rotation_error.getRadians()) < rotation_tolerance.getRadians();
     }
 
     /**
@@ -136,75 +134,49 @@ public class HolonomicLQR {
         // double yFF = desiredLinearVelocityMetersPerSecond *
         // trajectoryPose.getRotation().getSin();
 
-        double thetaFF = m_thetaController.calculate(
-                currentPose.getRotation().getRadians(), desiredHeading.getRadians());
-
         m_poseError = trajectoryPose.relativeTo(currentPose);
         m_rotationError = desiredHeading.minus(currentPose.getRotation());
 
         if (!m_enabled) {
-            // return ChassisSpeeds.fromFieldRelativeSpeeds(xFF, yFF, thetaFF,
-            // currentPose.getRotation());
             return null;
         }
 
-        // Calculate feedback velocities (based on position error).
+        m_XRef = profileX.get(m_timer.get());
+        m_YRef = profileY.get(m_timer.get());
+        m_ThetaRef = profileTheta.get(m_timer.get());
 
-        // goalX = new TrapezoidProfile.State(trajectoryPose.getX(), 0.0);
-        // goalY = new TrapezoidProfile.State(trajectoryPose.getY(), 0.0);
+        xDesired.set(m_XRef.getX());
+        yDesired.set(m_YRef.getX());
+        thetaDesired.set(m_ThetaRef.getX());
 
-        // goalX = new MotionState(trajectoryPose.getX(), 0);
-        // goalY = new MotionState(trajectoryPose.getY(), 0);
-
-        m_lastXRef = profileX.get(m_timer.get());
-        m_lastYRef = profileY.get(m_timer.get());
-
-        // m_lastXRef = (new TrapezoidProfile(m_xManager.m_constraints, goalX,
-        // m_lastXRef)).calculate(0.020);
-        // m_lastYRef = (new TrapezoidProfile(m_yManager.m_constraints, goalY,
-        // m_lastYRef)).calculate(0.020);
-
-        xDesired.set(m_lastXRef.getX());
-        yDesired.set(m_lastYRef.getX());
-        // m_xManager.feedforward.calculate(null)
-        m_xManager.m_loop.setNextR(m_lastXRef.getX(), m_lastXRef.getV());
-        m_yManager.m_loop.setNextR(m_lastYRef.getX(), m_lastYRef.getV());
+        m_xManager.m_loop.setNextR(m_XRef.getX(), m_XRef.getV());
+        m_yManager.m_loop.setNextR(m_YRef.getX(), m_YRef.getV());
+        m_thetaManager.m_loop.setNextR(m_ThetaRef.getX(), m_ThetaRef.getV());
 
         m_xManager.m_loop.correct(VecBuilder.fill(m_robotDrive.getPose().getX()));
         m_yManager.m_loop.correct(VecBuilder.fill(m_robotDrive.getPose().getY()));
+        m_thetaManager.m_loop.correct(VecBuilder.fill(m_robotDrive.getPose().getRotation().getRadians()));
 
         m_xManager.m_loop.predict(0.020);
         m_yManager.m_loop.predict(0.020);
 
-        // double nextXVoltage = m_xManager.m_loop.getU(0);
-        // double nextYVoltage = m_yManager.m_loop.getU(0);
-
-        xVolt.set(0.5 * m_lastXRef.getV() + m_lastXRef.getA());
-        yVolt.set(0.5 * m_lastYRef.getV() + m_lastYRef.getA());
-
-        // nextXVoltage + m_lastXRef.getA()
-        // nextYVoltage + m_lastYRef.getA()
-
-        double kV = 1.15;
-        double kA = 0.7;
-
         Twist2d fieldRelativeTarget = new Twist2d(
-                ((kV * m_lastXRef.getV()) + (kA * m_lastXRef.getA())),
-                ((kV * m_lastYRef.getV()) + (kA * m_lastYRef.getA())),
-                thetaFF);
+                ((kV_t * m_XRef.getV()) + (kA_t * m_XRef.getA())),
+                ((kV_t * m_YRef.getV()) + (kA_t * m_YRef.getA())),
+                ((kV_r * m_ThetaRef.getV()) + (kA_r * m_ThetaRef.getA())));
 
         return fieldRelativeTarget;
 
     }
 
     public void reset(Pose2d currentPose) {
-        m_thetaController.reset(currentPose.getRotation().getRadians());
         m_xManager.m_loop.reset(VecBuilder.fill(m_robotDrive.getPose().getX(), 0));
         m_yManager.m_loop.reset(VecBuilder.fill(m_robotDrive.getPose().getY(), 0));
+        m_thetaManager.m_loop.reset(VecBuilder.fill(m_robotDrive.getPose().getRotation().getRadians(), 0));
 
-        m_lastXRef = new MotionState(m_robotDrive.getPose().getX(), 0);
-
-        m_lastYRef = new MotionState(m_robotDrive.getPose().getY(), 0);
+        m_XRef = new MotionState(m_robotDrive.getPose().getX(), 0);
+        m_YRef = new MotionState(m_robotDrive.getPose().getY(), 0);
+        m_ThetaRef = new MotionState(m_robotDrive.getPose().getRotation().getRadians(), 0);
 
     }
 
@@ -246,6 +218,5 @@ public class HolonomicLQR {
     DoublePublisher yOutPublisher = table.getDoubleTopic("Y Output").publish();
     DoublePublisher xDesired = table.getDoubleTopic("X Desired").publish();
     DoublePublisher yDesired = table.getDoubleTopic("Y Desired").publish();
-    DoublePublisher xVolt = table.getDoubleTopic("X Volt").publish();
-    DoublePublisher yVolt = table.getDoubleTopic("Y Volt").publish();
+    DoublePublisher thetaDesired = table.getDoubleTopic("Theta Desired").publish();
 }
