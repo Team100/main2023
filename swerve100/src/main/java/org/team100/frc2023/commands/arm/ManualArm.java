@@ -27,7 +27,7 @@ public class ManualArm extends Command {
 
     @Override
     public void initialize() {
-        m_arm.setControlNormal();
+        m_arm.setReference(m_arm.getMeasurement());
     }
 
     @Override
