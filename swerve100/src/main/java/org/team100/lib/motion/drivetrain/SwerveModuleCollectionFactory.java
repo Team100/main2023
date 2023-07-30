@@ -150,7 +150,34 @@ public class SwerveModuleCollectionFactory {
                                 3, // turn encoder
                                 0.477917)); // turn offset
             default:
-                throw new IllegalStateException("Identity is not swerve: " + Identity.get().name());
+                return new SwerveModuleCollection(
+                        m_moduleFactory.WCPModule(
+                                "Front Left",
+                                11, // drive CAN
+                                30, // turn CAN
+                                0, // turn encoder
+                                0), // turn offset
+                        m_moduleFactory.WCPModule(
+                                "Front Right",
+                                12, // drive CAN
+                                32, // turn CAN
+                                1, // turn encoder
+                                0), // turn offset
+                        m_moduleFactory.WCPModule(
+                                "Rear Left",
+                                21, // drive CAN
+                                31, // turn CAN
+                                2, // turn encoder
+                                0), // turn offset
+                        m_moduleFactory.WCPModule(
+                                "Rear Right",
+                                22, // drive CAN
+                                33, // turn CAN
+                                3, // turn encoder
+                                0)); // turn offset
+            // previously this would throw.
+            // throw new IllegalStateException("Identity is not swerve: " +
+            // Identity.get().name());
         }
     }
 

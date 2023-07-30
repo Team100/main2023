@@ -34,7 +34,6 @@ public class DriveControllersFactory {
                         pid(m_config.thetaGain));
             default:
                 // these RoboRIO's are have no drivetrains
-
                 return new DriveControllers(
                         new PIDController(1, 0.0, 0.0),
                         new PIDController(1, 0.0, 0.0),
