@@ -21,7 +21,10 @@ public class SpeedLimitsFactory {
             case CAMERA_DOLLY:
                 return new SpeedLimits(5, 10, 5, 5);
             default:
-                throw new IllegalStateException("Identity is not swerve: " + Identity.get().name());
+                return new SpeedLimits(1, 1, 1, 1);
+            // previously this would throw
+            // throw new IllegalStateException("Identity is not swerve: " +
+            // Identity.get().name());
         }
     }
 }

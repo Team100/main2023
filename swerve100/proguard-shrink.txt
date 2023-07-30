@@ -3,14 +3,30 @@
 
 # Include java runtime classes
 -libraryjars  <java.home>/jmods/java.base.jmod(!**.jar;!module-info.class)
+-libraryjars  <java.home>/jmods/java.desktop.jmod(!**.jar;!module-info.class)
 
--optimizationpasses 8
+-dontoptimize
 -dontobfuscate
--dontpreverify
+-printusage unused.txt
+
 
 -keep public class org.team100.frc2023.Main {
     public static void main(java.lang.String[]);
 }
+-keepclassmembers class * extends java.lang.Enum { *;}
+
+# this is used in RobotBase:423 whether you want it or not
+-keep class edu.wpi.first.cscore.** { *; }
+-keep class edu.wpi.first.hal.** { *; }
+-keep class edu.wpi.first.networktables.** { *; }
+-keep class edu.wpi.first.util.** { *; }
+-keep class edu.wpi.first.apriltag.** { *; }
+# used for deserialization
+-keep class com.fasterxml.** { *; }
+-keep class org.codehaus.** { *; }
+-keepnames class com.fasterxml.jackson.** { *; }
+
+
 
 # don't worry about stuff that the linker can't find, since we don't use it:
 
@@ -30,4 +46,4 @@
 
 # reduce unnecessary output
 
--dontnote **
+#-dontnote **

@@ -64,12 +64,6 @@ wpi.java.debugJni = false
 // Set this to true to enable desktop support.
 def includeDesktopSupport = true
 
-repositories {
-    maven {
-        url = 'https://maven.brott.dev/'
-    }
-}
-
 // Defining my dependencies. In this case, WPILib (+ friends), and vendor libraries.
 // Also defines JUnit 5.
 dependencies {
@@ -105,9 +99,6 @@ dependencies {
     // testRuntimeOnly 'org.junit.vintage:junit-vintage-engine:5.8.2'
     // to run some of 254's tests using junit5
     testImplementation 'org.hamcrest:hamcrest-library:2.2'
-
-    // changed my mind about roadrunner; ported the useful stuff to Java.
-    // implementation 'com.acmerobotics.roadrunner:core:0.5.6'
 }
 
 test {
@@ -153,14 +144,27 @@ tasks.withType(JavaCompile) {
     options.compilerArgs.add '-XDstringConcat=inline'
 }
 
-task proguard(type: proguard.gradle.ProGuardTask) {
-    configuration 'proguard.txt'
-}
+// task proguard(type: proguard.gradle.ProGuardTask) {
+//     configuration 'proguard.txt'
+// }
 
 task proguardshrink(type: proguard.gradle.ProGuardTask) {
     configuration 'proguard-shrink.txt'
 }
 
-// TODO: actually use proguard
-//test.finalizedBy proguard
-//test.finalizedBy proguardshrink
+//jar.finalizedBy proguard
+jar.finalizedBy proguardshrink
+
+task copyJar(type: Copy) {
+    from "$buildDir/libs/swerve100.jar"
+    into "$buildDir/libs/"
+    rename('swerve100.jar', 'swerve100_big.jar')
+}
+task overwriteJar(type: Copy) {
+    from "$buildDir/libs/swerve100_out.jar"
+    into "$buildDir/libs/"
+    rename('swerve100_out.jar', 'swerve100.jar')
+}
+// proguardshrink.finalizedBy overwriteJar
+proguardshrink.finalizedBy copyJar
+copyJar.finalizedBy overwriteJar
