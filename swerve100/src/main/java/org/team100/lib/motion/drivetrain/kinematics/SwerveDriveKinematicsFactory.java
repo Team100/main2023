@@ -35,7 +35,12 @@ public class SwerveDriveKinematicsFactory {
                 kWheelBase = 1;
                 break;
             default:
-                throw new IllegalStateException("Identity is not swerve: " + Identity.get().name());
+                kTrackWidth = 1;
+                kWheelBase = 1;
+                break;
+            // previously this would throw
+            // throw new IllegalStateException("Identity is not swerve: " +
+            // Identity.get().name());
         }
 
         return new SwerveDriveKinematics(
