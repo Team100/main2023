@@ -4,8 +4,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.junit.jupiter.api.Test;
-import org.team100.glclib.GlcNode;
-import org.team100.glclib.NodeMeritOrder;
 
 public class TestGlcNode {
 

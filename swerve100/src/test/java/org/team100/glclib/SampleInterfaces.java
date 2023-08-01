@@ -1,6 +1,5 @@
 package org.team100.glclib;
 
-import org.team100.glclib.GlcMath;
 import org.team100.glclib.glc_interface.CostFunction;
 import org.team100.glclib.glc_interface.GoalRegion;
 import org.team100.glclib.glc_interface.Heuristic;

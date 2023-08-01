@@ -6,11 +6,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.util.Vector;
 
 import org.junit.jupiter.api.Test;
-import org.team100.glclib.GlcMath;
-import org.team100.glclib.GlcNode;
-import org.team100.glclib.GlcParameters;
-import org.team100.glclib.Planner;
-import org.team100.glclib.PlannerOutput;
 import org.team100.glclib.glc_interpolation.InterpolatingPolynomial;
 
 public class TestGlcPlannerCore {
