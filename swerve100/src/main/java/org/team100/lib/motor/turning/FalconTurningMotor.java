@@ -29,6 +29,14 @@ public class FalconTurningMotor implements TurningMotor, Sendable {
         m_motor.configSupplyCurrentLimit(
                 new SupplyCurrentLimitConfiguration(true, m_config.kCurrentLimit, m_config.kCurrentLimit, 0));
         SmartDashboard.putData(String.format("Falcon Turning Motor %s", name), this);
+        m_motor.configNominalOutputForward(0);
+        m_motor.configNominalOutputReverse(0);
+        m_motor.configPeakOutputForward(1);
+        m_motor.configPeakOutputReverse(-1);
+        m_motor.config_kF(0, 0.05);
+        m_motor.config_kP(0, 0.05);
+        m_motor.config_kI(0, 0);
+        m_motor.config_kD(0, 0);
     }
 
     @Override
@@ -36,9 +44,9 @@ public class FalconTurningMotor implements TurningMotor, Sendable {
         return m_motor.get();
     }
 
-    //THIS DOES NOT ACTUALLY SET PID This is just here for the CAN turning motor
     public void setPID(ControlMode control, double output) {
-        this.set(output);
+        double outputInRots = output * 2048;
+        m_motor.set(control, outputInRots);
     }
 
     @Override

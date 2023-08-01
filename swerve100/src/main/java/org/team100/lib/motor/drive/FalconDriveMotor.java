@@ -82,7 +82,7 @@ public class FalconDriveMotor implements DriveMotor, Sendable {
     }
 
     public void setPID(ControlMode control, double output) {
-        m_motor.set(control, output * 110 / 6.6);
+        m_motor.set(control, output*3.479750259*6.6*2048/10);
     }
 
     @Override

@@ -39,7 +39,7 @@ public class CANTurningMotor implements TurningMotor, Sendable {
         m_motor.configPeakOutputReverse(-1);
         m_motor.configAllowableClosedloopError(0, 0, 30);
         m_motor.config_kF(0, 0);
-        m_motor.config_kP(0, 10);
+        m_motor.config_kP(0, 5);
         m_motor.config_kI(0, 0);
         m_motor.config_kD(0, 0);
         double absolutePosition = 0;
@@ -66,12 +66,12 @@ public class CANTurningMotor implements TurningMotor, Sendable {
         m_motor.set(output);
     }
 
-    public void setPID(ControlMode control, double output) {
-        int rotationsPerRev = 1666;
-        double goal = m_motor.getSelectedSensorPosition()
-                + MathUtil.angleModulus(2 * Math.PI * (output - m_motor.getSelectedSensorPosition() / rotationsPerRev))
-                        / (2 * Math.PI) * rotationsPerRev;
-        m_motor.set(control, goal);
+    public void setPID(ControlMode control, double outputRadiansPerSec) {
+        double ticksPerRevolution = 1024;
+        double revolutionsPerSec = outputRadiansPerSec/(2*Math.PI);
+        double revsPer100ms = revolutionsPerSec/10;
+        double ticksPer100ms = revsPer100ms*ticksPerRevolution;
+        m_motor.set(control, ticksPer100ms);
     }
 
     @Override

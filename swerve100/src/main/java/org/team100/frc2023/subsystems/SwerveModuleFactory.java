@@ -119,7 +119,7 @@ public class SwerveModuleFactory {
 
         // TURNING PID
         ProfiledPIDController turningController = new ProfiledPIDController( //
-                0.5, // kP
+                15, // kP
                 0, // kI
                 0, // kD
                 new TrapezoidProfile.Constraints(
@@ -155,7 +155,7 @@ public class SwerveModuleFactory {
                 experiments,
                 name,
                 turningMotor,
-                turningEncoder2,
+                turningEncoder,
                 turningController,
                 turningFeedforward);
 
