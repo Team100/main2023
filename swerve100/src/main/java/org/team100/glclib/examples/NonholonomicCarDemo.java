@@ -175,12 +175,12 @@ public class NonholonomicCarDemo {
     ////////////////////////////////////////////////////////
     /////////////// Goal Checking Interface//////////////////
     ////////////////////////////////////////////////////////
-    public static class Sphericalgoal extends GoalRegion {
+    public static class SphericalGoal2 extends GoalRegion {
         private final   double radius_sqr;
         private final  double[] center;
         private final  int resolution;
 
-        public Sphericalgoal(double _goal_radius_sqr,
+        public SphericalGoal2(double _goal_radius_sqr,
                 double[] _goal_center,
                 int _resolution) {
             resolution = _resolution;
@@ -312,7 +312,7 @@ public class NonholonomicCarDemo {
 
         double[] goal_center = new double[] { 10.0, 10.0 };
 
-        Sphericalgoal goal = new Sphericalgoal(goal_radius_sqr, goal_center, 10);
+        SphericalGoal2 goal = new SphericalGoal2(goal_radius_sqr, goal_center, 10);
 
         // Create the obstacles
         PlanarDemoObstacles obstacles = new PlanarDemoObstacles(10);

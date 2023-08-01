@@ -116,7 +116,7 @@ public class TestGlcPlannerCore {
         // Create instance of goal region
         double goal_radius_sqr = .25;
         double[] goal_center = new double[] { 10.0, 10.0 };
-        SampleInterfaces.Sphericalgoal goal = new SampleInterfaces.Sphericalgoal(goal_radius_sqr, goal_center, 10);
+        SampleInterfaces.SphericalGoal2 goal = new SampleInterfaces.SphericalGoal2(goal_radius_sqr, goal_center, 10);
 
         // Create the obstacles
         SampleInterfaces.PlanarDemoObstacles obstacles = new SampleInterfaces.PlanarDemoObstacles(10);
