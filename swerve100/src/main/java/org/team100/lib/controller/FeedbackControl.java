@@ -42,4 +42,8 @@ public class FeedbackControl<States extends Num, Inputs extends Num, Outputs ext
         if (debug) System.out.println("residual: " + residual);
         return m_K.times(residual);
     }
+
+    public Matrix<Inputs, N1> calculate(Matrix<States, N1> error) {
+        return m_K.times(error);
+    }
 }

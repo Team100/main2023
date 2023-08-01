@@ -13,14 +13,24 @@ public class SpeedLimits {
     public SpeedLimits(
             double speedM_S,
             double accelM_S2,
+            double jerkM_S3,
             double angleSpeedRad_S,
-            double angleAccelRad_S2) {
+            double angleAccelRad_S2,
+            double angleJerkRad_S3) {
         this.speedM_S = speedM_S;
         this.accelM_S2 = accelM_S2;
-        jerkM_S3 = 0; // actually means infinite
+        this.jerkM_S3 = jerkM_S3; // actually means infinite
         this.angleSpeedRad_S = angleSpeedRad_S;
         this.angleAccelRad_S2 = angleAccelRad_S2;
-        angleJerkRad_S3 = 0; // actually means infinite
+        this.angleJerkRad_S3 = angleJerkRad_S3; // actually means infinite
+    }
+
+    public SpeedLimits(
+            double speedM_S,
+            double accelM_S2,
+            double angleSpeedRad_S,
+            double angleAccelRad_S2) {
+        this(speedM_S, accelM_S2, 0.0, angleSpeedRad_S, angleAccelRad_S2, 0.0);
     }
 
     public TrapezoidProfile.Constraints constraints() {
