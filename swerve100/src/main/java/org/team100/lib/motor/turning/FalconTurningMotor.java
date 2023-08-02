@@ -44,9 +44,12 @@ public class FalconTurningMotor implements TurningMotor, Sendable {
         return m_motor.get();
     }
 
-    public void setPID(ControlMode control, double output) {
-        double outputInRots = output * 2048;
-        m_motor.set(control, outputInRots);
+    public void setPID(ControlMode control, double outputRadiansPerSec) {
+        double ticksPerRevolution = 1024;
+        double revolutionsPerSec = outputRadiansPerSec/(2*Math.PI);
+        double revsPer100ms = revolutionsPerSec/10;
+        double ticksPer100ms = revsPer100ms*ticksPerRevolution;
+        m_motor.set(control, ticksPer100ms);
     }
 
     @Override
