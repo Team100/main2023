@@ -2,6 +2,7 @@ package org.team100.lib.motor.drive;
 
 import com.ctre.phoenix.ErrorCode;
 import com.ctre.phoenix.motorcontrol.ControlMode;
+import com.ctre.phoenix.motorcontrol.FeedbackDevice;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.StatorCurrentLimitConfiguration;
 import com.ctre.phoenix.motorcontrol.SupplyCurrentLimitConfiguration;
@@ -48,6 +49,7 @@ public class FalconDriveMotor implements DriveMotor, Sendable {
         m_motor = new WPI_TalonFX(canId);
         m_motor.configFactoryDefault();
         m_motor.setNeutralMode(NeutralMode.Brake);
+        m_motor.configSelectedFeedbackSensor(FeedbackDevice.IntegratedSensor);
 
         m_motor.configStatorCurrentLimit(new StatorCurrentLimitConfiguration(true, currentLimit, currentLimit, 0));
         m_motor.configSupplyCurrentLimit(new SupplyCurrentLimitConfiguration(true, currentLimit, currentLimit, 0));

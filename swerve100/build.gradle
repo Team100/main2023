@@ -148,23 +148,23 @@ tasks.withType(JavaCompile) {
 //     configuration 'proguard.txt'
 // }
 
-task proguardshrink(type: proguard.gradle.ProGuardTask) {
-    configuration 'proguard-shrink.txt'
-}
+// task proguardshrink(type: proguard.gradle.ProGuardTask) {
+//     configuration 'proguard-shrink.txt'
+// }
 
-//jar.finalizedBy proguard
-jar.finalizedBy proguardshrink
+// //jar.finalizedBy proguard
+// jar.finalizedBy proguardshrink
 
-task copyJar(type: Copy) {
-    from "$buildDir/libs/swerve100.jar"
-    into "$buildDir/libs/"
-    rename('swerve100.jar', 'swerve100_big.jar')
-}
-task overwriteJar(type: Copy) {
-    from "$buildDir/libs/swerve100_out.jar"
-    into "$buildDir/libs/"
-    rename('swerve100_out.jar', 'swerve100.jar')
-}
-// proguardshrink.finalizedBy overwriteJar
-proguardshrink.finalizedBy copyJar
-copyJar.finalizedBy overwriteJar
+// task copyJar(type: Copy) {
+//     from "$buildDir/libs/swerve100.jar"
+//     into "$buildDir/libs/"
+//     rename('swerve100.jar', 'swerve100_big.jar')
+// }
+// task overwriteJar(type: Copy) {
+//     from "$buildDir/libs/swerve100_out.jar"
+//     into "$buildDir/libs/"
+//     rename('swerve100_out.jar', 'swerve100.jar')
+// }
+// // proguardshrink.finalizedBy overwriteJar
+// proguardshrink.finalizedBy copyJar
+// copyJar.finalizedBy overwriteJar

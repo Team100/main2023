@@ -240,7 +240,7 @@ public class Constants {
         kTurretConstants.kAcceleration = 20000;
 
         kTurretConstants.kEnableStatorCurrentLimit = false;
-        kTurretConstants.kStatorContinuousCurrentLimit = 60;
+        kTurretConstants.kStatorContinuousCurrentLimit = 30;
 
         kTurretConstants.kMinUnitsLimit = -115.0;
         kTurretConstants.kMaxUnitsLimit = 115.0;

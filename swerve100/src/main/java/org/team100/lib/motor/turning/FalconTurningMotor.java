@@ -1,6 +1,7 @@
 package org.team100.lib.motor.turning;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
+import com.ctre.phoenix.motorcontrol.FeedbackDevice;
 import com.ctre.phoenix.motorcontrol.InvertType;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.StatorCurrentLimitConfiguration;
@@ -22,6 +23,7 @@ public class FalconTurningMotor implements TurningMotor, Sendable {
     public FalconTurningMotor(String name, int canId) {
         m_motor = new WPI_TalonFX(canId);
         m_motor.configFactoryDefault();
+        m_motor.configSelectedFeedbackSensor(FeedbackDevice.IntegratedSensor);
         m_motor.setNeutralMode(NeutralMode.Brake);
         m_motor.setInverted(InvertType.InvertMotorOutput);
         m_motor.configStatorCurrentLimit(
@@ -45,7 +47,7 @@ public class FalconTurningMotor implements TurningMotor, Sendable {
     }
 
     public void setPID(ControlMode control, double outputRadiansPerSec) {
-        double ticksPerRevolution = 1024;
+        double ticksPerRevolution = 2048;
         double revolutionsPerSec = outputRadiansPerSec/(2*Math.PI);
         double revsPer100ms = revolutionsPerSec/10;
         double ticksPer100ms = revsPer100ms*ticksPerRevolution;
