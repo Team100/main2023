@@ -38,8 +38,8 @@ public class CANTurningMotor implements TurningMotor, Sendable {
         m_motor.configPeakOutputForward(1);
         m_motor.configPeakOutputReverse(-1);
         m_motor.configAllowableClosedloopError(0, 0, 30);
-        m_motor.config_kF(0, 0);
-        m_motor.config_kP(0, 5);
+        m_motor.config_kF(0, .05);
+        m_motor.config_kP(0, .05);
         m_motor.config_kI(0, 0);
         m_motor.config_kD(0, 0);
         double absolutePosition = 0;
@@ -47,7 +47,7 @@ public class CANTurningMotor implements TurningMotor, Sendable {
         SmartDashboard.putData(String.format("CAN Turning Motor %s", name), this);
     }
 
-    @Override
+    @Override   
     public double get() {
         return m_motor.get();
     }
@@ -62,11 +62,12 @@ public class CANTurningMotor implements TurningMotor, Sendable {
     }
 
     public void setPIDVelocity(double outputRadiansPerSec) {
+        double gearRatio = 71*40/48;
         double ticksPerRevolution = 1024;
         double revolutionsPerSec = outputRadiansPerSec/(2*Math.PI);
         double revsPer100ms = revolutionsPerSec/10;
         double ticksPer100ms = revsPer100ms*ticksPerRevolution;
-        m_motor.set(ControlMode.Velocity, ticksPer100ms);
+        m_motor.set(ControlMode.Velocity, ticksPer100ms*gearRatio);
     }
 
 

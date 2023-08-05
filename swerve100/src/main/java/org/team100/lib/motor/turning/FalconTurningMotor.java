@@ -45,11 +45,12 @@ public class FalconTurningMotor implements TurningMotor, Sendable {
     }
 
     public void setPIDVelocity(double outputRadiansPerSec) {
+        double gearRatio = 10.29;
         double ticksPerRevolution = 2048;
         double revolutionsPerSec = outputRadiansPerSec/(2*Math.PI);
         double revsPer100ms = revolutionsPerSec/10;
         double ticksPer100ms = revsPer100ms*ticksPerRevolution;
-        m_motor.set(ControlMode.Velocity, ticksPer100ms);
+        m_motor.set(ControlMode.Velocity, ticksPer100ms*gearRatio);
     }
 
     public void setPIDPosition(double outputRadians) {
