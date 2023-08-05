@@ -54,7 +54,7 @@ public class SwerveModuleFactory {
 
         // TURNING PID
         ProfiledPIDController turningController = new ProfiledPIDController(
-                210, // kP: low P because not much reduction gearing.
+                210, // kP: High P to keep the measurments acurate while maintaining an agresive wheel turning
                 0, // kI
                 0, // kD
                 new TrapezoidProfile.Constraints( //
@@ -70,8 +70,8 @@ public class SwerveModuleFactory {
 
         // TURNING FF
         SimpleMotorFeedforward turningFeedforward = new SimpleMotorFeedforward( //
-                5, // kS: friction is unimportant
-                0.6, // kV: from experiment; higher than AM modules, less reduction gear
+                10, // kS: Multiplied by around 20 of previous value as that is how much we changed P by 
+                0.6, // Since we are decreasing the value of how much the PID system does we need to conpensate for making feedforward larger as well
                 0); // kA: I have no idea what this value should be
 
         DriveServo driveServo = new DriveServo(

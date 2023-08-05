@@ -28,8 +28,8 @@ public class NeoTurningMotor implements TurningMotor, Sendable {
         SmartDashboard.putData(String.format("Neo Turning Motor %s", name), this);
         m_pidController.setPositionPIDWrappingEnabled(true);
         m_pidController.setP(.1);
-        m_pidController.setI(1e-4);
-        m_pidController.setD(1);
+        m_pidController.setI(0);
+        m_pidController.setD(0);
         m_pidController.setIZone(0);
         m_pidController.setFF(0);
         m_pidController.setOutputRange(-1, 1);
@@ -45,11 +45,17 @@ public class NeoTurningMotor implements TurningMotor, Sendable {
         m_motor.set(output);
     }
 
-    public void setPID(ControlMode control, double output) {
-        double motorGearing = 1;
-        final ControlType controlType = CANSparkMax.ControlType.kPosition;
+    public void setPIDVelocity(double output) {
+        double motorGearing = 1;//I believe there are not any robotics that actually use a neo turning motor I was changing this class to be more ready in case we do
+        final ControlType controlType = CANSparkMax.ControlType.kVelocity;
         m_pidController.setReference(motorGearing * output, controlType);
     }
+
+    // THIS DOES NOT ACTUALLY SET PID This is just here for the other turning motors
+    public void setPIDPosition(double output) {
+        this.set(output);
+    }
+
     @Override
     public void initSendable(SendableBuilder builder) {
         builder.setSmartDashboardType("NeoTurningMotor");

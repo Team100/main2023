@@ -61,7 +61,7 @@ public class Constants {
     //  The formula for calculating the theoretical maximum velocity is:
     //   <Motor free speed RPM> / 60 * <Drive reduction> * <Wheel diameter meters> * pi
     // TODO measure this
-    public static final double kMaxVelocityMetersPerSecond = 1;
+    public static final double kMaxVelocityMetersPerSecond = 4.959668;
 
     // Robot constants
     public static final double kMaxDriveAcceleration = 1867 * 0.8;   // m/s^2 tuned 2/18 practice bot

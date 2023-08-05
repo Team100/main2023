@@ -10,5 +10,7 @@ public interface TurningMotor {
     /** @param output motor output in range [-1, 1] */
     void set(double output);
 
-    void setPID(ControlMode control, double output);
+    void setPIDPosition(double output);
+
+    void setPIDVelocity(double output);
 }

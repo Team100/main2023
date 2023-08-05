@@ -16,7 +16,7 @@ public enum Identity {
     SWERVE_TWO("0317f285"),
     SQUAREBOT("031e31e3"),
     CAMERA_DOLLY("03126d76"),
-    FRC_100_ea4("0306cea4"), // on my desk
+    FRC_100_ea4("0306cea4"), 
     TEST_BOARD_8D("03063c8d"),
     TEST_BOARD_B0("030628b0"),
     COMP_BOT("032363AC"),

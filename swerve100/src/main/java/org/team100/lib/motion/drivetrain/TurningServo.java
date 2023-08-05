@@ -58,7 +58,7 @@ public class TurningServo implements Sendable {
         turningMotorControllerOutput = m_turningController.calculate(getTurningAngleRad(), state.angle.getRadians());
         turningFeedForwardOutput = m_turningFeedforward.calculate(getTurnSetpointVelocityRadS(), 0);
         double turnOutputRadsPerSec =  MathUtil.applyDeadband(turningMotorControllerOutput + turningFeedForwardOutput, m_config.kSteeringDeadband);
-        m_turningMotor.setPID(ControlMode.Velocity, turnOutputRadsPerSec);
+        m_turningMotor.setPIDVelocity(turnOutputRadsPerSec);
     }
 
     void onboard(SwerveModuleState state) {

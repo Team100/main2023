@@ -33,8 +33,6 @@ public class FalconTurningMotor implements TurningMotor, Sendable {
         SmartDashboard.putData(String.format("Falcon Turning Motor %s", name), this);
         m_motor.configNominalOutputForward(0);
         m_motor.configNominalOutputReverse(0);
-        m_motor.configPeakOutputForward(1);
-        m_motor.configPeakOutputReverse(-1);
         m_motor.config_kF(0, 0.05);
         m_motor.config_kP(0, 0.05);
         m_motor.config_kI(0, 0);
@@ -46,12 +44,18 @@ public class FalconTurningMotor implements TurningMotor, Sendable {
         return m_motor.get();
     }
 
-    public void setPID(ControlMode control, double outputRadiansPerSec) {
+    public void setPIDVelocity(double outputRadiansPerSec) {
         double ticksPerRevolution = 2048;
         double revolutionsPerSec = outputRadiansPerSec/(2*Math.PI);
         double revsPer100ms = revolutionsPerSec/10;
         double ticksPer100ms = revsPer100ms*ticksPerRevolution;
-        m_motor.set(control, ticksPer100ms);
+        m_motor.set(ControlMode.Velocity, ticksPer100ms);
+    }
+
+    public void setPIDPosition(double outputRadians) {
+        double ticksPerRevolution = 2048;
+        double outputTicks = outputRadians / (Math.PI * 2) * ticksPerRevolution;
+        m_motor.set(ControlMode.Position, outputTicks);
     }
 
     @Override

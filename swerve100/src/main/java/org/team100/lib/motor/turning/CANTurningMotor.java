@@ -61,12 +61,19 @@ public class CANTurningMotor implements TurningMotor, Sendable {
         m_motor.set(output);
     }
 
-    public void setPID(ControlMode control, double outputRadiansPerSec) {
+    public void setPIDVelocity(double outputRadiansPerSec) {
         double ticksPerRevolution = 1024;
         double revolutionsPerSec = outputRadiansPerSec/(2*Math.PI);
         double revsPer100ms = revolutionsPerSec/10;
         double ticksPer100ms = revsPer100ms*ticksPerRevolution;
-        m_motor.set(control, ticksPer100ms);
+        m_motor.set(ControlMode.Velocity, ticksPer100ms);
+    }
+
+
+    public void setPIDPosition(double outputRadians) {
+        double ticksPerRevolution = 1024;
+        double outputTicks = outputRadians / (2*Math.PI) * ticksPerRevolution;
+        m_motor.set(ControlMode.Position, outputTicks);
     }
 
     @Override
