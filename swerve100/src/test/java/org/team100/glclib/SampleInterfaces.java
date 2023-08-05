@@ -1,6 +1,5 @@
 package org.team100.glclib;
 
-import org.team100.glclib.GlcMath;
 import org.team100.glclib.glc_interface.CostFunction;
 import org.team100.glclib.glc_interface.GoalRegion;
 import org.team100.glclib.glc_interface.Heuristic;
@@ -155,12 +154,12 @@ public class SampleInterfaces {
     ////////////////////////////////////////////////////////
     /////////////// Goal Checking Interface//////////////////
     ////////////////////////////////////////////////////////
-    public static class Sphericalgoal extends GoalRegion {
+    public static class SphericalGoal2 extends GoalRegion {
         double radius_sqr;
         double[] center;
         int resolution;
 
-        public Sphericalgoal(double _goal_radius_sqr,
+        public SphericalGoal2(double _goal_radius_sqr,
                 double[] _goal_center,
                 int _resolution) {
 

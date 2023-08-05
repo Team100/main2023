@@ -144,6 +144,8 @@ tasks.withType(JavaCompile) {
     options.compilerArgs.add '-XDstringConcat=inline'
 }
 
+// arg. comment out the proguard stuff until it actually works.
+
 // task proguard(type: proguard.gradle.ProGuardTask) {
 //     configuration 'proguard.txt'
 // }
@@ -151,6 +153,9 @@ tasks.withType(JavaCompile) {
 // task proguardshrink(type: proguard.gradle.ProGuardTask) {
 //     configuration 'proguard-shrink.txt'
 // }
+
+// //jar.finalizedBy proguard
+// jar.finalizedBy proguardshrink
 
 // //jar.finalizedBy proguard
 // jar.finalizedBy proguardshrink
@@ -167,4 +172,5 @@ tasks.withType(JavaCompile) {
 // }
 // // proguardshrink.finalizedBy overwriteJar
 // proguardshrink.finalizedBy copyJar
+// copyJar.finalizedBy overwriteJar
 // copyJar.finalizedBy overwriteJar
