@@ -3,7 +3,6 @@ package org.team100.glclib;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import org.junit.jupiter.api.Test;
-import org.team100.glclib.GlcMath;
 
 public class TestGlcMath {
     
