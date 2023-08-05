@@ -1,10 +1,15 @@
 package org.team100.lib.controller;
 
 import org.team100.lib.math.AngularRandomVector;
+import org.team100.lib.math.MeasurementUncertainty;
 import org.team100.lib.math.RandomVector;
 import org.team100.lib.math.Variance;
+import org.team100.lib.math.WhiteNoiseVector;
 import org.team100.lib.motion.drivetrain.SwerveState;
 import org.team100.lib.system.SubRegulator1D;
+import org.team100.lib.system.examples.ParamFrictionCartesian1D;
+import org.team100.lib.system.examples.ParamFrictionRotary1D;
+
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.Vector;
@@ -16,11 +21,28 @@ import edu.wpi.first.math.numbers.N2;
 
 public class HolonomicDriveRegulator {
     private static final double kDt = 0.02;
-    SubRegulator1D xRegulator;
-    SubRegulator1D yRegulator;
-    SubRegulator1D thetaRegulator;
 
-    
+    final Vector<N2> stateTolerance_x = VecBuilder.fill(0.02, 0.2);
+    final Vector<N1> controlTolerance_x = VecBuilder.fill(12.0);
+    WhiteNoiseVector<N2> wx = WhiteNoiseVector.noise2(0, 0);
+    MeasurementUncertainty<N2> vx = MeasurementUncertainty.for2(0.01, 0.1);
+    ParamFrictionCartesian1D system_x = new ParamFrictionCartesian1D(wx, vx);
+    SubRegulator1D xRegulator = new SubRegulator1D(system_x, stateTolerance_x, controlTolerance_x);
+
+    final Vector<N2> stateTolerance_y = VecBuilder.fill(0.02, 0.2);
+    final Vector<N1> controlTolerance_y = VecBuilder.fill(12.0);
+    WhiteNoiseVector<N2> wy = WhiteNoiseVector.noise2(0, 0);
+    MeasurementUncertainty<N2> vy = MeasurementUncertainty.for2(0.01, 0.1);
+    ParamFrictionCartesian1D system_y = new ParamFrictionCartesian1D(wy, vy);
+    SubRegulator1D yRegulator = new SubRegulator1D(system_y, stateTolerance_y, controlTolerance_y);
+
+    final Vector<N2> stateTolerance_theta = VecBuilder.fill(0.01, 0.2);
+    final Vector<N1> controlTolerance_theta = VecBuilder.fill(12.0);
+    WhiteNoiseVector<N2> wtheta = WhiteNoiseVector.noise2(0, 0);
+    MeasurementUncertainty<N2> vtheta = MeasurementUncertainty.for2(0.1, 0.1);
+    ParamFrictionRotary1D system_theta = new ParamFrictionRotary1D(wtheta, vtheta);
+    SubRegulator1D thetaRegulator = new SubRegulator1D(system_theta, stateTolerance_theta, controlTolerance_theta);
+
     Variance<N2> px = Variance.from2StdDev(.01, .01);
     Variance<N2> py = Variance.from2StdDev(.01, .01);
     Variance<N2> ptheta = Variance.from2StdDev(.316228, .316228);
@@ -34,13 +56,8 @@ public class HolonomicDriveRegulator {
     private Rotation2d m_rotationError = new Rotation2d();
     private Pose2d m_poseTolerance = new Pose2d();
 
-    public HolonomicDriveRegulator(
-           SubRegulator1D xRegulator,
-           SubRegulator1D yRegulator,
-           SubRegulator1D thetaRegulator) {
-        this.xRegulator = xRegulator;
-        this.yRegulator = yRegulator;
-        this.thetaRegulator = thetaRegulator;
+    public HolonomicDriveRegulator() {
+
     }
 
     /**
@@ -68,6 +85,7 @@ public class HolonomicDriveRegulator {
     public Twist2d calculate(
             Pose2d currentPose,
             SwerveState desiredState) {
+        
         xhat_x = xRegulator.correctPosition(xhat_x, currentPose.getX());
         xhat_y = yRegulator.correctPosition(xhat_y, currentPose.getY());
         xhat_theta = thetaRegulator.correctPosition(xhat_theta, currentPose.getRotation().getRadians());

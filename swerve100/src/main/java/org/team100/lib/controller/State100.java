@@ -1,5 +1,7 @@
 package org.team100.lib.controller;
 
+import org.team100.lib.profile.MotionState;
+
 /**
  * One-dimensional system state, used for measurement and reference.
  * The usual state-space representation would be X = (x,v) and Xdot = (v,a).
@@ -14,6 +16,12 @@ public class State100 {
         m_x = x;
         m_v = v;
         m_a = a;
+    }
+
+    public State100(MotionState state) {
+        m_x = state.getX();
+        m_v = state.getV();
+        m_a = state.getA();
     }
 
 	public double x() {

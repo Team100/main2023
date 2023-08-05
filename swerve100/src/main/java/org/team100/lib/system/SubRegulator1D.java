@@ -24,7 +24,6 @@ import edu.wpi.first.math.numbers.N2;
  * controlling one DOF of the HolonomicDriveRegulator.
  */
 public class SubRegulator1D {
-    private static final double kDelta = 0.001;
     private static final double kDt = 0.02;
 
     final Vector<N2> stateTolerance;
