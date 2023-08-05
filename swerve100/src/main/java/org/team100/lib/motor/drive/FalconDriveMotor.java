@@ -83,8 +83,13 @@ public class FalconDriveMotor implements DriveMotor, Sendable {
         m_motor.setVoltage(10 * MathUtil.clamp(output, -1.3, 1.3));
     }
 
-    public void setPID(ControlMode control, double output) {
-        m_motor.set(control, output*3.479750259*6.6*2048/10);
+    public void setPID(ControlMode control, double outputMetersPerSec) {
+        double ticksPerRevolution = 2048;
+        double gearRatio = 6.6;
+        double revolutionsPerSec = outputMetersPerSec*3.479750259;
+        double revsPer100ms = revolutionsPerSec/10;
+        double ticksPer100ms = revsPer100ms*ticksPerRevolution;
+        m_motor.set(control, ticksPer100ms * gearRatio);
     }
 
     @Override
