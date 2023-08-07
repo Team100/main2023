@@ -8,7 +8,46 @@ import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.wpilibj.Timer;
 
 /** Represents the modules in the drivetrain. */
-public class SwerveModuleCollection {
+public class SwerveModuleCollection implements SwerveModuleCollectionInterface {
+    public static class Noop implements SwerveModuleCollectionInterface {
+
+        @Override
+        public SwerveModulePosition[] positions() {
+            return new SwerveModulePosition[] {
+                new SwerveModulePosition(),
+                new SwerveModulePosition(),
+                new SwerveModulePosition(),
+                new SwerveModulePosition()
+            };
+        }
+
+        @Override
+        public void close() {      
+        }
+
+        @Override
+        public SwerveModuleState[] states() {
+            return new SwerveModuleState[]{
+                new SwerveModuleState(),
+                new SwerveModuleState(),
+                new SwerveModuleState(),
+                new SwerveModuleState()
+            };
+        }
+
+        @Override
+        public void stop() {   
+        }
+
+        @Override
+        public void test(double[][] desiredOutputs, FileWriter writer) {
+        }
+
+        @Override
+        public void setDesiredStates(SwerveModuleState[] targetModuleStates) { 
+        }
+
+    }
     private final SwerveModule m_frontLeft;
     private final SwerveModule m_frontRight;
     private final SwerveModule m_rearLeft;
@@ -57,7 +96,7 @@ public class SwerveModuleCollection {
         m_rearRight.close();
     }
 
-    void stop() {
+    public void stop() {
         m_frontLeft.stop();
         m_frontRight.stop();
         m_rearLeft.stop();
@@ -65,7 +104,7 @@ public class SwerveModuleCollection {
     }
 
     /** Test and log. */
-    void test(double[][] desiredOutputs, FileWriter writer) {
+    public void test(double[][] desiredOutputs, FileWriter writer) {
         m_frontLeft.test(desiredOutputs[0]);
         m_frontRight.test(desiredOutputs[1]);
         m_rearLeft.test(desiredOutputs[2]);

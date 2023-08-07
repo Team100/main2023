@@ -64,7 +64,7 @@ public class FRCTalonSRX implements Sendable {
     /**
      * A direct reference to the TalonSRX motor, designed for direct control
      */
-    public WPI_TalonSRX motor;
+    private WPI_TalonSRX motor;
 
     /**
      * The master that will be followed
@@ -960,47 +960,68 @@ public class FRCTalonSRX implements Sendable {
         }
 
         public FRCTalonSRX build() {
-            FRCTalonSRX fRCTalonSRX = new FRCTalonSRX();
-            fRCTalonSRX.setCanID(canID);
-            if (useInvertType) fRCTalonSRX.setInverted(invertType);
-            else fRCTalonSRX.setInverted(inverted);
-            fRCTalonSRX.setFeedbackPort(feedbackPort);
-            fRCTalonSRX.setTimeout(timeout);
-            fRCTalonSRX.setSensorPhase(sensorPhase);
-            fRCTalonSRX.setAllowableClosedLoopError(allowableClosedLoopError);
-            fRCTalonSRX.setStatusFrameType(statusFrameType);
-            fRCTalonSRX.setStatusFrame(statusFrame);
-            fRCTalonSRX.setCurrentLimitEnabled(currentLimitEnabled);
-            fRCTalonSRX.setCurrentLimit(currentLimit);
-            fRCTalonSRX.setNeutralMode(neutralMode);
-            fRCTalonSRX.setSmartDashboardPutEnabled(smartDashboardPutEnabled);
-            fRCTalonSRX.setSmartDashboardPath(smartDashboardPath);
-            fRCTalonSRX.setOpenLoopRampRate(openLoopRampRate);
-            fRCTalonSRX.setClosedLoopRampRate(closedLoopRampRate);
-            fRCTalonSRX.setNominalOutputForward(nominalOutputForward);
-            fRCTalonSRX.setNominalOutputReverse(nominalOutputReverse);
-            fRCTalonSRX.setPeakOutputForward(peakOutputForward);
-            fRCTalonSRX.setPeakOutputReverse(peakOutputReverse);
-            fRCTalonSRX.setNeutralDeadband(neutralDeadband);
-            fRCTalonSRX.setVoltageCompensationSaturation(voltageCompensationSaturation);
-            fRCTalonSRX.setVelocityMeasurementPeriod(velocityMeasurementPeriod);
-            fRCTalonSRX.setVelocityMeasurementWindow(velocityMeasurementWindow);
-            fRCTalonSRX.setForwardSoftLimitEnabled(forwardSoftLimitEnabled);
-            fRCTalonSRX.setForwardSoftLimitThreshold(forwardSoftLimitThreshold);
-            fRCTalonSRX.setReverseSoftLimitEnabled(reverseSoftLimitEnabled);
-            fRCTalonSRX.setReverseSoftLimitThreshold(reverseSoftLimitThreshold);
-            fRCTalonSRX.setAuxPIDPolarity(auxPIDPolarity);
-            fRCTalonSRX.setMotionCruiseVelocity(motionCruiseVelocity);
-            fRCTalonSRX.setMotionAcceleration(motionAcceleration);
-            fRCTalonSRX.setMotionCurveStrength(motionCurveStrength);
-            fRCTalonSRX.setMotionProfileTrajectoryPeriod(motionProfileTrajectoryPeriod);
-            fRCTalonSRX.setFeedbackNotContinuous(feedbackNotContinuous);
-            fRCTalonSRX.setMaster(master);
-            fRCTalonSRX.kF = this.kF;
-            fRCTalonSRX.kD = this.kD;
-            fRCTalonSRX.kI = this.kI;
-            fRCTalonSRX.kP = this.kP;
-            return fRCTalonSRX.configure();
+                FRCTalonSRX fRCTalonSRX = new FRCTalonSRX();
+                fRCTalonSRX.setCanID(canID);
+                if (useInvertType) fRCTalonSRX.setInverted(invertType);
+                else fRCTalonSRX.setInverted(inverted);
+                fRCTalonSRX.setFeedbackPort(feedbackPort);
+                fRCTalonSRX.setTimeout(timeout);
+                fRCTalonSRX.setSensorPhase(sensorPhase);
+                fRCTalonSRX.setAllowableClosedLoopError(allowableClosedLoopError);
+                fRCTalonSRX.setStatusFrameType(statusFrameType);
+                fRCTalonSRX.setStatusFrame(statusFrame);
+                fRCTalonSRX.setCurrentLimitEnabled(currentLimitEnabled);
+                fRCTalonSRX.setCurrentLimit(currentLimit);
+                fRCTalonSRX.setNeutralMode(neutralMode);
+                fRCTalonSRX.setSmartDashboardPutEnabled(smartDashboardPutEnabled);
+                fRCTalonSRX.setSmartDashboardPath(smartDashboardPath);
+                fRCTalonSRX.setOpenLoopRampRate(openLoopRampRate);
+                fRCTalonSRX.setClosedLoopRampRate(closedLoopRampRate);
+                fRCTalonSRX.setNominalOutputForward(nominalOutputForward);
+                fRCTalonSRX.setNominalOutputReverse(nominalOutputReverse);
+                fRCTalonSRX.setPeakOutputForward(peakOutputForward);
+                fRCTalonSRX.setPeakOutputReverse(peakOutputReverse);
+                fRCTalonSRX.setNeutralDeadband(neutralDeadband);
+                fRCTalonSRX.setVoltageCompensationSaturation(voltageCompensationSaturation);
+                fRCTalonSRX.setVelocityMeasurementPeriod(velocityMeasurementPeriod);
+                fRCTalonSRX.setVelocityMeasurementWindow(velocityMeasurementWindow);
+                fRCTalonSRX.setForwardSoftLimitEnabled(forwardSoftLimitEnabled);
+                fRCTalonSRX.setForwardSoftLimitThreshold(forwardSoftLimitThreshold);
+                fRCTalonSRX.setReverseSoftLimitEnabled(reverseSoftLimitEnabled);
+                fRCTalonSRX.setReverseSoftLimitThreshold(reverseSoftLimitThreshold);
+                fRCTalonSRX.setAuxPIDPolarity(auxPIDPolarity);
+                fRCTalonSRX.setMotionCruiseVelocity(motionCruiseVelocity);
+                fRCTalonSRX.setMotionAcceleration(motionAcceleration);
+                fRCTalonSRX.setMotionCurveStrength(motionCurveStrength);
+                fRCTalonSRX.setMotionProfileTrajectoryPeriod(motionProfileTrajectoryPeriod);
+                fRCTalonSRX.setFeedbackNotContinuous(feedbackNotContinuous);
+                fRCTalonSRX.setMaster(master);
+                fRCTalonSRX.kF = this.kF;
+                fRCTalonSRX.kD = this.kD;
+                fRCTalonSRX.kI = this.kI;
+                fRCTalonSRX.kP = this.kP;
+                return fRCTalonSRX.configure();
+            
         }
+    }
+
+    public double getStatorCurrent() {
+        return motor.getStatorCurrent();
+    }
+
+    public double getSupplyCurrent() {
+        return motor.getSupplyCurrent();
+    }
+
+    public void set(double speed1_1) {
+        motor.set(speed1_1);        
+    }
+
+    public void configPeakCurrentLimit(int currentLimit) {
+        motor.configPeakCurrentLimit(currentLimit);        
+    }
+
+    public void configPeakCurrentDuration(int i) {
+        motor.configPeakCurrentDuration(i);        
     }
 }
