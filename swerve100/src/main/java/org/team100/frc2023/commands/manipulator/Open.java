@@ -1,16 +1,16 @@
 package org.team100.frc2023.commands.manipulator;
 
-import org.team100.frc2023.subsystems.Manipulator;
+import org.team100.frc2023.subsystems.ManipulatorInterface;
 
 import edu.wpi.first.wpilibj2.command.Command;
 
 // TODO: looks like obsolete?
 public class Open extends Command {
-    private final Manipulator m_manipulator;
+    private final ManipulatorInterface m_manipulator;
 
-    public Open(Manipulator manipulator) {
+    public Open(ManipulatorInterface manipulator) {
         m_manipulator = manipulator;
-        addRequirements(m_manipulator);
+        addRequirements(m_manipulator.subsystem());
     }
 
     @Override

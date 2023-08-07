@@ -4,7 +4,7 @@ import org.team100.lib.commands.DriveUtil;
 import org.team100.lib.motion.drivetrain.SwerveDriveSubsystem;
 import org.team100.lib.motion.drivetrain.SwerveState;
 import org.team100.lib.motion.drivetrain.kinematics.FrameTransform;
-import org.team100.lib.sensors.RedundantGyro;
+import org.team100.lib.sensors.RedundantGyroInterface;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -26,7 +26,7 @@ public class AutoLevel extends Command {
     private final Config m_config = new Config();
     private final boolean m_reversed;
     private final SwerveDriveSubsystem m_robotDrive;
-    private final RedundantGyro m_gyro;
+    private final RedundantGyroInterface m_gyro;
     private final FrameTransform m_chassisSpeedFactory;
     private int count;
 
@@ -34,7 +34,7 @@ public class AutoLevel extends Command {
     public AutoLevel(
             boolean reversed,
             SwerveDriveSubsystem robotDrive,
-            RedundantGyro gyro,
+            RedundantGyroInterface gyro,
             FrameTransform chassisSpeedFactory) {
         m_reversed = reversed;
         m_robotDrive = robotDrive;

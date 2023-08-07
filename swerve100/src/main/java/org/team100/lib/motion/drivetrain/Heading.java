@@ -1,6 +1,6 @@
 package org.team100.lib.motion.drivetrain;
 
-import org.team100.lib.sensors.RedundantGyro;
+import org.team100.lib.sensors.RedundantGyroInterface;
 
 import edu.wpi.first.math.geometry.Rotation2d;
 
@@ -9,9 +9,9 @@ import edu.wpi.first.math.geometry.Rotation2d;
  * counterclockwise-positive.
  */
 public class Heading implements HeadingInterface {
-    private final RedundantGyro m_gyro;
+    private final RedundantGyroInterface m_gyro;
 
-    public Heading(RedundantGyro gyro) {
+    public Heading(RedundantGyroInterface gyro) {
         m_gyro = gyro;
     }
 

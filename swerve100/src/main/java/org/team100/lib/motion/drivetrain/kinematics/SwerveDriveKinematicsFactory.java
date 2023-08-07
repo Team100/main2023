@@ -9,7 +9,7 @@ public class SwerveDriveKinematicsFactory {
     public static SwerveDriveKinematics get(Identity identity) {
         final double kTrackWidth;
         final double kWheelBase;
-        switch (Identity.get()) {
+        switch (identity) {
             case COMP_BOT:
                 kTrackWidth = 0.491;
                 kWheelBase = 0.765;

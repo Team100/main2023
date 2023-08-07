@@ -2,6 +2,7 @@ package org.team100.frc2023.subsystems.arm;
 
 import org.team100.lib.motion.arm.ArmKinematics;
 import org.team100.lib.motor.FRCNEO;
+import org.team100.lib.config.Identity;
 import org.team100.lib.controller.State100;
 import org.team100.lib.motion.arm.ArmAngles;
 
@@ -18,7 +19,64 @@ import edu.wpi.first.wpilibj2.command.Subsystem;
 /**
  * Arm servo. Subsystem runs *all the time*, commands feed it references.
  */
-public class ArmSubsystem extends Subsystem {
+public class ArmSubsystem extends Subsystem implements ArmInterface {
+    private static class Noop extends Subsystem implements ArmInterface {
+
+        @Override
+        public Subsystem subsystem() {
+            return this;
+        }
+
+		@Override
+		public boolean getCubeMode() {
+			return false;
+		}
+
+		@Override
+		public void setCubeMode(boolean b) {			
+		}
+
+        @Override
+        public void setReference(ArmAngles reference) {
+            
+        }
+
+        @Override
+        public ArmAngles getMeasurement() {
+            return new ArmAngles(0,0);
+        }
+
+        @Override
+        public void setControlNormal() {
+        }
+
+        @Override
+        public void setControlSafe() {            
+        }
+
+        @Override
+        public void close() {            
+        }
+
+    }
+
+    public static class Factory {
+        private final Identity m_identity;
+
+        public Factory(Identity identity) {
+            m_identity = identity;
+        }
+
+        public ArmInterface get() {
+            switch (m_identity) {
+                case COMP_BOT:
+                    return new ArmSubsystem();
+                default:
+                    return new Noop();
+            }
+        }
+    }
+
     public static class Config {
         public double softStop = -0.594938;
         public double kUpperArmLengthM = 0.92;
@@ -72,10 +130,17 @@ public class ArmSubsystem extends Subsystem {
     private final AnalogEncoder upperArmEncoder;
 
     // TODO: move this somewhere else
-    public boolean cubeMode = true;
+    private boolean cubeMode = true;
+    public void setCubeMode(boolean mode) {
+        cubeMode = mode;
+    }
+    @Override
+    public boolean getCubeMode() {
+        return cubeMode;
+    }
     private ArmAngles m_reference;
 
-    public ArmSubsystem() {
+    private ArmSubsystem() {
         m_armKinematicsM = new ArmKinematics(m_config.kLowerArmLengthM, m_config.kUpperArmLengthM);
         m_lowerMeasurementFilter = LinearFilter.singlePoleIIR(m_config.filterTimeConstantS, m_config.filterPeriodS);
         m_upperMeasurementFilter = LinearFilter.singlePoleIIR(m_config.filterTimeConstantS, m_config.filterPeriodS);
@@ -122,8 +187,8 @@ public class ArmSubsystem extends Subsystem {
         ArmAngles measurement = getMeasurement();
         double u1 = m_lowerController.calculate(measurement.th1, m_reference.th1);
         double u2 = m_upperController.calculate(measurement.th2, m_reference.th2);
-        lowerArmMotor.motor.set(soften(u1));
-        upperArmMotor.motor.set(u2);
+        lowerArmMotor.set(soften(u1));
+        upperArmMotor.set(u2);
     }
 
     /**
@@ -156,8 +221,8 @@ public class ArmSubsystem extends Subsystem {
     }
 
     public void close() {
-        lowerArmMotor.motor.close();
-        upperArmMotor.motor.close();
+        lowerArmMotor.close();
+        upperArmMotor.close();
         lowerArmEncoder.close();
         upperArmEncoder.close();
         lowerArmInput.close();
@@ -198,6 +263,11 @@ public class ArmSubsystem extends Subsystem {
 
     private double getLowerArmDegrees() {
         return getLowerArm() * 180 / Math.PI;
+    }
+
+    @Override
+    public Subsystem subsystem() {
+        return this;
     }
 
     @Override
