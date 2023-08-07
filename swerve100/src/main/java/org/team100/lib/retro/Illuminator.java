@@ -1,11 +1,42 @@
 package org.team100.lib.retro;
 
+import org.team100.lib.config.Identity;
+
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
 import edu.wpi.first.math.MathUtil;
 
-public class Illuminator {
+public class Illuminator implements IlluminatorInterface {
+    /** For robots without an illuminator. */
+    private static class Noop implements IlluminatorInterface {
+
+        @Override
+        public void set(double i) {
+        }
+
+        @Override
+        public void close() {
+        }
+    }
+
+    public static class Factory {
+        private final Identity m_identity;
+
+        public Factory(Identity identity) {
+            m_identity = identity;
+        }
+
+        public IlluminatorInterface get(int deviceId) {
+            switch (m_identity) {
+                default:
+                    // none of the robots have this part right now.
+                    return new Noop();
+                // return new Illuminator(deviceId);
+            }
+        }
+    }
+
     public static class Config {
 
         /**
@@ -28,23 +59,27 @@ public class Illuminator {
     private final Config m_config = new Config();
     private final CANSparkMax led;
 
-    public Illuminator(int deviceId) {
+    private Illuminator(int deviceId) {
         // note that "smart" current limiting appears to be for brushless motors only,
         // and "secondary" current limiting appears not to work (it produces an error in
         // the log, and happily outputs max current), so we don't use either one.
         led = new CANSparkMax(deviceId, MotorType.kBrushed);
         led.setInverted(true);
+        String version = led.getFirmwareString();
+        System.out.println("Illuminator controller version " + version);
     }
 
     /**
      * @param value in range [0,1]
      */
+    @Override
     public void set(final double value) {
         double clampedValue = MathUtil.clamp(value, 0, 1);
         double outputVolts = clampedValue * m_config.kMaxVoltage;
         led.setVoltage(outputVolts);
     }
 
+    @Override
     public void close() {
         led.close();
     }

@@ -1,7 +1,7 @@
 package org.team100.frc2023.commands.arm;
 
 import org.team100.frc2023.subsystems.arm.ArmPosition;
-import org.team100.frc2023.subsystems.arm.ArmSubsystem;
+import org.team100.frc2023.subsystems.arm.ArmInterface;
 import org.team100.lib.motion.arm.ArmAngles;
 
 import edu.wpi.first.math.trajectory.Trajectory;
@@ -24,7 +24,7 @@ public class ArmTrajectory extends Command {
     }
 
     private final Config m_config = new Config();
-    private final ArmSubsystem m_arm;
+    private final ArmInterface m_arm;
     private final ArmPosition m_position;
     private final boolean m_oscillate;
 
@@ -40,7 +40,7 @@ public class ArmTrajectory extends Command {
     /**
      * Go to the specified position and optionally oscillate when you get there.
      */
-    public ArmTrajectory(ArmPosition position, ArmSubsystem arm, boolean oscillate) {
+    public ArmTrajectory(ArmPosition position, ArmInterface arm, boolean oscillate) {
         m_arm = arm;
         m_position = position;
         m_oscillate = oscillate;
@@ -52,7 +52,7 @@ public class ArmTrajectory extends Command {
         setpointUpper = inst.getTable("Arm Trajec").getDoubleTopic("Setpoint Upper").publish();
         setpointLower = inst.getTable("Arm Trajec").getDoubleTopic("Setpoint Lower").publish();
 
-        addRequirements(m_arm);
+        addRequirements(m_arm.subsystem());
     }
 
     @Override
@@ -69,7 +69,7 @@ public class ArmTrajectory extends Command {
         m_trajectory = new ArmTrajectories(trajectoryConfig).makeTrajectory(
                 m_arm.getMeasurement(),
                 m_position,
-                m_arm.cubeMode);
+                m_arm.getCubeMode());
     }
 
     public void execute() {

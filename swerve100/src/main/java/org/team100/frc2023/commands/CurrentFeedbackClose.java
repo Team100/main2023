@@ -1,6 +1,6 @@
 package org.team100.frc2023.commands;
 
-import org.team100.frc2023.subsystems.Manipulator;
+import org.team100.frc2023.subsystems.ManipulatorInterface;
 
 import edu.wpi.first.wpilibj2.command.Command;
 
@@ -10,9 +10,9 @@ public class CurrentFeedbackClose extends Command {
     private boolean finishedFlag;
     double stepForce;
 
-    private final Manipulator manip;
+    private final ManipulatorInterface manip;
 
-    public CurrentFeedbackClose(Manipulator subsystem, double closedCurrentParm, double forceParm) {
+    public CurrentFeedbackClose(ManipulatorInterface subsystem, double closedCurrentParm, double forceParm) {
         manip = subsystem;
         closedCurrent = closedCurrentParm;
         force = forceParm;

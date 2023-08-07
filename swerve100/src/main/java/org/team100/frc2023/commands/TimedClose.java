@@ -1,6 +1,6 @@
 package org.team100.frc2023.commands;
 
-import org.team100.frc2023.subsystems.Manipulator;
+import org.team100.frc2023.subsystems.ManipulatorInterface;
 
 import edu.wpi.first.wpilibj2.command.Command;
 
@@ -11,13 +11,13 @@ public class TimedClose extends Command {
     boolean finishedFlag;
     // duration is given in miliseconds and force is in between 0 and 1
 
-    private final Manipulator manip;
+    private final ManipulatorInterface manip;
 
-    public TimedClose(Manipulator subsystem, int durationParm, double forceParm) {
+    public TimedClose(ManipulatorInterface subsystem, int durationParm, double forceParm) {
         manip = subsystem;
         duration = durationParm;
         force = forceParm;
-        addRequirements(subsystem);
+        addRequirements(subsystem.subsystem());
     }
 
     @Override
