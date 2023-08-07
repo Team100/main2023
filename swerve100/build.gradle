@@ -45,15 +45,22 @@ deploy {
 
                 frcJava(getArtifactTypeClass('FRCJavaArtifact')) {
                     // "Other" means no gc args at all
-                    //gcType = edu.wpi.first.gradlerio.deploy.roborio.GarbageCollectorType.Other
+                    gcType = edu.wpi.first.gradlerio.deploy.roborio.GarbageCollectorType.Other
 
                     // serial gc is shorter pauses, less throughput
                     // we don't make much garbage so it might be better?
-                    // jvmArgs.add("-XX:+UseSerialGC")
+                    jvmArgs.add("-XX:+UseSerialGC")
+                    // small eden, gc often.  can't really make it
+                    // less than this or jvm can't start.
+                    jvmArgs.add("-XX:NewSize=512k")
+                    jvmArgs.add("-XX:MaxNewSize=512k")
+
+                    jvmArgs.add("-Xlog:gc*=info,heap*=info:file=/tmp/jvm.log")
+
                     // these are the default gc args
                     // jvmArgs.add("-XX:+UseG1GC")
-                    // jvmArgs.add("-XX:MaxGCPauseMillis")
-                    // jvmArgs.add("-XX:GCTimeRatio")
+                    // jvmArgs.add("-XX:MaxGCPauseMillis=1")
+                    // jvmArgs.add("-XX:GCTimeRatio=1")
 
                     // turn off JIT
                     // jvmArgs.add("-Djava.compiler=NONE")
