@@ -127,7 +127,7 @@ deploy {
                 }
                 // reload the kernel parameters we just changed
                 reloadSysctl(getArtifactTypeClass('CommandArtifact')) {
-                    command = 'sysctl --system'
+                    command = 'sysctl -p'
                 }
             }
         }
