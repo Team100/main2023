@@ -48,7 +48,7 @@ deploy {
                     // "Other" means no gc args at all
                     gcType = edu.wpi.first.gradlerio.deploy.roborio.GarbageCollectorType.Other
 
-                    // give unused swap back to the kernel
+                    // give unused heap back to the kernel
                     // on full gc.  does full gc actually happen?
                     // jvmArgs.add("-XX:MaxHeapFreeRatio=70")
                     // 128M is too big, can't malloc it
@@ -97,7 +97,6 @@ deploy {
                     // print heap space stats at startup
                     jvmArgs.add("-XshowSettings:vm")
 
- 
                     // these make it possible to connect JConsole
                     jvmArgs.add("-Dcom.sun.management.jmxremote=true")
                     jvmArgs.add("-Dcom.sun.management.jmxremote.port=1099")
