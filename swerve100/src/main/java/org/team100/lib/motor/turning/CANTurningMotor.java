@@ -39,9 +39,9 @@ public class CANTurningMotor implements TurningMotor, Sendable {
         m_motor.configPeakOutputReverse(-1);
         m_motor.configAllowableClosedloopError(0, 0, 30);
         m_motor.config_kF(0, .05);
-        m_motor.config_kP(0, .05);
+        m_motor.config_kP(0, 0.05);
         m_motor.config_kI(0, 0);
-        m_motor.config_kD(0, 0);
+        m_motor.config_kD(0, .25);
         double absolutePosition = 0;
         m_motor.setSelectedSensorPosition(absolutePosition);
         SmartDashboard.putData(String.format("CAN Turning Motor %s", name), this);

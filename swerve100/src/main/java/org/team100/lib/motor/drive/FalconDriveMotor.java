@@ -41,11 +41,13 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
  */
 public class FalconDriveMotor implements DriveMotor, Sendable {
     private final WPI_TalonFX m_motor;
+    private final double m_gearRatio;
 
     /**
      * Throws if any of the configurations fail.
      */
-    public FalconDriveMotor(String name, int canId, double currentLimit) {
+    public FalconDriveMotor(String name, int canId, double currentLimit, double kDriveReduction) {
+        m_gearRatio = kDriveReduction;
         m_motor = new WPI_TalonFX(canId);
         m_motor.configFactoryDefault();
         m_motor.setNeutralMode(NeutralMode.Brake);
@@ -85,11 +87,10 @@ public class FalconDriveMotor implements DriveMotor, Sendable {
 
     public void setPID(ControlMode control, double outputMetersPerSec) {
         double ticksPerRevolution = 2048;
-        double gearRatio = 6.6;
         double revolutionsPerSec = outputMetersPerSec*3.479750259;
         double revsPer100ms = revolutionsPerSec/10;
         double ticksPer100ms = revsPer100ms*ticksPerRevolution;
-        m_motor.set(control, ticksPer100ms * gearRatio);
+        m_motor.set(control, ticksPer100ms * m_gearRatio);
     }
 
     @Override
