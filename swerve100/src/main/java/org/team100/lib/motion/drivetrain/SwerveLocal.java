@@ -28,7 +28,7 @@ public class SwerveLocal {
     private final Experiments m_experiments;
     private final SpeedLimits m_speedLimits;
     private final SwerveDriveKinematics m_DriveKinematics;
-    private final SwerveModuleCollection m_modules;
+    private final SwerveModuleCollectionInterface m_modules;
 
     private final double kWheelBase = .765;
     private final double kTrackWidth = .491;
@@ -57,7 +57,7 @@ public class SwerveLocal {
             Experiments experiments,
             SpeedLimits speedLimits,
             SwerveDriveKinematics driveKinematics,
-            SwerveModuleCollection modules) {
+            SwerveModuleCollectionInterface modules) {
         m_experiments = experiments;
         m_speedLimits = speedLimits;
         m_DriveKinematics = driveKinematics;

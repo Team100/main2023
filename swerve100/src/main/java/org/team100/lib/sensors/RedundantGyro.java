@@ -1,5 +1,7 @@
 package org.team100.lib.sensors;
 
+import org.team100.lib.config.Identity;
+
 import com.kauailabs.navx.frc.AHRS;
 
 import edu.wpi.first.util.sendable.Sendable;
@@ -10,7 +12,56 @@ import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 // TODO: figure out why we disabled this mechanism during the 2023 season
-public class RedundantGyro implements Sendable {
+public class RedundantGyro implements RedundantGyroInterface, Sendable {
+
+    /** For robots without a gyro. */
+    private static class Noop implements RedundantGyroInterface {
+
+        @Override
+        public float getRedundantGyroRateNED() {
+            return 0;
+        }
+
+        @Override
+        public float getRedundantGyroZ() {
+            return 0;
+        }
+
+        @Override
+        public float getRedundantPitch() {
+            return 0;
+        }
+
+        @Override
+        public float getRedundantRoll() {
+            return 0;
+        }
+
+        @Override
+        public float getRedundantYawNED() {
+            return 0;
+        }
+    }
+
+    public static class Factory {
+        private final Identity m_identity;
+
+        public Factory(Identity identity) {
+            m_identity = identity;
+        }
+
+        public RedundantGyroInterface get() {
+            switch (m_identity) {
+                case COMP_BOT:
+                case SWERVE_ONE:
+                case SWERVE_TWO:
+                    return new RedundantGyro();
+                default:
+                    return new Noop();
+            }
+        }
+    }
+
     private final AHRS m_gyro1;
     private final AHRS m_gyro2;
     private final Timer m_timer;
@@ -157,7 +208,7 @@ public class RedundantGyro implements Sendable {
     }
 
     // do we need this ?
-    float getRedundantGyroZ() {
+    public float getRedundantGyroZ() {
         if (!m_gyro1.isConnected()) {
             gyro1Connected = false;
         }

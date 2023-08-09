@@ -55,7 +55,7 @@ public class FRCNEO implements Sendable {
     /**
      * A direct reference to the CANSparkMax motor, designed for direct control
      */
-    public CANSparkMax motor;
+    private CANSparkMax motor;
 
     /**
      * A direct reference to the CANSparkMax motor, designed for direct control
@@ -838,6 +838,14 @@ public class FRCNEO implements Sendable {
             fRCNEO.kP = this.kP;
             return fRCNEO.configure();
         }
+    }
+
+    public void close() {
+        motor.close();        
+    }
+
+    public void set(double u2) {
+        motor.set(u2);        
     }
 
 }

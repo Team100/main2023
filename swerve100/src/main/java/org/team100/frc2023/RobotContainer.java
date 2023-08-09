@@ -24,6 +24,8 @@ import org.team100.frc2023.commands.retro.DriveToRetroReflectiveTape;
 import org.team100.frc2023.control.Control;
 import org.team100.frc2023.control.JoystickControl;
 import org.team100.frc2023.subsystems.Manipulator;
+import org.team100.frc2023.subsystems.ManipulatorInterface;
+import org.team100.frc2023.subsystems.arm.ArmInterface;
 import org.team100.frc2023.subsystems.arm.ArmPosition;
 import org.team100.frc2023.subsystems.arm.ArmSubsystem;
 import org.team100.lib.commands.ResetPose;
@@ -45,13 +47,15 @@ import org.team100.lib.motion.drivetrain.SpeedLimits;
 import org.team100.lib.motion.drivetrain.SpeedLimitsFactory;
 import org.team100.lib.motion.drivetrain.SwerveDriveSubsystem;
 import org.team100.lib.motion.drivetrain.SwerveLocal;
-import org.team100.lib.motion.drivetrain.SwerveModuleCollection;
 import org.team100.lib.motion.drivetrain.SwerveModuleCollectionFactory;
+import org.team100.lib.motion.drivetrain.SwerveModuleCollectionInterface;
 import org.team100.lib.motion.drivetrain.VeeringCorrection;
 import org.team100.lib.motion.drivetrain.kinematics.FrameTransform;
 import org.team100.lib.motion.drivetrain.kinematics.SwerveDriveKinematicsFactory;
 import org.team100.lib.retro.Illuminator;
+import org.team100.lib.retro.IlluminatorInterface;
 import org.team100.lib.sensors.RedundantGyro;
+import org.team100.lib.sensors.RedundantGyroInterface;
 
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
@@ -97,16 +101,16 @@ public class RobotContainer implements Sendable {
     // SUBSYSTEMS
     private final Heading m_heading;
     private final LEDIndicator m_indicator;
-    private final RedundantGyro ahrsclass;
+    private final RedundantGyroInterface ahrsclass;
     private final Field2d m_field;
     private final AprilTagFieldLayoutWithCorrectOrientation layout;
     private final SwerveDriveSubsystem m_robotDrive;
-    private final SwerveModuleCollection m_modules;
+    private final SwerveModuleCollectionInterface m_modules;
     private final SwerveDriveKinematics m_kinematics;
     private final FrameTransform m_frameTransform;
-    private final Manipulator manipulator;
-    private final ArmSubsystem m_arm;
-    private final Illuminator illuminator;
+    private final ManipulatorInterface manipulator;
+    private final ArmInterface m_arm;
+    private final IlluminatorInterface illuminator;
 
     // HID CONTROL
     private final Control control;
@@ -124,11 +128,15 @@ public class RobotContainer implements Sendable {
         m_alliance = m_allianceSelector.alliance();
 
         m_indicator = new LEDIndicator(8);
-        ahrsclass = new RedundantGyro();
+
+        Identity identity = Identity.get();
+        // override the correct identity for testing.
+        // Identity identity = Identity.COMP_BOT;
+
+        ahrsclass = new RedundantGyro.Factory(identity).get();
         m_heading = new Heading(ahrsclass);
         m_field = new Field2d();
 
-        Identity identity = Identity.get();
         SpeedLimits speedLimits = SpeedLimitsFactory.get(identity, m_config.SHOW_MODE);
         m_kinematics = SwerveDriveKinematicsFactory.get(identity);
 
@@ -156,6 +164,7 @@ public class RobotContainer implements Sendable {
             layout = AprilTagFieldLayoutWithCorrectOrientation.redLayout();
         }
 
+        // hunting the memory leak
         VisionDataProvider visionDataProvider = new VisionDataProvider(
                 layout,
                 poseEstimator,
@@ -174,9 +183,9 @@ public class RobotContainer implements Sendable {
                 swerveLocal,
                 controller,
                 m_field);
-        manipulator = new Manipulator();
-        m_arm = new ArmSubsystem();
-        illuminator = new Illuminator(25);
+        manipulator = new Manipulator.Factory(identity).get();
+        m_arm = new ArmSubsystem.Factory(identity).get();
+        illuminator = new Illuminator.Factory(identity).get(25);
 
         // TODO: control selection using names
         // control = new DualXboxControl();
@@ -283,7 +292,7 @@ public class RobotContainer implements Sendable {
         // MANIPULATOR
         manipulator.setDefaultCommand(new RunCommand(() -> {
             manipulator.set(0, 30);
-        }, manipulator));
+        }, manipulator.subsystem()));
 
         ////////////////////////
         // ARM

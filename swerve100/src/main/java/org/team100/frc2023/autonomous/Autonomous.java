@@ -5,15 +5,15 @@ import org.team100.frc2023.commands.DriveMobility;
 import org.team100.frc2023.commands.arm.ArmTrajectory;
 import org.team100.frc2023.commands.arm.SetCubeMode;
 import org.team100.frc2023.commands.manipulator.Eject;
-import org.team100.frc2023.subsystems.Manipulator;
-import org.team100.frc2023.subsystems.arm.ArmSubsystem;
+import org.team100.frc2023.subsystems.ManipulatorInterface;
+import org.team100.frc2023.subsystems.arm.ArmInterface;
 import org.team100.frc2023.subsystems.arm.ArmPosition;
 import org.team100.lib.autonomous.DriveStop;
 import org.team100.lib.commands.ResetRotation;
 import org.team100.lib.indicator.LEDIndicator;
 import org.team100.lib.motion.drivetrain.SwerveDriveSubsystem;
 import org.team100.lib.motion.drivetrain.kinematics.FrameTransform;
-import org.team100.lib.sensors.RedundantGyro;
+import org.team100.lib.sensors.RedundantGyroInterface;
 
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -32,18 +32,18 @@ public class Autonomous extends SequentialCommandGroup {
     private final Config m_config = new Config();
     private final SwerveDriveSubsystem m_robotDrive;
     private final FrameTransform m_transform;
-    private final ArmSubsystem m_arm;
-    private final Manipulator m_manipulator;
-    private final RedundantGyro m_gyro;
+    private final ArmInterface m_arm;
+    private final ManipulatorInterface m_manipulator;
+    private final RedundantGyroInterface m_gyro;
     private final LEDIndicator m_indicator;
 
     // TODO: make routine an enum
     public Autonomous(
             SwerveDriveSubsystem robotDrive,
             FrameTransform transform,
-            ArmSubsystem arm,
-            Manipulator manipulator,
-            RedundantGyro gyro,
+            ArmInterface arm,
+            ManipulatorInterface manipulator,
+            RedundantGyroInterface gyro,
             LEDIndicator indicator,
             int routine) {
         m_robotDrive = robotDrive;

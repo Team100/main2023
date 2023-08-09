@@ -4,7 +4,7 @@ import org.team100.frc2023.commands.AutoLevel;
 import org.team100.frc2023.commands.arm.ArmTrajectory;
 import org.team100.frc2023.commands.arm.SetCubeMode;
 import org.team100.frc2023.commands.manipulator.Eject;
-import org.team100.frc2023.subsystems.Manipulator;
+import org.team100.frc2023.subsystems.ManipulatorInterface;
 import org.team100.frc2023.subsystems.arm.ArmPosition;
 import org.team100.frc2023.subsystems.arm.ArmSubsystem;
 import org.team100.lib.indicator.LEDIndicator;
@@ -29,7 +29,7 @@ public class VasiliAutonomous extends SequentialCommandGroup {
             SwerveDriveKinematics kinematics, 
             RedundantGyro gyro,
             ArmSubsystem arm,
-            Manipulator manipulator,
+            ManipulatorInterface manipulator,
             LEDIndicator indicator) {
 
         controlVectors.add(new Spline.ControlVector(
