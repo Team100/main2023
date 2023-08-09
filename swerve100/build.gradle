@@ -40,22 +40,54 @@ deploy {
             debug = project.frc.getDebugOrDefault(false)
 
             artifacts {
+                // kernel parameters
+                frcStaticFileDeploy(getArtifactTypeClass('FileTreeArtifact')) {
+                    files = project.fileTree('src/main/etc')
+                    directory = '/etc'
+                }
+                // reload the kernel parameters we just changed
+                reloadSysctl(getArtifactTypeClass('CommandArtifact')) {
+                    command = 'sysctl -p'
+                }            
                 // First part is artifact name, 2nd is artifact type
                 // getTargetTypeClass is a shortcut to get the class type using a string
 
                 frcJava(getArtifactTypeClass('FRCJavaArtifact')) {
+
                     // "Other" means no gc args at all
-                    //gcType = edu.wpi.first.gradlerio.deploy.roborio.GarbageCollectorType.Other
+                    gcType = edu.wpi.first.gradlerio.deploy.roborio.GarbageCollectorType.Other
+
+                    // give unused heap back to the kernel
+                    // on full gc.  does full gc actually happen?
+                    // jvmArgs.add("-XX:MaxHeapFreeRatio=70")
+                    // 128M is too big, can't malloc it
+                    // 100M is too small, fails with bad_alloc
+                    // jvmArgs.add("-Xmx100M")
+                    // jvmArgs.add("-Xms100M")
 
                     // serial gc is shorter pauses, less throughput
                     // we don't make much garbage so it might be better?
                     // jvmArgs.add("-XX:+UseSerialGC")
-                    // these are the default gc args
-                    // jvmArgs.add("-XX:+UseG1GC")
-                    // jvmArgs.add("-XX:MaxGCPauseMillis")
-                    // jvmArgs.add("-XX:GCTimeRatio")
+                    // small eden, gc often.  can't really make it
+                    // less than this or jvm can't start.
+                    // but if it's too small, then doomed objects get
+                    // promoted and then the full gc's happen more
+                    // often and take longer
+                    // jvmArgs.add("-XX:NewSize=1M")
+                    // jvmArgs.add("-XX:MaxNewSize=1M")
 
-                    // turn off JIT
+                    // "info" is less verbose than "debug"
+                    jvmArgs.add("-Xlog:gc*=info,heap*=info:file=/tmp/jvm.log")
+                    // jvmArgs.add("-Xlog:gc*=debug,heap*=debug:file=/tmp/jvm.log")
+                   
+                    // these are the default wpi gc args
+                    jvmArgs.add("-XX:+UseG1GC")
+                    // try not to pause for long each time
+                    jvmArgs.add("-XX:MaxGCPauseMillis=1")
+                    // devote as much *total* time as you want
+                    jvmArgs.add("-XX:GCTimeRatio=1")
+
+                    // turn off compilation
                     // jvmArgs.add("-Djava.compiler=NONE")
 
                     // compile everything at the start
@@ -63,7 +95,8 @@ deploy {
                     //jvmArgs.add("-Xbatch")
 
                     // "pretouch" means actually committing heap
-                    // jvmArgs.remove("-XX:+AlwaysPreTouch")
+                    // with kernel overcommit we definitely don't want this
+                    jvmArgs.remove("-XX:+AlwaysPreTouch")
 
                     // manual heap space size
                     // jvmArgs.add("-XX:InitialRAMPercentage=30")
@@ -73,9 +106,6 @@ deploy {
                     // print heap space stats at startup
                     jvmArgs.add("-XshowSettings:vm")
 
-                    // this makes a garbage collection log
-                    // jvmArgs.add("-Xlog:gc*=info,heap*=info:file=/tmp/jvm.log")
-                   
                     // these make it possible to connect JConsole
                     // jvmArgs.add("-Dcom.sun.management.jmxremote=true")
                     // jvmArgs.add("-Dcom.sun.management.jmxremote.port=1099")
