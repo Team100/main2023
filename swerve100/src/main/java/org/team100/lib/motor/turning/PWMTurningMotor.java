@@ -13,6 +13,7 @@ public class PWMTurningMotor implements TurningMotor, Sendable {
 
     public PWMTurningMotor(String name, int channel) {
         m_motor = new VictorSP(channel);
+        m_motor.setInverted(true);
         SmartDashboard.putData(String.format("PWM Turning Motor %s", name), this);
     }
 
