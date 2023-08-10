@@ -1,5 +1,6 @@
 package org.team100.lib.system.examples;
 
+import org.team100.lib.math.AngularRandomVector;
 import org.team100.lib.math.MeasurementUncertainty;
 import org.team100.lib.math.RandomVector;
 import org.team100.lib.math.Variance;
@@ -14,35 +15,27 @@ import edu.wpi.first.math.numbers.N2;
 /**
  * One-dimensional double-integrator with friction force proportional to
  * velocity.
+ * 
+ * In this case, we're modeling rotation, e.g. a wheel.
  */
-public class ParamFrictionCartesian1D extends Cartesian1D {
-    private double kV;
-    private double kA;
-
-    public ParamFrictionCartesian1D(WhiteNoiseVector<N2> w, MeasurementUncertainty<N2> v, double kV, double kA) {
-        super(w, v);
-        this.kV = kV;
-        this.kA = kA;
-    }
-
-    public ParamFrictionCartesian1D(WhiteNoiseVector<N2> w, MeasurementUncertainty<N2> v) {
+public class ControllerRotary1D extends Rotary1D {
+    public ControllerRotary1D(WhiteNoiseVector<N2> w, MeasurementUncertainty<N2> v) {
         super(w, v);
     }
 
     /**
      * xdot = f(x,u)
      * pdot = v
-     * vdot = u - v
+     * vdot = u
      * 
-     * the x jacobian should be constant [0 1 0 -(kV/kA)]
+     * the x jacobian should be constant [0 1 0 -1]
      * the u jacobian should be constant [0 1]
      */
-    @Override
     public RandomVector<N2> f(RandomVector<N2> xmat, Matrix<N1, N1> umat) {
         double v = xmat.x.get(1, 0);
         double u = umat.get(0, 0);
         double pdot = v;
-        double vdot = u - (kV/kA) * v;
+        double vdot = u - v;
         Matrix<N2, N1> xdotx = VecBuilder.fill(pdot, vdot);
         Matrix<N2, N2> xdotP = xmat.Kxx.copy().getValue();
         xdotP.fill(0);
@@ -50,9 +43,10 @@ public class ParamFrictionCartesian1D extends Cartesian1D {
         double vP = xmat.Kxx.get(1, 1);
         // guessing what to do with the off-diagonals
         xdotP.set(0, 0, vP);
-        xdotP.set(0, 1, -(kV/kA) * vP);
-        xdotP.set(1, 0, -(kV/kA) * vP);
-        xdotP.set(1, 1, (kV/kA) * (kV/kA) * vP);
+        xdotP.set(0, 1, -vP);
+        xdotP.set(1, 0, -vP);
+        xdotP.set(1, 1, vP);
+        // note that xdot needs no wrapping, don't return an AngularRandomVector here.
         return new RandomVector<>(xdotx, new Variance<>(xdotP));
     }
 
@@ -75,14 +69,7 @@ public class ParamFrictionCartesian1D extends Cartesian1D {
         Matrix<N2, N2> xP = new Matrix<>(Nat.N2(), Nat.N2());
         xP.set(0, 0, 1e9); // position: "don't know" variance
         xP.set(1, 1, xdot.Kxx.get(0, 0)); // better P?
-        return new RandomVector<>(xx, new Variance<>(xP));
-    }
-
-    public double getkV() {
-        return kV;
-    }
-
-    public double getkA() {
-        return kA;
+        // Full state, return Angular.
+        return new AngularRandomVector<>(xx, new Variance<>(xP));
     }
 }

@@ -45,12 +45,11 @@ public class SubRegulator1D {
 
     public NonlinearSystemLoop<N2, N1, N2> loop;
 
-    public SubRegulator1D(NoisyLimitedPlant1D system, Vector<N2> stateTolerance, Vector<N1> controlTolerance,
-            WhiteNoiseVector<N2> w, MeasurementUncertainty<N2> v) {
+    public SubRegulator1D(NoisyLimitedPlant1D system, Vector<N2> stateTolerance, Vector<N1> controlTolerance) {
         this.stateTolerance = stateTolerance;
         this.controlTolerance = controlTolerance;
-        this.w = w;
-        this.v = v;
+        this.w = system.w();
+        this.v = system.v();
         this.system = system;
         gc = new GainCalculator<>(system, stateTolerance, controlTolerance, kDt);
         K = gc.getK();
@@ -59,11 +58,6 @@ public class SubRegulator1D {
         pointEstimator = new PointEstimator<>(system);
         feedforward = new InversionFeedforward<>(system);
         loop = new NonlinearSystemLoop<>(system, predictor, pointEstimator, pooling, controller, feedforward);
-    }
-
-    public SubRegulator1D(NoisyLimitedPlant1D system, Vector<N2> stateTolerance, Vector<N1> controlTolerance) {
-        this(system, stateTolerance, controlTolerance, WhiteNoiseVector.noise2(0, 0),
-                MeasurementUncertainty.for2(.01, .01));
     }
 
     public Vector<N2> getR(State100 desiredState) {
