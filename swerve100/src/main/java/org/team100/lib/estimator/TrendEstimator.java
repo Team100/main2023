@@ -7,7 +7,16 @@ import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.Num;
 import edu.wpi.first.math.numbers.N1;
 
-/** State from measurement trend. */
+/**
+ * State from measurement trend.
+ * 
+ * This estimator is a variance-aware version of what I'm sure we would do if
+ * this class didn't exist, which is to estimate velocity via discrete
+ * difference of position. If you want, you could do that without this class
+ * (e.g. some hardware does it), and then you don't need it, you can just treat
+ * velocity measurement as a "real" state measurement, even though there's
+ * really just one sensor.
+ */
 public class TrendEstimator<States extends Num, Inputs extends Num, Outputs extends Num> {
     private final NonlinearPlant<States, Inputs, Outputs> m_plant;
 
