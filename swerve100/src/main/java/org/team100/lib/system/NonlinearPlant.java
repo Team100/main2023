@@ -34,17 +34,29 @@ public interface NonlinearPlant<States extends Num, Inputs extends Num, Outputs 
      * Inverse of f with respect to x, for trending measurement. It's not that
      * important to perfectly invert f; if you get the velocity term, that's
      * probably enough. Use wide variances for unknowns.
+     * 
+     * This partial-inverse is admittedly a strange thing to do, but I don't really
+     * want to take it out, because it illustrates the variance issue with
+     * differencing for velocity estimation. If you're not using the TrendEstimator
+     * then you don't need to implement this method.
      */
-    RandomVector<States> finvWrtX(RandomVector<States> xdot, Matrix<Inputs, N1> u);
+    default RandomVector<States> finvWrtX(RandomVector<States> xdot, Matrix<Inputs, N1> u) {
+        throw new UnsupportedOperationException();
+    }
 
     /**
      * Measurement from state. Use wide variances for unknowns.
      * maybe remove u, since it really is never needed.
+     * 
+     * Usually h is identity, i.e. we can observe the state perfectly.
      */
     RandomVector<Outputs> h(RandomVector<States> x, Matrix<Inputs, N1> u);
 
     /**
-     * Inverse of h with respect to x. Usually both h and hinv are identity.
+     * Inverse of h with respect to x.
+     * 
+     * Usually hinv is identity, which indicates that there is no measurement noise,
+     * which is wrong of course. TODO: add measurement noise.
      */
     RandomVector<States> hinv(RandomVector<Outputs> y, Matrix<Inputs, N1> u);
 
