@@ -35,4 +35,9 @@ public class State100 {
 	public double a() {
 		return m_a;
 	}
+
+    public String toString() {
+        String ret_string = "State100(X: " + Math.round(m_x) + ", V: " + m_v + ", A: " + m_a + ")";
+        return ret_string;
+    }
 }

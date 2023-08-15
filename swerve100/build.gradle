@@ -178,6 +178,9 @@ dependencies {
     // testRuntimeOnly 'org.junit.vintage:junit-vintage-engine:5.8.2'
     // to run some of 254's tests using junit5
     testImplementation 'org.hamcrest:hamcrest-library:2.2'
+
+    implementation "org.ejml:ejml-simple:0.42"
+
 }
 
 test {

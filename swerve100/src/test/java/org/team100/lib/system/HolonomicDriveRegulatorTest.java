@@ -1,6 +1,7 @@
 package org.team100.lib.system;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.junit.jupiter.api.Test;
 import org.team100.lib.controller.HolonomicDriveRegulator;
@@ -12,6 +13,7 @@ import org.team100.lib.profile.MotionProfileGenerator;
 import org.team100.lib.profile.MotionState;
 
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Twist2d;
 
 public class HolonomicDriveRegulatorTest {
@@ -23,6 +25,7 @@ public class HolonomicDriveRegulatorTest {
     private MotionProfile profileY;
     private MotionProfile profileTheta;
     private double time;
+
     @Test
     void testAtSetpoint() {
         currentPose = new Pose2d();
@@ -34,27 +37,49 @@ public class HolonomicDriveRegulatorTest {
         assertEquals(output.dtheta, 0);
     }
 
+    @Test
+    void driveOneMeter() {
+        testWithTrajectory(new Pose2d(), new Pose2d(1, 0, new Rotation2d(0)));
+        assertTrue(true);
+    }
+
     void testWithTrajectory(Pose2d startingPose, Pose2d goalPose) {
         currentPose = startingPose;
         time = 0;
         profileX = MotionProfileGenerator.generateSimpleMotionProfile(
-            new MotionState(startingPose.getX(), 0),
-            new MotionState(goalPose.getX() , 0),
-            speedLimits.speedM_S,
-            speedLimits.accelM_S2,
-            speedLimits.jerkM_S3);
+                new MotionState(startingPose.getX(), 0),
+                new MotionState(goalPose.getX(), 0),
+                speedLimits.speedM_S,
+                speedLimits.accelM_S2,
+                speedLimits.jerkM_S3);
         profileY = MotionProfileGenerator.generateSimpleMotionProfile(
-            new MotionState(startingPose.getY(), 0),
-            new MotionState(goalPose.getY() , 0),
-            speedLimits.speedM_S,
-            speedLimits.accelM_S2,
-            speedLimits.jerkM_S3);
+                new MotionState(startingPose.getY(), 0),
+                new MotionState(goalPose.getY(), 0),
+                speedLimits.speedM_S,
+                speedLimits.accelM_S2,
+                speedLimits.jerkM_S3);
         profileTheta = MotionProfileGenerator.generateSimpleMotionProfile(
-            new MotionState(startingPose.getRotation().getRadians(), 0),
-            new MotionState(goalPose.getRotation().getRadians(), 0),
-            speedLimits.angleSpeedRad_S,
-            speedLimits.angleAccelRad_S2,
-            speedLimits.angleJerkRad_S3);
+                new MotionState(startingPose.getRotation().getRadians(), 0),
+                new MotionState(goalPose.getRotation().getRadians(), 0),
+                speedLimits.angleSpeedRad_S,
+                speedLimits.angleAccelRad_S2,
+                speedLimits.angleJerkRad_S3);
+
+        double duration = Math.max(profileX.duration(), Math.max(profileY.duration(), profileTheta.duration()));
+
+        while (time < duration) {
+            desiredState = new SwerveState(new State100(profileX.get(time)), new State100(profileY.get(time)),
+                    new State100(profileTheta.get(time)));
+            Twist2d output = m_regulator.calculate(currentPose, desiredState);
+            if (time == 0) {
+                output = new Twist2d();
+            }
+            currentPose = new Pose2d(currentPose.getX() + output.dx * .05, currentPose.getY() + output.dy * .05,
+                    new Rotation2d(currentPose.getRotation().getRadians() + output.dtheta * .05));
+            System.out.println("\noutput: " + output);
+            System.out.println("\ncurrent pose: " + currentPose);
+            System.out.println("\ndesired state: " + desiredState);
+            time += .05;
+        }
     }
-    double duration = Math.max(profileX.duration(), Math.max(profileY.duration(), profileTheta.duration()));
 }
