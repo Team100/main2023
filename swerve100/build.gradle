@@ -180,7 +180,6 @@ dependencies {
     testImplementation 'org.hamcrest:hamcrest-library:2.2'
 
     implementation "org.ejml:ejml-simple:0.42"
-
 }
 
 test {
