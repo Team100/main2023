@@ -45,7 +45,7 @@ public class NeoTurningMotor implements TurningMotor, Sendable {
         m_motor.set(output);
     }
 
-    public void setPIDVelocity(double output) {
+    public void setPIDVelocity(double output, double Accel) {
         double motorGearing = 1;//I believe there are not any robotics that actually use a neo turning motor I was changing this class to be more ready in case we do
         final ControlType controlType = CANSparkMax.ControlType.kVelocity;
         m_pidController.setReference(motorGearing * output, controlType);

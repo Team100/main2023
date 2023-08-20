@@ -12,5 +12,5 @@ public interface TurningMotor {
 
     void setPIDPosition(double output);
 
-    void setPIDVelocity(double output);
+    void setPIDVelocity(double output, double outputAccel);
 }

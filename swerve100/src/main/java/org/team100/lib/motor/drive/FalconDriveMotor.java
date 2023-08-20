@@ -88,6 +88,7 @@ public class FalconDriveMotor implements DriveMotor, Sendable {
     public void setPID(ControlMode control, double outputMetersPerSec) {
         double ticksPerRevolution = 2048;
         double revolutionsPerSec = outputMetersPerSec*3.479750259;
+        revolutionsPerSec = 0;
         double revsPer100ms = revolutionsPerSec/10;
         double ticksPer100ms = revsPer100ms*ticksPerRevolution;
         m_motor.set(control, ticksPer100ms * m_gearRatio);

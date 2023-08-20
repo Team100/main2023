@@ -28,7 +28,7 @@ public class PWMTurningMotor implements TurningMotor, Sendable {
     }
 
     // THIS DOES NOT ACTUALLY SET PID This is just here for the other turning motors
-    public void setPIDVelocity(double output) {
+    public void setPIDVelocity(double output, double Accel) {
         this.set(output);
     }
 

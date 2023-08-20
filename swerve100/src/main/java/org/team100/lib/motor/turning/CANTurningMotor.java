@@ -61,7 +61,7 @@ public class CANTurningMotor implements TurningMotor, Sendable {
         m_motor.set(output);
     }
 
-    public void setPIDVelocity(double outputRadiansPerSec) {
+    public void setPIDVelocity(double outputRadiansPerSec, double Accel) {
         double gearRatio = 71*40/48;
         double ticksPerRevolution = 1024;
         double revolutionsPerSec = outputRadiansPerSec/(2*Math.PI);

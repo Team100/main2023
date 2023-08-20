@@ -1,6 +1,7 @@
 package org.team100.lib.motor.turning;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
+import com.ctre.phoenix.motorcontrol.DemandType;
 import com.ctre.phoenix.motorcontrol.FeedbackDevice;
 import com.ctre.phoenix.motorcontrol.InvertType;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
@@ -33,8 +34,8 @@ public class FalconTurningMotor implements TurningMotor, Sendable {
         SmartDashboard.putData(String.format("Falcon Turning Motor %s", name), this);
         m_motor.configNominalOutputForward(0);
         m_motor.configNominalOutputReverse(0);
-        m_motor.config_kF(0, 0.05);
-        m_motor.config_kP(0, 0.05);
+        m_motor.config_kF(0, 0);
+        m_motor.config_kP(0, 0);
         m_motor.config_kI(0, 0);
         m_motor.config_kD(0, 0);
     }
@@ -44,19 +45,25 @@ public class FalconTurningMotor implements TurningMotor, Sendable {
         return m_motor.get();
     }
 
-    public void setPIDVelocity(double outputRadiansPerSec) {
+    public void setPIDVelocity(double outputRadiansPerSec, double outputRadiansPerSecPerSec) {
         double gearRatio = 10.29;
         double ticksPerRevolution = 2048;
-        double revolutionsPerSec = outputRadiansPerSec/(2*Math.PI);
+        double revolutionsPerSec = 0/(2*Math.PI);
         double revsPer100ms = revolutionsPerSec/10;
         double ticksPer100ms = revsPer100ms*ticksPerRevolution;
-        m_motor.set(ControlMode.Velocity, ticksPer100ms*gearRatio);
+        DemandType type = DemandType.ArbitraryFeedForward;
+        double feedforward = Math.signum(outputRadiansPerSec)/11; 
+        double feedforward2 = outputRadiansPerSec/11;
+        double feedforward3 = outputRadiansPerSecPerSec/11;
+        double kFF = feedforward3*feedforward2*feedforward;
+        m_motor.set(ControlMode.Velocity, ticksPer100ms*gearRatio, type, kFF);
     }
 
     public void setPIDPosition(double outputRadians) {
+        double gearRatio = 10.29;
         double ticksPerRevolution = 2048;
         double outputTicks = outputRadians / (Math.PI * 2) * ticksPerRevolution;
-        m_motor.set(ControlMode.Position, outputTicks);
+        m_motor.set(ControlMode.Position, outputTicks*gearRatio);
     }
 
     @Override
