@@ -37,7 +37,7 @@ public class State100 {
 	}
 
     public String toString() {
-        String ret_string = "State100(X: " + Math.round(m_x) + ", V: " + m_v + ", A: " + m_a + ")";
+        String ret_string = "State100(X: " + String.format("%5.3f", m_x) + ", V: " + String.format("%5.3f", m_v) + ", A: " + String.format("%5.3f", m_a) + ")";
         return ret_string;
     }
 }

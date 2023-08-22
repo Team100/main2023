@@ -16,8 +16,11 @@ import edu.wpi.first.math.numbers.N2;
  * velocity.
  */
 public class ControllerCartesian1D extends Cartesian1D {
-    public ControllerCartesian1D(WhiteNoiseVector<N2> w, MeasurementUncertainty<N2> v) {
+    private double dt;
+
+    public ControllerCartesian1D(WhiteNoiseVector<N2> w, MeasurementUncertainty<N2> v, double dt) {
         super(w, v);
+        this.dt = dt;
     }
 
     /**
@@ -32,7 +35,7 @@ public class ControllerCartesian1D extends Cartesian1D {
     public RandomVector<N2> f(RandomVector<N2> xmat, Matrix<N1, N1> umat) {
         double v = xmat.x.get(1, 0);
         double u = umat.get(0, 0);
-        double pdot = v;
+        double pdot = v * dt;
         double vdot = u - v;
         Matrix<N2, N1> xdotx = VecBuilder.fill(pdot, vdot);
         Matrix<N2, N2> xdotP = xmat.Kxx.copy().getValue();
@@ -40,18 +43,17 @@ public class ControllerCartesian1D extends Cartesian1D {
         // propagate variance of x through f (u has zero variance)
         double vP = xmat.Kxx.get(1, 1);
         // guessing what to do with the off-diagonals
-        xdotP.set(0, 0, vP);
-        xdotP.set(0, 1, -vP);
-        xdotP.set(1, 0, -vP);
+        xdotP.set(0, 0, dt * dt * vP);
+        xdotP.set(0, 1, -dt * vP);
+        xdotP.set(1, 0, -dt * vP);
         xdotP.set(1, 1, vP);
         return new RandomVector<>(xdotx, new Variance<>(xdotP));
     }
 
     @Override
     public Matrix<N1, N1> finvWrtU(RandomVector<N2> x, RandomVector<N2> xdot) {
-        double a = xdot.x.get(1, 0);
         double v = x.x.get(1, 0);
-        return VecBuilder.fill(a + v);
+        return VecBuilder.fill(v);
     }
 
     @Override

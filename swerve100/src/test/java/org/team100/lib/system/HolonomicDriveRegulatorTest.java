@@ -25,6 +25,7 @@ public class HolonomicDriveRegulatorTest {
     private MotionProfile profileY;
     private MotionProfile profileTheta;
     private double time;
+    private double kDelta = .01;
 
     @Test
     void testAtSetpoint() {
@@ -66,6 +67,7 @@ public class HolonomicDriveRegulatorTest {
                 speedLimits.angleJerkRad_S3);
 
         double duration = Math.max(profileX.duration(), Math.max(profileY.duration(), profileTheta.duration()));
+        System.out.println(duration);
 
         while (time < duration) {
             desiredState = new SwerveState(new State100(profileX.get(time)), new State100(profileY.get(time)),
@@ -81,5 +83,9 @@ public class HolonomicDriveRegulatorTest {
             System.out.println("\ndesired state: " + desiredState);
             time += .05;
         }
+
+        assertEquals(currentPose.getX(), desiredState.x().x(), kDelta);
+        assertEquals(currentPose.getY(), desiredState.y().x(), kDelta);
+        assertEquals(currentPose.getRotation().getRadians(), desiredState.theta().x(), kDelta);
     }
 }

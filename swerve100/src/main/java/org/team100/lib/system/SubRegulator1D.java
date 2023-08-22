@@ -53,6 +53,7 @@ public class SubRegulator1D {
         this.system = system;
         gc = new GainCalculator<>(system, stateTolerance, controlTolerance, kDt);
         K = gc.getK();
+        System.out.println(K);
         controller = new FeedbackControl<>(system, K);
         predictor = new ExtrapolatingEstimator<>(system);
         pointEstimator = new PointEstimator<>(system);

@@ -7,11 +7,8 @@ import org.team100.lib.math.Variance;
 import org.team100.lib.math.WhiteNoiseVector;
 import org.team100.lib.motion.drivetrain.SwerveState;
 import org.team100.lib.system.SubRegulator1D;
-import org.team100.lib.system.examples.Cartesian1D;
 import org.team100.lib.system.examples.ControllerCartesian1D;
 import org.team100.lib.system.examples.ControllerRotary1D;
-import org.team100.lib.system.examples.Rotary1D;
-
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.Vector;
@@ -24,25 +21,25 @@ import edu.wpi.first.math.numbers.N2;
 public class HolonomicDriveRegulator {
     private static final double kDt = 0.02;
 
-    final Vector<N2> stateTolerance_x = VecBuilder.fill(0.02, 0.2);
-    final Vector<N1> controlTolerance_x = VecBuilder.fill(0);
+    final Vector<N2> stateTolerance_x = VecBuilder.fill(0.02, 0.02);
+    final Vector<N1> controlTolerance_x = VecBuilder.fill(.001);
     private WhiteNoiseVector<N2> wx = WhiteNoiseVector.noise2(0, 0);
     private MeasurementUncertainty<N2> vx = MeasurementUncertainty.for2(0.01, 0.1);
-    private ControllerCartesian1D system_x = new ControllerCartesian1D(wx, vx);;
+    private ControllerCartesian1D system_x = new ControllerCartesian1D(wx, vx, kDt);
     private SubRegulator1D xRegulator = new SubRegulator1D(system_x, stateTolerance_x, controlTolerance_x);
 
-    final Vector<N2> stateTolerance_y = VecBuilder.fill(0.02, 0.2);
-    final Vector<N1> controlTolerance_y = VecBuilder.fill(0);
+    final Vector<N2> stateTolerance_y = VecBuilder.fill(0.02, 0.02);
+    final Vector<N1> controlTolerance_y = VecBuilder.fill(.001);
     private WhiteNoiseVector<N2> wy = WhiteNoiseVector.noise2(0, 0);
     private MeasurementUncertainty<N2> vy = MeasurementUncertainty.for2(0.01, 0.1);
-    private ControllerCartesian1D system_y = new ControllerCartesian1D(wy, vy);
+    private ControllerCartesian1D system_y = new ControllerCartesian1D(wy, vy, kDt);
     private SubRegulator1D yRegulator = new SubRegulator1D(system_y, stateTolerance_y, controlTolerance_y);
 
-    final Vector<N2> stateTolerance_theta = VecBuilder.fill(0.01, 0.2);
-    final Vector<N1> controlTolerance_theta = VecBuilder.fill(0);
+    final Vector<N2> stateTolerance_theta = VecBuilder.fill(Math.PI/120, Math.PI/120);
+    final Vector<N1> controlTolerance_theta = VecBuilder.fill(.001);
     private WhiteNoiseVector<N2> wtheta = WhiteNoiseVector.noise2(0, 0);
     private MeasurementUncertainty<N2> vtheta = MeasurementUncertainty.for2(0.1, 0.1);
-    private ControllerRotary1D system_theta = new ControllerRotary1D(wtheta, vtheta);;
+    private ControllerRotary1D system_theta = new ControllerRotary1D(wtheta, vtheta, kDt);;
     private SubRegulator1D thetaRegulator = new SubRegulator1D(system_theta, stateTolerance_theta,
             controlTolerance_theta);
 
