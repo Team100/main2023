@@ -52,9 +52,12 @@ public class FalconTurningMotor implements TurningMotor, Sendable {
         double revsPer100ms = revolutionsPerSec/10;
         double ticksPer100ms = revsPer100ms*ticksPerRevolution;
         DemandType type = DemandType.ArbitraryFeedForward;
-        double feedforward = Math.signum(outputRadiansPerSec)/11; 
-        double feedforward2 = outputRadiansPerSec/11;
-        double feedforward3 = outputRadiansPerSecPerSec/11;
+        double Kn = 1/.7942;
+        double Kf = -(-.2427)/.7942;
+        double Ke = 1;
+        double feedforward = Ke*Math.signum(outputRadiansPerSec)/11; 
+        double feedforward2 = Kn*outputRadiansPerSec/11;
+        double feedforward3 = Kf*outputRadiansPerSecPerSec/11;
         double kFF = feedforward3*feedforward2*feedforward;
         m_motor.set(ControlMode.Velocity, ticksPer100ms*gearRatio, type, kFF);
     }
