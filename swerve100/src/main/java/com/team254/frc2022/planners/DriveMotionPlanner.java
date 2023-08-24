@@ -41,7 +41,7 @@ public class DriveMotionPlanner implements CSVWritable {
         PURE_PURSUIT
     }
 
-    FollowerType mFollowerType = FollowerType.PURE_PURSUIT;
+    FollowerType mFollowerType = FollowerType.FEEDFORWARD_ONLY;
 
     public void setFollowerType(FollowerType type) {
         mFollowerType = type;

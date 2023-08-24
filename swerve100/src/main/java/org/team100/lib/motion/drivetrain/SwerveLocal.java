@@ -81,6 +81,28 @@ public class SwerveLocal {
         }
     }
 
+    public void setChassisSpeeds254(com.team254.lib.swerve.ChassisSpeeds targetChassisSpeeds) {
+        setChassisSpeedsNormally254(targetChassisSpeeds);
+    }
+
+    private void setChassisSpeedsNormally254(com.team254.lib.swerve.ChassisSpeeds targetChassisSpeeds) {
+        desiredSpeedXPublisher.set(targetChassisSpeeds.vxMetersPerSecond);
+        desiredSpeedYPublisher.set(targetChassisSpeeds.vyMetersPerSecond);
+        desiredSpeedRotPublisher.set(targetChassisSpeeds.omegaRadiansPerSecond);
+        com.team254.lib.swerve.SwerveModuleState[] swerveModuleStates254 = m_DriveKinematics2.as254()
+                .toSwerveModuleStates(targetChassisSpeeds);
+        Rotation2d thetafl = new Rotation2d(swerveModuleStates254[0].angle.getRadians());
+        Rotation2d thetafr = new Rotation2d(swerveModuleStates254[1].angle.getRadians());
+        Rotation2d thetabl = new Rotation2d(swerveModuleStates254[2].angle.getRadians());
+        Rotation2d thetabr = new Rotation2d(swerveModuleStates254[3].angle.getRadians());
+        SwerveModuleState fl = new SwerveModuleState(swerveModuleStates254[0].speedMetersPerSecond, thetafl);
+        SwerveModuleState fr = new SwerveModuleState(swerveModuleStates254[1].speedMetersPerSecond, thetafr);
+        SwerveModuleState bl = new SwerveModuleState(swerveModuleStates254[2].speedMetersPerSecond, thetabl);
+        SwerveModuleState br = new SwerveModuleState(swerveModuleStates254[3].speedMetersPerSecond, thetabr);
+        SwerveModuleState[] swerveModuleStates = new SwerveModuleState[] { fl, fr, bl, br };
+        setModuleStates(swerveModuleStates);
+    }
+
     private void setChassisSpeedsNormally(ChassisSpeeds targetChassisSpeeds) {
         desiredSpeedXPublisher.set(targetChassisSpeeds.vxMetersPerSecond);
         desiredSpeedYPublisher.set(targetChassisSpeeds.vyMetersPerSecond);
@@ -195,6 +217,8 @@ public class SwerveLocal {
                 || speeds.vyMetersPerSecond >= 0.1
                 || speeds.omegaRadiansPerSecond >= 0.1);
     }
+
+    
 
     // observers
     private final NetworkTableInstance inst = NetworkTableInstance.getDefault();

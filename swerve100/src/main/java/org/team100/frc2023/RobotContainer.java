@@ -22,6 +22,7 @@ import org.team100.frc2023.commands.manipulator.Eject;
 import org.team100.frc2023.commands.manipulator.Home;
 import org.team100.frc2023.commands.retro.DriveToRetroReflectiveTape;
 import org.team100.frc2023.control.Control;
+import org.team100.frc2023.control.DualXboxControl;
 import org.team100.frc2023.control.JoystickControl;
 import org.team100.frc2023.subsystems.Manipulator;
 import org.team100.frc2023.subsystems.ManipulatorInterface;
@@ -56,6 +57,7 @@ import org.team100.lib.retro.Illuminator;
 import org.team100.lib.retro.IlluminatorInterface;
 import org.team100.lib.sensors.RedundantGyro;
 import org.team100.lib.sensors.RedundantGyroInterface;
+import org.team100.lib.trajectory.FancyTrajectory;
 
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
@@ -87,7 +89,7 @@ public class RobotContainer implements Sendable {
 
         public double kDriveCurrentLimit = SHOW_MODE ? 20 : 60;
 
-        public boolean useSetpointGenerator = true;
+        public boolean useSetpointGenerator = false;
     }
 
     private final Config m_config = new Config();
@@ -188,8 +190,8 @@ public class RobotContainer implements Sendable {
         illuminator = new Illuminator.Factory(identity).get(25);
 
         // TODO: control selection using names
-        // control = new DualXboxControl();
-        control = new JoystickControl();
+        control = new DualXboxControl();
+        // control = new JoystickControl();
 
         myWriter = logFile();
 
@@ -245,6 +247,7 @@ public class RobotContainer implements Sendable {
         control.oscillate(new ArmTrajectory(ArmPosition.SUB, m_arm, true));
         // control.armSafeSequential(armSafeWaypoint, armSafe);
         // control.armMid(new ArmTrajectory(ArmPosition.LOW, armController));
+        // control.driveWith254Trajec(new FancyTrajectory(m_robotDrive));
 
         //////////////////////////
         // MISC COMMANDS
@@ -263,30 +266,30 @@ public class RobotContainer implements Sendable {
         ///////////////////////////
         // DRIVE
 
-        if (m_config.SHOW_MODE) {
-            m_robotDrive.setDefaultCommand(
-                    new DriveScaled(
-                            control::twist,
-                            m_robotDrive,
-                            speedLimits));
-        } else {
-            if (m_config.useSetpointGenerator) {
-                m_robotDrive.setDefaultCommand(
-                        new DriveWithSetpointGenerator(
-                                control::twist,
-                                m_robotDrive,
-                                speedLimits));
-            } else {
-                m_robotDrive.setDefaultCommand(
-                        new DriveWithHeading(
-                                control::twist,
-                                m_robotDrive,
-                                m_heading,
-                                speedLimits,
-                                new Timer(),
-                                control::desiredRotation));
-            }
-        }
+        // if (m_config.SHOW_MODE) {
+        //     m_robotDrive.setDefaultCommand(
+        //             new DriveScaled(
+        //                     control::twist,
+        //                     m_robotDrive,
+        //                     speedLimits));
+        // } else {
+        //     if (m_config.useSetpointGenerator) {
+        //         m_robotDrive.setDefaultCommand(
+        //                 new DriveWithSetpointGenerator(
+        //                         control::twist,
+        //                         m_robotDrive,
+        //                         speedLimits));
+        //     } else {
+        //         m_robotDrive.setDefaultCommand(
+        //                 new DriveWithHeading(
+        //                         control::twist,
+        //                         m_robotDrive,
+        //                         m_heading,
+        //                         speedLimits,
+        //                         new Timer(),
+        //                         control::desiredRotation));
+        //     }
+        // }
 
         /////////////////////////
         // MANIPULATOR

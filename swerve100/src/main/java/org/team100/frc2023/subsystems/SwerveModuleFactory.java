@@ -163,6 +163,77 @@ public class SwerveModuleFactory {
 
     }
 
+    // for swerve 1 control CAN
+    public SwerveModule Swerve1CAN(
+            String name,
+            int driveMotorCanId,
+            int turningMotorCanId,
+            int turningEncoderChannel,
+            double turningOffset) {
+        final double kWheelDiameterMeters = 0.1016; // AndyMark Swerve & Steer has 4 inch wheel
+        final double kDriveReduction = 6.67; // see andymark.com/products/swerve-and-steer
+        final double driveEncoderDistancePerTurn = kWheelDiameterMeters * Math.PI / kDriveReduction;
+        final double turningGearRatio = 1.0; // andymark ma3 encoder is 1:1
+
+        FalconDriveMotor driveMotor = new FalconDriveMotor(name, driveMotorCanId, currentLimit);
+        FalconDriveEncoder driveEncoder = new FalconDriveEncoder(name, driveMotor, driveEncoderDistancePerTurn);
+        AnalogTurningEncoder turningEncoder = new AnalogTurningEncoder(name, turningEncoderChannel, turningOffset,
+                turningGearRatio);
+        CANTurningMotor turningMotor = new CANTurningMotor(name, turningMotorCanId, turningEncoder);
+        TalonSRXTurningEncoder turningEncoder2 = new TalonSRXTurningEncoder(name, turningMotor);
+
+        // DRIVE PID
+        PIDController driveController = new PIDController( //
+                0.1, // kP
+                0, // kI
+                0); // kD
+
+        // TURNING PID
+        ProfiledPIDController turningController = new ProfiledPIDController( //
+                0.5, // kP
+                0, // kI
+                0, // kD
+                new TrapezoidProfile.Constraints(
+                        20 * Math.PI, // speed rad/s
+                        20 * Math.PI)); // accel rad/s/s
+        turningController.enableContinuousInput(0, 2 * Math.PI);
+
+        // DRIVE FF
+        SimpleMotorFeedforward driveFeedforward = new SimpleMotorFeedforward( //
+                0.0, // kS
+                .5); // kV
+
+        // TURNING FF
+        SimpleMotorFeedforward turningFeedforward = new SimpleMotorFeedforward( //
+                0.1, // kS
+                0.005); // kV
+
+        // TODO: what is this?
+        // SimpleMotorFeedforward headingDriveFeedForward = new SimpleMotorFeedforward(
+        // //
+        // 0.05, // kS: friction is unimportant
+        // 0.35, // kV: from experiment; higher than AM modules, less reduction gear
+        // 0.08); // kA: I have no idea what this value should be
+
+        DriveServo driveServo = new DriveServo(
+                experiments,
+                name,
+                driveMotor,
+                driveEncoder,
+                driveController,
+                driveFeedforward);
+        TurningServo turningServo = new TurningServo(
+                experiments,
+                name,
+                turningMotor,
+                turningEncoder,
+                turningController,
+                turningFeedforward);
+
+        return new SwerveModule(driveServo, turningServo);
+
+    }
+
     public SwerveModule AMModule(
             String name,
             int driveMotorCanId,

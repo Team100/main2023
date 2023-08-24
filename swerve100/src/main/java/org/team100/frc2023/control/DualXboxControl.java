@@ -146,7 +146,7 @@ public class DualXboxControl implements Control, Sendable {
 
     @Override
     public void rumbleTrigger(Command command) {
-        controller0.a().whileTrue(command);
+        // controller0.a().whileTrue(command);
     }
 
     @Override
@@ -173,11 +173,15 @@ public class DualXboxControl implements Control, Sendable {
 
     @Override
     public void moveConeWidthRight(Command command) {
-        controller0.a().whileTrue(command);
+        // controller0.a().whileTrue(command);
     }
 
     public void driveWithLQR(Command command) {
         controller0.y().whileTrue(command);
+    }
+
+    public void driveWith254Trajec(Command command){
+        controller0.a().whileTrue(command);
     }
 
     ///////////////////////////////
