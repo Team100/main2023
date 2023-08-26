@@ -48,17 +48,22 @@ public class FalconTurningMotor implements TurningMotor, Sendable {
     public void setPIDVelocity(double outputRadiansPerSec, double outputRadiansPerSecPerSec) {
         double gearRatio = 10.29;
         double ticksPerRevolution = 2048;
-        double revolutionsPerSec = 0/(2*Math.PI);
+        double revolutionsPerSec = outputRadiansPerSec/(2*Math.PI);
         double revsPer100ms = revolutionsPerSec/10;
         double ticksPer100ms = revsPer100ms*ticksPerRevolution;
         DemandType type = DemandType.ArbitraryFeedForward;
-        double Kn = 1/.7942;
-        double Kf = -(-.2427)/.7942;
-        double Ke = 1;
-        double feedforward = Ke*Math.signum(outputRadiansPerSec)/11; 
-        double feedforward2 = Kn*outputRadiansPerSec/11;
-        double feedforward3 = Kf*outputRadiansPerSecPerSec/11;
-        double kFF = feedforward3*feedforward2*feedforward;
+        double Kn = 1/.7717;
+        double Kf = -(-.2427)/.7717;
+        double Ke = 1/7.5377;
+        double Ks = .3;
+        double VSat = 11;
+        if (Math.abs(outputRadiansPerSec)<.323) {
+            outputRadiansPerSecPerSec = -Ks*Math.signum(outputRadiansPerSec)/Ke;
+        }
+        double feedforward = Ke*Math.signum(outputRadiansPerSec)/VSat; 
+        double feedforward2 = Kn*outputRadiansPerSec/VSat;
+        double feedforward3 = Kf*outputRadiansPerSecPerSec/VSat;
+        double kFF = feedforward3+feedforward2+feedforward;
         m_motor.set(ControlMode.Velocity, ticksPer100ms*gearRatio, type, kFF);
     }
 
