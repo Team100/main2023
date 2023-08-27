@@ -83,7 +83,7 @@ public class RobotContainer implements Sendable {
         // Show mode is for younger drivers to drive the robot slowly.
         //
         // TODO: make a physical show mode switch.
-        public boolean SHOW_MODE = false;
+        public boolean SHOW_MODE = true;
         //
         //////////////////////////////////////
 
@@ -152,6 +152,8 @@ public class RobotContainer implements Sendable {
                 experiments,
                 identity,
                 m_config.kDriveCurrentLimit).get();
+
+
         SwerveDrivePoseEstimator poseEstimator = new SwerveDrivePoseEstimator(
                 m_kinematics,
                 m_heading.getHeadingNWU(),
@@ -266,30 +268,30 @@ public class RobotContainer implements Sendable {
         ///////////////////////////
         // DRIVE
 
-        // if (m_config.SHOW_MODE) {
-        //     m_robotDrive.setDefaultCommand(
-        //             new DriveScaled(
-        //                     control::twist,
-        //                     m_robotDrive,
-        //                     speedLimits));
-        // } else {
-        //     if (m_config.useSetpointGenerator) {
-        //         m_robotDrive.setDefaultCommand(
-        //                 new DriveWithSetpointGenerator(
-        //                         control::twist,
-        //                         m_robotDrive,
-        //                         speedLimits));
-        //     } else {
-        //         m_robotDrive.setDefaultCommand(
-        //                 new DriveWithHeading(
-        //                         control::twist,
-        //                         m_robotDrive,
-        //                         m_heading,
-        //                         speedLimits,
-        //                         new Timer(),
-        //                         control::desiredRotation));
-        //     }
-        // }
+        if (m_config.SHOW_MODE) {
+            m_robotDrive.setDefaultCommand(
+                    new DriveScaled(
+                            control::twist,
+                            m_robotDrive,
+                            speedLimits));
+        } else {
+            if (m_config.useSetpointGenerator) {
+                m_robotDrive.setDefaultCommand(
+                        new DriveWithSetpointGenerator(
+                                control::twist,
+                                m_robotDrive,
+                                speedLimits));
+            } else {
+                m_robotDrive.setDefaultCommand(
+                        new DriveWithHeading(
+                                control::twist,
+                                m_robotDrive,
+                                m_heading,
+                                speedLimits,
+                                new Timer(),
+                                control::desiredRotation));
+            }
+        }
 
         /////////////////////////
         // MANIPULATOR

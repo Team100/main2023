@@ -155,7 +155,7 @@ public class SwerveModuleFactory {
                 experiments,
                 name,
                 turningMotor,
-                turningEncoder2,
+                turningEncoder,
                 turningController,
                 turningFeedforward);
 

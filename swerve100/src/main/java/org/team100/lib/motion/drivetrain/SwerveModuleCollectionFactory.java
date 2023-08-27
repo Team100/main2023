@@ -78,19 +78,19 @@ public class SwerveModuleCollectionFactory {
                                 11, // drive CAN
                                 5, // turn PWM0
                                 2, // turn encoder
-                                0.693222), // turn offset
+                                0.688358), // turn offset
                         m_moduleFactory.AMCANModule(
                                 "Front Right",
                                 12, // drive CAN
                                 2, // turn PWM
                                 0, // turn encoder
-                                0.718255), // turn offset
+                                0.711478), // turn offset
                         m_moduleFactory.AMCANModule(
                                 "Rear Left",
                                 21, // drive CAN
                                 3, // turn PWM
                                 3, // turn encoder
-                                0.372198), // turn offset
+                                0.365033), // turn offset
                         m_moduleFactory.AMCANModule(
                                 "Rear Right",
                                 22, // drive CAN

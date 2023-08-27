@@ -12,8 +12,8 @@ import edu.wpi.first.wpilibj.simulation.RoboRioSim;
  * The serial numbers here can be found on the label on the back: add a leading zero.
  */
 public enum Identity {
-    SWERVE_ONE("0306cea4"),
-    SWERVE_TWO("0317f285"),
+    SWERVE_ONE("03238232"), // 0306cea4
+    SWERVE_TWO("0317f285"), 
     SQUAREBOT("031e31e3"),
     CAMERA_DOLLY("03126d76"),
     TEAM100_2018("0313baf3"), // on my desk

@@ -74,11 +74,14 @@ public class SwerveLocal {
      * @param targetChassisSpeeds speeds in robot coordinates.
      */
     public void setChassisSpeeds(ChassisSpeeds targetChassisSpeeds) {
-        if (m_experiments.enabled(Experiment.UseSetpointGenerator)) {
-            setChassisSpeedsNormally(targetChassisSpeeds);
-        } else {
-            setChassisSpeedsWithSetpointGenerator(targetChassisSpeeds);
-        }
+        // if (m_experiments.enabled(Experiment.UseSetpointGenerator)) {
+        //     setChassisSpeedsNormally(targetChassisSpeeds);
+        // } else {
+        //     setChassisSpeedsWithSetpointGenerator(targetChassisSpeeds);
+        // }
+
+        setChassisSpeedsNormally(targetChassisSpeeds);
+
     }
 
     public void setChassisSpeeds254(com.team254.lib.swerve.ChassisSpeeds targetChassisSpeeds) {
@@ -108,6 +111,7 @@ public class SwerveLocal {
         desiredSpeedYPublisher.set(targetChassisSpeeds.vyMetersPerSecond);
         desiredSpeedRotPublisher.set(targetChassisSpeeds.omegaRadiansPerSecond);
         SwerveModuleState[] targetModuleStates = m_DriveKinematics.toSwerveModuleStates(targetChassisSpeeds);
+
         setModuleStates(targetModuleStates);
     }
 
@@ -185,6 +189,9 @@ public class SwerveLocal {
     ///////////////////////////////////////////////////////////
 
     private void setModuleStates(SwerveModuleState[] targetModuleStates) {
+
+        // System.out.println("BALOSDHGOSDHGSOUHSOHSGOUSDHGOUH");
+
         SwerveDriveKinematics.desaturateWheelSpeeds(targetModuleStates, m_speedLimits.speedM_S);
         publishImpliedChassisSpeeds(targetModuleStates);
         m_modules.setDesiredStates(targetModuleStates);
