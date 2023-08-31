@@ -249,7 +249,7 @@ public class RobotContainer implements Sendable {
         control.oscillate(new ArmTrajectory(ArmPosition.SUB, m_arm, true));
         // control.armSafeSequential(armSafeWaypoint, armSafe);
         // control.armMid(new ArmTrajectory(ArmPosition.LOW, armController));
-        // control.driveWith254Trajec(new FancyTrajectory(m_robotDrive));
+        control.driveWith254Trajec(new FancyTrajectory(m_robotDrive));
 
         //////////////////////////
         // MISC COMMANDS

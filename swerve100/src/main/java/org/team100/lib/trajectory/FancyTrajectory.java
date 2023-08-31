@@ -28,6 +28,8 @@ public class FancyTrajectory extends Command {
 
   SwerveDriveSubsystem m_robotDrive;
   DriveMotionPlanner mMotionPlanner;
+  private TrajectoryIterator<TimedState<Pose2dWithCurvature>, TimedState<Rotation2d>> mCurrentTrajectory;
+
   public FancyTrajectory(SwerveDriveSubsystem robotDrive ) {
     // Use addRequirements() here to declare subsystem dependencies.
 
@@ -46,12 +48,12 @@ public class FancyTrajectory extends Command {
     final double kMaxVoltage = 9.0;
 
     List<Pose2d> waypoints = List.of(
-                new Pose2d(0, 0, Rotation2d.fromDegrees(270)),
-                new Pose2d(10, -10, Rotation2d.fromDegrees(0)));
+                new Pose2d(0, 0, Rotation2d.fromDegrees(-90)),
+                new Pose2d(5, 5, Rotation2d.fromDegrees(0)));
         // while turning 180
         List<Rotation2d> headings = List.of(
                 Rotation2d.fromDegrees(90),
-                Rotation2d.fromDegrees(180));
+                Rotation2d.fromDegrees(0));
         // these don't actually do anything.
         List<TimingConstraint<Pose2dWithCurvature>> constraints = List.of(
                 new CentripetalAccelerationConstraint(60));
@@ -80,7 +82,14 @@ public class FancyTrajectory extends Command {
         TrajectoryIterator<TimedState<Pose2dWithCurvature>, TimedState<Rotation2d>> iter = new TrajectoryIterator<>(
                 new TimedView<>(trajectory));
 
+
+        mCurrentTrajectory = iter;
+        mMotionPlanner.reset();
         mMotionPlanner.setTrajectory(iter);
+
+        // if(mMotionPlanner.mCurrentTrajectory == null){
+        //     System.out.println("BLLLLLLLLLLLLAJJJJJJJJJJJJJJJJjj");
+        // }
 
   }
 
@@ -90,8 +99,13 @@ public class FancyTrajectory extends Command {
     final double now = Timer.getFPGATimestamp();
     
     Pose2d currentPose = new Pose2d(m_robotDrive.getPose().getX(), m_robotDrive.getPose().getY(), new Rotation2d(m_robotDrive.getPose().getRotation()));
-    ChassisSpeeds output = mMotionPlanner.update(now, currentPose);
-
+    // if(mMotionPlanner.mCurrentTrajectory == null){
+    //     System.out.println("AHHHHHHHHHHHHHHHHHHHHHHHHH");
+    // }
+    
+    ChassisSpeeds output = mMotionPlanner.update(mCurrentTrajectory, now, currentPose);
+    
+    System.out.println("OUUUUUTPUUUUUUTTTTT" + output.vxMetersPerSecond);
     m_robotDrive.setChassisSpeeds(output);
 
   }

@@ -41,7 +41,7 @@ public class DriveMotionPlanner implements CSVWritable {
         PURE_PURSUIT
     }
 
-    FollowerType mFollowerType = FollowerType.FEEDFORWARD_ONLY;
+    FollowerType mFollowerType = FollowerType.PID;
 
     public void setFollowerType(FollowerType type) {
         mFollowerType = type;
@@ -52,7 +52,7 @@ public class DriveMotionPlanner implements CSVWritable {
     private double defaultCook = 0.4;
     private boolean useDefaultCook = true;
 
-    TrajectoryIterator<TimedState<Pose2dWithCurvature>, TimedState<Rotation2d>> mCurrentTrajectory;
+    private TrajectoryIterator<TimedState<Pose2dWithCurvature>, TimedState<Rotation2d>> mCurrentTrajectory;
     boolean mIsReversed = false;
     double mLastTime = Double.POSITIVE_INFINITY;
     public TimedState<Pose2dWithCurvature> mLastPathSetpoint = null;
@@ -92,7 +92,14 @@ public class DriveMotionPlanner implements CSVWritable {
     }
 
     public void setTrajectory(final TrajectoryIterator<TimedState<Pose2dWithCurvature>, TimedState<Rotation2d>> trajectory) {
+
+        
+        
         mCurrentTrajectory = trajectory;
+
+        if(mCurrentTrajectory == null){
+            System.out.println("YOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO");
+        }
         mPathSetpoint = trajectory.getState();
         mHeadingSetpoint = trajectory.getHeading();
         mLastHeadingSetpoint = null;
@@ -278,7 +285,10 @@ public class DriveMotionPlanner implements CSVWritable {
     }
 
     public ChassisSpeeds update(double timestamp, Pose2d current_state) {
-        if (mCurrentTrajectory == null) return null;
+        if (mCurrentTrajectory == null) {
+            // System.out.println("YOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO");
+            return null;
+        }
 
         if (mCurrentTrajectory.getProgress() == 0.0 && !Double.isFinite(mLastTime)) {
             mLastTime = timestamp;
@@ -360,6 +370,104 @@ public class DriveMotionPlanner implements CSVWritable {
                 mPathSetpoint = sample_point.state();
                 SmartDashboard.putString("Current Pose", mCurrentState.getPose().toString());
                 SmartDashboard.putString("Last Pose", mCurrentTrajectory.trajectory().getLastPoint().state().state().getPose().toString());
+                SmartDashboard.putNumber("Finished Traj?", mPathSetpoint.velocity());
+
+                mOutput = updatePurePursuit(current_state, mDTheta);
+                
+            }
+        } else {
+            // TODO Possibly switch to a pose stabilizing controller?
+            mOutput = new ChassisSpeeds();
+        }
+        return mOutput;
+    }
+
+    public ChassisSpeeds update(TrajectoryIterator<TimedState<Pose2dWithCurvature>, TimedState<Rotation2d>> trajectory, double timestamp, Pose2d current_state) {
+        if (trajectory == null) {
+            // System.out.println("YOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO");
+            return null;
+        }
+
+        if (trajectory.getProgress() == 0.0 && !Double.isFinite(mLastTime)) {
+            mLastTime = timestamp;
+
+            mInitialHeading =
+                    new Rotation2d(
+                    trajectory.trajectory().getPoint(0).heading().state());
+            var finalHeading = trajectory.trajectory().getLastPoint().heading().state();
+            mTotalTime = trajectory.trajectory().getLastPoint().state().t() -
+                    trajectory.trajectory().getPoint(0).state().t();
+            // Interpolate heading
+            mRotationDiff = finalHeading.rotateBy(mInitialHeading.inverse());
+            if (mRotationDiff.getRadians() > Math.PI) {
+                mRotationDiff = mRotationDiff.inverse().rotateBy(Rotation2d.fromRadians( Math.PI));
+            }
+
+            mStartTime = timestamp;
+            if (Math.abs(mRotationDiff.getRadians()) < 0.1) {
+                mDTheta = 0.0;
+            } else {
+                mDTheta = mRotationDiff.getRadians() / mTotalTime;
+            }
+        }
+
+        mDt = timestamp - mLastTime;
+        mLastTime = timestamp;
+        TrajectorySamplePoint<TimedState<Pose2dWithCurvature>, TimedState<Rotation2d>> sample_point;
+
+        mHeadingSetpoint = new TimedState<>(mInitialHeading.rotateBy(mRotationDiff.times(Math.min(1.0,
+                (timestamp - mStartTime) / mTotalTime))));
+        mCurrentState = current_state;
+        if (!isDone()) {
+            sample_point = trajectory.advance(mDt);
+            // Compute error in robot frame
+            mError = current_state.inverse().transformBy(mPathSetpoint.state().getPose());
+            mError = new Pose2d(mError.getTranslation(),
+                    current_state.getRotation().inverse().rotateBy(mHeadingSetpoint.state().getRotation()));
+
+            if (mFollowerType == FollowerType.PID) {
+                mPathSetpoint = sample_point.state();
+                
+                // Generate feedforward voltages.
+                final double velocity_m = Units.inches_to_meters(mPathSetpoint.velocity());
+                final Rotation2d rotation = mPathSetpoint.state().getRotation();
+
+                // In field frame
+                var chassis_v = new Translation2d( rotation.cos() * velocity_m,
+                        rotation.sin() * velocity_m);
+                // Convert to robot frame
+                chassis_v = chassis_v.rotateBy(mHeadingSetpoint.state().getRotation().inverse());
+
+                var chassis_twist = new Twist2d(
+                        chassis_v.x(),
+                        chassis_v.y(), mDTheta);
+
+        
+                var chassis_speeds = new ChassisSpeeds(
+                        chassis_twist.dx, chassis_twist.dy, chassis_twist.dtheta);
+                // PID is in robot frame
+                mOutput = updatePIDChassis(chassis_speeds);
+            } else if (mFollowerType == FollowerType.PURE_PURSUIT) {
+                double searchStepSize = 1.0;
+                double previewQuantity = 0.0;
+                double searchDirection = 1.0;
+                double forwardDistance = distance(current_state, previewQuantity + searchStepSize);
+                double reverseDistance = distance(current_state, previewQuantity - searchStepSize);
+                searchDirection = Math.signum(reverseDistance - forwardDistance);
+                while(searchStepSize > 0.001){
+                    if(Util.epsilonEquals(distance(current_state, previewQuantity), 0.0, 0.01)) break;
+                    while(/* next point is closer than current point */ distance(current_state, previewQuantity + searchStepSize*searchDirection) < 
+                            distance(current_state, previewQuantity)) {
+                        /* move to next point */
+                        previewQuantity += searchStepSize*searchDirection;
+                    }
+                    searchStepSize /= 10.0;
+                    searchDirection *= -1;
+                }
+                sample_point = trajectory.advance(previewQuantity);
+                mPathSetpoint = sample_point.state();
+                SmartDashboard.putString("Current Pose", mCurrentState.getPose().toString());
+                SmartDashboard.putString("Last Pose", trajectory.trajectory().getLastPoint().state().state().getPose().toString());
                 SmartDashboard.putNumber("Finished Traj?", mPathSetpoint.velocity());
 
                 mOutput = updatePurePursuit(current_state, mDTheta);

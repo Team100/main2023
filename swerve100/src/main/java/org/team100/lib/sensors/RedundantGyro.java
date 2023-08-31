@@ -19,6 +19,7 @@ public class RedundantGyro implements RedundantGyroInterface, Sendable {
 
         @Override
         public float getRedundantGyroRateNED() {
+            System.out.println("HIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII");
             return 0;
         }
 
@@ -72,6 +73,8 @@ public class RedundantGyro implements RedundantGyroInterface, Sendable {
     private float gyroZOffset_I2C;
     private float gyroZOffset_USB;
     private boolean timeGap = false;
+    float globalRedundRate = 0;
+    float globalTMPUnits = 0;
 
     public RedundantGyro() {
         m_timer = new Timer();
@@ -121,7 +124,7 @@ public class RedundantGyro implements RedundantGyroInterface, Sendable {
         if (!gyro2Connected && !gyro1Connected) {
             gyrosWorking = false;
         }
-        return (redundYaw) / tmpInputs;
+        return m_gyro1.getYaw();
     }
 
     /**
@@ -177,6 +180,10 @@ public class RedundantGyro implements RedundantGyroInterface, Sendable {
         if (!gyro2Connected && !gyro1Connected) {
             gyrosWorking = false;
         }
+
+        globalRedundRate = redundRoll;
+        globalTMPUnits = tmpInputs;
+        
         return (redundRoll) / tmpInputs;
     }
 
@@ -204,6 +211,8 @@ public class RedundantGyro implements RedundantGyroInterface, Sendable {
         if (!gyro2Connected && !gyro1Connected) {
             gyrosWorking = false;
         }
+
+        
         return (redundRate) / tmpInputs;
     }
 
@@ -257,5 +266,9 @@ public class RedundantGyro implements RedundantGyroInterface, Sendable {
         builder.addBooleanProperty("Gyro 1 Connected Raw", () -> m_gyro1.isConnected(), null);
         builder.addBooleanProperty("Gyro 2 Connected Raw", () -> m_gyro2.isConnected(), null);
         builder.addBooleanProperty("Any Gyros Working", () -> gyrosWorking, null);
+        builder.addFloatProperty("Redund Roll", () ->globalRedundRate, null);
+        builder.addFloatProperty("TMP ", () ->globalTMPUnits, null);
+
+
     }
 }

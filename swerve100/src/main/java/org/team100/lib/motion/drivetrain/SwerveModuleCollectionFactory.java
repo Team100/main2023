@@ -78,25 +78,25 @@ public class SwerveModuleCollectionFactory {
                                 11, // drive CAN
                                 5, // turn PWM0
                                 2, // turn encoder
-                                0.688358), // turn offset
+                                0.694815), // turn offset
                         m_moduleFactory.AMCANModule(
                                 "Front Right",
                                 12, // drive CAN
                                 2, // turn PWM
                                 0, // turn encoder
-                                0.711478), // turn offset
+                                0.718789), // turn offset
                         m_moduleFactory.AMCANModule(
                                 "Rear Left",
                                 21, // drive CAN
                                 3, // turn PWM
                                 3, // turn encoder
-                                0.365033), // turn offset
+                                0.365612), // turn offset
                         m_moduleFactory.AMCANModule(
                                 "Rear Right",
                                 22, // drive CAN
                                 1, // turn PWM
                                 1, // turn encoder
-                                0.943363)); // turn offset
+                                0.942851)); // turn offset
             default:
          return new SwerveModuleCollection.Noop();
             // previously this would throw.
