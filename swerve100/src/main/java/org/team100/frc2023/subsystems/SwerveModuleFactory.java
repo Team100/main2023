@@ -49,13 +49,13 @@ public class SwerveModuleFactory {
         // DRIVE PID
         PIDController driveController = new PIDController( //
                 0.1, // kP
-                0.3, // kI: nonzero I eliminates small errors, e.g. to finish rotations.
+                0, // kI: nonzero I eliminates small errors, e.g. to finish rotations.
                 0.0); // kD
         driveController.setIntegratorRange(-0.01, 0.01); // Note very low windup limit.
 
         // TURNING PID
         ProfiledPIDController turningController = new ProfiledPIDController(
-                10, // kP: High P to keep the measurments acurate while maintaining an agresive wheel turning
+                1, // kP: High P to keep the measurments acurate while maintaining an agresive wheel turning
                 0, // kI
                 0, // kD
                 new TrapezoidProfile.Constraints( //
@@ -71,8 +71,8 @@ public class SwerveModuleFactory {
 
         // TURNING FF
         SimpleMotorFeedforward turningFeedforward = new SimpleMotorFeedforward( //
-                0.5, // kS: Multiplied by around 20 of previous value as that is how much we changed P by 
-                0.1, // Since we are decreasing the value of how much the PID system does we need to conpensate for making feedforward larger as well
+                0.025, // kS: Multiplied by around 20 of previous value as that is how much we changed P by 
+                0.005, // Since we are decreasing the value of how much the PID system does we need to conpensate for making feedforward larger as well
                 0); // kA: I have no idea what this value should be
 
         DriveServo driveServo = new DriveServo(

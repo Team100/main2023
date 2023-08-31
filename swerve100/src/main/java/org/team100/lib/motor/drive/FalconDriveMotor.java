@@ -2,6 +2,7 @@ package org.team100.lib.motor.drive;
 
 import com.ctre.phoenix.ErrorCode;
 import com.ctre.phoenix.motorcontrol.ControlMode;
+import com.ctre.phoenix.motorcontrol.DemandType;
 import com.ctre.phoenix.motorcontrol.FeedbackDevice;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.StatorCurrentLimitConfiguration;
@@ -57,12 +58,13 @@ public class FalconDriveMotor implements DriveMotor, Sendable {
         m_motor.configSupplyCurrentLimit(new SupplyCurrentLimitConfiguration(true, currentLimit, currentLimit, 0));
         m_motor.configVelocityMeasurementPeriod(SensorVelocityMeasPeriod.Period_10Ms);
         m_motor.configVelocityMeasurementWindow(8);
-
+        m_motor.configVoltageCompSaturation(11);
+        m_motor.enableVoltageCompensation(true);
         m_motor.configNominalOutputForward(0);
         m_motor.configNominalOutputReverse(0);
         m_motor.configPeakOutputForward(1);
         m_motor.configPeakOutputReverse(-1);
-        m_motor.config_kF(0, 0.05);
+        m_motor.config_kF(0, 0);
         m_motor.config_kP(0, 0.05);
         m_motor.config_kI(0, 0);
         m_motor.config_kD(0, 0);
@@ -87,10 +89,18 @@ public class FalconDriveMotor implements DriveMotor, Sendable {
 
     public void setPID(ControlMode control, double outputMetersPerSec) {
         double ticksPerRevolution = 2048;
+        double Kn = 0.74/6.6*m_gearRatio;//1.296
+        double Ks = 0.05/6.6*m_gearRatio;
+        double VSat = 11;
         double revolutionsPerSec = outputMetersPerSec*3.479750259;
         double revsPer100ms = revolutionsPerSec/10;
         double ticksPer100ms = revsPer100ms*ticksPerRevolution;
-        m_motor.set(control, ticksPer100ms * m_gearRatio);
+        if (revolutionsPerSec<.25) {
+            Ks = .3/6.6*m_gearRatio;
+          }
+        double kFF = (Kn*revolutionsPerSec + Ks*Math.signum(revolutionsPerSec))/VSat;
+        DemandType type = DemandType.ArbitraryFeedForward;
+        m_motor.set(ControlMode.Velocity, ticksPer100ms*m_gearRatio, type, kFF);
     }
 
     @Override

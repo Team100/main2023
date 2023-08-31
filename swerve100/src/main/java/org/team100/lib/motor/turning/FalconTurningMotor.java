@@ -35,9 +35,11 @@ public class FalconTurningMotor implements TurningMotor, Sendable {
         m_motor.configNominalOutputForward(0);
         m_motor.configNominalOutputReverse(0);
         m_motor.config_kF(0, 0);
-        m_motor.config_kP(0, 0);
+        m_motor.config_kP(0, 0.05);
         m_motor.config_kI(0, 0);
         m_motor.config_kD(0, 0);
+        m_motor.configVoltageCompSaturation(11);
+        m_motor.enableVoltageCompensation(true);
     }
 
     @Override
@@ -49,23 +51,21 @@ public class FalconTurningMotor implements TurningMotor, Sendable {
         double gearRatio = 10.29;
         double ticksPerRevolution = 2048;
         double revolutionsPerSec = outputRadiansPerSec/(2*Math.PI);
-        double revsPer100ms = revolutionsPerSec/10;
-        double ticksPer100ms = revsPer100ms*ticksPerRevolution;
+        double revolutionsPerSec2 = 0;
+        double revsPer100ms = revolutionsPerSec / 10;
+        double ticksPer100ms = revsPer100ms * ticksPerRevolution;
         DemandType type = DemandType.ArbitraryFeedForward;
-        double Kn = 1/.7717;
-        double Kf = -(-.2427)/.7717;
-        double Ke = 1/7.5377;
-        double Ks = .3;
+        double Kn = 0.75/6.6*gearRatio;//1.296
+        double Kf = 0.6;//0.3145
+        double Ke = 0.0688420763;
+        double Ks = 0.05/6.6*gearRatio;
         double VSat = 11;
-        if (Math.abs(outputRadiansPerSec)<.323) {
-            outputRadiansPerSecPerSec = -Ks*Math.signum(outputRadiansPerSec)/Ke;
-        }
-        double feedforward = Ke*Math.signum(outputRadiansPerSec)/VSat; 
-        double feedforward2 = Kn*outputRadiansPerSec/VSat;
-        double feedforward3 = Kf*outputRadiansPerSecPerSec/VSat;
-        double kFF = feedforward3+feedforward2+feedforward;
+        if (revolutionsPerSec<.25) {
+            Ks = .3/6.6*gearRatio;
+          }
+        double kFF = (Kn*revolutionsPerSec + Ks*Math.signum(revolutionsPerSec))/VSat;
         m_motor.set(ControlMode.Velocity, ticksPer100ms*gearRatio, type, kFF);
-    }
+        }
 
     public void setPIDPosition(double outputRadians) {
         double gearRatio = 10.29;
