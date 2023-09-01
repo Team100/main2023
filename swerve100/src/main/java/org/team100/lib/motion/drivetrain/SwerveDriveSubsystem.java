@@ -4,6 +4,7 @@ import java.io.FileWriter;
 
 import org.team100.lib.commands.DriveUtil;
 import org.team100.lib.controller.HolonomicDriveController2;
+import org.team100.lib.controller.HolonomicDriveRegulator;
 import org.team100.lib.controller.PidGains;
 import org.team100.lib.controller.State100;
 import org.team100.lib.motion.drivetrain.kinematics.FrameTransform;
@@ -27,6 +28,7 @@ public class SwerveDriveSubsystem extends Subsystem implements SwerveDriveSubsys
     private final FrameTransform m_frameTransform;
     private final SwerveLocal m_swerveLocal;
     private final HolonomicDriveController2 m_controller;
+    private final HolonomicDriveRegulator m_regulator = new HolonomicDriveRegulator();
 
     // TODO: this looks broken
     public double keyList = -1;
@@ -124,6 +126,14 @@ public class SwerveDriveSubsystem extends Subsystem implements SwerveDriveSubsys
         Pose2d currentPose = getPose();
 
         Twist2d fieldRelativeTarget = m_controller.calculate(currentPose, m_desiredState);
+        driveInFieldCoords(fieldRelativeTarget);
+    }
+
+    private void driveToReference2() {
+        // TODO: pose should be a full state, with velocity and acceleration.
+        Pose2d currentPose = getPose();
+
+        Twist2d fieldRelativeTarget = m_regulator.calculate(currentPose, m_desiredState);
         driveInFieldCoords(fieldRelativeTarget);
     }
 

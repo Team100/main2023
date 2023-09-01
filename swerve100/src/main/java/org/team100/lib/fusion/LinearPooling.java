@@ -77,14 +77,13 @@ public abstract class LinearPooling<States extends Num> implements Pooling<State
                     + pa.toString() + "\npb:\n " + pb.toString());
         }
         if (!MatrixFeatures_DDRM.isSymmetric(a.Kxx.getValue().getStorage().getDDRM())) {
-            throw new IllegalArgumentException("aP is not symmetric.\n" + a.Kxx.toString());
+            a.Kxx.getValue().set(0, 1, a.Kxx.get(1, 0));
         }
         if (!MatrixFeatures_DDRM.isPositiveSemidefinite(a.Kxx.getValue().getStorage().getDDRM())) {
             throw new IllegalArgumentException("aP is not positive semidefinite.\n" + a.Kxx.toString());
         }
         if (!MatrixFeatures_DDRM.isSymmetric(b.Kxx.getValue().getStorage().getDDRM())) {
-            throw new IllegalArgumentException("bP is not symmetric.\n" + b.Kxx.toString());
-        }
+            b.Kxx.getValue().set(0, 1, b.Kxx.get(1, 0));        }
         if (!MatrixFeatures_DDRM.isPositiveSemidefinite(b.Kxx.getValue().getStorage().getDDRM())) {
             throw new IllegalArgumentException("bP is not positive semidefinite.\n" + b.Kxx.toString());
         }

@@ -52,4 +52,9 @@ public class SwerveState {
 
     }
 
+    public String toString() {
+        String ret_string = "SwerveState(" + m_x + ", " + m_y + ", " + m_theta + ")";
+        return ret_string;
+    }
+
 }
