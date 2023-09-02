@@ -53,11 +53,11 @@ public class DriveServo implements Sendable {
 
     void setDrive(SwerveModuleState state) {
         double speedM_S = state.speedMetersPerSecond;
-        if (m_experiments.enabled(Experiment.UseClosedLoopDrive)) {
-            offboard(speedM_S);
-        } else {
+        // if (m_experiments.enabled(Experiment.UseClosedLoopDrive)) {
+        //     offboard(speedM_S);
+        // } else {
             onboard(speedM_S);
-        }
+        // }
     }
 
     void set(double output) {

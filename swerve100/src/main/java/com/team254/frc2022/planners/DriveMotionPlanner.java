@@ -80,8 +80,8 @@ public class DriveMotionPlanner implements CSVWritable {
 
     public DriveMotionPlanner() {
         mModel = new SwerveDrive(
-                Constants.kDriveWheelDiameter / 2,
-                Constants.kDriveTrackwidthMeters/ 2.0 * Constants.kTrackScrubFactor
+                0.0942 / 2,
+                0.464 / 2.0 * Constants.kTrackScrubFactor
         );
 
         SmartDashboard.putString("Steering Direction", "");
@@ -285,6 +285,8 @@ public class DriveMotionPlanner implements CSVWritable {
     }
 
     public ChassisSpeeds update(double timestamp, Pose2d current_state) {
+
+        
         if (mCurrentTrajectory == null) {
             // System.out.println("YOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO");
             return null;
@@ -328,10 +330,18 @@ public class DriveMotionPlanner implements CSVWritable {
                     current_state.getRotation().inverse().rotateBy(mHeadingSetpoint.state().getRotation()));
 
             if (mFollowerType == FollowerType.PID) {
+
                 mPathSetpoint = sample_point.state();
+                // System.out.println(mPathSetpoint);
+
+                System.out.println(mPathSetpoint.velocity());
+
                 
                 // Generate feedforward voltages.
                 final double velocity_m = Units.inches_to_meters(mPathSetpoint.velocity());
+                // final double velocity_m = mPathSetpoint.velocity();
+
+                // System.out.println("VELLLLLLLLLLLLLCOOOOOCIIITYYYYY   " + velocity_m);
                 final Rotation2d rotation = mPathSetpoint.state().getRotation();
 
                 // In field frame
@@ -344,10 +354,14 @@ public class DriveMotionPlanner implements CSVWritable {
                         chassis_v.x(),
                         chassis_v.y(), mDTheta);
 
+
+                // System.out.println(chassis_twist);
+
         
                 var chassis_speeds = new ChassisSpeeds(
                         chassis_twist.dx, chassis_twist.dy, chassis_twist.dtheta);
                 // PID is in robot frame
+
                 mOutput = updatePIDChassis(chassis_speeds);
             } else if (mFollowerType == FollowerType.PURE_PURSUIT) {
                 double searchStepSize = 1.0;

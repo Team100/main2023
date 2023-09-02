@@ -12,6 +12,7 @@ import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Twist2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.networktables.DoubleArrayPublisher;
 import edu.wpi.first.networktables.DoublePublisher;
 import edu.wpi.first.networktables.NetworkTable;
@@ -114,8 +115,8 @@ public class SwerveDriveSubsystem extends Subsystem implements SwerveDriveSubsys
                 newEstimate.getY(),
                 newEstimate.getRotation().getDegrees()
         });
-        poseXPublisher.set(newEstimate.getX());
-        poseYPublisher.set(newEstimate.getY());
+        poseXPublisher.set(Units.metersToInches(newEstimate.getX()));
+        poseYPublisher.set(Units.metersToInches(newEstimate.getY()));
         poseRotPublisher.set(newEstimate.getRotation().getRadians());
         headingWUPublisher.set(m_heading.getHeadingRateNWU());
         // System.out.println(m_heading.getHeadingRateNWU());

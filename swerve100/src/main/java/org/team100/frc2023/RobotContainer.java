@@ -139,7 +139,7 @@ public class RobotContainer implements Sendable {
         m_heading = new Heading(ahrsclass);
         m_field = new Field2d();
 
-        SpeedLimits speedLimits = SpeedLimitsFactory.get(identity, m_config.SHOW_MODE);
+        SpeedLimits speedLimits = SpeedLimitsFactory.get(identity, false);
         m_kinematics = SwerveDriveKinematicsFactory.get(identity);
 
         VeeringCorrection veering = new VeeringCorrection(m_heading::getHeadingRateNWU);

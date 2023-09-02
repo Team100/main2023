@@ -43,23 +43,23 @@ public class FancyTrajectory extends Command {
   @Override
   public void initialize() {
 
-    final double kMaxVel = 1.0;
-    final double kMaxAccel = 1.0;
+    final double kMaxVel = 196;
+    final double kMaxAccel = 196;
     final double kMaxVoltage = 9.0;
 
     List<Pose2d> waypoints = List.of(
-                new Pose2d(0, 0, Rotation2d.fromDegrees(-90)),
-                new Pose2d(5, 5, Rotation2d.fromDegrees(0)));
+                new Pose2d(0, 0, Rotation2d.fromDegrees(90)),
+                new Pose2d(196, 196, Rotation2d.fromDegrees(0)));
         // while turning 180
         List<Rotation2d> headings = List.of(
-                Rotation2d.fromDegrees(90),
+                Rotation2d.fromDegrees(0),
                 Rotation2d.fromDegrees(0));
         // these don't actually do anything.
         List<TimingConstraint<Pose2dWithCurvature>> constraints = List.of(
                 new CentripetalAccelerationConstraint(60));
 
         // note there are static constraints in here.
-        DriveMotionPlanner mMotionPlanner = new DriveMotionPlanner();
+        // mMotionPlanner = new DriveMotionPlanner();
         boolean reversed = false;
         double start_vel = 0;
         double end_vel = 0;
@@ -103,9 +103,11 @@ public class FancyTrajectory extends Command {
     //     System.out.println("AHHHHHHHHHHHHHHHHHHHHHHHHH");
     // }
     
-    ChassisSpeeds output = mMotionPlanner.update(mCurrentTrajectory, now, currentPose);
+    ChassisSpeeds output = mMotionPlanner.update(now, currentPose);
     
-    System.out.println("OUUUUUTPUUUUUUTTTTT" + output.vxMetersPerSecond);
+    System.out.println("OUUUUUTPUUUUUUTTTTT XXXXXXXXXXXXXXXXXX" + output.vxMetersPerSecond);
+    System.out.println("OUUUUUTPUUUUUUTTTTT YYYYYYYYYYYYYYYYYY" + output.vyMetersPerSecond);
+
     m_robotDrive.setChassisSpeeds(output);
 
   }

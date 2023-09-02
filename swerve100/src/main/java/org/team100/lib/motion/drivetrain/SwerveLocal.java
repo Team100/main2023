@@ -89,9 +89,11 @@ public class SwerveLocal {
     }
 
     private void setChassisSpeedsNormally254(com.team254.lib.swerve.ChassisSpeeds targetChassisSpeeds) {
-        desiredSpeedXPublisher.set(targetChassisSpeeds.vxMetersPerSecond);
-        desiredSpeedYPublisher.set(targetChassisSpeeds.vyMetersPerSecond);
-        desiredSpeedRotPublisher.set(targetChassisSpeeds.omegaRadiansPerSecond);
+  
+        desiredSpeed254XPublisher.set(targetChassisSpeeds.vxMetersPerSecond);
+        desiredSpeed254YPublisher.set(targetChassisSpeeds.vyMetersPerSecond);
+        desiredSpeed254RotPublisher.set(targetChassisSpeeds.omegaRadiansPerSecond);
+        // System.out.println("YOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO");
         com.team254.lib.swerve.SwerveModuleState[] swerveModuleStates254 = m_DriveKinematics2.as254()
                 .toSwerveModuleStates(targetChassisSpeeds);
         Rotation2d thetafl = new Rotation2d(swerveModuleStates254[0].angle.getRadians());
@@ -103,6 +105,14 @@ public class SwerveLocal {
         SwerveModuleState bl = new SwerveModuleState(swerveModuleStates254[2].speedMetersPerSecond, thetabl);
         SwerveModuleState br = new SwerveModuleState(swerveModuleStates254[3].speedMetersPerSecond, thetabr);
         SwerveModuleState[] swerveModuleStates = new SwerveModuleState[] { fl, fr, bl, br };
+
+        flModule.set(swerveModuleStates[0].speedMetersPerSecond);
+        frModule.set(swerveModuleStates[1].speedMetersPerSecond);
+        blModule.set(swerveModuleStates[2].speedMetersPerSecond);
+        brModule.set(swerveModuleStates[3].speedMetersPerSecond);
+
+
+
         setModuleStates(swerveModuleStates);
     }
 
@@ -235,6 +245,17 @@ public class SwerveLocal {
     private final DoublePublisher desiredSpeedXPublisher = desired.getDoubleTopic("x").publish();
     private final DoublePublisher desiredSpeedYPublisher = desired.getDoubleTopic("y").publish();
     private final DoublePublisher desiredSpeedRotPublisher = desired.getDoubleTopic("theta").publish();
+
+    private final DoublePublisher desiredSpeed254XPublisher = desired.getDoubleTopic("x254").publish();
+    private final DoublePublisher desiredSpeed254YPublisher = desired.getDoubleTopic("y254").publish();
+    private final DoublePublisher desiredSpeed254RotPublisher = desired.getDoubleTopic("theta254").publish();
+
+    private final DoublePublisher frModule = desired.getDoubleTopic("front right").publish();
+    private final DoublePublisher flModule = desired.getDoubleTopic("front left").publish();
+    private final DoublePublisher brModule = desired.getDoubleTopic("back right").publish();
+    private final DoublePublisher blModule = desired.getDoubleTopic("back left").publish();
+
+
 
     // actual speed
     private final NetworkTable speed = inst.getTable("actual speed");
