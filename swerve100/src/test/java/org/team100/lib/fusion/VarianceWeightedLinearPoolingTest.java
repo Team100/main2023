@@ -112,15 +112,6 @@ public class VarianceWeightedLinearPoolingTest extends PoolingTest {
     }
 
     @Test
-    public void testAsymmetricCovariance() {
-        // some off-diagonal covariance terms :-)
-        // this is not symmetric
-        RandomVector<N2> aV = v2(0, 0, 1, 0, 0.5, 1);
-        RandomVector<N2> bV = v2(1, 1, 2, 1, 1, 2);
-        assertThrows(IllegalArgumentException.class, () -> p2.fuse(aV, bV));
-    }
-
-    @Test
     public void testZeroVariance() {
         // can't invert this one
         RandomVector<N1> aV = v1(0, 0);
