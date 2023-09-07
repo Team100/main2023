@@ -60,6 +60,7 @@ public class DriveMotionPlanner implements CSVWritable {
     public TimedState<Rotation2d> mHeadingSetpoint = null;
     public TimedState<Rotation2d> mLastHeadingSetpoint = new TimedState<>(Rotation2d.identity());
 
+    public double mVelocitym = 0;
     Pose2d mError = Pose2d.identity();
 
     Translation2d mTranslationalError = Translation2d.identity();
@@ -334,11 +335,14 @@ public class DriveMotionPlanner implements CSVWritable {
                 mPathSetpoint = sample_point.state();
                 // System.out.println(mPathSetpoint);
 
-                System.out.println(mPathSetpoint.velocity());
+                // System.out.println(mPathSetpoint.velocity());
 
                 
                 // Generate feedforward voltages.
-                final double velocity_m = Units.inches_to_meters(mPathSetpoint.velocity());
+                // final double velocity_m = Units.inches_to_meters(mPathSetpoint.velocity());
+
+                final double velocity_m = mPathSetpoint.velocity();
+                mVelocitym = velocity_m;
                 // final double velocity_m = mPathSetpoint.velocity();
 
                 // System.out.println("VELLLLLLLLLLLLLCOOOOOCIIITYYYYY   " + velocity_m);
@@ -492,6 +496,10 @@ public class DriveMotionPlanner implements CSVWritable {
             mOutput = new ChassisSpeeds();
         }
         return mOutput;
+    }
+
+    public double getVelocitySetpoint(){
+        return mVelocitym;
     }
 
     public boolean isDone() {

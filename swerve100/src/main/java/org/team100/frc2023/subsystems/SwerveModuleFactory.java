@@ -47,7 +47,7 @@ public class SwerveModuleFactory {
 
         // DRIVE PID
         PIDController driveController = new PIDController( //
-                0.1, // kP
+                1.2, // kP
                 0.3, // kI: nonzero I eliminates small errors, e.g. to finish rotations.
                 0.0); // kD
         driveController.setIntegratorRange(-0.01, 0.01); // Note very low windup limit.

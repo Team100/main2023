@@ -20,12 +20,24 @@ import com.team254.lib.trajectory.timing.CentripetalAccelerationConstraint;
 import com.team254.lib.trajectory.timing.TimedState;
 import com.team254.lib.trajectory.timing.TimingConstraint;
 
+import edu.wpi.first.math.util.Units;
+import edu.wpi.first.networktables.DoublePublisher;
+import edu.wpi.first.networktables.NetworkTable;
+import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 
 public class FancyTrajectory extends Command {
   /** Creates a new FancyTrajectory. */
 
+  private final NetworkTableInstance inst = NetworkTableInstance.getDefault();
+  private final NetworkTable table = inst.getTable("Fancy Trajectory");
+  private final DoublePublisher poseErrorX = table.getDoubleTopic("Pose Error X").publish();
+  private final DoublePublisher poseErrorY = table.getDoubleTopic("Pose Error Y").publish();
+  private final DoublePublisher velocityPublisher = table.getDoubleTopic("Velocity Setpoint").publish();
+
+
+  
   SwerveDriveSubsystem m_robotDrive;
   DriveMotionPlanner mMotionPlanner;
   private TrajectoryIterator<TimedState<Pose2dWithCurvature>, TimedState<Rotation2d>> mCurrentTrajectory;
@@ -49,7 +61,7 @@ public class FancyTrajectory extends Command {
 
     List<Pose2d> waypoints = List.of(
                 new Pose2d(0, 0, Rotation2d.fromDegrees(90)),
-                new Pose2d(196, 196, Rotation2d.fromDegrees(0)));
+                new Pose2d(80, 80, Rotation2d.fromDegrees(0)));
         // while turning 180
         List<Rotation2d> headings = List.of(
                 Rotation2d.fromDegrees(0),
@@ -98,15 +110,21 @@ public class FancyTrajectory extends Command {
   public void execute() {
     final double now = Timer.getFPGATimestamp();
     
-    Pose2d currentPose = new Pose2d(m_robotDrive.getPose().getX(), m_robotDrive.getPose().getY(), new Rotation2d(m_robotDrive.getPose().getRotation()));
+    Pose2d currentPose = new Pose2d(  Units.metersToInches(m_robotDrive.getPose().getX()), Units.metersToInches(m_robotDrive.getPose().getY()), new Rotation2d(m_robotDrive.getPose().getRotation()));
     // if(mMotionPlanner.mCurrentTrajectory == null){
     //     System.out.println("AHHHHHHHHHHHHHHHHHHHHHHHHH");
     // }
     
     ChassisSpeeds output = mMotionPlanner.update(now, currentPose);
+
+
+    poseErrorX.set(mMotionPlanner.getTranslationalError().x());
+    poseErrorY.set(mMotionPlanner.getTranslationalError().y());
+    velocityPublisher.set(mMotionPlanner.getVelocitySetpoint());
+
     
-    System.out.println("OUUUUUTPUUUUUUTTTTT XXXXXXXXXXXXXXXXXX" + output.vxMetersPerSecond);
-    System.out.println("OUUUUUTPUUUUUUTTTTT YYYYYYYYYYYYYYYYYY" + output.vyMetersPerSecond);
+    // System.out.println("OUUUUUTPUUUUUUTTTTT XXXXXXXXXXXXXXXXXX" + output.vxMetersPerSecond);
+    // System.out.println("OUUUUUTPUUUUUUTTTTT YYYYYYYYYYYYYYYYYY" + output.vyMetersPerSecond);
 
     m_robotDrive.setChassisSpeeds(output);
 
