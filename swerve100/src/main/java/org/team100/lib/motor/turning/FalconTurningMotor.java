@@ -50,7 +50,7 @@ public class FalconTurningMotor implements TurningMotor, Sendable {
     public void setPIDVelocity(double outputRadiansPerSec, double outputRadiansPerSecPerSec) {
         double gearRatio = 10.29;
         double ticksPerRevolution = 2048;
-        double revolutionsPerSec = outputRadiansPerSec/(2*Math.PI);
+        double revolutionsPerSec = 0/(2*Math.PI);
         double revolutionsPerSec2 = 0;
         double revsPer100ms = revolutionsPerSec / 10;
         double ticksPer100ms = revsPer100ms * ticksPerRevolution;
@@ -60,7 +60,7 @@ public class FalconTurningMotor implements TurningMotor, Sendable {
         double Ke = 0.0688420763;
         double Ks = 0.05/6.6*gearRatio;
         double VSat = 11;
-        if (revolutionsPerSec<.25) {
+        if (revolutionsPerSec<.2) {
             Ks = .3/6.6*gearRatio;
           }
         double kFF = (Kn*revolutionsPerSec + Ks*Math.signum(revolutionsPerSec))/VSat;

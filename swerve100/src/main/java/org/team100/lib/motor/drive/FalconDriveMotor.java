@@ -42,6 +42,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
  */
 public class FalconDriveMotor implements DriveMotor, Sendable {
     private final WPI_TalonFX m_motor;
+    private final double ticksPerRevolution = 2048;
     private final double m_gearRatio;
 
     /**
@@ -88,24 +89,25 @@ public class FalconDriveMotor implements DriveMotor, Sendable {
     }
 
     public void setPID(ControlMode control, double outputMetersPerSec) {
-        double ticksPerRevolution = 2048;
-        double Kn = 0.74/6.6*m_gearRatio;//1.296
-        double Ks = 0.05/6.6*m_gearRatio;
+        double Kn = 0.733/6.6;//1.296
+        double Ks = 0.01/6.6;
         double VSat = 11;
         double revolutionsPerSec = outputMetersPerSec*3.479750259;
         double revsPer100ms = revolutionsPerSec/10;
         double ticksPer100ms = revsPer100ms*ticksPerRevolution;
-        if (revolutionsPerSec<.25) {
-            Ks = .3/6.6*m_gearRatio;
+        if (revolutionsPerSec<.575) {
+            Ks = .2/6.6;
           }
-        double kFF = (Kn*revolutionsPerSec + Ks*Math.signum(revolutionsPerSec))/VSat;
+        double kFF = (Kn*revolutionsPerSec + Ks*Math.signum(revolutionsPerSec))*m_gearRatio/VSat;
         DemandType type = DemandType.ArbitraryFeedForward;
         m_motor.set(ControlMode.Velocity, ticksPer100ms*m_gearRatio, type, kFF);
     }
 
     @Override
     public void initSendable(SendableBuilder builder) {
+        double motorVelocityRotsPerSec = m_motor.getSelectedSensorVelocity()/(ticksPerRevolution/10*m_gearRatio);
         builder.setSmartDashboardType("FalconDriveMotor");
+        builder.addDoubleProperty("Speed (rots per sec)", () -> motorVelocityRotsPerSec, null);
         builder.addDoubleProperty("Device ID", () -> m_motor.getDeviceID(), null);
         builder.addDoubleProperty("Output", this::get, null);
     }

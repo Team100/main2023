@@ -3,6 +3,7 @@ package org.team100.lib.motor.turning;
 import org.team100.lib.encoder.turning.AnalogTurningEncoder;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
+import com.ctre.phoenix.motorcontrol.DemandType;
 import com.ctre.phoenix.motorcontrol.FeedbackDevice;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.SupplyCurrentLimitConfiguration;
@@ -38,12 +39,14 @@ public class CANTurningMotor implements TurningMotor, Sendable {
         m_motor.configPeakOutputForward(1);
         m_motor.configPeakOutputReverse(-1);
         m_motor.configAllowableClosedloopError(0, 0, 30);
-        m_motor.config_kF(0, .05);
-        m_motor.config_kP(0, 0.05);
+        m_motor.config_kF(0, 0);
+        m_motor.config_kP(0, .5);
         m_motor.config_kI(0, 0);
-        m_motor.config_kD(0, .25);
+        m_motor.config_kD(0, 0);
         double absolutePosition = 0;
         m_motor.setSelectedSensorPosition(absolutePosition);
+        m_motor.configVoltageCompSaturation(11);
+        m_motor.enableVoltageCompensation(true);
         SmartDashboard.putData(String.format("CAN Turning Motor %s", name), this);
     }
 
@@ -63,12 +66,23 @@ public class CANTurningMotor implements TurningMotor, Sendable {
 
     public void setPIDVelocity(double outputRadiansPerSec, double Accel) {
         double gearRatio = 71*40/48;
-        double ticksPerRevolution = 1024;
+        double ticksPerRevolution = 28;
         double revolutionsPerSec = outputRadiansPerSec/(2*Math.PI);
-        double revsPer100ms = revolutionsPerSec/10;
-        double ticksPer100ms = revsPer100ms*ticksPerRevolution;
-        m_motor.set(ControlMode.Velocity, ticksPer100ms*gearRatio);
-    }
+        double revolutionsPerSec2 = 0;
+        double revsPer100ms = revolutionsPerSec / 10;
+        double ticksPer100ms = revsPer100ms * ticksPerRevolution;
+        DemandType type = DemandType.ArbitraryFeedForward;
+        double Kn = 0.74/6.6*gearRatio;//1.296
+        double Kf = 0.6;//0.3145
+        double Ke = 0.0688420763;
+        double Ks = 0.05/6.6*gearRatio;
+        double VSat = 11;
+        // if (revolutionsPerSec<.2) {
+        //     Ks = .3/6.6*gearRatio;
+        //   }
+        double kFF = (Kn*revolutionsPerSec + Ks*Math.signum(revolutionsPerSec))/VSat;
+        m_motor.set(ControlMode.Velocity, ticksPer100ms*gearRatio, type, kFF);
+        }
 
 
     public void setPIDPosition(double outputRadians) {
