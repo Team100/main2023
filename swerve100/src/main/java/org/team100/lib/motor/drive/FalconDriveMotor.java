@@ -89,15 +89,16 @@ public class FalconDriveMotor implements DriveMotor, Sendable {
     }
 
     public void setPID(ControlMode control, double outputMetersPerSec) {
-        double Kn = 0.733/6.6;//1.296
-        double Ks = 0.01/6.6;
+        double Kn = 0.11106;
+        double Ks = 0.001515;
         double VSat = 11;
-        double revolutionsPerSec = outputMetersPerSec*3.479750259;
+        double rotsToMetersRatio = 3.47975;
+        double revolutionsPerSec = outputMetersPerSec*rotsToMetersRatio;
         double revsPer100ms = revolutionsPerSec/10;
         double ticksPer100ms = revsPer100ms*ticksPerRevolution;
         if (revolutionsPerSec<.575) {
-            Ks = .2/6.6;
-          }
+            Ks = .03;
+        }
         double kFF = (Kn*revolutionsPerSec + Ks*Math.signum(revolutionsPerSec))*m_gearRatio/VSat;
         DemandType type = DemandType.ArbitraryFeedForward;
         m_motor.set(ControlMode.Velocity, ticksPer100ms*m_gearRatio, type, kFF);

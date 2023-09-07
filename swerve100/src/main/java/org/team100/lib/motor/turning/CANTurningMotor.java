@@ -64,23 +64,20 @@ public class CANTurningMotor implements TurningMotor, Sendable {
         m_motor.set(output);
     }
 
-    public void setPIDVelocity(double outputRadiansPerSec, double Accel) {
-        double gearRatio = 71*40/48;
+    public void setPIDVelocity(double outputRadiansPerSec, double outputRadiansPerSecPerSec) {
+        double gearRatio = 355/6;
         double ticksPerRevolution = 28;
         double revolutionsPerSec = outputRadiansPerSec/(2*Math.PI);
-        double revolutionsPerSec2 = 0;
+        double revolutionsPerSec2 = outputRadiansPerSecPerSec/(2*Math.PI);
         double revsPer100ms = revolutionsPerSec / 10;
         double ticksPer100ms = revsPer100ms * ticksPerRevolution;
         DemandType type = DemandType.ArbitraryFeedForward;
-        double Kn = 0.74/6.6*gearRatio;//1.296
-        double Kf = 0.6;//0.3145
-        double Ke = 0.0688420763;
-        double Ks = 0.05/6.6*gearRatio;
+        double Kn = 0.1121212;
+        double Kf = 0.6;
+        double Ke = 0.068842;
+        double Ks = 0.007576;
         double VSat = 11;
-        // if (revolutionsPerSec<.2) {
-        //     Ks = .3/6.6*gearRatio;
-        //   }
-        double kFF = (Kn*revolutionsPerSec + Ks*Math.signum(revolutionsPerSec))/VSat;
+        double kFF = (Kn*revolutionsPerSec + Ks*Math.signum(revolutionsPerSec))*gearRatio/VSat;
         m_motor.set(ControlMode.Velocity, ticksPer100ms*gearRatio, type, kFF);
         }
 
