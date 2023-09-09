@@ -33,7 +33,7 @@ public class SwerveModuleFactory {
             int turningEncoderChannel,
             double turningOffset) {
         final double kWheelDiameterMeters = 0.1015; // WCP 4 inch wheel
-        final double kDriveReduction = 5.50*11/10; // see wcproducts.com, this is the "fast" ratio. 
+        final double kDriveReduction = 5.50; // see wcproducts.com, this is the "fast" ratio. 
         //TODO Temperarely added a modifyer to make this more realistic through some testing, we will need to make this a real value
         final double driveEncoderDistancePerTurn = kWheelDiameterMeters * Math.PI / kDriveReduction;
         final double turningGearRatio = 1.0;
@@ -71,7 +71,7 @@ public class SwerveModuleFactory {
 
         // TURNING FF
         SimpleMotorFeedforward turningFeedforward = new SimpleMotorFeedforward( //
-                0.025, // kS: Multiplied by around 20 of previous value as that is how much we changed P by 
+                0.0025, // kS: Multiplied by around 20 of previous value as that is how much we changed P by 
                 0.005, // Since we are decreasing the value of how much the PID system does we need to conpensate for making feedforward larger as well
                 0); // kA: I have no idea what this value should be
 

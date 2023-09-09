@@ -35,7 +35,7 @@ public class FalconTurningMotor implements TurningMotor, Sendable {
         m_motor.configNominalOutputForward(0);
         m_motor.configNominalOutputReverse(0);
         m_motor.config_kF(0, 0);
-        m_motor.config_kP(0, 0.05);
+        m_motor.config_kP(0, 0.1);
         m_motor.config_kI(0, 0);
         m_motor.config_kD(0, 0);
         m_motor.configVoltageCompSaturation(11);
@@ -50,18 +50,19 @@ public class FalconTurningMotor implements TurningMotor, Sendable {
     public void setPIDVelocity(double outputRadiansPerSec, double outputRadiansPerSecPerSec) {
         double gearRatio = 10.29;
         double ticksPerRevolution = 2048;
+        double motorVelocityRotsPerSec = m_motor.getSelectedSensorVelocity()/(ticksPerRevolution/10*gearRatio);
         double revolutionsPerSec = outputRadiansPerSec/(2*Math.PI);
         double revolutionsPerSec2 = outputRadiansPerSecPerSec/(2*Math.PI);
         double revsPer100ms = revolutionsPerSec / 10;
         double ticksPer100ms = revsPer100ms * ticksPerRevolution;
         DemandType type = DemandType.ArbitraryFeedForward;
-        double Kn = 0.113636;
+        double Kn = 0.1136;
         double Kf = 0.6;
         double Ke = 0.068842;
-        double Ks = 007576;
+        double Ks = .027;
         double VSat = 11;
-        if (revolutionsPerSec<.2) {
-            Ks = 0.04545;
+        if (motorVelocityRotsPerSec < .1) {
+            Ks = 0.0375;
           }
         double kFF = (Kn*revolutionsPerSec + Ks*Math.signum(revolutionsPerSec))*gearRatio/VSat;
         m_motor.set(ControlMode.Velocity, ticksPer100ms*gearRatio, type, kFF);
@@ -83,5 +84,6 @@ public class FalconTurningMotor implements TurningMotor, Sendable {
     public void initSendable(SendableBuilder builder) {
         builder.setSmartDashboardType("Falcon Turning Motor");
         builder.addDoubleProperty("Output", this::get, null);
+        builder.addDoubleProperty("Error", () -> m_motor.getClosedLoopError()/(2048/10), null);
     }
 }
