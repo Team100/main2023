@@ -52,25 +52,25 @@ public class SwerveModuleCollectionFactory {
                                 11, // drive CAN
                                 3, // turn PWM
                                 1, // turn encoder
-                                0.911606), // turn offset
+                                0.036570), // turn offset
                         m_moduleFactory.AMModule(
                                 "Front Right",
                                 12, // drive CAN
                                 1, // turn PWM
                                 3, // turn encoder
-                                0.083566), // turn offset
+                                0.668726), // turn offset
                         m_moduleFactory.AMModule(
                                 "Rear Left",
                                 21, // drive CAN
                                 2, // turn PWM
                                 0, // turn encoder
-                                0.871471), // turn offset
+                                0.138700), // turn offset
                         m_moduleFactory.AMModule(
                                 "Rear Right",
                                 22, // drive CAN
                                 0, // turn PWM
                                 2, // turn encoder
-                                0.605593)); // turn offset
+                                0.596830)); // turn offset
             case SWERVE_ONE:
                 return new SwerveModuleCollection(
                         m_moduleFactory.AMCANModule(
