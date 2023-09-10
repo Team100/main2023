@@ -94,7 +94,6 @@ public class FalconDriveMotor implements DriveMotor, Sendable {
         double Kn = 0.11106;
         double Ks = 0.001515;
         double VSat = 11;
-        double rotsToMetersRatio = 3.47975;
         double revolutionsPerSec = outputMetersPerSec/(m_wheelDiameter*Math.PI);
         double revsPer100ms = revolutionsPerSec/10;
         double ticksPer100ms = revsPer100ms*ticksPerRevolution;
