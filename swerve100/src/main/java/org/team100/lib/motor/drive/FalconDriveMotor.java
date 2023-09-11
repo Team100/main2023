@@ -2,6 +2,8 @@ package org.team100.lib.motor.drive;
 
 import com.ctre.phoenix.ErrorCode;
 import com.ctre.phoenix.motorcontrol.ControlMode;
+import com.ctre.phoenix.motorcontrol.DemandType;
+import com.ctre.phoenix.motorcontrol.FeedbackDevice;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.StatorCurrentLimitConfiguration;
 import com.ctre.phoenix.motorcontrol.SupplyCurrentLimitConfiguration;
@@ -40,25 +42,30 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
  */
 public class FalconDriveMotor implements DriveMotor, Sendable {
     private final WPI_TalonFX m_motor;
+    private final double ticksPerRevolution = 2048;
+    private final double m_gearRatio;
 
     /**
      * Throws if any of the configurations fail.
      */
-    public FalconDriveMotor(String name, int canId, double currentLimit) {
+    public FalconDriveMotor(String name, int canId, double currentLimit, double kDriveReduction) {
+        m_gearRatio = kDriveReduction;
         m_motor = new WPI_TalonFX(canId);
         m_motor.configFactoryDefault();
         m_motor.setNeutralMode(NeutralMode.Brake);
+        m_motor.configSelectedFeedbackSensor(FeedbackDevice.IntegratedSensor);
 
         m_motor.configStatorCurrentLimit(new StatorCurrentLimitConfiguration(true, currentLimit, currentLimit, 0));
         m_motor.configSupplyCurrentLimit(new SupplyCurrentLimitConfiguration(true, currentLimit, currentLimit, 0));
         m_motor.configVelocityMeasurementPeriod(SensorVelocityMeasPeriod.Period_10Ms);
         m_motor.configVelocityMeasurementWindow(8);
-
+        m_motor.configVoltageCompSaturation(11);
+        m_motor.enableVoltageCompensation(true);
         m_motor.configNominalOutputForward(0);
         m_motor.configNominalOutputReverse(0);
         m_motor.configPeakOutputForward(1);
         m_motor.configPeakOutputReverse(-1);
-        m_motor.config_kF(0, 0.05);
+        m_motor.config_kF(0, 0);
         m_motor.config_kP(0, 0.05);
         m_motor.config_kI(0, 0);
         m_motor.config_kD(0, 0);
@@ -81,13 +88,27 @@ public class FalconDriveMotor implements DriveMotor, Sendable {
         m_motor.setVoltage(10 * MathUtil.clamp(output, -1.3, 1.3));
     }
 
-    public void setPID(ControlMode control, double output) {
-        m_motor.set(control, output * 110 / 6.6);
+    public void setPID(ControlMode control, double outputMetersPerSec) {
+        double Kn = 0.11106;
+        double Ks = 0.001515;
+        double VSat = 11;
+        double rotsToMetersRatio = 3.47975;
+        double revolutionsPerSec = outputMetersPerSec*rotsToMetersRatio;
+        double revsPer100ms = revolutionsPerSec/10;
+        double ticksPer100ms = revsPer100ms*ticksPerRevolution;
+        if (revolutionsPerSec<.575) {
+            Ks = .03;
+        }
+        double kFF = (Kn*revolutionsPerSec + Ks*Math.signum(revolutionsPerSec))*m_gearRatio/VSat;
+        DemandType type = DemandType.ArbitraryFeedForward;
+        m_motor.set(ControlMode.Velocity, ticksPer100ms*m_gearRatio, type, kFF);
     }
 
     @Override
     public void initSendable(SendableBuilder builder) {
+        double motorVelocityRotsPerSec = m_motor.getSelectedSensorVelocity()/(ticksPerRevolution/10*m_gearRatio);
         builder.setSmartDashboardType("FalconDriveMotor");
+        builder.addDoubleProperty("Speed (rots per sec)", () -> motorVelocityRotsPerSec, null);
         builder.addDoubleProperty("Device ID", () -> m_motor.getDeviceID(), null);
         builder.addDoubleProperty("Output", this::get, null);
         builder.addDoubleProperty("Speed", this::getVelocity, null);

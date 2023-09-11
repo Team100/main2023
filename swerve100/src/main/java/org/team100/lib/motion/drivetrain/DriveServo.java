@@ -53,11 +53,12 @@ public class DriveServo implements Sendable {
 
     void setDrive(SwerveModuleState state) {
         double speedM_S = state.speedMetersPerSecond;
-        // if (m_experiments.enabled(Experiment.UseClosedLoopDrive)) {
-        //     offboard(speedM_S);
-        // } else {
+          if (m_experiments.enabled(Experiment.UseClosedLoopDrive)) {
+            offboard(speedM_S);
+          } else {
             onboard(speedM_S);
-        // }
+         }
+
     }
 
     void set(double output) {
@@ -65,8 +66,7 @@ public class DriveServo implements Sendable {
     }
 
     void offboard(double speedM_S) {
-        m_driveSpeed = speedM_S * 1351.68 / 6.6;
-        m_driveMotor.setPID(ControlMode.Velocity, speedM_S * 1351.68);
+        m_driveMotor.setPID(ControlMode.Velocity, speedM_S);
     }
 
     void onboard(double speedM_S) {

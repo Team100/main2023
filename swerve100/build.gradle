@@ -39,8 +39,7 @@ deploy {
             team = project.frc.getTeamNumber()
             debug = project.frc.getDebugOrDefault(false)
 
-            artifacts {
-      
+            artifacts {          
                 // First part is artifact name, 2nd is artifact type
                 // getTargetTypeClass is a shortcut to get the class type using a string
 
@@ -129,7 +128,7 @@ deploy {
                 // reload the kernel parameters we just changed
                 reloadSysctl(getArtifactTypeClass('CommandArtifact')) {
                     command = 'sysctl -p'
-                }      
+                }
             }
         }
     }
@@ -235,8 +234,10 @@ tasks.withType(JavaCompile) {
 //     configuration 'proguard-shrink.txt'
 // }
 
-//jar.finalizedBy proguard
+// //jar.finalizedBy proguard
+// jar.finalizedBy proguardshrink
 
+// //jar.finalizedBy proguard
 // jar.finalizedBy proguardshrink
 
 // task copyJar(type: Copy) {
@@ -251,4 +252,5 @@ tasks.withType(JavaCompile) {
 // }
 // // proguardshrink.finalizedBy overwriteJar
 // proguardshrink.finalizedBy copyJar
+// copyJar.finalizedBy overwriteJar
 // copyJar.finalizedBy overwriteJar

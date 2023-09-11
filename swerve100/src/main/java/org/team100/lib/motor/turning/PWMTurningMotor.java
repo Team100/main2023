@@ -13,6 +13,7 @@ public class PWMTurningMotor implements TurningMotor, Sendable {
 
     public PWMTurningMotor(String name, int channel) {
         m_motor = new VictorSP(channel);
+        m_motor.setInverted(true);
         SmartDashboard.putData(String.format("PWM Turning Motor %s", name), this);
     }
 
@@ -26,8 +27,12 @@ public class PWMTurningMotor implements TurningMotor, Sendable {
         m_motor.set(output);
     }
 
-    // THIS DOES NOT ACTUALLY SET PID This is just here for the CAN turning motor
-    public void setPID(ControlMode control, double output) {
+    // THIS DOES NOT ACTUALLY SET PID This is just here for the other turning motors
+    public void setPIDVelocity(double output, double Accel) {
+        this.set(output);
+    }
+
+    public void setPIDPosition(double output) {
         this.set(output);
     }
 
