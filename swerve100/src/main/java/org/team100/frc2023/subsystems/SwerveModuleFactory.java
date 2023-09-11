@@ -176,7 +176,7 @@ public class SwerveModuleFactory {
         final double driveEncoderDistancePerTurn = kWheelDiameterMeters * Math.PI / kDriveReduction;
         final double turningGearRatio = 1.0; // andymark ma3 encoder is 1:1
 
-        FalconDriveMotor driveMotor = new FalconDriveMotor(name, driveMotorCanId, currentLimit);
+        FalconDriveMotor driveMotor = new FalconDriveMotor(name, driveMotorCanId, currentLimit, kDriveReduction);
         FalconDriveEncoder driveEncoder = new FalconDriveEncoder(name, driveMotor, driveEncoderDistancePerTurn);
         AnalogTurningEncoder turningEncoder = new AnalogTurningEncoder(name, turningEncoderChannel, turningOffset,
                 turningGearRatio);
