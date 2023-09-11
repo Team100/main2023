@@ -301,7 +301,7 @@ public class RobotContainer implements Sendable {
 
         ////////////////////////
         // ARM
-        m_arm.setDefaultCommand(new ManualArm(m_arm, control::lowerSpeed, control::upperSpeed));
+        // m_arm.setDefaultCommand(new ManualArm(m_arm, control::lowerSpeed, control::upperSpeed));
         SmartDashboard.putData("Robot Container", this);
     }
 
