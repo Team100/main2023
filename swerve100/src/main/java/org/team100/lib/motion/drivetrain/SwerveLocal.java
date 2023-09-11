@@ -74,11 +74,46 @@ public class SwerveLocal {
      * @param targetChassisSpeeds speeds in robot coordinates.
      */
     public void setChassisSpeeds(ChassisSpeeds targetChassisSpeeds) {
-        if (m_experiments.enabled(Experiment.UseSetpointGenerator)) {
-            setChassisSpeedsNormally(targetChassisSpeeds);
-        } else {
-            setChassisSpeedsWithSetpointGenerator(targetChassisSpeeds);
-        }
+        // if (m_experiments.enabled(Experiment.UseSetpointGenerator)) {
+        //     setChassisSpeedsNormally(targetChassisSpeeds);
+        // } else {
+        //     setChassisSpeedsWithSetpointGenerator(targetChassisSpeeds);
+        // }
+
+        setChassisSpeedsNormally(targetChassisSpeeds);
+
+    }
+
+    public void setChassisSpeeds254(com.team254.lib.swerve.ChassisSpeeds targetChassisSpeeds) {
+        setChassisSpeedsNormally254(targetChassisSpeeds);
+    }
+
+    private void setChassisSpeedsNormally254(com.team254.lib.swerve.ChassisSpeeds targetChassisSpeeds) {
+  
+        desiredSpeed254XPublisher.set(targetChassisSpeeds.vxMetersPerSecond);
+        desiredSpeed254YPublisher.set(targetChassisSpeeds.vyMetersPerSecond);
+        desiredSpeed254RotPublisher.set(targetChassisSpeeds.omegaRadiansPerSecond);
+        // System.out.println("YOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO");
+        com.team254.lib.swerve.SwerveModuleState[] swerveModuleStates254 = m_DriveKinematics2.as254()
+                .toSwerveModuleStates(targetChassisSpeeds);
+        Rotation2d thetafl = new Rotation2d(swerveModuleStates254[0].angle.getRadians());
+        Rotation2d thetafr = new Rotation2d(swerveModuleStates254[1].angle.getRadians());
+        Rotation2d thetabl = new Rotation2d(swerveModuleStates254[2].angle.getRadians());
+        Rotation2d thetabr = new Rotation2d(swerveModuleStates254[3].angle.getRadians());
+        SwerveModuleState fl = new SwerveModuleState(swerveModuleStates254[0].speedMetersPerSecond, thetafl);
+        SwerveModuleState fr = new SwerveModuleState(swerveModuleStates254[1].speedMetersPerSecond, thetafr);
+        SwerveModuleState bl = new SwerveModuleState(swerveModuleStates254[2].speedMetersPerSecond, thetabl);
+        SwerveModuleState br = new SwerveModuleState(swerveModuleStates254[3].speedMetersPerSecond, thetabr);
+        SwerveModuleState[] swerveModuleStates = new SwerveModuleState[] { fl, fr, bl, br };
+
+        flModule.set(swerveModuleStates[0].speedMetersPerSecond);
+        frModule.set(swerveModuleStates[1].speedMetersPerSecond);
+        blModule.set(swerveModuleStates[2].speedMetersPerSecond);
+        brModule.set(swerveModuleStates[3].speedMetersPerSecond);
+
+
+
+        setModuleStates(swerveModuleStates);
     }
 
     private void setChassisSpeedsNormally(ChassisSpeeds targetChassisSpeeds) {
@@ -86,6 +121,7 @@ public class SwerveLocal {
         desiredSpeedYPublisher.set(targetChassisSpeeds.vyMetersPerSecond);
         desiredSpeedRotPublisher.set(targetChassisSpeeds.omegaRadiansPerSecond);
         SwerveModuleState[] targetModuleStates = m_DriveKinematics.toSwerveModuleStates(targetChassisSpeeds);
+
         setModuleStates(targetModuleStates);
     }
 
@@ -163,6 +199,9 @@ public class SwerveLocal {
     ///////////////////////////////////////////////////////////
 
     private void setModuleStates(SwerveModuleState[] targetModuleStates) {
+
+        // System.out.println("BALOSDHGOSDHGSOUHSOHSGOUSDHGOUH");
+
         SwerveDriveKinematics.desaturateWheelSpeeds(targetModuleStates, m_speedLimits.speedM_S);
         publishImpliedChassisSpeeds(targetModuleStates);
         m_modules.setDesiredStates(targetModuleStates);
@@ -196,6 +235,8 @@ public class SwerveLocal {
                 || speeds.omegaRadiansPerSecond >= 0.1);
     }
 
+    
+
     // observers
     private final NetworkTableInstance inst = NetworkTableInstance.getDefault();
 
@@ -204,6 +245,17 @@ public class SwerveLocal {
     private final DoublePublisher desiredSpeedXPublisher = desired.getDoubleTopic("x").publish();
     private final DoublePublisher desiredSpeedYPublisher = desired.getDoubleTopic("y").publish();
     private final DoublePublisher desiredSpeedRotPublisher = desired.getDoubleTopic("theta").publish();
+
+    private final DoublePublisher desiredSpeed254XPublisher = desired.getDoubleTopic("x254").publish();
+    private final DoublePublisher desiredSpeed254YPublisher = desired.getDoubleTopic("y254").publish();
+    private final DoublePublisher desiredSpeed254RotPublisher = desired.getDoubleTopic("theta254").publish();
+
+    private final DoublePublisher frModule = desired.getDoubleTopic("front right").publish();
+    private final DoublePublisher flModule = desired.getDoubleTopic("front left").publish();
+    private final DoublePublisher brModule = desired.getDoubleTopic("back right").publish();
+    private final DoublePublisher blModule = desired.getDoubleTopic("back left").publish();
+
+
 
     // actual speed
     private final NetworkTable speed = inst.getTable("actual speed");

@@ -13,6 +13,7 @@ import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Twist2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.networktables.DoubleArrayPublisher;
 import edu.wpi.first.networktables.DoublePublisher;
 import edu.wpi.first.networktables.NetworkTable;
@@ -116,9 +117,11 @@ public class SwerveDriveSubsystem extends Subsystem implements SwerveDriveSubsys
                 newEstimate.getY(),
                 newEstimate.getRotation().getDegrees()
         });
-        poseXPublisher.set(newEstimate.getX());
-        poseYPublisher.set(newEstimate.getY());
+        poseXPublisher.set(Units.metersToInches(newEstimate.getX()));
+        poseYPublisher.set(Units.metersToInches(newEstimate.getY()));
         poseRotPublisher.set(newEstimate.getRotation().getRadians());
+        headingWUPublisher.set(m_heading.getHeadingRateNWU());
+        // System.out.println(m_heading.getHeadingRateNWU());
     }
 
     private void driveToReference() {
@@ -149,6 +152,9 @@ public class SwerveDriveSubsystem extends Subsystem implements SwerveDriveSubsys
         m_swerveLocal.setChassisSpeeds(targetChassisSpeeds);
     }
 
+    public void setChassisSpeeds(com.team254.lib.swerve.ChassisSpeeds speeds){
+        m_swerveLocal.setChassisSpeeds254(speeds);
+    }
     /**
      * Helper for incremental driving.
      * 
@@ -226,6 +232,8 @@ public class SwerveDriveSubsystem extends Subsystem implements SwerveDriveSubsys
     private final DoublePublisher poseXPublisher = pose.getDoubleTopic("x").publish();
     private final DoublePublisher poseYPublisher = pose.getDoubleTopic("y").publish();
     private final DoublePublisher poseRotPublisher = pose.getDoubleTopic("theta").publish();
+
+    private final DoublePublisher headingWUPublisher = pose.getDoubleTopic("Heading NWU").publish();
 
     // current pose in format that field2d can use
     private final NetworkTable field = inst.getTable("field");

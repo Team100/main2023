@@ -22,6 +22,7 @@ import org.team100.frc2023.commands.manipulator.Eject;
 import org.team100.frc2023.commands.manipulator.Home;
 import org.team100.frc2023.commands.retro.DriveToRetroReflectiveTape;
 import org.team100.frc2023.control.Control;
+import org.team100.frc2023.control.DualXboxControl;
 import org.team100.frc2023.control.JoystickControl;
 import org.team100.frc2023.subsystems.Manipulator;
 import org.team100.frc2023.subsystems.ManipulatorInterface;
@@ -56,6 +57,7 @@ import org.team100.lib.retro.Illuminator;
 import org.team100.lib.retro.IlluminatorInterface;
 import org.team100.lib.sensors.RedundantGyro;
 import org.team100.lib.sensors.RedundantGyroInterface;
+import org.team100.lib.trajectory.FancyTrajectory;
 
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
@@ -81,13 +83,13 @@ public class RobotContainer implements Sendable {
         // Show mode is for younger drivers to drive the robot slowly.
         //
         // TODO: make a physical show mode switch.
-        public boolean SHOW_MODE = false;
+        public boolean SHOW_MODE = true;
         //
         //////////////////////////////////////
 
         public double kDriveCurrentLimit = SHOW_MODE ? 20 : 60;
 
-        public boolean useSetpointGenerator = true;
+        public boolean useSetpointGenerator = false;
     }
 
     private final Config m_config = new Config();
@@ -137,7 +139,7 @@ public class RobotContainer implements Sendable {
         m_heading = new Heading(ahrsclass);
         m_field = new Field2d();
 
-        SpeedLimits speedLimits = SpeedLimitsFactory.get(identity, m_config.SHOW_MODE);
+        SpeedLimits speedLimits = SpeedLimitsFactory.get(identity, false);
         m_kinematics = SwerveDriveKinematicsFactory.get(identity);
 
         VeeringCorrection veering = new VeeringCorrection(m_heading::getHeadingRateNWU);
@@ -150,6 +152,8 @@ public class RobotContainer implements Sendable {
                 experiments,
                 identity,
                 m_config.kDriveCurrentLimit).get();
+
+
         SwerveDrivePoseEstimator poseEstimator = new SwerveDrivePoseEstimator(
                 m_kinematics,
                 m_heading.getHeadingNWU(),
@@ -188,8 +192,8 @@ public class RobotContainer implements Sendable {
         illuminator = new Illuminator.Factory(identity).get(25);
 
         // TODO: control selection using names
-        // control = new DualXboxControl();
-        control = new JoystickControl();
+        control = new DualXboxControl();
+        // control = new JoystickControl();
 
         myWriter = logFile();
 
@@ -245,6 +249,7 @@ public class RobotContainer implements Sendable {
         control.oscillate(new ArmTrajectory(ArmPosition.SUB, m_arm, true));
         // control.armSafeSequential(armSafeWaypoint, armSafe);
         // control.armMid(new ArmTrajectory(ArmPosition.LOW, armController));
+        control.driveWith254Trajec(new FancyTrajectory(m_robotDrive));
 
         //////////////////////////
         // MISC COMMANDS

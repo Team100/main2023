@@ -10,7 +10,7 @@ public class SpeedLimitsFactory {
         switch (identity) {
             case COMP_BOT:
                 if (showMode)
-                    return new SpeedLimits(1, 2, 1, 1);
+                    return new SpeedLimits(5, 10, 1, 1);
                 return new SpeedLimits(5, 10, 5, 5);
             case SWERVE_TWO:
                 return new SpeedLimits(5, 10, 5, 5);
