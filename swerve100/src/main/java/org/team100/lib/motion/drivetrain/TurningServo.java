@@ -52,7 +52,7 @@ public class TurningServo implements Sendable {
 
     void setTurning(SwerveModuleState state) {
         if (m_experiments.enabled(Experiment.UseClosedLoopSteering)) {
-            offboard(state.angle.getRotations());
+            offboard(state);
         } else {
             onboard(state);
         }
