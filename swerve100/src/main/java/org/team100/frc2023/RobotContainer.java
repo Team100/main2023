@@ -57,7 +57,7 @@ import org.team100.lib.retro.Illuminator;
 import org.team100.lib.retro.IlluminatorInterface;
 import org.team100.lib.sensors.RedundantGyro;
 import org.team100.lib.sensors.RedundantGyroInterface;
-// import org.team100.lib.trajectory.FancyTrajectory;
+import org.team100.lib.trajectory.FancyTrajectory;
 
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
@@ -249,7 +249,7 @@ public class RobotContainer implements Sendable {
         control.oscillate(new ArmTrajectory(ArmPosition.SUB, m_arm, true));
         // control.armSafeSequential(armSafeWaypoint, armSafe);
         // control.armMid(new ArmTrajectory(ArmPosition.LOW, armController));
-        // control.driveWith254Trajec(new FancyTrajectory(m_robotDrive));
+        control.driveWith254Trajec(new FancyTrajectory(m_robotDrive));
 
         //////////////////////////
         // MISC COMMANDS
