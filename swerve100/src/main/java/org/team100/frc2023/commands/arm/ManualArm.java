@@ -10,7 +10,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 /** Manual arm control in joint coordinates. */
 public class ManualArm extends Command {
     public static class Config {
-        public double maxSpeedRadS = 0.5;
+        public double maxSpeedRadS = 0.05;
     }
 
     private final Config m_config = new Config();

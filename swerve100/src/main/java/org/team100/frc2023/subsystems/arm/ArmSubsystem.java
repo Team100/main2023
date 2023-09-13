@@ -128,6 +128,10 @@ public class ArmSubsystem extends Subsystem implements ArmInterface {
     private final AnalogInput upperArmInput;
     private final AnalogEncoder lowerArmEncoder;
     private final AnalogEncoder upperArmEncoder;
+    private ArmAngles m_measurment;
+    private ArmAngles referencePrint;
+    private double m_u1;
+    private double m_u2;
 
     // TODO: move this somewhere else
     private boolean cubeMode = true;
@@ -148,7 +152,8 @@ public class ArmSubsystem extends Subsystem implements ArmInterface {
         m_upperController = new PIDController(m_config.normalUpperP, m_config.normalUpperI, m_config.normalUpperD);
         m_lowerController.setTolerance(m_config.tolerance);
         m_upperController.setTolerance(m_config.tolerance);
-
+        m_measurment = new ArmAngles();
+        referencePrint = new ArmAngles();
         lowerArmMotor = new FRCNEO.FRCNEOBuilder(43)
                 .withInverted(false)
                 .withSensorPhase(false)
@@ -187,8 +192,15 @@ public class ArmSubsystem extends Subsystem implements ArmInterface {
         ArmAngles measurement = getMeasurement();
         double u1 = m_lowerController.calculate(measurement.th1, m_reference.th1);
         double u2 = m_upperController.calculate(measurement.th2, m_reference.th2);
+        referencePrint = m_reference;
+        
+        m_measurment = measurement;
+        m_u1 = u1;
+        m_u2 = u2;
+        System.out.println(u1);
+        System.out.println(u2);
         lowerArmMotor.set(soften(u1));
-        upperArmMotor.set(u2);
+        // upperArmMotor.set(u2);
     }
 
     /**
@@ -265,6 +277,22 @@ public class ArmSubsystem extends Subsystem implements ArmInterface {
         return getLowerArm() * 180 / Math.PI;
     }
 
+    private ArmAngles getm_Measurment(){
+        if(m_measurment == null){
+            return new ArmAngles();
+        } else{
+            return m_measurment;
+        }
+    }
+
+    private ArmAngles getReferencePrint(){
+        if(referencePrint == null){
+            return new ArmAngles();
+        } else{
+            return referencePrint;
+        }
+    }
+
     @Override
     public Subsystem subsystem() {
         return this;
@@ -284,5 +312,14 @@ public class ArmSubsystem extends Subsystem implements ArmInterface {
         builder.addBooleanProperty("Cube Mode", () -> cubeMode, null);
         builder.addDoubleProperty("Upper Angle Setpoint", () -> m_reference.th2, null);
         builder.addDoubleProperty("Lower Angle Setpoint", () -> m_reference.th1, null);
+        builder.addDoubleProperty("U1", () -> m_u1, null);
+        builder.addDoubleProperty("U2", () -> m_u2, null);
+
+        builder.addDoubleProperty("Measurment Proximal", () -> getm_Measurment().th1, null);
+        builder.addDoubleProperty("Measurment Distal", () -> getm_Measurment().th2, null);
+        builder.addDoubleProperty("Reference Proximal", () -> getReferencePrint().th1, null);
+        builder.addDoubleProperty("Reference Distal", () -> getReferencePrint().th2, null);
+
+
     }
 }
