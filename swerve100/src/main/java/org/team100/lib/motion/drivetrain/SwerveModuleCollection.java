@@ -83,6 +83,8 @@ public class SwerveModuleCollection implements SwerveModuleCollectionInterface {
     }
 
     public void setDesiredStates(SwerveModuleState[] swerveModuleStates) {
+        // System.out.println("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAaaa");
+
         m_frontLeft.setDesiredState(swerveModuleStates[0]);
         m_frontRight.setDesiredState(swerveModuleStates[1]);
         m_rearLeft.setDesiredState(swerveModuleStates[2]);
@@ -105,6 +107,8 @@ public class SwerveModuleCollection implements SwerveModuleCollectionInterface {
 
     /** Test and log. */
     public void test(double[][] desiredOutputs, FileWriter writer) {
+
+
         m_frontLeft.test(desiredOutputs[0]);
         m_frontRight.test(desiredOutputs[1]);
         m_rearLeft.test(desiredOutputs[2]);

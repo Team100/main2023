@@ -183,4 +183,7 @@ public interface Control {
 
     default void armSubSafe(Command command) {
     };
+
+    default void driveWith254Trajec(Command command){
+    };
 }

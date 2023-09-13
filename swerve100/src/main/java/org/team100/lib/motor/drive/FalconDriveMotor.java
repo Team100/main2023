@@ -112,6 +112,7 @@ public class FalconDriveMotor implements DriveMotor, Sendable {
         builder.addDoubleProperty("Speed (rots per sec)", () -> motorVelocityRotsPerSec, null);
         builder.addDoubleProperty("Device ID", () -> m_motor.getDeviceID(), null);
         builder.addDoubleProperty("Output", this::get, null);
+        builder.addDoubleProperty("Speed", this::getVelocity, null);
     }
 
     /**

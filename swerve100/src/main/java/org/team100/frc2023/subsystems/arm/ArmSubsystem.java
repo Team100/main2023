@@ -58,6 +58,16 @@ public class ArmSubsystem extends Subsystem implements ArmInterface {
         public void close() {            
         }
 
+        @Override
+        public void setUpperSpeed(double x){
+
+        }
+
+        @Override
+        public void setLowerSpeed(double x){
+
+        }
+
     }
 
     public static class Factory {
@@ -255,6 +265,18 @@ public class ArmSubsystem extends Subsystem implements ArmInterface {
     private double getUpperArm() {
         double x = (upperArmEncoder.getAbsolutePosition() - 0.266396) * 360;
         return x * Math.PI / 180;
+    }
+
+    public void setUpperSpeed(double x){
+
+        upperArmMotor.drivePercentOutput(x);
+
+    }
+
+    public void setLowerSpeed(double x){
+
+        lowerArmMotor.drivePercentOutput(x);
+
     }
 
     private double getUpperArmDegrees() {
