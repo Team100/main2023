@@ -58,6 +58,7 @@ public class ArmTrajectory extends Command {
     @Override
     public void initialize() {
         m_timer.restart();
+        
         final TrajectoryConfig trajectoryConfig;
         if (m_position == ArmPosition.SAFE) {
             trajectoryConfig = m_config.safeTrajectory;

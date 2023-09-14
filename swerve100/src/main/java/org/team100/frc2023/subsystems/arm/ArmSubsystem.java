@@ -86,7 +86,7 @@ public class ArmSubsystem extends Subsystem implements ArmInterface {
         public double safeP = 2.5;
         public double safeI = 0;
         public double safeD = 0;
-        public double normalLowerP = 0.3;
+        public double normalLowerP = 4; //0.3
         public double normalLowerI = 0;
         public double normalLowerD = 0.1;
         public double normalUpperP = 4;
@@ -190,6 +190,8 @@ public class ArmSubsystem extends Subsystem implements ArmInterface {
     @Override
     public void periodic() {
         ArmAngles measurement = getMeasurement();
+
+        // m_reference = getMeasurement();
         double u1 = m_lowerController.calculate(measurement.th1, m_reference.th1);
         double u2 = m_upperController.calculate(measurement.th2, m_reference.th2);
         referencePrint = m_reference;
@@ -199,8 +201,9 @@ public class ArmSubsystem extends Subsystem implements ArmInterface {
         m_u2 = u2;
         System.out.println(u1);
         System.out.println(u2);
-        lowerArmMotor.set(soften(u1));
-        // upperArmMotor.set(u2);
+
+        lowerArmMotor.set((u1));
+        upperArmMotor.set(u2);
     }
 
     /**
@@ -213,9 +216,13 @@ public class ArmSubsystem extends Subsystem implements ArmInterface {
 
     /** Measure the arm position, smoothed with single-pole IIR low-pass filter. */
     public ArmAngles getMeasurement() {
+        // return new ArmAngles(
+        //         m_lowerMeasurementFilter.calculate(getLowerArm()),
+        //         m_upperMeasurementFilter.calculate(getUpperArm()));
+
         return new ArmAngles(
-                m_lowerMeasurementFilter.calculate(getLowerArm()),
-                m_upperMeasurementFilter.calculate(getUpperArm()));
+                getLowerArm(),
+                getUpperArm());
     }
 
     public void setControlNormal() {

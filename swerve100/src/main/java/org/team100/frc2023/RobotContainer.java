@@ -22,6 +22,7 @@ import org.team100.frc2023.commands.manipulator.Eject;
 import org.team100.frc2023.commands.manipulator.Home;
 import org.team100.frc2023.commands.retro.DriveToRetroReflectiveTape;
 import org.team100.frc2023.control.Control;
+import org.team100.frc2023.control.DualXboxControl;
 import org.team100.frc2023.control.JoystickControl;
 import org.team100.frc2023.subsystems.Manipulator;
 import org.team100.frc2023.subsystems.ManipulatorInterface;
@@ -188,8 +189,8 @@ public class RobotContainer implements Sendable {
         illuminator = new Illuminator.Factory(identity).get(25);
 
         // TODO: control selection using names
-        // control = new DualXboxControl();
-        control = new JoystickControl();
+        control = new DualXboxControl();
+        // control = new JoystickControl();
 
         myWriter = logFile();
 
@@ -263,30 +264,30 @@ public class RobotContainer implements Sendable {
         ///////////////////////////
         // DRIVE
 
-        if (m_config.SHOW_MODE) {
-            m_robotDrive.setDefaultCommand(
-                    new DriveScaled(
-                            control::twist,
-                            m_robotDrive,
-                            speedLimits));
-        } else {
-            if (m_config.useSetpointGenerator) {
-                m_robotDrive.setDefaultCommand(
-                        new DriveWithSetpointGenerator(
-                                control::twist,
-                                m_robotDrive,
-                                speedLimits));
-            } else {
-                m_robotDrive.setDefaultCommand(
-                        new DriveWithHeading(
-                                control::twist,
-                                m_robotDrive,
-                                m_heading,
-                                speedLimits,
-                                new Timer(),
-                                control::desiredRotation));
-            }
-        }
+        // if (m_config.SHOW_MODE) {
+        //     m_robotDrive.setDefaultCommand(
+        //             new DriveScaled(
+        //                     control::twist,
+        //                     m_robotDrive,
+        //                     speedLimits));
+        // } else {
+        //     if (m_config.useSetpointGenerator) {
+        //         m_robotDrive.setDefaultCommand(
+        //                 new DriveWithSetpointGenerator(
+        //                         control::twist,
+        //                         m_robotDrive,
+        //                         speedLimits));
+        //     } else {
+        //         m_robotDrive.setDefaultCommand(
+        //                 new DriveWithHeading(
+        //                         control::twist,
+        //                         m_robotDrive,
+        //                         m_heading,
+        //                         speedLimits,
+        //                         new Timer(),
+        //                         control::desiredRotation));
+        //     }
+        // }
 
         /////////////////////////
         // MANIPULATOR
@@ -296,7 +297,7 @@ public class RobotContainer implements Sendable {
 
         ////////////////////////
         // ARM
-        // m_arm.setDefaultCommand(new ManualArm(m_arm, control::lowerSpeed, control::upperSpeed));
+        m_arm.setDefaultCommand(new ManualArm(m_arm, control::lowerSpeed, control::upperSpeed));
         SmartDashboard.putData("Robot Container", this);
     }
 
