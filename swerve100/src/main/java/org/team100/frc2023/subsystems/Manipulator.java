@@ -1,6 +1,5 @@
 package org.team100.frc2023.subsystems;
 
-import org.team100.frc2023.subsystems.game_piece_detection.GamepieceLocator;
 import org.team100.lib.config.Identity;
 import org.team100.lib.motor.FRCTalonSRX;
 import org.team100.lib.motor.FRCTalonSRX.FRCTalonSRXBuilder;
@@ -28,11 +27,7 @@ public class Manipulator extends Subsystem implements ManipulatorInterface {
             return 0;
         }
 
-        @Override
-        public boolean hasGamepiece() {
-            return false;
-        }
-
+       
     }
 
     public static class Factory {
@@ -53,8 +48,7 @@ public class Manipulator extends Subsystem implements ManipulatorInterface {
     }
 
     private final FRCTalonSRX m_motor;
-    private final GamepieceLocator gamepieceLocator;
-
+   
     private Manipulator() {
         m_motor = new FRCTalonSRXBuilder(10)
                 .withInverted(false)
@@ -66,7 +60,6 @@ public class Manipulator extends Subsystem implements ManipulatorInterface {
                 .build();
         m_motor.configPeakCurrentLimit(30);
         m_motor.configPeakCurrentDuration(1000);
-        gamepieceLocator = new GamepieceLocator();
         SmartDashboard.putData("Manipulator", this);
     }
 
@@ -77,14 +70,6 @@ public class Manipulator extends Subsystem implements ManipulatorInterface {
 
     public double getStatorCurrent() {
         return m_motor.getStatorCurrent();
-    }
-
-    public double getGamePieceOffset() {
-        return gamepieceLocator.getOffsetMeters();
-    }
-
-    public boolean hasGamepiece() {
-        return gamepieceLocator.hasGamepiece();
     }
 
     public void initSendable(SendableBuilder builder) {

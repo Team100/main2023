@@ -242,11 +242,8 @@ public class DualXboxControl implements Control, Sendable {
     }
 
     @Override
-    public void closeSlow(Command command) {
-        // controller1.leftBumper().whileTrue(command);
-
-        // controller1.a().whileTrue(command);
-
+    public void hold(Command command) {
+    
         controller1.leftBumper().whileTrue(command);
     }
 
@@ -267,12 +264,12 @@ public class DualXboxControl implements Control, Sendable {
     }
 
     @Override
-    public void home(Command command) {
+    public void eject(Command command) {
         controller1.b().whileTrue(command);
     }
 
     @Override
-    public void close(Command command) {
+    public void intake(Command command) {
         controller1.x().whileTrue(command);
     }
 
