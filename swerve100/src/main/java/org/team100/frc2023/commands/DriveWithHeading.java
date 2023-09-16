@@ -2,6 +2,8 @@ package org.team100.frc2023.commands;
 
 import java.util.function.Supplier;
 
+import javax.lang.model.type.NullType;
+
 import org.team100.lib.commands.DriveUtil;
 import org.team100.lib.controller.State100;
 import org.team100.lib.motion.drivetrain.HeadingInterface;
@@ -33,7 +35,8 @@ public class DriveWithHeading extends Command {
     private boolean snapMode = false;
     private MotionState m_goal;
     private MotionProfile m_profile;
-    private MotionState m_ref;
+    private MotionState m_snapRef;
+    private Pose2d m_userRef;
 
     /**
      * @param twistSupplier [-1,1]
@@ -57,6 +60,7 @@ public class DriveWithHeading extends Command {
     @Override
     public void initialize() {
         snapMode = false;
+        m_timer.start();
     }
 
     @Override
@@ -68,7 +72,6 @@ public class DriveWithHeading extends Command {
         if (pov != null) {
             // if you touch the pov switch, we turn on snap mode and make a new profile
             snapMode = true;
-
             // the new profile starts where we are now
             MotionState start = new MotionState(currentRads, m_heading.getHeadingRateNWU());
 
@@ -88,29 +91,28 @@ public class DriveWithHeading extends Command {
 
         Twist2d twist1_1 = m_twistSupplier.get();
         // if you touch the rotational control, we turn off snap mode
-        if (Math.abs(twist1_1.dtheta) < 0.1) {
+        if (Math.abs(twist1_1.dtheta) > 0.1) {
             snapMode = false;
         }
 
         if (snapMode) {
             // in snap mode we take dx and dy from the user, and use the profile for dtheta.
-            m_ref = m_profile.get(m_timer.get());
-
+            m_snapRef = m_profile.get(m_timer.get());
+            
             // this is user input
             Twist2d twistM_S = DriveUtil.scale(twist1_1, m_speedLimits.speedM_S, m_speedLimits.angleSpeedRad_S);
             // the snap overrides the user input for omega.
-            Twist2d twistWithSnapM_S = new Twist2d(twistM_S.dx, twistM_S.dy, m_ref.getV());
+            Twist2d twistWithSnapM_S = new Twist2d(twistM_S.dx, twistM_S.dy, m_snapRef.getV());
             Twist2d twistM = DriveUtil.scale(twistWithSnapM_S, 0.02, 0.02);
 
-            Pose2d ref = currentPose.exp(twistM);
-
+            m_userRef = currentPose.exp(twistM);
             // cartesian is manual, rotation is direct from the profile
             // TODO: something about acceleration here
             m_robotDrive.setDesiredState(
                     new SwerveState(
-                            new State100(ref.getX(), twistM_S.dx, 0),
-                            new State100(ref.getY(), twistM_S.dy, 0),
-                            new State100(m_ref.getX(), m_ref.getV(), m_ref.getA())));
+                            new State100(m_userRef.getX(), twistM_S.dx, 0),
+                            new State100(m_userRef.getY(), twistM_S.dy, 0),
+                            new State100(m_snapRef.getX(), m_snapRef.getV(), m_snapRef.getA())));
 
         } else {
             // if we're not in snap mode then it's just pure manual
@@ -122,12 +124,15 @@ public class DriveWithHeading extends Command {
         // publish what we did
         double headingMeasurement = currentPose.getRotation().getRadians();
         double headingRate = m_heading.getHeadingRateNWU();
-        refX.set(m_ref.getX());
-        refV.set(m_ref.getV());
+        if (m_snapRef == null) {
+            return;
+        }
+        refX.set(m_snapRef.getX());
+        refV.set(m_snapRef.getV());
         measurementX.set(headingMeasurement);
         measurementV.set(headingRate);
-        errorX.set(m_ref.getX() - headingMeasurement);
-        errorV.set(m_ref.getV() - headingRate);
+        errorX.set(m_snapRef.getX() - headingMeasurement);
+        errorV.set(m_snapRef.getV() - headingRate);
     }
 
     @Override

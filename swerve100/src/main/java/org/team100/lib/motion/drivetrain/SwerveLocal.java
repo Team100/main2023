@@ -65,7 +65,7 @@ public class SwerveLocal {
         limits.kMaxDriveVelocity = 5;
         limits.kMaxDriveAcceleration = 1;
         limits.kMaxDriveDecceleration = 4;
-        limits.kMaxSteeringVelocity = 5;
+        limits.kMaxSteeringVelocity = 100;
     }
 
     /**
@@ -75,9 +75,9 @@ public class SwerveLocal {
      */
     public void setChassisSpeeds(ChassisSpeeds targetChassisSpeeds) {
         if (m_experiments.enabled(Experiment.UseSetpointGenerator)) {
-            setChassisSpeedsNormally(targetChassisSpeeds);
-        } else {
             setChassisSpeedsWithSetpointGenerator(targetChassisSpeeds);
+        } else {
+            setChassisSpeedsNormally(targetChassisSpeeds);
         }
     }
 
