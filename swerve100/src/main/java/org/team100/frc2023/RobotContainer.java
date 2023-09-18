@@ -24,6 +24,7 @@ import org.team100.frc2023.commands.retro.DriveToRetroReflectiveTape;
 import org.team100.frc2023.control.Control;
 import org.team100.frc2023.control.DualXboxControl;
 import org.team100.frc2023.control.JoystickControl;
+import org.team100.frc2023.control.VKBControl;
 import org.team100.frc2023.subsystems.Manipulator;
 import org.team100.frc2023.subsystems.ManipulatorInterface;
 import org.team100.frc2023.subsystems.arm.ArmInterface;
@@ -189,7 +190,7 @@ public class RobotContainer implements Sendable {
         illuminator = new Illuminator.Factory(identity).get(25);
 
         // TODO: control selection using names
-        control = new DualXboxControl();
+        control = new VKBControl();
         // control = new JoystickControl();
 
         myWriter = logFile();
@@ -261,33 +262,33 @@ public class RobotContainer implements Sendable {
                 m_indicator,
                 m_autonSelector.routine());
 
-        ///////////////////////////
+        /////////////////////////
         // DRIVE
 
-        // if (m_config.SHOW_MODE) {
-        //     m_robotDrive.setDefaultCommand(
-        //             new DriveScaled(
-        //                     control::twist,
-        //                     m_robotDrive,
-        //                     speedLimits));
-        // } else {
-        //     if (m_config.useSetpointGenerator) {
-        //         m_robotDrive.setDefaultCommand(
-        //                 new DriveWithSetpointGenerator(
-        //                         control::twist,
-        //                         m_robotDrive,
-        //                         speedLimits));
-        //     } else {
-        //         m_robotDrive.setDefaultCommand(
-        //                 new DriveWithHeading(
-        //                         control::twist,
-        //                         m_robotDrive,
-        //                         m_heading,
-        //                         speedLimits,
-        //                         new Timer(),
-        //                         control::desiredRotation));
-        //     }
-        // }
+        if (m_config.SHOW_MODE) {
+            m_robotDrive.setDefaultCommand(
+                    new DriveScaled(
+                            control::twist,
+                            m_robotDrive,
+                            speedLimits));
+        } else {
+            if (m_config.useSetpointGenerator) {
+                m_robotDrive.setDefaultCommand(
+                        new DriveWithSetpointGenerator(
+                                control::twist,
+                                m_robotDrive,
+                                speedLimits));
+            } else {
+                m_robotDrive.setDefaultCommand(
+                        new DriveWithHeading(
+                                control::twist,
+                                m_robotDrive,
+                                m_heading,
+                                speedLimits,
+                                new Timer(),
+                                control::desiredRotation));
+            }
+        }
 
         /////////////////////////
         // MANIPULATOR
