@@ -17,9 +17,9 @@ import org.team100.frc2023.commands.arm.ArmTrajectory;
 import org.team100.frc2023.commands.arm.ManualArm;
 import org.team100.frc2023.commands.arm.SetConeMode;
 import org.team100.frc2023.commands.arm.SetCubeMode;
-import org.team100.frc2023.commands.manipulator.CloseSlow;
+import org.team100.frc2023.commands.manipulator.Hold;
+import org.team100.frc2023.commands.manipulator.Intake;
 import org.team100.frc2023.commands.manipulator.Eject;
-import org.team100.frc2023.commands.manipulator.Home;
 import org.team100.frc2023.commands.retro.DriveToRetroReflectiveTape;
 import org.team100.frc2023.control.Control;
 import org.team100.frc2023.control.DualXboxControl;
@@ -59,7 +59,6 @@ import org.team100.lib.retro.Illuminator;
 import org.team100.lib.retro.IlluminatorInterface;
 import org.team100.lib.sensors.RedundantGyro;
 import org.team100.lib.sensors.RedundantGyroInterface;
-
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -233,9 +232,9 @@ public class RobotContainer implements Sendable {
         ///////////////////////////
         // MANIPULATOR COMMANDS
         // control.open(new Open(manipulator));
-        control.close(new Eject(manipulator));
-        control.home(new Home(manipulator));
-        control.closeSlow(new CloseSlow(manipulator));
+        control.intake(new Intake(manipulator));
+        control.eject(new Eject(manipulator));
+        control.hold(new Hold(manipulator));
 
         ////////////////////////////
         // ARM COMMANDS
@@ -252,7 +251,7 @@ public class RobotContainer implements Sendable {
         control.oscillate(new ArmTrajectory(ArmPosition.SUB, m_arm, true));
         // control.armSafeSequential(armSafeWaypoint, armSafe);
         // control.armMid(new ArmTrajectory(ArmPosition.LOW, armController));
-        // control.driveWith254Trajec(new FancyTrajectory(m_robotDrive));
+        control.driveWith254Trajec(new FancyTrajectory(m_robotDrive));
 
         //////////////////////////
         // MISC COMMANDSz
@@ -304,7 +303,7 @@ public class RobotContainer implements Sendable {
 
         ////////////////////////
         // ARM
-        m_arm.setDefaultCommand(new ManualArm(m_arm, control::lowerSpeed, control::upperSpeed));
+        // m_arm.setDefaultCommand(new ManualArm(m_arm, control::lowerSpeed, control::upperSpeed));
         SmartDashboard.putData("Robot Container", this);
     }
 

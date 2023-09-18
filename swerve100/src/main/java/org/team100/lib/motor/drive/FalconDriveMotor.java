@@ -44,11 +44,13 @@ public class FalconDriveMotor implements DriveMotor, Sendable {
     private final WPI_TalonFX m_motor;
     private final double ticksPerRevolution = 2048;
     private final double m_gearRatio;
+    private final double m_wheelDiameter;
 
     /**
      * Throws if any of the configurations fail.
      */
-    public FalconDriveMotor(String name, int canId, double currentLimit, double kDriveReduction) {
+    public FalconDriveMotor(String name, int canId, double currentLimit, double kDriveReduction, double wheelDiameter) {
+        m_wheelDiameter = wheelDiameter;
         m_gearRatio = kDriveReduction;
         m_motor = new WPI_TalonFX(canId);
         m_motor.configFactoryDefault();
@@ -92,8 +94,7 @@ public class FalconDriveMotor implements DriveMotor, Sendable {
         double Kn = 0.11106;
         double Ks = 0.001515;
         double VSat = 11;
-        double rotsToMetersRatio = 3.47975;
-        double revolutionsPerSec = outputMetersPerSec*rotsToMetersRatio;
+        double revolutionsPerSec = outputMetersPerSec/(m_wheelDiameter*Math.PI);
         double revsPer100ms = revolutionsPerSec/10;
         double ticksPer100ms = revsPer100ms*ticksPerRevolution;
         if (revolutionsPerSec<.575) {
