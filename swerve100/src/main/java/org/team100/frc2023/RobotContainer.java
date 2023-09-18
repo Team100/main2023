@@ -248,7 +248,7 @@ public class RobotContainer implements Sendable {
         // control.armMid(new ArmTrajectory(ArmPosition.LOW, armController));
 
         //////////////////////////
-        // MISC COMMANDS
+        // MISC COMMANDSz
         control.ledOn(new LedOn(illuminator));
         control.rumbleTrigger(new RumbleOn(control));
 
@@ -400,6 +400,10 @@ public class RobotContainer implements Sendable {
         m_modules.close();
         m_arm.close();
         illuminator.close();
+    }
+
+    public void resetFilters(){
+        m_arm.resetFilters();
     }
 
     @Override

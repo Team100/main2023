@@ -9,7 +9,13 @@ public interface ArmInterface {
 
     Subsystem subsystem();
 
+    boolean getReferenceUsed();
+
+    void setReferenceUsed(boolean bool);
+
     boolean getCubeMode();
+
+    void resetFilters();
 
     void setCubeMode(boolean b);
 
@@ -21,7 +27,11 @@ public interface ArmInterface {
 
     void setControlSafe();
 
+    void setControlOscillate();
+
     void close();
 
     void setDefaultCommand(Command command);
+
+    
 }
