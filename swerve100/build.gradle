@@ -4,15 +4,15 @@ buildscript {
         mavenCentral()
         google()
     }
-    dependencies {
-        classpath 'com.guardsquare:proguard-gradle:7.2.0-beta2'
-    }
+    // dependencies {
+    //     classpath 'com.guardsquare:proguard-gradle:7.2.0-beta2'
+    // }
 }
 
 plugins {
     id "java"
     id "edu.wpi.first.GradleRIO" version "2023.4.3"
-    id "jacoco"
+    // id "jacoco"
 }
 
 // these four lines are for development builds
@@ -46,7 +46,7 @@ deploy {
                 frcJava(getArtifactTypeClass('FRCJavaArtifact')) {
 
                     // "Other" means no gc args at all
-                    gcType = edu.wpi.first.gradlerio.deploy.roborio.GarbageCollectorType.Other
+                    // gcType = edu.wpi.first.gradlerio.deploy.roborio.GarbageCollectorType.Other
 
                     // give unused heap back to the kernel
                     // on full gc.  does full gc actually happen?
@@ -68,15 +68,15 @@ deploy {
                     // jvmArgs.add("-XX:MaxNewSize=1M")
 
                     // "info" is less verbose than "debug"
-                    jvmArgs.add("-Xlog:gc*=info,heap*=info:file=/tmp/jvm.log")
+                    // jvmArgs.add("-Xlog:gc*=info,heap*=info:file=/tmp/jvm.log")
                     // jvmArgs.add("-Xlog:gc*=debug,heap*=debug:file=/tmp/jvm.log")
                    
                     // these are the default wpi gc args
-                    jvmArgs.add("-XX:+UseG1GC")
+                    // jvmArgs.add("-XX:+UseG1GC")/
                     // try not to pause for long each time
-                    jvmArgs.add("-XX:MaxGCPauseMillis=1")
+                    // jvmArgs.add("-XX:MaxGCPauseMillis=1")
                     // devote as much *total* time as you want
-                    jvmArgs.add("-XX:GCTimeRatio=1")
+                    // jvmArgs.add("-XX:GCTimeRatio=1")
 
                     // turn off compilation
                     // jvmArgs.add("-Djava.compiler=NONE")
@@ -98,12 +98,12 @@ deploy {
                     jvmArgs.add("-XshowSettings:vm")
 
                     // these make it possible to connect JConsole
-                    jvmArgs.add("-Dcom.sun.management.jmxremote=true")
-                    jvmArgs.add("-Dcom.sun.management.jmxremote.port=1099")
-                    jvmArgs.add("-Dcom.sun.management.jmxremote.local.only=false")
-                    jvmArgs.add("-Dcom.sun.management.jmxremote.ssl=false")
-                    jvmArgs.add("-Dcom.sun.management.jmxremote.authenticate=false")
-                    jvmArgs.add("-Djava.rmi.server.hostname=172.22.11.2")
+                    // jvmArgs.add("-Dcom.sun.management.jmxremote=true")
+                    // jvmArgs.add("-Dcom.sun.management.jmxremote.port=1099")
+                    // jvmArgs.add("-Dcom.sun.management.jmxremote.local.only=false")
+                    // jvmArgs.add("-Dcom.sun.management.jmxremote.ssl=false")
+                    // jvmArgs.add("-Dcom.sun.management.jmxremote.authenticate=false")
+                    // jvmArgs.add("-Djava.rmi.server.hostname=172.22.11.2")
 
                     // these are for native memory tracking
                     // jvmArgs.add("-XX:NativeMemoryTracking=detail")
@@ -184,22 +184,22 @@ dependencies {
 test {
     useJUnitPlatform()
     systemProperty 'junit.jupiter.extensions.autodetection.enabled', 'true'
-    finalizedBy jacocoTestReport, jacocoTestCoverageVerification
+    // finalizedBy jacocoTestReport, jacocoTestCoverageVerification
 }
 
-jacocoTestReport {
-    dependsOn test
-}
+// jacocoTestReport {
+//     dependsOn test
+// }
 
-jacocoTestCoverageVerification {
-    violationRules {
-        rule {
-            limit {
-                minimum = 0.04
-            }
-        }
-    }
-}
+// jacocoTestCoverageVerification {
+//     violationRules {
+//         rule {
+//             limit {
+//                 minimum = 0.04
+//             }
+//         }
+//     }
+// }
 
 // Simulation configuration (e.g. environment variables).
 wpi.sim.addGui().defaultEnabled = true

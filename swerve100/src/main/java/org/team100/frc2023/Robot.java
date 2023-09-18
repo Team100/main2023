@@ -38,6 +38,7 @@ public class Robot extends TimedRobot {
 
     @Override
     public void disabledInit() {
+        
         m_robotContainer.ledStart();
     }
 
@@ -45,6 +46,8 @@ public class Robot extends TimedRobot {
     public void disabledPeriodic() {
         double keyList = NetworkTableInstance.getDefault().getTable("Vision").getKeys().size();
         SmartDashboard.putNumber("KEY LIST", keyList);
+        // m_robotContainer.resetFilters();
+
         if (keyList == 0) {
             m_robotContainer.red();
         } else {
@@ -60,6 +63,7 @@ public class Robot extends TimedRobot {
     @Override
     public void teleopInit() {
         m_robotContainer.cancelAuton();
+
     }
 
     @Override

@@ -23,7 +23,9 @@ import org.team100.frc2023.commands.manipulator.Home;
 import org.team100.frc2023.commands.retro.DriveToRetroReflectiveTape;
 import org.team100.frc2023.control.Control;
 import org.team100.frc2023.control.DualXboxControl;
+import org.team100.frc2023.control.DualXboxControl;
 import org.team100.frc2023.control.JoystickControl;
+import org.team100.frc2023.control.VKBControl;
 import org.team100.frc2023.subsystems.Manipulator;
 import org.team100.frc2023.subsystems.ManipulatorInterface;
 import org.team100.frc2023.subsystems.arm.ArmInterface;
@@ -192,6 +194,8 @@ public class RobotContainer implements Sendable {
         illuminator = new Illuminator.Factory(identity).get(25);
 
         // TODO: control selection using names
+        control = new VKBControl();
+        // control = new JoystickControl();
         control = new DualXboxControl();
         // control = new JoystickControl();
 
@@ -252,7 +256,7 @@ public class RobotContainer implements Sendable {
         control.driveWith254Trajec(new FancyTrajectory(m_robotDrive));
 
         //////////////////////////
-        // MISC COMMANDS
+        // MISC COMMANDSz
         control.ledOn(new LedOn(illuminator));
         control.rumbleTrigger(new RumbleOn(control));
 
@@ -265,7 +269,7 @@ public class RobotContainer implements Sendable {
                 m_indicator,
                 m_autonSelector.routine());
 
-        ///////////////////////////
+        /////////////////////////
         // DRIVE
 
         if (m_config.SHOW_MODE) {
@@ -404,6 +408,10 @@ public class RobotContainer implements Sendable {
         m_modules.close();
         m_arm.close();
         illuminator.close();
+    }
+
+    public void resetFilters(){
+        m_arm.resetFilters();
     }
 
     @Override
