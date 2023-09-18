@@ -189,9 +189,12 @@ public class RobotContainer implements Sendable {
         illuminator = new Illuminator.Factory(identity).get(25);
 
         // TODO: control selection using names
+
+        control = new VKBControl();
+        // control = new JoystickControl();
+
         // control = new DualXboxControl();
         // control = new JoystickControl();
-        control = new VKBControl();
 
         myWriter = logFile();
 
@@ -249,7 +252,7 @@ public class RobotContainer implements Sendable {
         // control.armMid(new ArmTrajectory(ArmPosition.LOW, armController));
 
         //////////////////////////
-        // MISC COMMANDS
+        // MISC COMMANDSz
         control.ledOn(new LedOn(illuminator));
         control.rumbleTrigger(new RumbleOn(control));
 
@@ -262,7 +265,7 @@ public class RobotContainer implements Sendable {
                 m_indicator,
                 m_autonSelector.routine());
 
-        ///////////////////////////
+        /////////////////////////
         // DRIVE
 
         if (m_config.SHOW_MODE) {
@@ -298,7 +301,7 @@ public class RobotContainer implements Sendable {
 
         ////////////////////////
         // ARM
-        // m_arm.setDefaultCommand(new ManualArm(m_arm, control::lowerSpeed, control::upperSpeed));
+        m_arm.setDefaultCommand(new ManualArm(m_arm, control::lowerSpeed, control::upperSpeed));
         SmartDashboard.putData("Robot Container", this);
     }
 
@@ -401,6 +404,10 @@ public class RobotContainer implements Sendable {
         m_modules.close();
         m_arm.close();
         illuminator.close();
+    }
+
+    public void resetFilters(){
+        m_arm.resetFilters();
     }
 
     @Override

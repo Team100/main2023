@@ -19,4 +19,9 @@ public class ArmAngles {
         this.th1 = th1;
         this.th2 = th2;
     }
+
+    public ArmAngles() {
+        this.th1 = 0;
+        this.th2 = 0;
+    }
 }
