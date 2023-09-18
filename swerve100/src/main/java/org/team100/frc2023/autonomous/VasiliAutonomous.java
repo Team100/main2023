@@ -3,7 +3,7 @@ package org.team100.frc2023.autonomous;
 import org.team100.frc2023.commands.AutoLevel;
 import org.team100.frc2023.commands.arm.ArmTrajectory;
 import org.team100.frc2023.commands.arm.SetCubeMode;
-import org.team100.frc2023.commands.manipulator.Eject;
+import org.team100.frc2023.commands.manipulator.Intake;
 import org.team100.frc2023.subsystems.ManipulatorInterface;
 import org.team100.frc2023.subsystems.arm.ArmPosition;
 import org.team100.frc2023.subsystems.arm.ArmSubsystem;
@@ -85,7 +85,7 @@ public class VasiliAutonomous extends SequentialCommandGroup {
                         new ArmTrajectory(ArmPosition.HIGH, arm, false)),
                 new ParallelDeadlineGroup(
                         new WaitCommand(2),
-                        new Eject(manipulator)),
+                        new Intake(manipulator)),
                 new ParallelDeadlineGroup(
                         new WaitCommand(2),
                         new ArmTrajectory(ArmPosition.SAFE, arm, false)),

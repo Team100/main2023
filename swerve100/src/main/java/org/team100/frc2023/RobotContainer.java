@@ -17,9 +17,9 @@ import org.team100.frc2023.commands.arm.ArmTrajectory;
 import org.team100.frc2023.commands.arm.ManualArm;
 import org.team100.frc2023.commands.arm.SetConeMode;
 import org.team100.frc2023.commands.arm.SetCubeMode;
-import org.team100.frc2023.commands.manipulator.CloseSlow;
+import org.team100.frc2023.commands.manipulator.Hold;
+import org.team100.frc2023.commands.manipulator.Intake;
 import org.team100.frc2023.commands.manipulator.Eject;
-import org.team100.frc2023.commands.manipulator.Home;
 import org.team100.frc2023.commands.retro.DriveToRetroReflectiveTape;
 import org.team100.frc2023.control.Control;
 import org.team100.frc2023.control.DualXboxControl;
@@ -89,7 +89,7 @@ public class RobotContainer implements Sendable {
 
         public double kDriveCurrentLimit = SHOW_MODE ? 20 : 60;
 
-        public boolean useSetpointGenerator = true;
+        public boolean useSetpointGenerator = false;
     }
 
     private final Config m_config = new Config();
@@ -172,7 +172,6 @@ public class RobotContainer implements Sendable {
                 poseEstimator,
                 poseEstimator::getEstimatedPosition);
         visionDataProvider.updateTimestamp(); // this is just to keep lint from complaining
-
         SwerveLocal swerveLocal = new SwerveLocal(experiments, speedLimits, m_kinematics, m_modules);
 
         DriveControllers controllers = new DriveControllersFactory().get(identity, speedLimits);
@@ -190,7 +189,11 @@ public class RobotContainer implements Sendable {
         illuminator = new Illuminator.Factory(identity).get(25);
 
         // TODO: control selection using names
+
         control = new VKBControl();
+        // control = new JoystickControl();
+
+        // control = new DualXboxControl();
         // control = new JoystickControl();
 
         myWriter = logFile();
@@ -198,39 +201,39 @@ public class RobotContainer implements Sendable {
         ////////////////////////////
         // DRIVETRAIN COMMANDS
         // control.autoLevel(new AutoLevel(false, m_robotDrive, ahrsclass));
-        if (m_alliance == DriverStation.Alliance.Blue) {
-            control.driveToLeftGrid(toTag(controller, 6, 1.25, 0));
-            control.driveToCenterGrid(toTag(controller, 7, 0.95, .55));
-            control.driveToRightGrid(toTag(controller, 8, 0.95, .55));
-            control.driveToSubstation(toTag(controller, 4, 0.53, -0.749));
-        } else {
-            control.driveToLeftGrid(toTag(controller, 1, 0.95, .55));
-            control.driveToCenterGrid(toTag(controller, 2, 0.95, .55));
-            control.driveToRightGrid(toTag(controller, 3, 0.95, .55));
-            control.driveToSubstation(toTag(controller, 5, 0.9, -0.72));
-        }
+        // if (m_alliance == DriverStation.Alliance.Blue) {
+        //     control.driveToLeftGrid(toTag(controller, 6, 1.25, 0));
+        //     control.driveToCenterGrid(toTag(controller, 7, 0.95, .55));
+        //     control.driveToRightGrid(toTag(controller, 8, 0.95, .55));
+        //     control.driveToSubstation(toTag(controller, 4, 0.53, -0.749));
+        // } else {
+        //     control.driveToLeftGrid(toTag(controller, 1, 0.95, .55));
+        //     control.driveToCenterGrid(toTag(controller, 2, 0.95, .55));
+        //     control.driveToRightGrid(toTag(controller, 3, 0.95, .55));
+        //     control.driveToSubstation(toTag(controller, 5, 0.9, -0.72));
+        // }
         control.defense(new Defense(m_robotDrive));
         control.resetRotation0(new ResetRotation(m_robotDrive, new Rotation2d(0)));
         control.resetRotation180(new ResetRotation(m_robotDrive, Rotation2d.fromDegrees(180)));
-        SpeedLimits slow = new SpeedLimits(0.4, 1.0, 0.5, 1.0);
-        control.driveSlow(new DriveScaled(control::twist, m_robotDrive, slow));
-        SpeedLimits medium = new SpeedLimits(2.0, 2.0, 0.5, 1.0);
-        control.driveMedium(new DriveScaled(control::twist, m_robotDrive, medium));
-        control.resetPose(new ResetPose(m_robotDrive, 0, 0, 0));
-        control.tapeDetect(new DriveToRetroReflectiveTape(m_robotDrive, speedLimits));
-        control.rotate0(new Rotate(m_robotDrive, m_heading, speedLimits, new Timer(), 0));
+        // SpeedLimits slow = new SpeedLimits(0.4, 1.0, 0.5, 1.0);
+        // control.driveSlow(new DriveScaled(control::twist, m_robotDrive, slow));
+        // SpeedLimits medium = new SpeedLimits(2.0, 2.0, 0.5, 1.0);
+        // control.driveMedium(new DriveScaled(control::twist, m_robotDrive, medium));
+        // control.resetPose(new ResetPose(m_robotDrive, 0, 0, 0));
+        // control.tapeDetect(new DriveToRetroReflectiveTape(m_robotDrive, speedLimits));
+        // control.rotate0(new Rotate(m_robotDrive, m_heading, speedLimits, new Timer(), 0));
 
-        control.moveConeWidthLeft(new MoveConeWidth(m_robotDrive, speedLimits, new Timer(), true));
-        control.moveConeWidthRight(new MoveConeWidth(m_robotDrive, speedLimits, new Timer(), false));
+        // control.moveConeWidthLeft(new MoveConeWidth(m_robotDrive, speedLimits, new Timer(), true));
+        // control.moveConeWidthRight(new MoveConeWidth(m_robotDrive, speedLimits, new Timer(), false));
 
         // control.driveWithLQR(new DriveToWaypoint3(new Pose2d(5, 0, new Rotation2d()), m_robotDrive, m_kinematics));
 
         ///////////////////////////
         // MANIPULATOR COMMANDS
         // control.open(new Open(manipulator));
-        control.close(new Eject(manipulator));
-        control.home(new Home(manipulator));
-        control.closeSlow(new CloseSlow(manipulator));
+        control.intake(new Intake(manipulator));
+        control.eject(new Eject(manipulator));
+        control.hold(new Hold(manipulator));
 
         ////////////////////////////
         // ARM COMMANDS

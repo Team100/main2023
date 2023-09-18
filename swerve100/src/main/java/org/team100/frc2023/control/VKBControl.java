@@ -13,6 +13,7 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import static org.team100.lib.control.ControlUtil.clamp;
 import static org.team100.lib.control.ControlUtil.deadband;
+
 import static org.team100.lib.control.ControlUtil.expo;
 
 public class VKBControl implements Control {
@@ -38,13 +39,13 @@ public class VKBControl implements Control {
         public static int kSw1DownChannel = 10;
         public static int kEn1IncChannel = 11;
         public static int kEn1DecChannel = 12;
+
     }
 
     public VKBControl() {
         m_controller = new CommandJoystick(0);
         System.out.printf("Controller0: %s\n", m_controller.getHID().getName());
         controller1 = new CommandXboxController(1);
-        
         EventLoop loop = CommandScheduler.getInstance().getActiveButtonLoop();
         loop.bind(updateTicks());
     }
@@ -54,6 +55,7 @@ public class VKBControl implements Control {
         double dx = m_controller.getX();
         double dy = m_controller.getY();
         double dtheta = m_controller.getTwist();
+        
         return new Twist2d(dx, dy, dtheta);
     }
 
@@ -81,12 +83,12 @@ public class VKBControl implements Control {
 
     @Override
     public void resetRotation0(Command command) {
-        button(Config.kSw1UpChannel).onTrue(command);
+        button(Config.kF1ButtonChannel).onTrue(command);
     }
 
     @Override
     public void resetRotation180(Command command) {
-        button(Config.kSw1DownChannel).onTrue(command);
+        button(Config.kF3ButtonChannel).onTrue(command);
     }
 
     @Override
@@ -276,4 +278,5 @@ public class VKBControl implements Control {
         // return 0.2 * deadband(controller1.getRightX(), 0.15, 1.0);
         return 0;
     }
+
 }

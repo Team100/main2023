@@ -145,7 +145,7 @@ public interface Control {
     default void armSafeBack(Command command) {
     };
 
-    default void closeSlow(Command command) {
+    default void hold(Command command) {
     };
 
     default void armSubstation(Command command) {
@@ -157,10 +157,10 @@ public interface Control {
     default void open(Command command) {
     };
 
-    default void home(Command command) {
+    default void eject(Command command) {
     };
 
-    default void close(Command command) {
+    default void intake(Command command) {
     };
 
     default void cubeMode(Command command) {

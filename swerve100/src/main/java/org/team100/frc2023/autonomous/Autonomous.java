@@ -4,7 +4,7 @@ import org.team100.frc2023.commands.AutoLevel;
 import org.team100.frc2023.commands.DriveMobility;
 import org.team100.frc2023.commands.arm.ArmTrajectory;
 import org.team100.frc2023.commands.arm.SetCubeMode;
-import org.team100.frc2023.commands.manipulator.Eject;
+import org.team100.frc2023.commands.manipulator.Intake;
 import org.team100.frc2023.subsystems.ManipulatorInterface;
 import org.team100.frc2023.subsystems.arm.ArmInterface;
 import org.team100.frc2023.subsystems.arm.ArmPosition;
@@ -71,7 +71,7 @@ public class Autonomous extends SequentialCommandGroup {
         addCommands(
                 new SetCubeMode(m_arm, m_indicator),
                 timeout(new ArmTrajectory(ArmPosition.HIGH, m_arm, false), m_config.kArmExtendTimeout),
-                timeout(new Eject(m_manipulator), m_config.kManipulatorRunTimeout),
+                timeout(new Intake(m_manipulator), m_config.kManipulatorRunTimeout),
                 timeout(new ArmTrajectory(ArmPosition.SAFE, m_arm, false), m_config.kArmSafeTimeout),
                 new ResetRotation(m_robotDrive, Rotation2d.fromDegrees(180)));
     }
