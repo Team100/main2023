@@ -129,14 +129,6 @@ public class SwerveDriveSubsystem extends Subsystem implements SwerveDriveSubsys
         driveInFieldCoords(fieldRelativeTarget);
     }
 
-    private void driveToReference2() {
-        // TODO: pose should be a full state, with velocity and acceleration.
-        Pose2d currentPose = getPose();
-
-        Twist2d fieldRelativeTarget = m_regulator.calculate(currentPose, m_desiredState);
-        driveInFieldCoords(fieldRelativeTarget);
-    }
-
     ////////////////////////////
     // TODO: push the stuff below down
 
