@@ -203,15 +203,13 @@ public class DualXboxControl implements Control, Sendable {
     /** @return [-1,1] */
     @Override
     public double lowerSpeed() {
-        return deadband(controller1.getRightX(), 0.2, 1.0);
-        // return controller1.getLeftX();
+        return 0.25 * deadband(controller1.getRightX(), 0.15, 1.0);
     }
 
     /** @return [-1,1] */
     @Override
     public double upperSpeed() {
-        return deadband(controller1.getLeftY(), 0.2, 1.0);
-        // return controller1.getLeftY();
+        return 0.25 * deadband(controller1.getLeftY(), 0.15, 1.0);
     }
 
     @Override

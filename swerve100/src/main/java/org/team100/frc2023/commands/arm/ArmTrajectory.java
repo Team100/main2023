@@ -16,13 +16,11 @@ public class ArmTrajectory extends Command {
     public static class Config {
         public double oscillatorFrequencyHz = 2;
         /** amplitude (each way) of oscillation in encoder units */
-        public double oscillatorScale = 0.1;
+        public double oscillatorScale = 0.025;
         /** start oscillating when this close to the target. */
-        public double oscillatorZone = 0.05;
+        public double oscillatorZone = 0.1;
         public TrajectoryConfig safeTrajectory = new TrajectoryConfig(9, 1.5);
         public TrajectoryConfig normalTrajectory = new TrajectoryConfig(12, 2);
-        public TrajectoryConfig oscillateTrajectory = new TrajectoryConfig(12, 2);
-
     }
 
     private final Config m_config = new Config();
@@ -60,14 +58,6 @@ public class ArmTrajectory extends Command {
     @Override
     public void initialize() {
         m_timer.restart();
-        // m_arm.setReferenceUsed(true);
-        
-        // if(m_oscillate){
-        //     trajectoryConfig = m_config.oscillateTrajectory;
-        //     m_arm.setControlOscillate();
-            
-        // }else
-
         final TrajectoryConfig trajectoryConfig;
         if (m_position == ArmPosition.SAFE) {
             trajectoryConfig = m_config.safeTrajectory;
@@ -99,13 +89,10 @@ public class ArmTrajectory extends Command {
         double upperError = desiredUpper - currentUpper;
 
         if (m_oscillate && upperError < m_config.oscillatorZone) {
-            System.out.println("YESSSSSSSSSSs");
-            m_arm.setControlOscillate();
             desiredUpper += oscillator(curTime);
         }
 
         ArmAngles reference = new ArmAngles(desiredLower, desiredUpper);
-
 
         m_arm.setReference(reference);
 
@@ -118,7 +105,6 @@ public class ArmTrajectory extends Command {
     @Override
     public void end(boolean interrupted) {
         m_arm.setControlNormal();
-        // m_arm.setReferenceUsed(false);
         m_arm.setReference(m_arm.getMeasurement());
     }
 
