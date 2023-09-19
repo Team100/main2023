@@ -10,7 +10,5 @@ public interface ManipulatorInterface {
 
     double getStatorCurrent();
 
-    boolean hasGamepiece();
-
     void setDefaultCommand(Command runCommand);
 }

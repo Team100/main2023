@@ -57,8 +57,7 @@ public class FalconTurningMotor implements TurningMotor, Sendable {
         double ticksPer100ms = revsPer100ms * ticksPerRevolution;
         DemandType type = DemandType.ArbitraryFeedForward;
         double Kn = 0.1136;
-        double Kf = 0.6;
-        double Ke = 0.068842;
+        // double Ke = 0.068842;
         double Ks = .027;
         double VSat = 11;
         if (motorVelocityRotsPerSec < .1) {
