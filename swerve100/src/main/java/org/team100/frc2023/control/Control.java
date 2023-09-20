@@ -85,6 +85,12 @@ public interface Control {
     default void driveWithLQR(Command command) {
     };
 
+    default void driveModerate(Command command, Command command2){
+    }
+
+    default Boolean[] getModerateButtons(){
+        return null;
+    }
     ///////////////////////////////
     //
     // OPERATOR: arm and manipulator controls

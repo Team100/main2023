@@ -9,6 +9,8 @@ import org.team100.frc2023.autonomous.DriveToAprilTag;
 import org.team100.frc2023.autonomous.MoveConeWidth;
 import org.team100.frc2023.autonomous.Rotate;
 import org.team100.frc2023.commands.Defense;
+import org.team100.frc2023.commands.DriveMobility;
+import org.team100.frc2023.commands.DriveModerate;
 import org.team100.frc2023.commands.DriveScaled;
 import org.team100.frc2023.commands.DriveWithHeading;
 import org.team100.frc2023.commands.DriveWithSetpointGenerator;
@@ -215,8 +217,11 @@ public class RobotContainer implements Sendable {
         control.defense(new Defense(m_robotDrive));
         control.resetRotation0(new ResetRotation(m_robotDrive, new Rotation2d(0)));
         control.resetRotation180(new ResetRotation(m_robotDrive, Rotation2d.fromDegrees(180)));
-        // SpeedLimits slow = new SpeedLimits(0.4, 1.0, 0.5, 1.0);
-        // control.driveSlow(new DriveScaled(control::twist, m_robotDrive, slow));
+        SpeedLimits slow = new SpeedLimits(0.4, 1.0, 0.5, 1.0);
+        control.driveSlow(new DriveScaled(control::twist, m_robotDrive, slow));
+
+        // SpeedLimits medium = new SpeedLimits(4, 10, 2.5, 5);
+        // control.driveMedium(new DriveScaled(control::twist, m_robotDrive, medium));
         // SpeedLimits medium = new SpeedLimits(2.0, 2.0, 0.5, 1.0);
         // control.driveMedium(new DriveScaled(control::twist, m_robotDrive, medium));
         // control.resetPose(new ResetPose(m_robotDrive, 0, 0, 0));

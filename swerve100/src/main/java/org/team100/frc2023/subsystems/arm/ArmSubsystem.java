@@ -224,11 +224,11 @@ public class ArmSubsystem extends Subsystem implements ArmInterface {
             double x = m_lowerMeasurementFilter.calculate(getLowerArm());
             double y = m_upperMeasurementFilter.calculate(getUpperArm());
 
-             System.out.println("LOWER: " + x);
-            System.out.println("UPPER: " + y);
+            //  System.out.println("LOWER: " + x);
+            // System.out.println("UPPER: " + y);
            
-            System.out.println("LOWER RAW: " + getLowerArm());
-            System.out.println("UPPER RAW: " + getUpperArm());
+            // System.out.println("LOWER RAW: " + getLowerArm());
+            // System.out.println("UPPER RAW: " + getUpperArm());
         }
         m_reference = getMeasurement();
 

@@ -25,8 +25,8 @@ public class VKBControl implements Control {
     private final double kRadiansPerTick = 0;
 
     public static class Config {
-        public static int kTriggerSoftChannel = 0;
-        public static int kTriggerHardChannel = 1;
+        public static int kTriggerSoftChannel = 1;
+        // public static int kTriggerHardChannel = 1;
         public static int kBigRedButtonChannel = 2;
         public static int kHighGreyButtonChannel = 3;
         public static int kMidGreyButtonChannel = 4;
@@ -96,6 +96,29 @@ public class VKBControl implements Control {
     public void defense(Command command) {
         button(Config.kBigRedButtonChannel).whileTrue(command);
     }
+
+    @Override
+    public void driveSlow(Command command) {
+        button(2).whileTrue(command);
+    }
+
+    public Boolean[] getModerateButtons(){
+        //medium, slow
+        // Boolean[] arr = {button(1).getAsBoolean(), button(2).getAsBoolean()};
+        System.out.println("VLALLL:::::::::" + button(1).getAsBoolean());
+        Boolean[] arr = {false, true};
+
+        return arr;
+    }
+
+    // @Override
+    // public void driveMedium(Command command) {
+    //     button(2).whileTrue(command);
+    // }
+
+    // public void driveModerate(Command driveSlow, Command driveMedium){
+
+    // }
 
     private Runnable updateTicks() {
         return new Runnable() {
