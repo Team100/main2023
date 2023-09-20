@@ -11,10 +11,9 @@ import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.CommandJoystick;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
-import static org.team100.lib.control.ControlUtil.clamp;
-import static org.team100.lib.control.ControlUtil.deadband;
 
 import static org.team100.lib.control.ControlUtil.expo;
+import static org.team100.lib.control.ControlUtil.deadband;
 
 public class VKBControl implements Control {
 
@@ -52,9 +51,10 @@ public class VKBControl implements Control {
 
     @Override
     public Twist2d twist() {
-        double dx = m_controller.getX();
-        double dy = m_controller.getY();
-        double dtheta = m_controller.getTwist();
+        double dx = expo(-m_controller.getY(), .5);
+        double dy = expo(-m_controller.getX(), .5);
+        double dtheta = expo(m_controller.getRawAxis(5), .5);
+        System.out.println(dtheta);
         
         return new Twist2d(dx, dy, dtheta);
     }
@@ -62,6 +62,7 @@ public class VKBControl implements Control {
     @Override
     public Rotation2d desiredRotation() {
         double desiredAngleDegrees = m_controller.getHID().getPOV(1);
+        System.out.println(desiredAngleDegrees);
         if (desiredAngleDegrees < 0) {
             return null;
         }
@@ -83,7 +84,7 @@ public class VKBControl implements Control {
 
     @Override
     public void resetRotation0(Command command) {
-        button(Config.kF1ButtonChannel).onTrue(command);
+        button(Config.kF2ButtonChannel).onTrue(command);
     }
 
     @Override

@@ -62,10 +62,10 @@ public class SwerveLocal {
         m_speedLimits = speedLimits;
         m_DriveKinematics = driveKinematics;
         m_modules = modules;
-        limits.kMaxDriveVelocity = 3;
+        limits.kMaxDriveVelocity = 5;
         limits.kMaxDriveAcceleration = 2;
         limits.kMaxDriveDecceleration = 4;
-        limits.kMaxSteeringVelocity = 1;
+        limits.kMaxSteeringVelocity = 300;
     }
 
     /**

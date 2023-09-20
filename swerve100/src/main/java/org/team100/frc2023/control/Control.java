@@ -183,4 +183,15 @@ public interface Control {
 
     default void armSubSafe(Command command) {
     };
+
+    default void home(Command command){
+    };
+
+    default void close(Command command){
+
+    };
+
+    default void closeSlow(Command command){
+
+    };
 }
