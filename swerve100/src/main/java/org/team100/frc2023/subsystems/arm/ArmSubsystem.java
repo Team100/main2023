@@ -113,7 +113,7 @@ public class ArmSubsystem extends Subsystem implements ArmInterface {
         public double safeI = 0;
         public double safeD = 0;
         
-        public PidGains safeGains = new PidGains(2.5, 0, 0);
+        public PidGains safeGains = new PidGains(2, 0, 0);
         public PidGains normalLowerGains = new PidGains(2, 0, 0.1);
         public PidGains normalUpperGains = new PidGains(2, 0, 0.05);
         public PidGains oscillateGains = new PidGains(1, 0, 0);

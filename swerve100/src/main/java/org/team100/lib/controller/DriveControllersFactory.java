@@ -15,7 +15,7 @@ public class DriveControllersFactory {
 
     private final Config m_config = new Config();
 
-    public DriveControllers get(Identity identity, SpeedLimits speedLimits) {
+    public DriveControllers get(Identity identity) {
         switch (identity) {
             case COMP_BOT:
                 return new DriveControllers(

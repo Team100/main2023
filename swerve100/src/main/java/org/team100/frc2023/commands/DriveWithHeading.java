@@ -28,7 +28,7 @@ public class DriveWithHeading extends Command {
     private final Supplier<Twist2d> m_twistSupplier;
     private final SwerveDriveSubsystem m_robotDrive;
     private final HeadingInterface m_heading;
-    private final SpeedLimits m_speedLimits;
+    private final Supplier<SpeedLimits> m_speedLimitsSupplier;
     private final Timer m_timer;
     private final Supplier<Rotation2d> m_desiredRotation;
 
@@ -45,13 +45,13 @@ public class DriveWithHeading extends Command {
             Supplier<Twist2d> twistSupplier,
             SwerveDriveSubsystem robotDrive,
             HeadingInterface heading,
-            SpeedLimits speedLimits,
+            Supplier<SpeedLimits> speedLimitsSupplier,
             Timer timer,
             Supplier<Rotation2d> desiredRotation) {
         m_twistSupplier = twistSupplier;
         m_robotDrive = robotDrive;
         m_heading = heading;
-        m_speedLimits = speedLimits;
+        m_speedLimitsSupplier = speedLimitsSupplier;
         m_timer = timer;
         m_desiredRotation = desiredRotation;
         addRequirements(m_robotDrive);
@@ -77,14 +77,15 @@ public class DriveWithHeading extends Command {
 
             // the new goal is simply the pov rotation with zero velocity
             m_goal = new MotionState(MathUtil.angleModulus(pov.getRadians()), 0);
+            
 
             // new profile obeys the speed limits
             m_profile = MotionProfileGenerator.generateSimpleMotionProfile(
                     start,
                     m_goal,
-                    m_speedLimits.angleSpeedRad_S,
-                    m_speedLimits.angleAccelRad_S2,
-                    m_speedLimits.angleJerkRad_S3);
+                    m_speedLimitsSupplier.get().angleSpeedRad_S,
+                    m_speedLimitsSupplier.get().angleAccelRad_S2,
+                    m_speedLimitsSupplier.get().angleJerkRad_S3);
             m_timer.reset();
         }
 
@@ -100,11 +101,15 @@ public class DriveWithHeading extends Command {
             m_snapRef = m_profile.get(m_timer.get());
             
             // this is user input
-            Twist2d twistM_S = DriveUtil.scale(twist1_1, m_speedLimits.speedM_S, m_speedLimits.angleSpeedRad_S);
+            Twist2d twistM_S = DriveUtil.scale(twist1_1, m_speedLimitsSupplier.get().speedM_S, m_speedLimitsSupplier.get().angleSpeedRad_S);
             // the snap overrides the user input for omega.
             Twist2d twistWithSnapM_S = new Twist2d(twistM_S.dx, twistM_S.dy, m_snapRef.getV());
+
+
+            //What does 0.02 mean? Speed?
             Twist2d twistM = DriveUtil.scale(twistWithSnapM_S, 0.02, 0.02);
 
+            //New Pose?
             m_userRef = currentPose.exp(twistM);
             // cartesian is manual, rotation is direct from the profile
             // TODO: something about acceleration here
@@ -116,7 +121,7 @@ public class DriveWithHeading extends Command {
 
         } else {
             // if we're not in snap mode then it's just pure manual
-            Twist2d twistM_S = DriveUtil.scale(twist1_1, m_speedLimits.speedM_S, m_speedLimits.angleSpeedRad_S);
+            Twist2d twistM_S = DriveUtil.scale(twist1_1, m_speedLimitsSupplier.get().speedM_S, m_speedLimitsSupplier.get().angleSpeedRad_S);
             SwerveState manualState = SwerveDriveSubsystem.incremental(currentPose, twistM_S);
             m_robotDrive.setDesiredState(manualState);
         }
@@ -127,6 +132,8 @@ public class DriveWithHeading extends Command {
         if (m_snapRef == null) {
             return;
         }
+
+        rotPublisher.set(currentPose.getRotation().getDegrees());
         refX.set(m_snapRef.getX());
         refV.set(m_snapRef.getV());
         measurementX.set(headingMeasurement);
@@ -150,4 +157,6 @@ public class DriveWithHeading extends Command {
     private final DoublePublisher measurementV = table.getDoubleTopic("measurementV").publish();
     private final DoublePublisher refX = table.getDoubleTopic("refX").publish();
     private final DoublePublisher refV = table.getDoubleTopic("refV").publish();
+    private final DoublePublisher rotPublisher = table.getDoubleTopic("Rot").publish();
+
 }

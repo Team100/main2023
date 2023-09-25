@@ -24,6 +24,7 @@ import org.team100.frc2023.commands.manipulator.Intake;
 import org.team100.frc2023.commands.manipulator.Eject;
 import org.team100.frc2023.commands.retro.DriveToRetroReflectiveTape;
 import org.team100.frc2023.control.Control;
+import org.team100.frc2023.control.DoubleJoystickControl;
 import org.team100.frc2023.control.DualXboxControl;
 import org.team100.frc2023.control.JoystickControl;
 import org.team100.frc2023.control.VKBControl;
@@ -32,6 +33,7 @@ import org.team100.frc2023.subsystems.ManipulatorInterface;
 import org.team100.frc2023.subsystems.arm.ArmInterface;
 import org.team100.frc2023.subsystems.arm.ArmPosition;
 import org.team100.frc2023.subsystems.arm.ArmSubsystem;
+import org.team100.lib.commands.Command100;
 import org.team100.lib.commands.ResetPose;
 import org.team100.lib.commands.ResetRotation;
 import org.team100.lib.commands.retro.LedOn;
@@ -47,6 +49,7 @@ import org.team100.lib.indicator.LEDIndicator.State;
 import org.team100.lib.localization.AprilTagFieldLayoutWithCorrectOrientation;
 import org.team100.lib.localization.VisionDataProvider;
 import org.team100.lib.motion.drivetrain.Heading;
+import org.team100.lib.motion.drivetrain.SpeedLimit;
 import org.team100.lib.motion.drivetrain.SpeedLimits;
 import org.team100.lib.motion.drivetrain.SpeedLimitsFactory;
 import org.team100.lib.motion.drivetrain.SwerveDriveSubsystem;
@@ -74,7 +77,9 @@ import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.RunCommand;
+import edu.wpi.first.wpilibj2.command.Subsystem;
 
 public class RobotContainer implements Sendable {
     public static class Config {
@@ -92,6 +97,21 @@ public class RobotContainer implements Sendable {
         public double kDriveCurrentLimit = SHOW_MODE ? 20 : 60;
 
         public boolean useSetpointGenerator = false;
+
+        public SpeedLimits speedLimit = SpeedLimitsFactory.getSpeedLimits(SpeedLimit.Fast);
+        
+        public void setSpeedLimit(SpeedLimit limit){
+            speedLimit =  SpeedLimitsFactory.getSpeedLimits(limit);
+        }
+        
+        public void setSpeedLimit(SpeedLimits limit){
+            speedLimit =  limit;
+        }
+
+        public SpeedLimits getSpeedLimit(){
+            return speedLimit;
+        }
+        
     }
 
     private final Config m_config = new Config();
@@ -134,14 +154,13 @@ public class RobotContainer implements Sendable {
         m_indicator = new LEDIndicator(8);
 
         Identity identity = Identity.get();
-        // override the correct identity for testing.
-        // Identity identity = Identity.COMP_BOT;
 
         ahrsclass = new RedundantGyro.Factory(identity).get();
         m_heading = new Heading(ahrsclass);
         m_field = new Field2d();
 
-        SpeedLimits speedLimits = SpeedLimitsFactory.get(identity, m_config.SHOW_MODE);
+        m_config.setSpeedLimit(SpeedLimitsFactory.get(identity, m_config.SHOW_MODE));
+
         m_kinematics = SwerveDriveKinematicsFactory.get(identity);
 
         VeeringCorrection veering = new VeeringCorrection(m_heading::getHeadingRateNWU);
@@ -174,9 +193,9 @@ public class RobotContainer implements Sendable {
                 poseEstimator,
                 poseEstimator::getEstimatedPosition);
         visionDataProvider.updateTimestamp(); // this is just to keep lint from complaining
-        SwerveLocal swerveLocal = new SwerveLocal(experiments, speedLimits, m_kinematics, m_modules);
+        SwerveLocal swerveLocal = new SwerveLocal(experiments, m_config::getSpeedLimit, m_kinematics, m_modules);
 
-        DriveControllers controllers = new DriveControllersFactory().get(identity, speedLimits);
+        DriveControllers controllers = new DriveControllersFactory().get(identity);
         HolonomicDriveController2 controller = new HolonomicDriveController2(controllers);
 
         m_robotDrive = new SwerveDriveSubsystem(
@@ -192,9 +211,9 @@ public class RobotContainer implements Sendable {
 
         // TODO: control selection using names
 
-        control = new VKBControl();
+        // control = new VKBControl();
         // control = new JoystickControl();
-
+        control = new DoubleJoystickControl();
         // control = new DualXboxControl();
         // control = new JoystickControl();
 
@@ -214,25 +233,34 @@ public class RobotContainer implements Sendable {
         //     control.driveToRightGrid(toTag(controller, 3, 0.95, .55));
         //     control.driveToSubstation(toTag(controller, 5, 0.9, -0.72));
         // }
+
         control.defense(new Defense(m_robotDrive));
         control.resetRotation0(new ResetRotation(m_robotDrive, new Rotation2d(0)));
         control.resetRotation180(new ResetRotation(m_robotDrive, Rotation2d.fromDegrees(180)));
-        SpeedLimits slow = new SpeedLimits(0.4, 1.0, 0.5, 1.0);
-        control.driveSlow(new DriveScaled(control::twist, m_robotDrive, slow));
+        control.close(new Intake(manipulator));
+        control.open(new Eject(manipulator));
+        control.hold(new Hold(manipulator));
 
-        // SpeedLimits medium = new SpeedLimits(4, 10, 2.5, 5);
-        // control.driveMedium(new DriveScaled(control::twist, m_robotDrive, medium));
+        // Command medium = Commands.run(()-> m_config.setSpeedLimit(SpeedLimit.Medium), (Subsystem[]) null);
+        // Command100 driveMedium100 = (Command100)medium;
+        // // Command driveMedium = Commands.run(()-> m_config.setSpeedLimit(SpeedLimit.Medium), (Subsystem[]) null);
+
+        // control.driveMedium(driveMedium100);
+
+        // Command driveSlow = Commands.run(()-> m_config.setSpeedLimit(SpeedLimit.Slow), (Subsystem[]) null);
+        // control.driveSlow(driveSlow);
+
         // SpeedLimits medium = new SpeedLimits(2.0, 2.0, 0.5, 1.0);
         // control.driveMedium(new DriveScaled(control::twist, m_robotDrive, medium));
         // control.resetPose(new ResetPose(m_robotDrive, 0, 0, 0));
         // control.tapeDetect(new DriveToRetroReflectiveTape(m_robotDrive, speedLimits));
         // control.rotate0(new Rotate(m_robotDrive, m_heading, speedLimits, new Timer(), 0));
-
+        // SpeedLimits slow = new SpeedLimits(0.4, 1.0, 0.5, 1.0);
         // control.moveConeWidthLeft(new MoveConeWidth(m_robotDrive, speedLimits, new Timer(), true));
         // control.moveConeWidthRight(new MoveConeWidth(m_robotDrive, speedLimits, new Timer(), false));
 
         // control.driveWithLQR(new DriveToWaypoint3(new Pose2d(5, 0, new Rotation2d()), m_robotDrive, m_kinematics));
-
+        // control.driveMedium(new Command(()-> m_control.setSpeedLimits(SpeedLimit.Medium)));
         ///////////////////////////
         // MANIPULATOR COMMANDS
         // control.open(new Open(manipulator));
@@ -242,6 +270,7 @@ public class RobotContainer implements Sendable {
 
         ////////////////////////////
         // ARM COMMANDS
+
         control.armHigh(new ArmTrajectory(ArmPosition.HIGH, m_arm, false));
         control.armSafe(new ArmTrajectory(ArmPosition.SAFE, m_arm, false));
         control.armSubstation(new ArmTrajectory(ArmPosition.SUB, m_arm, false));
@@ -251,13 +280,12 @@ public class RobotContainer implements Sendable {
         control.armSafeBack(new ArmTrajectory(ArmPosition.SAFEBACK, m_arm, false));
         control.armToSub(new ArmTrajectory(ArmPosition.SUBTOCUBE, m_arm, false));
         control.safeWaypoint(new ArmTrajectory(ArmPosition.SAFEWAYPOINT, m_arm, false));
-        // control.oscillate(new Oscillate(armController));
         control.oscillate(new ArmTrajectory(ArmPosition.SUB, m_arm, true));
         // control.armSafeSequential(armSafeWaypoint, armSafe);
         // control.armMid(new ArmTrajectory(ArmPosition.LOW, armController));
-
+        // control.setDesiredTrigger();
         //////////////////////////
-        // MISC COMMANDSz
+        // MISC COMMANDS
         control.ledOn(new LedOn(illuminator));
         control.rumbleTrigger(new RumbleOn(control));
 
@@ -278,24 +306,24 @@ public class RobotContainer implements Sendable {
                     new DriveScaled(
                             control::twist,
                             m_robotDrive,
-                            speedLimits));
+                            m_config::getSpeedLimit));
         } else {
-            if (m_config.useSetpointGenerator) {
-                m_robotDrive.setDefaultCommand(
-                        new DriveWithSetpointGenerator(
-                                control::twist,
-                                m_robotDrive,
-                                speedLimits));
-            } else {
+            // if (m_config.useSetpointGenerator) {
+            //     m_robotDrive.setDefaultCommand(
+            //             new DriveWithSetpointGenerator(
+            //                     control::twist,
+            //                     m_robotDrive,
+            //                     m_config::getSpeedLimit));
+            // } else {
                 m_robotDrive.setDefaultCommand(
                         new DriveWithHeading(
                                 control::twist,
                                 m_robotDrive,
                                 m_heading,
-                                speedLimits,
+                                m_config::getSpeedLimit,
                                 new Timer(),
                                 control::desiredRotation));
-            }
+            
         }
 
         /////////////////////////

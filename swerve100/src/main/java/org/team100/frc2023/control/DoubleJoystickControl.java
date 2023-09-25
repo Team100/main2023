@@ -14,11 +14,14 @@ import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 
 import static org.team100.lib.control.ControlUtil.expo;
 
+import org.opencv.core.Mat;
 import org.team100.lib.commands.Command100;
+
+import com.fasterxml.jackson.databind.cfg.ConfigFeature;
 
 import static org.team100.lib.control.ControlUtil.deadband;
 
-public class VKBControl implements Control {
+public class DoubleJoystickControl implements Control {
 
     private final CommandJoystick m_controller;
     private final CommandJoystick m_controllerRotate;
@@ -29,25 +32,46 @@ public class VKBControl implements Control {
     private final double kRadiansPerTick = 0;
     private double translateMultipler = 1;
     private double rotationMultiplier = 1;
+    private Boolean forwardPOVActive = true;
+    private Double desiredAngle = 0.0;
 
+    //With snap toggle, when you press it, one of them has to be the default
+    
     public static class Config {
-        public static int kTriggerSoftChannel = 1;
-        public static int kTriggerHardChannel = 2;
-        public static int kBigRedButtonChannel = 3;
-        public static int kHighGreyButtonChannel = 4;
-        public static int kMidGreyButtonChannel = 5;
-        public static int kLowGreyButtonChannel = 6;
-        public static int kF1ButtonChannel = 7;
-        public static int kF2ButtonChannel = 8;
-        public static int kF3ButtonChannel = 9;
-        public static int kSw1UpChannel = 10;
-        public static int kSw1DownChannel = 11;
-        public static int kEn1IncChannel = 12;
-        public static int kEn1DecChannel = 13;
+
+        static boolean snapToggle = false;
+
+        public static class Translate {
+            public static int kTriggerSoftChannel = 1;
+            public static int kTriggerHardChannel = 2;
+            public static int kBigRedButtonChannel = 3;
+            public static int kHighGreyButtonChannel = 4;
+            public static int kMidGreyButtonChannel = 5;
+            public static int kLowGreyButtonChannel = 6;
+            public static int kF1ButtonChannel = 7;
+            public static int kF2ButtonChannel = 8;
+            public static int kF3ButtonChannel = 9;
+            public static int kSw1UpChannel = 10;
+            public static int kSw1DownChannel = 11;
+            public static int kEn1IncChannel = 12;
+            public static int kEn1DecChannel = 13;
+        }
+
+        public static class Rotate {
+            public static int kTrigger = 1; 
+            public static int kleftTop = 4;
+            public static int kRightTop = 5;
+            public static int kFrontTop = 3;
+            public static int kBackTop = 2;
+
+
+
+        }
+        
 
     }
 
-    public VKBControl() {
+    public DoubleJoystickControl() {
         m_controller = new CommandJoystick(0);
         System.out.printf("Controller0: %s\n", m_controller.getHID().getName());
 
@@ -58,6 +82,8 @@ public class VKBControl implements Control {
         EventLoop loop = CommandScheduler.getInstance().getActiveButtonLoop();
         loop.bind(updateTicks());
         loop.bind(updateScaleFactor());
+        // loop.bind(setDesiredAngleDegrees());
+        loop.bind(setDesiredPOV());
     }
 
     @Override
@@ -79,8 +105,8 @@ public class VKBControl implements Control {
 
             @Override
             public void run() {
-                boolean mediumButton = button(Config.kTriggerSoftChannel).getAsBoolean();
-                boolean slowButton = button(Config.kTriggerHardChannel).getAsBoolean();
+                boolean mediumButton = button(Config.Translate.kTriggerSoftChannel).getAsBoolean();
+                boolean slowButton = button(Config.Translate.kTriggerHardChannel).getAsBoolean();
 
                 if (slowButton) {
                     translateMultipler = 0.2;
@@ -98,13 +124,89 @@ public class VKBControl implements Control {
 
     @Override
     public Rotation2d desiredRotation() {
-        double desiredAngleDegrees = m_controller.getHID().getPOV(1);
-        System.out.println(desiredAngleDegrees);
-        if (desiredAngleDegrees < 0) {
-            return null;
+
+        if(Config.snapToggle){
+            Double desiredAngleDegrees = null;
+
+            if(forwardPOVActive){
+                desiredAngleDegrees = Math.PI/2;
+            } else if(!forwardPOVActive){
+                desiredAngleDegrees = 3 * Math.PI/2;
+            } else {
+                desiredAngleDegrees = -1.0;
+            }
+
+            if (desiredAngleDegrees < 0) {
+                return null;
+            }
+            previousRotation = Rotation2d.fromDegrees(-1.0 * desiredAngleDegrees);
+            return previousRotation;
+        } else {
+            // double desiredAngleDegrees = m_controller.getHID().getPOV(1);
+            double desiredAngleDegrees = desiredAngle;
+
+            System.out.println("DESIRED ANGLE DEG " + desiredAngleDegrees);
+
+            if(desiredAngleDegrees < 0){
+                return null;
+            }
+
+            previousRotation = Rotation2d.fromDegrees(-1.0 * desiredAngleDegrees);
+            return previousRotation;
+
+
         }
-        previousRotation = Rotation2d.fromDegrees(-1.0 * desiredAngleDegrees);
-        return previousRotation;
+
+        
+
+    }
+
+    public void getDesiredTrigger(){
+        button(Config.Rotate.kleftTop, m_controllerRotate).onTrue((Command) setDesiredAngleDegrees());
+
+    }
+    public Command setDesiredAngleDegrees(){
+        return new Command() {
+
+            @Override
+            public void initialize() {
+
+                // if(triggerPressed){
+                    if(forwardPOVActive){
+                        forwardPOVActive = false;
+                    } else if(!forwardPOVActive){
+                        forwardPOVActive = true;
+                    } 
+                // }
+
+                System.out.println("AHHHHHHHHHHHHHHH");
+            }
+        };
+        
+    }
+
+    public Runnable setDesiredPOV(){
+        return new Runnable() {
+
+            @Override
+            public void run() {
+
+                boolean leftPOV = button(Config.Rotate.kleftTop, m_controllerRotate).getAsBoolean();
+                boolean rightPOV = button(Config.Rotate.kRightTop, m_controllerRotate).getAsBoolean();
+                boolean frontPOV = button(Config.Rotate.kFrontTop, m_controllerRotate).getAsBoolean();
+                boolean backPOV = button(Config.Rotate.kBackTop, m_controllerRotate).getAsBoolean();
+
+                 if(frontPOV){
+                    desiredAngle = 0.0;
+                } else if(backPOV){
+                    desiredAngle = 180.0 ;
+                } else {
+                    desiredAngle = -1.0;
+                }
+
+            }
+        };
+        
     }
 
     public double getEn1Raw() {
@@ -121,17 +223,17 @@ public class VKBControl implements Control {
 
     @Override
     public void resetRotation0(Command command) {
-        button(Config.kF2ButtonChannel).onTrue(command);
+        button(Config.Translate.kBigRedButtonChannel).onTrue(command);
     }
 
     @Override
     public void resetRotation180(Command command) {
-        button(Config.kF3ButtonChannel).onTrue(command);
+        button(Config.Translate.kHighGreyButtonChannel).onTrue(command);
     }
 
     @Override
     public void defense(Command command) {
-        button(Config.kLowGreyButtonChannel).whileTrue(command);
+        button(Config.Translate.kLowGreyButtonChannel).whileTrue(command);
     }
 
     @Override
@@ -146,13 +248,13 @@ public class VKBControl implements Control {
 
     private Runnable updateTicks() {
         return new Runnable() {
-            private boolean m_incLast = button(Config.kEn1IncChannel).getAsBoolean();
-            private boolean m_decLast = button(Config.kEn1DecChannel).getAsBoolean();
+            private boolean m_incLast = button(Config.Translate.kEn1IncChannel).getAsBoolean();
+            private boolean m_decLast = button(Config.Translate.kEn1DecChannel).getAsBoolean();
 
             @Override
             public void run() {
-                boolean inc = button(Config.kEn1IncChannel).getAsBoolean();
-                boolean dec = button(Config.kEn1DecChannel).getAsBoolean();
+                boolean inc = button(Config.Translate.kEn1IncChannel).getAsBoolean();
+                boolean dec = button(Config.Translate.kEn1DecChannel).getAsBoolean();
                 if (!m_incLast && inc) {
                     ticks++;
                 }
@@ -167,6 +269,10 @@ public class VKBControl implements Control {
 
     private JoystickButton button(int button) {
         return new JoystickButton(m_controller.getHID(), button);
+    }
+
+    private JoystickButton button(int button, CommandJoystick joystick) {
+        return new JoystickButton(joystick.getHID(), button);
     }
 
     ///////////////////////////////

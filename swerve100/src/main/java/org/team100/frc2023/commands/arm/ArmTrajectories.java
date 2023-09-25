@@ -16,17 +16,17 @@ import edu.wpi.first.math.trajectory.TrajectoryParameterizer.TrajectoryGeneratio
 public class ArmTrajectories {
     public static class Config {
         // Cone
-        public ArmAngles highGoalCone = new ArmAngles(0.494, 1.178);
+        public ArmAngles highGoalCone = new ArmAngles(0.352402,1.186941);
         public ArmAngles midGoalCone = new ArmAngles(0.138339, 1.609977);
         public ArmAngles lowGoalCone = new ArmAngles(0, 2.21);
-        public ArmAngles subCone = new ArmAngles(-0.338940, 1.308745);
+        public ArmAngles subCone = new ArmAngles(-0.365797, 1.371453);
 
         // Cube
-        public ArmAngles highGoalCube = new ArmAngles(0.316365, 1.147321);
+        public ArmAngles highGoalCube = new ArmAngles(0.352402, 1.186941);
         public ArmAngles midGoalCube = new ArmAngles(0.089803, 1.681915);
         public ArmAngles lowGoalCube = new ArmAngles(-0.049849, 2.271662);
         public ArmAngles subCube = new ArmAngles(-0.341841, 1.361939);
-        public ArmAngles subToCube = new ArmAngles(-0.341841, 1.361939);
+        public ArmAngles subToCube = new ArmAngles(-0.365797, 1.371453);
 
         public ArmAngles safeBack = new ArmAngles(-0.55, 1.97);
         public ArmAngles safeGoalCone = new ArmAngles(-0.639248, 1.838205);
