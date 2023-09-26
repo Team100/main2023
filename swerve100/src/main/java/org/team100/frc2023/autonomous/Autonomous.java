@@ -9,6 +9,7 @@ import org.team100.frc2023.subsystems.ManipulatorInterface;
 import org.team100.frc2023.subsystems.arm.ArmInterface;
 import org.team100.frc2023.subsystems.arm.ArmPosition;
 import org.team100.lib.autonomous.DriveStop;
+import org.team100.lib.commands.ResetPose;
 import org.team100.lib.commands.ResetRotation;
 import org.team100.lib.indicator.LEDIndicator;
 import org.team100.lib.motion.drivetrain.SwerveDriveSubsystem;
@@ -23,7 +24,7 @@ import edu.wpi.first.wpilibj2.command.WaitCommand;
 
 public class Autonomous extends SequentialCommandGroup {
     public static class Config {
-        public double kArmExtendTimeout = 1.5;
+        public double kArmExtendTimeout = 2;
         public double kManipulatorRunTimeout = 0.2;
         public double kArmSafeTimeout = 2;
         public double kStopTimeout = 1;        
@@ -57,7 +58,7 @@ public class Autonomous extends SequentialCommandGroup {
             placeCube();
 
         } else if (routine == 1) {
-            placeCube();
+            // placeCube();
             autoLevel(false);
             
         } else if (routine == 2) {
@@ -69,8 +70,9 @@ public class Autonomous extends SequentialCommandGroup {
 
     private void placeCube() {
         addCommands(
+                new ResetRotation(m_robotDrive, Rotation2d.fromDegrees(180)),
                 new SetCubeMode(m_arm, m_indicator),
-                timeout(new ArmTrajectory(ArmPosition.HIGH, m_arm, false), m_config.kArmExtendTimeout),
+                timeout(new ArmTrajectory(ArmPosition.AUTO, m_arm, false), m_config.kArmExtendTimeout),
                 timeout(new Intake(m_manipulator), m_config.kManipulatorRunTimeout),
                 timeout(new ArmTrajectory(ArmPosition.SAFE, m_arm, false), m_config.kArmSafeTimeout),
                 new ResetRotation(m_robotDrive, Rotation2d.fromDegrees(180)));
@@ -85,6 +87,8 @@ public class Autonomous extends SequentialCommandGroup {
 
     private void autoLevel(boolean reversed) {
         addCommands(
+                new ResetPose(m_robotDrive, 0, 0, 0),
+                new ResetRotation(m_robotDrive, Rotation2d.fromDegrees(180)),
                 new AutoLevel(reversed, m_robotDrive, m_gyro, m_transform));
     }
 

@@ -213,8 +213,8 @@ public class RobotContainer implements Sendable {
 
         // control = new VKBControl();
         // control = new JoystickControl();
-        control = new DoubleJoystickControl();
-        // control = new DualXboxControl();
+        // control = new DoubleJoystickControl();
+        control = new DualXboxControl();
         // control = new JoystickControl();
 
         myWriter = logFile();
@@ -289,6 +289,15 @@ public class RobotContainer implements Sendable {
         control.ledOn(new LedOn(illuminator));
         control.rumbleTrigger(new RumbleOn(control));
 
+        // m_auton = new Autonomous(
+        //         m_robotDrive,
+        //         m_frameTransform,
+        //         m_arm,
+        //         manipulator,
+        //         ahrsclass,
+        //         m_indicator,
+        //         m_autonSelector.routine());
+
         m_auton = new Autonomous(
                 m_robotDrive,
                 m_frameTransform,
@@ -296,7 +305,7 @@ public class RobotContainer implements Sendable {
                 manipulator,
                 ahrsclass,
                 m_indicator,
-                m_autonSelector.routine());
+                1);
 
         /////////////////////////
         // DRIVE

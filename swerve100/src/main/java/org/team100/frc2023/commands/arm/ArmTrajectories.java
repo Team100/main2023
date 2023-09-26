@@ -73,6 +73,8 @@ public class ArmTrajectories {
                 if (cubeMode)
                     return onePoint(start, m_config.subToCube, 90);
                 return onePoint(start, m_config.subToCube, 90);
+            case AUTO:
+                return onePoint(start, m_config.highGoalCube, 90);
         }
 
         return null;

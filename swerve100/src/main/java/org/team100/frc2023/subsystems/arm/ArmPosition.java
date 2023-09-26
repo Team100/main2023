@@ -8,5 +8,6 @@ public enum ArmPosition {
     SUB,
     SAFEBACK,
     SUBTOCUBE,
-    SAFEWAYPOINT
+    SAFEWAYPOINT,
+    AUTO
 }
