@@ -13,7 +13,7 @@ public class Defense extends Command {
     }
 
     @Override
-    public void initialize() {
+    public void execute() {
         m_robotDrive.defense();
     }
 

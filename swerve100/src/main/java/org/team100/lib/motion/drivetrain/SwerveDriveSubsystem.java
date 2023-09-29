@@ -29,7 +29,7 @@ public class SwerveDriveSubsystem extends Subsystem implements SwerveDriveSubsys
     private final SwerveLocal m_swerveLocal;
     private final HolonomicDriveController2 m_controller;
     private final HolonomicDriveRegulator m_regulator = new HolonomicDriveRegulator();
-
+    private boolean defense = false;
     // TODO: this looks broken
     public double keyList = -1;
 
@@ -141,6 +141,8 @@ public class SwerveDriveSubsystem extends Subsystem implements SwerveDriveSubsys
         m_swerveLocal.setChassisSpeeds(targetChassisSpeeds);
     }
 
+    
+
     /**
      * Helper for incremental driving.
      * 
@@ -161,6 +163,13 @@ public class SwerveDriveSubsystem extends Subsystem implements SwerveDriveSubsys
 
     }
 
+    public void setDefenseMode(boolean state){
+        defense = state;
+    }
+
+    public boolean getDefenseMode(){
+        return defense;
+    }
     public void defense() {
         m_swerveLocal.defense();
     }

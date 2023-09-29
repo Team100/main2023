@@ -213,8 +213,8 @@ public class RobotContainer implements Sendable {
 
         // control = new VKBControl();
         // control = new JoystickControl();
-        // control = new DoubleJoystickControl();
-        control = new DualXboxControl();
+        control = new DoubleJoystickControl();
+        // control = new DualXboxControl();
         // control = new JoystickControl();
 
         myWriter = logFile();

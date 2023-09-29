@@ -77,7 +77,7 @@ public class DriveWithHeading extends Command {
 
             // the new goal is simply the pov rotation with zero velocity
             m_goal = new MotionState(MathUtil.angleModulus(pov.getRadians()), 0);
-            
+        
 
             // new profile obeys the speed limits
             m_profile = MotionProfileGenerator.generateSimpleMotionProfile(
@@ -86,6 +86,9 @@ public class DriveWithHeading extends Command {
                     m_speedLimitsSupplier.get().angleSpeedRad_S,
                     m_speedLimitsSupplier.get().angleAccelRad_S2,
                     m_speedLimitsSupplier.get().angleJerkRad_S3);
+          
+            goalPublisher.set(m_goal.getX());
+            startPublisher.set(start.getX());
             m_timer.reset();
         }
 
@@ -158,5 +161,8 @@ public class DriveWithHeading extends Command {
     private final DoublePublisher refX = table.getDoubleTopic("refX").publish();
     private final DoublePublisher refV = table.getDoubleTopic("refV").publish();
     private final DoublePublisher rotPublisher = table.getDoubleTopic("Rot").publish();
+    private final DoublePublisher startPublisher = table.getDoubleTopic("Start Publisher").publish();
+    private final DoublePublisher goalPublisher = table.getDoubleTopic("Goal Publisher").publish();
+
 
 }

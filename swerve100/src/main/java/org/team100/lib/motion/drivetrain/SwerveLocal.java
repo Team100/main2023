@@ -132,15 +132,15 @@ public class SwerveLocal {
      */
     public void defense() {
         SwerveModuleState[] states = new SwerveModuleState[4];
-        // states[0] = new SwerveModuleState(0, new Rotation2d(-Math.PI / 4));
-        // states[1] = new SwerveModuleState(0, new Rotation2d(7 * Math.PI / 4));
-        // states[2] = new SwerveModuleState(0, new Rotation2d(3 * Math.PI / 4));
-        // states[3] = new SwerveModuleState(0, new Rotation2d(5 * Math.PI / 4));
+        states[0] = new SwerveModuleState(0, new Rotation2d(-3 * Math.PI / 4));
+        states[1] = new SwerveModuleState(0, new Rotation2d(7 * Math.PI / 4));
+        states[2] = new SwerveModuleState(0, new Rotation2d(3 * Math.PI / 4));
+        states[3] = new SwerveModuleState(0, new Rotation2d(5 * Math.PI / 4));
 
-        states[0] = new SwerveModuleState(0, new Rotation2d(0));
-        states[1] = new SwerveModuleState(0, new Rotation2d(0));
-        states[2] = new SwerveModuleState(0, new Rotation2d(0));
-        states[3] = new SwerveModuleState(0, new Rotation2d(0));
+        // states[0] = new SwerveModuleState(0, new Rotation2d(0));
+        // states[1] = new SwerveModuleState(0, new Rotation2d(0));
+        // states[2] = new SwerveModuleState(0, new Rotation2d(0));
+        // states[3] = new SwerveModuleState(0, new Rotation2d(0));
         setModuleStates(states);
     }
 
