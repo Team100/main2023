@@ -848,4 +848,8 @@ public class FRCNEO implements Sendable {
         motor.set(u2);        
     }
 
+    public void setVoltage(double u2) {
+        motor.setVoltage(u2);        
+    }
+    
 }

@@ -52,7 +52,7 @@ public class DriveToWaypoint3 extends Command {
 
     private final Config m_config = new Config();
     private final Pose2d m_goal;
-    private final SwerveDriveSubsystem m_swerve;
+    private final SwerveDriveSubsystem m_robotDrive;
     private final SwerveDriveKinematics m_kinematics;
     private final Timer m_timer;
 
@@ -91,7 +91,7 @@ public class DriveToWaypoint3 extends Command {
             SwerveDriveSubsystem drivetrain,
             SwerveDriveKinematics kinematics) {
         m_goal = goal;
-        m_swerve = drivetrain;
+        m_robotDrive = drivetrain;
         m_kinematics = kinematics;
 
         m_timer = new Timer();
@@ -134,7 +134,7 @@ public class DriveToWaypoint3 extends Command {
 
         // m_controller = new HolonomicDriveController2(xController, yController,
         // m_rotationController, m_gyro);
-        m_controller = new HolonomicLQR(m_swerve, xManager, yManager, m_rotationController);
+        m_controller = new HolonomicLQR(m_robotDrive, xManager, yManager, m_rotationController);
         // m_controller = new HolonomicDriveController2(xController, yController,
         // m_rotationController, m_gyro);
 
@@ -142,7 +142,7 @@ public class DriveToWaypoint3 extends Command {
 
         // m_manipulator = manipulator;
 
-        addRequirements(m_swerve);
+        addRequirements(m_robotDrive);
 
         // SmartDashboard.putData("Drive To Waypoint", this);
 
@@ -151,7 +151,7 @@ public class DriveToWaypoint3 extends Command {
     }
 
     private Trajectory makeTrajectory(GoalOffset goalOffset, double startVelocity) {
-        Pose2d currentPose = m_swerve.getPose();
+        Pose2d currentPose = m_robotDrive.getPose();
         Translation2d currentTranslation = currentPose.getTranslation();
 
         Transform2d goalTransform = new Transform2d();
@@ -181,7 +181,7 @@ public class DriveToWaypoint3 extends Command {
         isFinished = false;
         m_timer.restart();
         count = 0;
-        m_controller.reset(m_swerve.getPose());
+        m_controller.reset(m_robotDrive.getPose());
         m_controller.updateProfile(m_goal.getX(), m_goal.getY(), 5, 3, 1);
         m_controller.start();
         m_trajectory = makeTrajectory(previousOffset, 0);
@@ -204,22 +204,22 @@ public class DriveToWaypoint3 extends Command {
         double curTime = m_timer.get();
         State desiredState = m_trajectory.sample(curTime);
 
-        Pose2d currentPose = m_swerve.getPose();
+        Pose2d currentPose = m_robotDrive.getPose();
         Twist2d fieldRelativeTarget = m_controller.calculate(
                 currentPose,
                 desiredState,
                 m_goal.getRotation());
 
         SwerveState manualState = SwerveDriveSubsystem.incremental(currentPose, fieldRelativeTarget);
-        m_swerve.setDesiredState(manualState);
+        m_robotDrive.setDesiredState(manualState);
 
         desiredXPublisher.set(desiredState.poseMeters.getX());
         desiredYPublisher.set(desiredState.poseMeters.getY());
-        poseXPublisher.set(m_swerve.getPose().getX());
-        poseYPublisher.set(m_swerve.getPose().getY());
+        poseXPublisher.set(m_robotDrive.getPose().getX());
+        poseYPublisher.set(m_robotDrive.getPose().getY());
         desiredRotPublisher.set(m_goal.getRotation().getRadians());
         rotSetpoint.set(m_rotationController.getSetpoint().position);
-        poseRotPublisher.set(m_swerve.getPose().getRotation().getRadians());
+        poseRotPublisher.set(m_robotDrive.getPose().getRotation().getRadians());
         poseXErrorPublisher.set(xController.getPositionError());
         poseYErrorPublisher.set(yController.getPositionError());
     }
@@ -233,7 +233,7 @@ public class DriveToWaypoint3 extends Command {
     public void end(boolean interrupted) {
         // System.out.println("END");
         m_timer.stop();
-        m_swerve.truncate();
+        m_robotDrive.truncate();
     }
 
     //////////////////////////////////////////////////////////////////////
