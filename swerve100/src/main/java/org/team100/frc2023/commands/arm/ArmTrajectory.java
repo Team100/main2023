@@ -20,7 +20,9 @@ public class ArmTrajectory extends Command {
         /** start oscillating when this close to the target. */
         public double oscillatorZone = 0.1;
         public TrajectoryConfig safeTrajectory = new TrajectoryConfig(9, 3.5);
-        public TrajectoryConfig normalTrajectory = new TrajectoryConfig(13, 8);
+        public TrajectoryConfig normalTrajectory = new TrajectoryConfig(5, 2.5);
+        public TrajectoryConfig subTrajectory = new TrajectoryConfig(6, 5.5);
+
         public TrajectoryConfig oscillateTrajectory = new TrajectoryConfig(5, 2);
         public TrajectoryConfig autoTrajectory = new TrajectoryConfig(9, 1.5);
 
@@ -77,7 +79,9 @@ public class ArmTrajectory extends Command {
             m_arm.setControlSafe();
         } else if(m_position == ArmPosition.AUTO){
             trajectoryConfig = m_config.autoTrajectory;
-        } else {
+        } else if(m_position == ArmPosition.SUB){
+            trajectoryConfig = m_config.subTrajectory;
+        }else{
             trajectoryConfig = m_config.normalTrajectory;
             m_arm.setControlNormal();
         } 

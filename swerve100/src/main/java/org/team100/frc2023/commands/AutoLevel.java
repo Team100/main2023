@@ -99,7 +99,7 @@ public class AutoLevel extends Command {
             //     m_robotDrive.setDesiredState(manualState);
             // }
 
-            if (m_robotDrive.getPose().getX() >= 2.2) {
+            if (m_robotDrive.getPose().getX() >= 2.16) {
                 if (Math.abs(Roll) > 2.5 || Math.abs(Pitch) > 2.5) {
                     count = 0;
 

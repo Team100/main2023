@@ -39,6 +39,8 @@ public class DoubleJoystickControl implements Control {
   private Boolean forwardPOVActive = true;
   private Double desiredAngle = 0.0;
   private boolean operatorOverride = false;
+  private double override = 1;
+
 
   // With snap toggle, when you press it, one of them has to be the default
 
@@ -97,16 +99,16 @@ public class DoubleJoystickControl implements Control {
       double dx = expo(-m_controller.getY(), .5) * translateMultipler;
       double dy = expo(-m_controller.getX(), .5) * translateMultipler;
       // double dtheta = expo(m_controller.getRawAxis(5), .5) * rotationMultiplier;
-      double dtheta = expo(-m_controllerRotate.getRawAxis(0), .5) * rotationMultiplier;
+      double dtheta = expo(deadband(-m_controllerRotate.getRawAxis(0), 0.15, 1), .5) * rotationMultiplier;
       // dtheta = -m_controllerRotate.getRawAxis(0) * rotationMultiplier;
-  
+      
       // System.out.println("RAW AXIS" + m_controllerRotate.getRawAxis(1));
   
       return new Twist2d(dx, dy, dtheta);
     } else {
-      double dx = expo(controller1.getLeftX(), .5) * 0.1;
-      double dy = expo(controller1.getLeftY(), .5) * 0.1;
-      double dtheta = expo(controller1.getRightX(), .5) * 0.1;
+      double dx = expo(-controller1.getLeftY(), .5) * 0.1;
+      double dy = expo(-controller1.getLeftX(), .5) * 0.1;
+      double dtheta = expo(-controller1.getRightX(), .5) * 0.1;
 
       return new Twist2d(dx, dy, dtheta);
 
@@ -163,7 +165,7 @@ public class DoubleJoystickControl implements Control {
       // System.out.println("DESIRED ANGLE DEG " + desiredAngleDegrees);
 
       if (desiredAngleDegrees < 0.0 && desiredAngleDegrees > -179.0) {
-        System.out.println(desiredAngleDegrees);
+        // System.out.println(desiredAngleDegrees);
         return null;
       }
 
@@ -272,8 +274,10 @@ public class DoubleJoystickControl implements Control {
       public void run() {
         if (controller1.getRightTriggerAxis() > 0.5) {
           operatorOverride = true;
+          override = 0;
         } else {
           operatorOverride = false;
+          override = 1;
         }
       }
     };
@@ -327,14 +331,14 @@ public class DoubleJoystickControl implements Control {
   /** @return [-1,1] */
   @Override
   public double lowerSpeed() {
-    return deadband(controller1.getRightX(), 0.2, 1.0);
+    return deadband(controller1.getRightX(), 0.2, 1.0) * override;
     // return controller1.getLeftX();
   }
 
   /** @return [-1,1] */
   @Override
   public double upperSpeed() {
-    return deadband(controller1.getLeftY(), 0.2, 1.0);
+    return deadband(controller1.getLeftY(), 0.2, 1.0) * override;
     // return controller1.getLeftY();
   }
 

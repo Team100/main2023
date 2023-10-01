@@ -65,6 +65,9 @@ public class DriveWithHeading extends Command {
 
     @Override
     public void execute() {
+
+
+        // System.out.println("AJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJ");
         Pose2d currentPose = m_robotDrive.getPose();
         Rotation2d pov = m_desiredRotation.get();
         double currentRads = MathUtil.angleModulus(currentPose.getRotation().getRadians());
