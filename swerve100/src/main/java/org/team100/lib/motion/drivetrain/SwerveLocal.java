@@ -1,6 +1,7 @@
 package org.team100.lib.motion.drivetrain;
 
 import java.io.FileWriter;
+import java.util.function.Supplier;
 
 import org.team100.lib.experiments.Experiment;
 import org.team100.lib.experiments.Experiments;
@@ -26,7 +27,7 @@ import edu.wpi.first.math.geometry.Translation2d;
  */
 public class SwerveLocal {
     private final Experiments m_experiments;
-    private final SpeedLimits m_speedLimits;
+    private final Supplier<SpeedLimits> m_speedLimitsSupplier;
     private final SwerveDriveKinematics m_DriveKinematics;
     private final SwerveModuleCollectionInterface m_modules;
 
@@ -55,17 +56,17 @@ public class SwerveLocal {
 
     public SwerveLocal(
             Experiments experiments,
-            SpeedLimits speedLimits,
+            Supplier<SpeedLimits> speedLimitsSupplier,
             SwerveDriveKinematics driveKinematics,
             SwerveModuleCollectionInterface modules) {
         m_experiments = experiments;
-        m_speedLimits = speedLimits;
+        m_speedLimitsSupplier = speedLimitsSupplier;
         m_DriveKinematics = driveKinematics;
         m_modules = modules;
-        limits.kMaxDriveVelocity = 3;
+        limits.kMaxDriveVelocity = 5;
         limits.kMaxDriveAcceleration = 2;
         limits.kMaxDriveDecceleration = 4;
-        limits.kMaxSteeringVelocity = 1;
+        limits.kMaxSteeringVelocity = 300;
     }
 
     /**
@@ -131,10 +132,15 @@ public class SwerveLocal {
      */
     public void defense() {
         SwerveModuleState[] states = new SwerveModuleState[4];
-        states[0] = new SwerveModuleState(0, new Rotation2d(Math.PI / 4));
+        states[0] = new SwerveModuleState(0, new Rotation2d(-3 * Math.PI / 4));
         states[1] = new SwerveModuleState(0, new Rotation2d(7 * Math.PI / 4));
         states[2] = new SwerveModuleState(0, new Rotation2d(3 * Math.PI / 4));
         states[3] = new SwerveModuleState(0, new Rotation2d(5 * Math.PI / 4));
+
+        // states[0] = new SwerveModuleState(0, new Rotation2d(0));
+        // states[1] = new SwerveModuleState(0, new Rotation2d(0));
+        // states[2] = new SwerveModuleState(0, new Rotation2d(0));
+        // states[3] = new SwerveModuleState(0, new Rotation2d(0));
         setModuleStates(states);
     }
 
@@ -163,7 +169,7 @@ public class SwerveLocal {
     ///////////////////////////////////////////////////////////
 
     private void setModuleStates(SwerveModuleState[] targetModuleStates) {
-        SwerveDriveKinematics.desaturateWheelSpeeds(targetModuleStates, m_speedLimits.speedM_S);
+        SwerveDriveKinematics.desaturateWheelSpeeds(targetModuleStates, m_speedLimitsSupplier.get().speedM_S);
         publishImpliedChassisSpeeds(targetModuleStates);
         m_modules.setDesiredStates(targetModuleStates);
     }

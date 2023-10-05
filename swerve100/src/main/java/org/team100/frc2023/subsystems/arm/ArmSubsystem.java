@@ -113,10 +113,10 @@ public class ArmSubsystem extends Subsystem implements ArmInterface {
         public double safeI = 0;
         public double safeD = 0;
         
-        public PidGains safeGains = new PidGains(2.5, 0, 0);
-        public PidGains normalLowerGains = new PidGains(2, 0, 0.1);
-        public PidGains normalUpperGains = new PidGains(2, 0, 0.05);
-        public PidGains oscillateGains = new PidGains(1, 0, 0);
+        public PidGains safeGains = new PidGains(2, 0, 0);
+        public PidGains normalLowerGains = new PidGains(2.2, 0, 0.1);
+        public PidGains normalUpperGains = new PidGains(2.33, 0, 0);
+        public PidGains oscillateGains = new PidGains(1.2, 0, 0);
 
         public double normalLowerP = 2; //0.3
         public double normalLowerI = 0;
@@ -124,7 +124,7 @@ public class ArmSubsystem extends Subsystem implements ArmInterface {
         public double normalUpperP = 2;
         public double normalUpperI = 0;
         public double normalUpperD = 0.05;
-        public double tolerance = 0.1;
+        public double tolerance = 0.01;
     }
 
     // TODO: do something with this
@@ -224,11 +224,11 @@ public class ArmSubsystem extends Subsystem implements ArmInterface {
             double x = m_lowerMeasurementFilter.calculate(getLowerArm());
             double y = m_upperMeasurementFilter.calculate(getUpperArm());
 
-             System.out.println("LOWER: " + x);
-            System.out.println("UPPER: " + y);
+            //  System.out.println("LOWER: " + x);
+            // System.out.println("UPPER: " + y);
            
-            System.out.println("LOWER RAW: " + getLowerArm());
-            System.out.println("UPPER RAW: " + getUpperArm());
+            // System.out.println("LOWER RAW: " + getLowerArm());
+            // System.out.println("UPPER RAW: " + getUpperArm());
         }
         m_reference = getMeasurement();
 
@@ -347,7 +347,7 @@ public class ArmSubsystem extends Subsystem implements ArmInterface {
 
     /** Upper arm angle (radians), 0 up, positive forward. */
     private double getUpperArm() {
-        double x = (upperArmEncoder.getAbsolutePosition() - 0.266396) * 360;
+        double x = (upperArmEncoder.getAbsolutePosition() - 0.280187) * 360;
         return x * Math.PI / 180;
     }
 

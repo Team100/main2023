@@ -85,7 +85,7 @@ public class VasiliAutonomous extends SequentialCommandGroup {
                         new ArmTrajectory(ArmPosition.HIGH, arm, false)),
                 new ParallelDeadlineGroup(
                         new WaitCommand(2),
-                        new Intake(manipulator)),
+                        new Intake(manipulator, arm)),
                 new ParallelDeadlineGroup(
                         new WaitCommand(2),
                         new ArmTrajectory(ArmPosition.SAFE, arm, false)),

@@ -8,7 +8,13 @@ import org.team100.lib.controller.HolonomicDriveRegulator;
 import org.team100.lib.controller.PidGains;
 import org.team100.lib.controller.State100;
 import org.team100.lib.motion.drivetrain.kinematics.FrameTransform;
+import org.team100.lib.profile.MotionProfile;
+import org.team100.lib.profile.MotionProfileGenerator;
+import org.team100.lib.profile.MotionState;
 
+import com.team254.lib.geometry.Rotation2d;
+
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Twist2d;
@@ -29,7 +35,7 @@ public class SwerveDriveSubsystem extends Subsystem implements SwerveDriveSubsys
     private final SwerveLocal m_swerveLocal;
     private final HolonomicDriveController2 m_controller;
     private final HolonomicDriveRegulator m_regulator = new HolonomicDriveRegulator();
-
+    private boolean defense = false;
     // TODO: this looks broken
     public double keyList = -1;
 
@@ -98,6 +104,10 @@ public class SwerveDriveSubsystem extends Subsystem implements SwerveDriveSubsys
         return this;
     }
 
+    public edu.wpi.first.math.geometry.Rotation2d getHeading(){
+        return m_heading.getHeadingNWU();
+    }
+
     ////////////////////////////////////////////////////////////////////
 
     private void updateOdometry() {
@@ -141,6 +151,8 @@ public class SwerveDriveSubsystem extends Subsystem implements SwerveDriveSubsys
         m_swerveLocal.setChassisSpeeds(targetChassisSpeeds);
     }
 
+    
+
     /**
      * Helper for incremental driving.
      * 
@@ -161,6 +173,15 @@ public class SwerveDriveSubsystem extends Subsystem implements SwerveDriveSubsys
 
     }
 
+
+
+    public void setDefenseMode(boolean state){
+        defense = state;
+    }
+
+    public boolean getDefenseMode(){
+        return defense;
+    }
     public void defense() {
         m_swerveLocal.defense();
     }
@@ -173,6 +194,8 @@ public class SwerveDriveSubsystem extends Subsystem implements SwerveDriveSubsys
     public void stop() {
         m_swerveLocal.stop();
     }
+
+    
 
     ////////////////////////////////////////
     // pose estimator stuff
@@ -188,6 +211,7 @@ public class SwerveDriveSubsystem extends Subsystem implements SwerveDriveSubsys
 
     public void resetPose(Pose2d robotPose) {
         m_poseEstimator.resetPosition(m_heading.getHeadingNWU(), m_swerveLocal.positions(), robotPose);
+        truncate();
     }
 
     ///////////////////////////////

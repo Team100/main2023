@@ -31,7 +31,7 @@ public class DriveToThreshold extends Command {
 
     @Override
     public void execute() {
-        if (m_robotDrive.getPose().getX() > m_config.kEdgeOfRampMeters) {
+        if (m_robotDrive.getPose().getX() > 2.5) { //3.175
             Twist2d fieldRelative = new Twist2d(m_config.kXSpeedM_S, 0, 0);
 
             Pose2d currentPose = m_robotDrive.getPose();

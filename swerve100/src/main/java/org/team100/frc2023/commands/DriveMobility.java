@@ -33,7 +33,7 @@ public class DriveMobility extends Command {
     public void execute() {
         Pose2d currentPose = m_robotDrive.getPose();
         // TODO: replace this with a waypoint
-        if (currentPose.getX() < m_config.kCommunitySizeMeters) {
+        if (currentPose.getX() < 4.699) {
 
             Twist2d fieldRelative = new Twist2d(m_config.kXSpeedM_S, 0, 0);
             

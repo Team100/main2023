@@ -11,57 +11,95 @@ import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.CommandJoystick;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
-import static org.team100.lib.control.ControlUtil.clamp;
-import static org.team100.lib.control.ControlUtil.deadband;
 
 import static org.team100.lib.control.ControlUtil.expo;
+
+import org.team100.lib.commands.Command100;
+
+import static org.team100.lib.control.ControlUtil.deadband;
 
 public class VKBControl implements Control {
 
     private final CommandJoystick m_controller;
+    private final CommandJoystick m_controllerRotate;
     private final CommandXboxController controller1;
     private Rotation2d previousRotation = new Rotation2d(0);
     private double ticks = 0;
     private final double kDegreesPerTick = 0;
     private final double kRadiansPerTick = 0;
+    private double translateMultipler = 1;
+    private double rotationMultiplier = 1;
 
     public static class Config {
-        public static int kTriggerSoftChannel = 0;
-        public static int kTriggerHardChannel = 1;
-        public static int kBigRedButtonChannel = 2;
-        public static int kHighGreyButtonChannel = 3;
-        public static int kMidGreyButtonChannel = 4;
-        public static int kLowGreyButtonChannel = 5;
-        public static int kF1ButtonChannel = 6;
-        public static int kF2ButtonChannel = 7;
-        public static int kF3ButtonChannel = 8;
-        public static int kSw1UpChannel = 9;
-        public static int kSw1DownChannel = 10;
-        public static int kEn1IncChannel = 11;
-        public static int kEn1DecChannel = 12;
+        public static int kTriggerSoftChannel = 1;
+        public static int kTriggerHardChannel = 2;
+        public static int kBigRedButtonChannel = 3;
+        public static int kHighGreyButtonChannel = 4;
+        public static int kMidGreyButtonChannel = 5;
+        public static int kLowGreyButtonChannel = 6;
+        public static int kF1ButtonChannel = 7;
+        public static int kF2ButtonChannel = 8;
+        public static int kF3ButtonChannel = 9;
+        public static int kSw1UpChannel = 10;
+        public static int kSw1DownChannel = 11;
+        public static int kEn1IncChannel = 12;
+        public static int kEn1DecChannel = 13;
 
     }
 
     public VKBControl() {
         m_controller = new CommandJoystick(0);
         System.out.printf("Controller0: %s\n", m_controller.getHID().getName());
-        controller1 = new CommandXboxController(1);
+
+        m_controllerRotate = new CommandJoystick(1);
+        System.out.printf("Controller0: %s\n", m_controller.getHID().getName());
+
+        controller1 = new CommandXboxController(2);
         EventLoop loop = CommandScheduler.getInstance().getActiveButtonLoop();
         loop.bind(updateTicks());
+        loop.bind(updateScaleFactor());
     }
 
     @Override
     public Twist2d twist() {
-        double dx = m_controller.getX();
-        double dy = m_controller.getY();
-        double dtheta = m_controller.getTwist();
-        
+
+        double dx = expo(-m_controller.getY(), .5) * translateMultipler;
+        double dy = expo(-m_controller.getX(), .5) * translateMultipler;
+        // double dtheta = expo(m_controller.getRawAxis(5), .5) * rotationMultiplier;
+        double dtheta = expo(-m_controllerRotate.getRawAxis(0), .5) * rotationMultiplier;
+        // dtheta = -m_controllerRotate.getRawAxis(0) * rotationMultiplier;
+
+        // System.out.println("RAW AXIS" + m_controllerRotate.getRawAxis(1));
+
         return new Twist2d(dx, dy, dtheta);
+    }
+
+    private Runnable updateScaleFactor() {
+        return new Runnable() {
+
+            @Override
+            public void run() {
+                boolean mediumButton = button(Config.kTriggerSoftChannel).getAsBoolean();
+                boolean slowButton = button(Config.kTriggerHardChannel).getAsBoolean();
+
+                if (slowButton) {
+                    translateMultipler = 0.2;
+                    rotationMultiplier = 0.2;
+                } else if (mediumButton) {
+                    translateMultipler = 0.5;
+                    rotationMultiplier = 0.5;
+                } else {
+                    translateMultipler = 1;
+                    rotationMultiplier = 1;
+                }
+            }
+        };
     }
 
     @Override
     public Rotation2d desiredRotation() {
         double desiredAngleDegrees = m_controller.getHID().getPOV(1);
+        System.out.println(desiredAngleDegrees);
         if (desiredAngleDegrees < 0) {
             return null;
         }
@@ -83,7 +121,7 @@ public class VKBControl implements Control {
 
     @Override
     public void resetRotation0(Command command) {
-        button(Config.kF1ButtonChannel).onTrue(command);
+        button(Config.kF2ButtonChannel).onTrue(command);
     }
 
     @Override
@@ -93,7 +131,17 @@ public class VKBControl implements Control {
 
     @Override
     public void defense(Command command) {
-        button(Config.kBigRedButtonChannel).whileTrue(command);
+        button(Config.kLowGreyButtonChannel).whileTrue(command);
+    }
+
+    @Override
+    public void driveMedium(Command command) {
+        button(1).whileTrue(command.unless(() -> button(2).getAsBoolean()));
+    }
+
+    @Override
+    public void driveSlow(Command command) {
+        button(2).whileTrue(command);
     }
 
     private Runnable updateTicks() {
@@ -206,12 +254,12 @@ public class VKBControl implements Control {
 
     @Override
     public void open(Command command) {
-        // controller1.a().whileTrue(command);
+        controller1.b().whileTrue(command);
     }
 
     @Override
     public void home(Command command) {
-        controller1.b().whileTrue(command);
+        // controller1.b().whileTrue(command);
     }
 
     @Override
@@ -248,6 +296,11 @@ public class VKBControl implements Control {
     }
 
     @Override
+    public void hold(Command command) {
+        controller1.leftBumper().whileTrue(command);
+    }
+
+    @Override
     public void tapeDetect(Command command) {
         // controller1.leftBumper().whileTrue(command);
     }
@@ -259,10 +312,10 @@ public class VKBControl implements Control {
 
     // @Override
     // public void initSendable(SendableBuilder builder) {
-    //     builder.setSmartDashboardType("xbox control");
-    //     builder.addDoubleProperty("right y", () -> m_controller.getRightY(), null);
-    //     builder.addDoubleProperty("right x", () -> m_controller.getRightX(), null);
-    //     builder.addDoubleProperty("left x", () -> m_controller.getLeftX(), null);
+    // builder.setSmartDashboardType("xbox control");
+    // builder.addDoubleProperty("right y", () -> m_controller.getRightY(), null);
+    // builder.addDoubleProperty("right x", () -> m_controller.getRightX(), null);
+    // builder.addDoubleProperty("left x", () -> m_controller.getLeftX(), null);
     // }
 
     @Override

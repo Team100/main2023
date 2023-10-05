@@ -40,6 +40,8 @@ public class SwerveDriveKinematics {
     private final Translation2d[] m_modules;
     private Translation2d m_prevCoR = new Translation2d();
     private final Rotation2d[] m_rotations;
+    private Rotation2d[] m_moduleHeadings;
+
 
     /**
      * Constructs a swerve drive kinematics object. This takes in a variable number of wheel locations
@@ -57,6 +59,12 @@ public class SwerveDriveKinematics {
         m_modules = Arrays.copyOf(wheelsMeters, m_numModules);
         m_inverseKinematics = new SimpleMatrix(m_numModules * 2, 3);
         m_rotations = new Rotation2d[m_numModules];
+        m_moduleHeadings = new Rotation2d[m_numModules];
+
+        for(int i = 0 ; i < 4; i++) {
+            m_moduleHeadings[i] = new Rotation2d(Rotation2d.fromDegrees(0));
+        }
+
 
         for (int i = 0; i < m_numModules; i++) {
             m_inverseKinematics.setRow(i * 2 + 0, 0, /* Start Data */ 1, 0, -m_modules[i].y());
@@ -87,6 +95,18 @@ public class SwerveDriveKinematics {
     @SuppressWarnings("LocalVariableName")
     public SwerveModuleState[] toSwerveModuleStates(
             ChassisSpeeds chassisSpeeds, Translation2d centerOfRotationMeters) {
+
+        SwerveModuleState[] moduleStates = new SwerveModuleState[m_numModules];
+
+        if (Math.abs(chassisSpeeds.vxMetersPerSecond) < 0.01
+            && Math.abs(chassisSpeeds.vyMetersPerSecond) < 0.01
+            && Math.abs(chassisSpeeds.omegaRadiansPerSecond) < 0.01) {
+            for (int i = 0; i < m_numModules; i++) {
+                moduleStates[i] = new SwerveModuleState(0.0, m_moduleHeadings[i]);
+            }
+            return moduleStates;
+        }
+
         if (!centerOfRotationMeters.equals(m_prevCoR)) {
             for (int i = 0; i < m_numModules; i++) {
                 m_inverseKinematics.setRow(
@@ -114,7 +134,7 @@ public class SwerveDriveKinematics {
                 chassisSpeeds.omegaRadiansPerSecond);
 
         var moduleStatesMatrix = m_inverseKinematics.mult(chassisSpeedsVector);
-        SwerveModuleState[] moduleStates = new SwerveModuleState[m_numModules];
+        // SwerveModuleState[] moduleStates = new SwerveModuleState[m_numModules];
 
         for (int i = 0; i < m_numModules; i++) {
             double x = moduleStatesMatrix.get(i * 2, 0);

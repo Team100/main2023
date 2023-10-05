@@ -11,8 +11,10 @@ import edu.wpi.first.math.geometry.Twist2d;
 import edu.wpi.first.util.sendable.Sendable;
 import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.GenericHID.RumbleType;
+import edu.wpi.first.wpilibj.event.EventLoop;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
@@ -38,12 +40,18 @@ public class DualXboxControl implements Control, Sendable {
     private final CommandXboxController controller1;
     Rotation2d previousRotation = new Rotation2d(0);
 
+    private double translateMultipler = 1;
+    private double rotationMultiplier = 1;
+
     public DualXboxControl() {
         controller0 = new CommandXboxController(0);
         System.out.printf("Controller0: %s\n", controller0.getHID().getName());
         controller1 = new CommandXboxController(1);
         System.out.printf("Controller1: %s\n", controller1.getHID().getName());
         SmartDashboard.putData("Robot Container", this);
+
+        EventLoop loop = CommandScheduler.getInstance().getActiveButtonLoop();
+        loop.bind(updateScaleFactor());
     }
 
     ///////////////////////////////
@@ -89,10 +97,32 @@ public class DualXboxControl implements Control, Sendable {
 
     @Override
     public Twist2d twist() {
-        double dx = expo(deadband(-1.0 * clamp(controller0.getRightY(), 1), m_config.kDeadband, 1), m_config.kExpo);
-        double dy = expo(deadband(-1.0 * clamp(controller0.getRightX(), 1), m_config.kDeadband, 1), m_config.kExpo);
-        double dtheta = expo(deadband(-1.0 * clamp(controller0.getLeftX(), 1), m_config.kDeadband, 1), m_config.kExpo);
+        double dx = expo(deadband(-1.0 * clamp(controller0.getRightY(), 1), m_config.kDeadband, 1), m_config.kExpo) * translateMultipler;
+        double dy = expo(deadband(-1.0 * clamp(controller0.getRightX(), 1), m_config.kDeadband, 1), m_config.kExpo) * translateMultipler;
+        double dtheta = expo(deadband(-1.0 * clamp(controller0.getLeftX(), 1), m_config.kDeadband, 1), m_config.kExpo) * rotationMultiplier           ;
         return new Twist2d(dx, dy, dtheta);
+    }
+
+    private Runnable updateScaleFactor() {
+        return new Runnable() {
+
+            @Override
+            public void run() {
+                boolean mediumButton = controller0.rightBumper().getAsBoolean();
+                boolean slowButton = controller0.leftBumper().getAsBoolean();
+
+                if (slowButton) {
+                    translateMultipler = 0.1;
+                    rotationMultiplier = 0.1 ;
+                } else if (mediumButton) {
+                    translateMultipler = 0.5;
+                    rotationMultiplier = 0.5;
+                } else {
+                    translateMultipler = 1;          
+                    rotationMultiplier = 1;
+                }
+            }
+        };
     }
 
     @Override

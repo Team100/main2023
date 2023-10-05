@@ -27,4 +27,20 @@ public class SpeedLimitsFactory {
             // Identity.get().name());
         }
     }
+
+    public static SpeedLimits getSpeedLimits(SpeedLimit limit){
+
+        switch(limit){
+            case Fast:
+                return new SpeedLimits(5, 10, 5, 5);
+            case Medium:
+                return new SpeedLimits(2, 10, 0.4, 5);
+            case Slow:
+                return new SpeedLimits(0.4, 1.0, 0.5, 1.0);
+            default:
+                return new SpeedLimits(0, 0, 0, 0);
+        }
+            
+
+    }
 }

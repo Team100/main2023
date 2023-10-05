@@ -18,10 +18,13 @@ public class ArmTrajectory extends Command {
         /** amplitude (each way) of oscillation in encoder units */
         public double oscillatorScale = 0.1;
         /** start oscillating when this close to the target. */
-        public double oscillatorZone = 0.05;
-        public TrajectoryConfig safeTrajectory = new TrajectoryConfig(9, 1.5);
-        public TrajectoryConfig normalTrajectory = new TrajectoryConfig(12, 2);
-        public TrajectoryConfig oscillateTrajectory = new TrajectoryConfig(12, 2);
+        public double oscillatorZone = 0.1;
+        public TrajectoryConfig safeTrajectory = new TrajectoryConfig(9, 3.5);
+        public TrajectoryConfig normalTrajectory = new TrajectoryConfig(5, 2.5);
+        public TrajectoryConfig subTrajectory = new TrajectoryConfig(6, 5.5);
+
+        public TrajectoryConfig oscillateTrajectory = new TrajectoryConfig(5, 2);
+        public TrajectoryConfig autoTrajectory = new TrajectoryConfig(9, 1.5);
 
     }
 
@@ -29,7 +32,6 @@ public class ArmTrajectory extends Command {
     private final ArmInterface m_arm;
     private final ArmPosition m_position;
     private final boolean m_oscillate;
-
     private final Timer m_timer;
 
     private final DoublePublisher measurmentX;
@@ -47,7 +49,6 @@ public class ArmTrajectory extends Command {
         m_position = position;
         m_oscillate = oscillate;
         m_timer = new Timer();
-
         NetworkTableInstance inst = NetworkTableInstance.getDefault();
         measurmentX = inst.getTable("Arm Trajec").getDoubleTopic("measurmentX").publish();
         measurmentY = inst.getTable("Arm Trajec").getDoubleTopic("measurmentY").publish();
@@ -56,6 +57,8 @@ public class ArmTrajectory extends Command {
 
         addRequirements(m_arm.subsystem());
     }
+
+   
 
     @Override
     public void initialize() {
@@ -69,13 +72,19 @@ public class ArmTrajectory extends Command {
         // }else
 
         final TrajectoryConfig trajectoryConfig;
+
+        
         if (m_position == ArmPosition.SAFE) {
             trajectoryConfig = m_config.safeTrajectory;
             m_arm.setControlSafe();
-        } else {
+        } else if(m_position == ArmPosition.AUTO){
+            trajectoryConfig = m_config.autoTrajectory;
+        } else if(m_position == ArmPosition.SUB){
+            trajectoryConfig = m_config.subTrajectory;
+        }else{
             trajectoryConfig = m_config.normalTrajectory;
             m_arm.setControlNormal();
-        }
+        } 
         m_trajectory = new ArmTrajectories(trajectoryConfig).makeTrajectory(
                 m_arm.getMeasurement(),
                 m_position,
