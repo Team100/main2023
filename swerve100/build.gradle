@@ -130,7 +130,8 @@ deploy {
                     command = 'sysctl -p'
                 }
                 killKillKill(getArtifactTypeClass('CommandArtifact')) {
-                    command = 'start-stop-daemon --stop --signal KILL --name java'
+                    // command = 'start-stop-daemon --stop --signal KILL --name java'
+                    command = 'killall -9 java'
                 }
             }
         }
