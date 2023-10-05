@@ -175,7 +175,8 @@ public class HolonomicLQR {
 
         m_xManager.m_loop.predict(0.020);
         m_yManager.m_loop.predict(0.020);
-
+        double X = m_xManager.calculate(m_robotDrive.getPose().getX(), m_lastXRef.getX(), m_lastXRef.getV()); 
+        double Y = m_yManager.calculate(m_robotDrive.getPose().getY(), m_lastYRef.getX(), m_lastYRef.getV()); 
         // double nextXVoltage = m_xManager.m_loop.getU(0);
         // double nextYVoltage = m_yManager.m_loop.getU(0);
 
@@ -217,7 +218,7 @@ public class HolonomicLQR {
                 new MotionState(m_robotDrive.getPose().getX(), 0),
                 new MotionState(goalX, 0),
                 maxVel,
-                maxAccel,
+                maxAccel ,
                 maxJerk);
 
         profileY = MotionProfileGenerator.generateSimpleMotionProfile(

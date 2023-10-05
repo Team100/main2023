@@ -51,11 +51,7 @@ public class TurningServo implements Sendable {
     }
 
     void setTurning(SwerveModuleState state) {
-        if (m_experiments.enabled(Experiment.UseClosedLoopSteering)) {
-            offboard(state);
-        } else {
-            onboard(state);
-        }
+        offboard(state);
 
         
     }

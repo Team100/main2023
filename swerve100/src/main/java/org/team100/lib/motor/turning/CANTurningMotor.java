@@ -16,13 +16,15 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class CANTurningMotor implements TurningMotor, Sendable {
     // private final WPI_VictorSPX m_motor;
+    private final double m_gearRatio = 355/6;
     private final WPI_TalonSRX m_motor;
+    private final double ticksPerRevolution = 28;
     // private final int channel;
     private final int canID;
     public static final double kTurningCurrentLimit = 7;
     private final AnalogTurningEncoder m_encoder;
 
-    public CANTurningMotor(String name, int channel, AnalogTurningEncoder encoder) {
+    public CANTurningMotor(String name, int channel, AnalogTurningEncoder encoder, int swerveBot) {
         m_encoder = encoder;
         m_motor = new WPI_TalonSRX(channel);
         m_motor.configFactoryDefault();
@@ -33,7 +35,6 @@ public class CANTurningMotor implements TurningMotor, Sendable {
                 new SupplyCurrentLimitConfiguration(true, kTurningCurrentLimit, kTurningCurrentLimit, 0));
         this.canID = channel;
         m_motor.configSelectedFeedbackSensor(FeedbackDevice.QuadEncoder);
-        m_motor.setSensorPhase(true);
         m_motor.configNominalOutputForward(0);
         m_motor.configNominalOutputReverse(0);
         m_motor.configPeakOutputForward(1);
@@ -47,6 +48,8 @@ public class CANTurningMotor implements TurningMotor, Sendable {
         m_motor.setSelectedSensorPosition(absolutePosition);
         m_motor.configVoltageCompSaturation(11);
         m_motor.enableVoltageCompensation(true);
+        m_motor.setSensorPhase(true);
+        if (swerveBot == 2 && name != "Rear Right") {m_motor.setInverted(true);}
         SmartDashboard.putData(String.format("CAN Turning Motor %s", name), this);
     }
 
@@ -65,8 +68,6 @@ public class CANTurningMotor implements TurningMotor, Sendable {
     }
 
     public void setPIDVelocity(double outputRadiansPerSec, double outputRadiansPerSecPerSec) {
-        double gearRatio = 355/6;
-        double ticksPerRevolution = 28;
         double revolutionsPerSec = outputRadiansPerSec/(2*Math.PI);
         double revolutionsPerSec2 = outputRadiansPerSecPerSec/(2*Math.PI);
         double revsPer100ms = revolutionsPerSec / 10;
@@ -77,8 +78,8 @@ public class CANTurningMotor implements TurningMotor, Sendable {
         double Ke = 0.068842;
         double Ks = 0.007576;
         double VSat = 11;
-        double kFF = (Kn*revolutionsPerSec + Ks*Math.signum(revolutionsPerSec))*gearRatio/VSat;
-        m_motor.set(ControlMode.Velocity, ticksPer100ms*gearRatio, type, kFF);
+        double kFF = (Kn*revolutionsPerSec + Ks*Math.signum(revolutionsPerSec))*m_gearRatio/VSat;
+        m_motor.set(ControlMode.Velocity, ticksPer100ms*m_gearRatio, type, kFF);
         }
 
 
@@ -93,7 +94,8 @@ public class CANTurningMotor implements TurningMotor, Sendable {
         builder.setSmartDashboardType("CANTurningMotor");
         builder.addDoubleProperty("Device ID", () -> canID, null);
         builder.addDoubleProperty("Output", this::get, null);
-        builder.addDoubleProperty("Encoder Value", () -> m_motor.getSelectedSensorPosition(), null);
+        builder.addDoubleProperty("Encoder Value", () -> m_motor.getSelectedSensorPosition()/(m_gearRatio*ticksPerRevolution), null);
+        builder.addDoubleProperty("Velocity Value", () -> m_motor.getSelectedSensorVelocity()/(ticksPerRevolution*m_gearRatio)*10, null);
     }
 
 }
