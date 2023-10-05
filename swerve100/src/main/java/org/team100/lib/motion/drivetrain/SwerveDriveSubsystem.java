@@ -8,7 +8,13 @@ import org.team100.lib.controller.HolonomicDriveRegulator;
 import org.team100.lib.controller.PidGains;
 import org.team100.lib.controller.State100;
 import org.team100.lib.motion.drivetrain.kinematics.FrameTransform;
+import org.team100.lib.profile.MotionProfile;
+import org.team100.lib.profile.MotionProfileGenerator;
+import org.team100.lib.profile.MotionState;
 
+import com.team254.lib.geometry.Rotation2d;
+
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Twist2d;
@@ -98,6 +104,10 @@ public class SwerveDriveSubsystem extends Subsystem implements SwerveDriveSubsys
         return this;
     }
 
+    public edu.wpi.first.math.geometry.Rotation2d getHeading(){
+        return m_heading.getHeadingNWU();
+    }
+
     ////////////////////////////////////////////////////////////////////
 
     private void updateOdometry() {
@@ -163,6 +173,8 @@ public class SwerveDriveSubsystem extends Subsystem implements SwerveDriveSubsys
 
     }
 
+
+
     public void setDefenseMode(boolean state){
         defense = state;
     }
@@ -183,6 +195,8 @@ public class SwerveDriveSubsystem extends Subsystem implements SwerveDriveSubsys
         m_swerveLocal.stop();
     }
 
+    
+
     ////////////////////////////////////////
     // pose estimator stuff
 
@@ -197,6 +211,7 @@ public class SwerveDriveSubsystem extends Subsystem implements SwerveDriveSubsys
 
     public void resetPose(Pose2d robotPose) {
         m_poseEstimator.resetPosition(m_heading.getHeadingNWU(), m_swerveLocal.positions(), robotPose);
+        truncate();
     }
 
     ///////////////////////////////

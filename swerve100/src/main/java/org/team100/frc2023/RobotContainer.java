@@ -237,9 +237,9 @@ public class RobotContainer implements Sendable {
         control.defense(new Defense(m_robotDrive));
         control.resetRotation0(new ResetRotation(m_robotDrive, new Rotation2d(0)));
         control.resetRotation180(new ResetRotation(m_robotDrive, Rotation2d.fromDegrees(180)));
-        control.close(new Intake(manipulator));
-        control.open(new Eject(manipulator));
-        control.hold(new Hold(manipulator));
+        control.close(new Intake(manipulator, m_arm));
+        control.open(new Eject(manipulator, m_arm));
+        control.hold(new Hold(manipulator, m_arm));
 
         // Command medium = Commands.run(()-> m_config.setSpeedLimit(SpeedLimit.Medium), (Subsystem[]) null);
         // Command100 driveMedium100 = (Command100)medium;
@@ -264,9 +264,9 @@ public class RobotContainer implements Sendable {
         ///////////////////////////
         // MANIPULATOR COMMANDS
         // control.open(new Open(manipulator));
-        control.intake(new Intake(manipulator));
-        control.eject(new Eject(manipulator));
-        control.hold(new Hold(manipulator));
+        control.intake(new Intake(manipulator, m_arm));
+        control.eject(new Eject(manipulator, m_arm));
+        control.hold(new Hold(manipulator, m_arm));
 
         ////////////////////////////
         // ARM COMMANDS
@@ -305,35 +305,37 @@ public class RobotContainer implements Sendable {
                 manipulator,
                 ahrsclass,
                 m_indicator,
-                1);
+                m_heading,
+                1
+                );
 
         /////////////////////////
         // DRIVE
 
-        if (m_config.SHOW_MODE) {
+        // if (m_config.SHOW_MODE) {
             m_robotDrive.setDefaultCommand(
                     new DriveScaled(
                             control::twist,
                             m_robotDrive,
-                            m_config::getSpeedLimit));
-        } else {
-            // if (m_config.useSetpointGenerator) {
-            //     m_robotDrive.setDefaultCommand(
-            //             new DriveWithSetpointGenerator(
-            //                     control::twist,
-            //                     m_robotDrive,
-            //                     m_config::getSpeedLimit));
-            // } else {
-                m_robotDrive.setDefaultCommand(
-                        new DriveWithHeading(
-                                control::twist,
-                                m_robotDrive,
-                                m_heading,
-                                m_config::getSpeedLimit,
-                                new Timer(),
-                                control::desiredRotation));
+                            m_config::getSpeedLimit));  
+        // } else {
+        //     // if (m_config.useSetpointGenerator) {
+        //     //     m_robotDrive.setDefaultCommand(
+        //     //             new DriveWithSetpointGenerator(
+        //     //                     control::twist,
+        //     //                     m_robotDrive,
+        //     //                     m_config::getSpeedLimit));
+        //     // } else {
+        //         m_robotDrive.setDefaultCommand(
+        //                 new DriveWithHeading(
+        //                         control::twist,
+        //                         m_robotDrive,
+        //                         m_heading,
+        //                         m_config::getSpeedLimit,
+        //                         new Timer(),
+        //                         control::desiredRotation));
             
-        }
+        // }
 
         /////////////////////////
         // MANIPULATOR

@@ -16,7 +16,7 @@ public class ArmTrajectory extends Command {
     public static class Config {
         public double oscillatorFrequencyHz = 2;
         /** amplitude (each way) of oscillation in encoder units */
-        public double oscillatorScale = 0.15;
+        public double oscillatorScale = 0.1;
         /** start oscillating when this close to the target. */
         public double oscillatorZone = 0.1;
         public TrajectoryConfig safeTrajectory = new TrajectoryConfig(9, 3.5);

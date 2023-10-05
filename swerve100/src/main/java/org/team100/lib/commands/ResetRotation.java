@@ -15,6 +15,7 @@ public class ResetRotation extends Command {
     public ResetRotation(SwerveDriveSubsystem drivetrain, Rotation2d rotation) {
         robotDrive = drivetrain;
         robotRotation = rotation;
+        addRequirements(robotDrive);
     }
 
     @Override

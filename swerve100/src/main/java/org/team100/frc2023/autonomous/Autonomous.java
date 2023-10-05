@@ -12,6 +12,7 @@ import org.team100.lib.autonomous.DriveStop;
 import org.team100.lib.commands.ResetPose;
 import org.team100.lib.commands.ResetRotation;
 import org.team100.lib.indicator.LEDIndicator;
+import org.team100.lib.motion.drivetrain.HeadingInterface;
 import org.team100.lib.motion.drivetrain.SwerveDriveSubsystem;
 import org.team100.lib.motion.drivetrain.kinematics.FrameTransform;
 import org.team100.lib.sensors.RedundantGyroInterface;
@@ -37,6 +38,7 @@ public class Autonomous extends SequentialCommandGroup {
     private final ManipulatorInterface m_manipulator;
     private final RedundantGyroInterface m_gyro;
     private final LEDIndicator m_indicator;
+    private final HeadingInterface m_heading;
 
     // TODO: make routine an enum
     public Autonomous(
@@ -46,8 +48,10 @@ public class Autonomous extends SequentialCommandGroup {
             ManipulatorInterface manipulator,
             RedundantGyroInterface gyro,
             LEDIndicator indicator,
+            HeadingInterface heading,
             int routine) {
         m_robotDrive = robotDrive;
+        m_heading = heading;
         m_transform = transform;
         m_arm = arm;
         m_manipulator = manipulator;
@@ -75,21 +79,39 @@ public class Autonomous extends SequentialCommandGroup {
         //     driveOutAndBack();
         //     autoLevel(true);
         // }
+        // addCommands(
+        //         new ResetPose(m_robotDrive, 0, 0, Math.PI),
+        //         // new DeadDrivetrain(m_robotDrive),
+        //         // new ResetRotation(m_robotDrive, Rotation2d.fromDegrees(180)),
+        //         // new ResetPose(m_robotDrive, 0, 0, Math.PI),
+        //         // new DeadDrivetrain(m_robotDrive),
+
+        //         new ParallelDeadlineGroup(new WaitCommand(2), new ArmTrajectory(ArmPosition.AUTO, m_arm, false)),
+        //         // timeout(new ArmTrajectory(ArmPosition.AUTO, m_arm, false), m_config.kArmExtendTimeout),
+        //         // new ParallelDeadlineGroup(new DeadDrivetrain(m_robotDrive), new ArmTrajectory(ArmPosition.AUTO, m_arm, false))
+        //         new ParallelDeadlineGroup(new WaitCommand(2), new Intake(m_manipulator)),
+        //         new ParallelDeadlineGroup(new WaitCommand(2), new ArmTrajectory(ArmPosition.SAFE, m_arm, false)),
+        //         new AutoLevel(false, m_robotDrive, m_gyro, m_transform)
+        // );
+
+        
+
         addCommands(
-                // new ResetPose(m_robotDrive, 0, 0, Math.PI),
-                // new DeadDrivetrain(m_robotDrive),
-                new ResetRotation(m_robotDrive, Rotation2d.fromDegrees(180)),
-                // new ResetPose(m_robotDrive, 0, 0, Math.PI),
-                new DeadDrivetrain(m_robotDrive),
+            new ResetPose(m_robotDrive, 0, 0, Math.PI),
+            new SetCubeMode(m_arm, m_indicator),
+            new ParallelDeadlineGroup(new WaitCommand(2), new ArmTrajectory(ArmPosition.AUTO, m_arm, false)),
+               
+            new ParallelDeadlineGroup(new WaitCommand(0.2), new Intake(m_manipulator, m_arm)),
+            new ParallelDeadlineGroup(new WaitCommand(2), new ArmTrajectory(ArmPosition.SAFE, m_arm, false)),
 
-                new ParallelDeadlineGroup(new DeadDrivetrain(m_robotDrive), new Intake(m_manipulator))
+            new DriveMobility(robotDrive),
+            // timeout(new DriveStop(m_robotDrive, m_heading), 2),
+            new ParallelDeadlineGroup(new WaitCommand(2), new DriveStop(robotDrive, m_heading)),
 
+            new DriveToThreshold(m_robotDrive),
 
-                // timeout(new ArmTrajectory(ArmPosition.AUTO, m_arm, false), m_config.kArmExtendTimeout),
-                // new ParallelDeadlineGroup(new DeadDrivetrain(m_robotDrive), new ArmTrajectory(ArmPosition.AUTO, m_arm, false))
-                // new ParallelDeadlineGroup(new DeadDrivetrain(m_robotDrive), new Intake(m_manipulator)),
-                // new ParallelDeadlineGroup(new DeadDrivetrain(m_robotDrive), new ArmTrajectory(ArmPosition.SAFE, m_arm, false)),
-                // new AutoLevel(false, m_robotDrive, m_gyro, m_transform)
+            new AutoLevel(true, m_robotDrive, m_gyro, m_transform)
+
         );
     }
 
@@ -121,12 +143,7 @@ public class Autonomous extends SequentialCommandGroup {
                 
     }
 
-    private void driveOutAndBack() {
-        addCommands(
-                new DriveMobility(m_robotDrive),
-                timeout(new DriveStop(m_robotDrive), m_config.kStopTimeout),
-                new DriveToThreshold(m_robotDrive));
-    }
+    
 
     private void autoLevel(boolean reversed) {
         addCommands(

@@ -19,6 +19,7 @@ public class ResetPose extends Command {
     @Override
     public void initialize() {
         m_robotDrive.resetPose(m_pose);
+        
     }
 
     @Override

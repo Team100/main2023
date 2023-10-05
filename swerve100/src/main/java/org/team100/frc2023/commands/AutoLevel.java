@@ -64,7 +64,7 @@ public class AutoLevel extends Command {
             if (Math.abs(Roll) > 2.5 || Math.abs(Pitch) > 2.5) {
                 count = 0;
 
-                Twist2d twist = new Twist2d(xSpeed, ySpeed, 0);
+                Twist2d twist = new Twist2d(xSpeed, -ySpeed, 0);
                 Twist2d twistM_S = DriveUtil.scale(twist, m_config.kMaxSpeed, m_config.kMaxRot);
                 Twist2d fieldRelative = m_chassisSpeedFactory.toFieldRelativeSpeeds(
                         twistM_S.dx, twistM_S.dy, twistM_S.dtheta, rot);
@@ -99,7 +99,7 @@ public class AutoLevel extends Command {
             //     m_robotDrive.setDesiredState(manualState);
             // }
 
-            if (m_robotDrive.getPose().getX() >= 2.16) {
+            if (m_robotDrive.getPose().getX() >= 1.7526) {
                 if (Math.abs(Roll) > 2.5 || Math.abs(Pitch) > 2.5) {
                     count = 0;
 

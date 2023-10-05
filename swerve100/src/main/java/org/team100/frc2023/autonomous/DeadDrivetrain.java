@@ -30,8 +30,8 @@ public class DeadDrivetrain extends CommandBase {
   @Override
   public void initialize() {
     
-    m_robotDrive.removeDefaultCommand();
-    m_robotDrive.setDefaultCommand(new DriveScaled(null, m_robotDrive, null));
+    // m_robotDrive.removeDefaultCommand();
+    // m_robotDrive.setDefaultCommand(new DriveScaled(null, m_robotDrive, null));
     done = true;
 
   }

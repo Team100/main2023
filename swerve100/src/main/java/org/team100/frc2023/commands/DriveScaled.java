@@ -58,6 +58,8 @@ public class DriveScaled extends Command {
         Pose2d currentPose = m_robotDrive.getPose();
         SwerveState manualState = SwerveDriveSubsystem.incremental(currentPose, twistM_S);
         m_robotDrive.setDesiredState(manualState);
+
+        System.out.println("AHJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJ");
         
     }
 
