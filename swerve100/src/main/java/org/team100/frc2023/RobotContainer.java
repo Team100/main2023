@@ -217,7 +217,10 @@ public class RobotContainer implements Sendable {
         // control = new DualXboxControl();
         // control = new JoystickControl();
 
-        myWriter = logFile();
+        // myWriter = logFile();
+        // try turning the file writer off to eliminate uninterruptible sleep
+        // and maybe fix the zombie java process
+        myWriter = null;
 
         ////////////////////////////
         // DRIVETRAIN COMMANDS
