@@ -151,16 +151,10 @@ public class ArmSubsystem extends Subsystem implements ArmInterface {
     private final AnalogEncoder upperArmEncoder;
     private final double kLowerArmGearing = 1;
     private final double kUpperArmGearing = 1; //TODO add arm gear ratios
-    private final TrapezoidProfile.Constraints m_constraints1 = new TrapezoidProfile.Constraints(8*Math.PI,4*Math.PI); //TODO add arm max accel and speed
-    private final TrapezoidProfile.Constraints m_constraints2 = new TrapezoidProfile.Constraints(8*Math.PI,4*Math.PI);
     private final LinearSystem<N2, N1, N1> m_armPlant1 = LinearSystemId.createSingleJointedArmSystem(DCMotor.getNEO(1), 0.43, kLowerArmGearing);//TODO add arm moment of inertia
     private final LinearSystem<N2, N1, N1> m_armPlant2 = LinearSystemId.createSingleJointedArmSystem(DCMotor.getNEO(1), 0.43, kUpperArmGearing);
-    private final KalmanFilter<N2, N1, N1> m_observer1 = new KalmanFilter<>(Nat.N2(), Nat.N1(),m_armPlant1,VecBuilder.fill(0.015, 0.17), VecBuilder.fill(2*Math.PI/(42*45)), 0.020);//TODO TUNE THESE VALUES
-    private final KalmanFilter<N2, N1, N1> m_observer2 = new KalmanFilter<>(Nat.N2(), Nat.N1(),m_armPlant2,VecBuilder.fill(0.015, 0.17), VecBuilder.fill(2*Math.PI/(42*45)), 0.020);
-    private final LinearQuadraticRegulator<N2, N1, N1>  m_controller1 = new LinearQuadraticRegulator<>(m_armPlant1, VecBuilder.fill(Units.degreesToRadians(0.01), Units.degreesToRadians(1)), VecBuilder.fill(12),0.02); //TODO tune these values
-    private final LinearQuadraticRegulator<N2, N1, N1>  m_controller2 = new LinearQuadraticRegulator<>(m_armPlant2, VecBuilder.fill(Units.degreesToRadians(0.01), Units.degreesToRadians(1)), VecBuilder.fill(12),0.02);
-    private final LQRManager lowerLQRController = new LQRManager(m_armPlant1,m_observer1,m_controller1,m_constraints1);
-    private final LQRManager upperLQRController = new LQRManager(m_armPlant2,m_observer2,m_controller2,m_constraints2);
+    private final LQRManager lowerLQRController = new LQRManager(8*Math.PI,4*Math.PI, m_armPlant1, .015,.17, 2*Math.PI/(42*45), Units.degreesToRadians(0.01),Units.degreesToRadians(1),12);
+    private final LQRManager upperLQRController = new LQRManager(8*Math.PI,4*Math.PI, m_armPlant2, .015,.17, 2*Math.PI/(42*45), Units.degreesToRadians(0.01),Units.degreesToRadians(1),12);//TODO actually make these values real
     // TODO: move this somewhere else
     private boolean cubeMode = true;
     public void setCubeMode(boolean mode) {

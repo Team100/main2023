@@ -4,6 +4,8 @@ import java.util.List;
 
 import org.team100.frc2023.LQRManager;
 import org.team100.frc2023.commands.GoalOffset;
+import org.team100.lib.controller.DriveControllers;
+import org.team100.lib.controller.HolonomicDriveController2;
 import org.team100.lib.motion.drivetrain.SwerveDriveSubsystem;
 import org.team100.lib.motion.drivetrain.SwerveState;
 
@@ -107,33 +109,13 @@ public class DriveToWaypoint3 extends Command {
         yController.setIntegratorRange(-0.3, 0.3);
         yController.setTolerance(0.00000001);
 
-        TrapezoidProfile.Constraints m_constraints = new TrapezoidProfile.Constraints(
-                5,
-                5);
-
         LinearSystem<N2, N1, N1> m_translationPlant = LinearSystemId.identifyPositionSystem(1.3, 0.06);
-
-        KalmanFilter<N2, N1, N1> m_translationObserver = new KalmanFilter<>(
-                Nat.N2(),
-                Nat.N1(),
-                m_translationPlant,
-                VecBuilder.fill(0.015, 0.17), // How accurate we
-                // think our model is, in radians and radians/sec
-                VecBuilder.fill(0.01), // How accurate we think our encoder position
-                // data is. In this case we very highly trust our encoder position reading.
-                0.020);
-
-        LinearQuadraticRegulator<N2, N1, N1> m_translationController = new LinearQuadraticRegulator<>(
-                m_translationPlant,
-                VecBuilder.fill(0.05, 1), // qelms.
-                VecBuilder.fill(20), // relms. Control effort (voltage) tolerance. Decrease this to more
-                0.020); // Nominal time between loops. 0.020 for TimedRobot, but can be
-
-        xManager = new LQRManager(m_translationPlant, m_translationObserver, m_translationController, m_constraints);
-        yManager = new LQRManager(m_translationPlant, m_translationObserver, m_translationController, m_constraints);
+        xManager = new LQRManager(5, 5, m_translationPlant, .015, .17, .01, .05, 1,20);
+        yManager = new LQRManager(5, 5, m_translationPlant, .015, .17, .01, .05, 1,20);
 
         // m_controller = new HolonomicDriveController2(xController, yController,
         // m_rotationController, m_gyro);
+        // DriveControllers controllers = new DriveControllers(xManager, yManager, m_rotationController);
         m_controller = new HolonomicLQR(m_robotDrive, xManager, yManager, m_rotationController);
         // m_controller = new HolonomicDriveController2(xController, yController,
         // m_rotationController, m_gyro);

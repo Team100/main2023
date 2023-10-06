@@ -5,6 +5,7 @@ import java.io.FileWriter;
 import org.team100.lib.commands.DriveUtil;
 import org.team100.lib.controller.HolonomicDriveController2;
 import org.team100.lib.controller.HolonomicDriveRegulator;
+import org.team100.lib.controller.LQRGains;
 import org.team100.lib.controller.PidGains;
 import org.team100.lib.controller.State100;
 import org.team100.lib.motion.drivetrain.kinematics.FrameTransform;
@@ -82,7 +83,7 @@ public class SwerveDriveSubsystem extends Subsystem implements SwerveDriveSubsys
         m_desiredState = desiredState;
     }
 
-    public void setGains(PidGains cartesian, PidGains rotation) {
+    public void setGains(LQRGains cartesian, PidGains rotation) {
         m_controller.setGains(cartesian, rotation);
     }
 
