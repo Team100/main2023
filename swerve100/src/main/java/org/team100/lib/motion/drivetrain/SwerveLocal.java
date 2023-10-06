@@ -144,6 +144,20 @@ public class SwerveLocal {
         setModuleStates(states);
     }
 
+    public void forward() {
+        SwerveModuleState[] states = new SwerveModuleState[4];
+        states[0] = new SwerveModuleState(0, new Rotation2d(0));
+        states[1] = new SwerveModuleState(0, new Rotation2d(0));
+        states[2] = new SwerveModuleState(0, new Rotation2d(0));
+        states[3] = new SwerveModuleState(0, new Rotation2d(0));
+
+        // states[0] = new SwerveModuleState(0, new Rotation2d(0));
+        // states[1] = new SwerveModuleState(0, new Rotation2d(0));
+        // states[2] = new SwerveModuleState(0, new Rotation2d(0));
+        // states[3] = new SwerveModuleState(0, new Rotation2d(0));
+        setModuleStates(states);
+    }
+
     public SwerveModuleState[] states() {
         return m_modules.states();
     }

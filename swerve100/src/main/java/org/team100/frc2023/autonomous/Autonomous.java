@@ -1,7 +1,11 @@
 package org.team100.frc2023.autonomous;
 
+import java.util.function.Supplier;
+
 import org.team100.frc2023.commands.AutoLevel;
 import org.team100.frc2023.commands.DriveMobility;
+import org.team100.frc2023.commands.DriveWithHeading;
+import org.team100.frc2023.commands.WheelsForward;
 import org.team100.frc2023.commands.arm.ArmTrajectory;
 import org.team100.frc2023.commands.arm.SetCubeMode;
 import org.team100.frc2023.commands.manipulator.Intake;
@@ -13,11 +17,15 @@ import org.team100.lib.commands.ResetPose;
 import org.team100.lib.commands.ResetRotation;
 import org.team100.lib.indicator.LEDIndicator;
 import org.team100.lib.motion.drivetrain.HeadingInterface;
+import org.team100.lib.motion.drivetrain.SpeedLimit;
+import org.team100.lib.motion.drivetrain.SpeedLimitsFactory;
 import org.team100.lib.motion.drivetrain.SwerveDriveSubsystem;
 import org.team100.lib.motion.drivetrain.kinematics.FrameTransform;
 import org.team100.lib.sensors.RedundantGyroInterface;
 
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Twist2d;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.ParallelDeadlineGroup;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
@@ -95,24 +103,56 @@ public class Autonomous extends SequentialCommandGroup {
         // );
 
         
+        if(routine == 2){
+            addCommands(
+                new ResetPose(m_robotDrive, 0, 0, Math.PI),
+                new SetCubeMode(m_arm, m_indicator),
+                new ParallelDeadlineGroup(new WaitCommand(2), new ArmTrajectory(ArmPosition.AUTO, m_arm, false)),
+                   
+                new ParallelDeadlineGroup(new WaitCommand(0.2), new Intake(m_manipulator, m_arm)),
+                new ParallelDeadlineGroup(new WaitCommand(2), new ArmTrajectory(ArmPosition.SAFE, m_arm, false)),
+    
+                new DriveMobility(robotDrive),
+                // timeout(new DriveStop(m_robotDrive, m_heading), 2),
+                new ParallelDeadlineGroup(new WaitCommand(1), new DriveStop(robotDrive, m_heading)),
+    
+                new DriveToThreshold(m_robotDrive),
+    
+                new AutoLevel(true, m_robotDrive, m_gyro, m_transform)
+    
+            );
+        } else if(routine == 1){
+            addCommands(
+                new ResetPose(m_robotDrive, 0, 0, Math.PI),
+                new SetCubeMode(m_arm, m_indicator),
+                new ParallelDeadlineGroup(new WaitCommand(2), new ArmTrajectory(ArmPosition.AUTO, m_arm, false)),
+                   
+                new ParallelDeadlineGroup(new WaitCommand(0.2), new Intake(m_manipulator, m_arm)),
+                new ParallelDeadlineGroup(new WaitCommand(2), new ArmTrajectory(ArmPosition.SAFE, m_arm, false)),
+                new AutoLevel(false, m_robotDrive, m_gyro, m_transform)
+    
+                
+    
+            );
+        } else if(routine == 0){
 
-        addCommands(
-            new ResetPose(m_robotDrive, 0, 0, Math.PI),
-            new SetCubeMode(m_arm, m_indicator),
-            new ParallelDeadlineGroup(new WaitCommand(2), new ArmTrajectory(ArmPosition.AUTO, m_arm, false)),
+            Supplier<Rotation2d> rotSupplier = () -> new Rotation2d(Math.PI);
+            addCommands(
+                new ResetPose(m_robotDrive, 0, 0, Math.PI),
+                new SetCubeMode(m_arm, m_indicator),
+                // new ParallelDeadlineGroup(new WaitCommand(2), new ArmTrajectory(ArmPosition.AUTO, m_arm, false)),
+                   
+                // new ParallelDeadlineGroup(new WaitCommand(0.2), new Intake(m_manipulator, m_arm)),
+                // new ParallelDeadlineGroup(new WaitCommand(2), new ArmTrajectory(ArmPosition.SAFE, m_arm, false)),
+                // new DriveMobility(robotDrive)
+                new ParallelDeadlineGroup(new WaitCommand(2.5' hb    hFM,AFxfFCFF),  new DriveWithHeading( () -> new Twist2d(2, 0.02, 0.0), m_robotDrive, m_heading, () -> SpeedLimitsFactory.getSpeedLimits(SpeedLimit.Medium), new Timer(), rotSupplier ))
                
-            new ParallelDeadlineGroup(new WaitCommand(0.2), new Intake(m_manipulator, m_arm)),
-            new ParallelDeadlineGroup(new WaitCommand(2), new ArmTrajectory(ArmPosition.SAFE, m_arm, false)),
+                
+    
+            );
+        }
 
-            new DriveMobility(robotDrive),
-            // timeout(new DriveStop(m_robotDrive, m_heading), 2),
-            new ParallelDeadlineGroup(new WaitCommand(2), new DriveStop(robotDrive, m_heading)),
-
-            new DriveToThreshold(m_robotDrive),
-
-            new AutoLevel(true, m_robotDrive, m_gyro, m_transform)
-
-        );
+        
     }
 
     private void placeCube() {

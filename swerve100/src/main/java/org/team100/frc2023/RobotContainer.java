@@ -289,15 +289,6 @@ public class RobotContainer implements Sendable {
         control.ledOn(new LedOn(illuminator));
         control.rumbleTrigger(new RumbleOn(control));
 
-        // m_auton = new Autonomous(
-        //         m_robotDrive,
-        //         m_frameTransform,
-        //         m_arm,
-        //         manipulator,
-        //         ahrsclass,
-        //         m_indicator,
-        //         m_autonSelector.routine());
-
         m_auton = new Autonomous(
                 m_robotDrive,
                 m_frameTransform,
@@ -306,8 +297,19 @@ public class RobotContainer implements Sendable {
                 ahrsclass,
                 m_indicator,
                 m_heading,
-                1
-                );
+                m_autonSelector.routine()
+        );
+
+        // m_auton = new Autonomous(
+        //         m_robotDrive,
+        //         m_frameTransform,
+        //         m_arm,
+        //         manipulator,
+        //         ahrsclass,
+        //         m_indicator,
+        //         m_heading,
+        //         1
+        // );
 
         /////////////////////////
         // DRIVE
