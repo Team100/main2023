@@ -186,6 +186,10 @@ public class SwerveDriveSubsystem extends Subsystem implements SwerveDriveSubsys
         m_swerveLocal.defense();
     }
 
+    public void forward(){
+        m_swerveLocal.forward();
+    }
+
     public void test(double[][] desiredOutputs, FileWriter writer) {
         m_swerveLocal.test(desiredOutputs, writer);
     }
