@@ -1,30 +1,20 @@
 package org.team100.lib.controller;
 
-import org.team100.frc2023.LQRManager;
-import org.team100.lib.motion.drivetrain.SwerveDriveSubsystem;
 import org.team100.lib.motion.drivetrain.SwerveState;
 
-import edu.wpi.first.math.Nat;
-import edu.wpi.first.math.VecBuilder;
-import edu.wpi.first.math.controller.LinearQuadraticRegulator;
 import edu.wpi.first.math.controller.PIDController;
-import edu.wpi.first.math.estimator.KalmanFilter;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Twist2d;
-import edu.wpi.first.math.numbers.N1;
-import edu.wpi.first.math.numbers.N2;
-import edu.wpi.first.math.system.LinearSystem;
-import edu.wpi.first.math.system.plant.LinearSystemId;
-import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.networktables.DoublePublisher;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
 
 public class HolonomicDriveController2 {
-    private final LQRManager m_xController;
-    private final LQRManager m_yController;
+    private final PIDController m_xController;
+    private final PIDController m_yController;
     private final PIDController m_thetaController;
+
     private double xErr = 0;
     private double yErr = 0;
     private Rotation2d m_rotationError = new Rotation2d();
@@ -63,6 +53,7 @@ public class HolonomicDriveController2 {
             Pose2d currentPose,
             SwerveState desiredState) {
         Rotation2d currentRotation = currentPose.getRotation();
+
         double xFF = desiredState.x().v(); // m/s
         double yFF = desiredState.y().v(); // m/s
         double thetaFF = desiredState.theta().v(); // rad/s
@@ -76,15 +67,15 @@ public class HolonomicDriveController2 {
         Rotation2d desiredHeading = new Rotation2d(desiredState.theta().x());
         m_rotationError = desiredHeading.minus(currentRotation);
 
-        double xFeedback = m_xController.calculate(currentPose.getX(), desiredState.x().x(),desiredState.x().v());
-        double yFeedback = m_yController.calculate(currentPose.getY(), desiredState.y().x(),desiredState.y().v());
+        double xFeedback = m_xController.calculate(currentPose.getX(), desiredState.x().x());
+        double yFeedback = m_yController.calculate(currentPose.getY(), desiredState.y().x());
         double thetaFeedback = m_thetaController.calculate(currentRotation.getRadians(), desiredState.theta().x());
 
-        xSetPublisher.set(m_xController.m_loop.getNextR(0));
-        ySetPublisher.set(m_yController.m_loop.getNextR(0));
+        xSetPublisher.set(m_xController.getSetpoint());
+        ySetPublisher.set(m_yController.getSetpoint());
         thetaSetPublisher.set(m_thetaController.getSetpoint());
-        poseXErrorPublisher.set(m_xController.m_loop.getError(0));
-        poseYErrorPublisher.set(m_yController.m_loop.getError(0));
+        poseXErrorPublisher.set(m_xController.getPositionError());
+        poseYErrorPublisher.set(m_yController.getPositionError());
         thetaErrorPublisher.set(m_thetaController.getPositionError());
         xFBPublisher.set(xFeedback);
         yFBPublisher.set(yFeedback);
@@ -93,20 +84,20 @@ public class HolonomicDriveController2 {
         return new Twist2d(xFF + xFeedback, yFF + yFeedback, thetaFF + thetaFeedback);
     }
 
-    public void setGains(LQRGains cartesian, PidGains rotation) {
-        m_xController.setLQR(cartesian);
-        m_yController.setLQR(cartesian);
+    public void setGains(PidGains cartesian, PidGains rotation) {
+        m_xController.setPID(cartesian.p, cartesian.i, cartesian.d);
+        m_yController.setPID(cartesian.p, cartesian.i, cartesian.d);
         m_thetaController.setPID(rotation.p, rotation.i, rotation.d);
     }
 
     public void setIRange(double cartesian) {
-        // m_xController.setIntegratorRange(-1.0 * cartesian, cartesian);
-        // m_yController.setIntegratorRange(-1.0 * cartesian, cartesian);
+        m_xController.setIntegratorRange(-1.0 * cartesian, cartesian);
+        m_yController.setIntegratorRange(-1.0 * cartesian, cartesian);
     }
-    
+
     public void setTolerance(double cartesian, double rotation) {
-        // m_xController.setTolerance(cartesian);
-        // m_yController.setTolerance(cartesian);
+        m_xController.setTolerance(cartesian);
+        m_yController.setTolerance(cartesian);
         m_thetaController.setTolerance(rotation);
     }
 

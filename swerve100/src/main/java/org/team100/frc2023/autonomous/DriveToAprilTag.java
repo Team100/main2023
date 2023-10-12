@@ -4,22 +4,16 @@ import java.util.List;
 import java.util.function.Supplier;
 
 import org.team100.frc2023.commands.GoalOffset;
-import org.team100.lib.controller.LQRGains;
 import org.team100.lib.controller.PidGains;
 import org.team100.lib.localization.AprilTagFieldLayoutWithCorrectOrientation;
 import org.team100.lib.motion.drivetrain.SwerveDriveSubsystem;
 import org.team100.lib.motion.drivetrain.SwerveState;
 
-import edu.wpi.first.math.controller.LinearPlantInversionFeedforward;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
-import edu.wpi.first.math.numbers.N1;
-import edu.wpi.first.math.numbers.N2;
-import edu.wpi.first.math.system.LinearSystem;
-import edu.wpi.first.math.system.plant.LinearSystemId;
 import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.math.trajectory.Trajectory.State;
 import edu.wpi.first.math.trajectory.TrajectoryConfig;
@@ -75,9 +69,8 @@ public class DriveToAprilTag extends Command {
         isFinished = false;
         m_timer.restart();
         m_trajectory = makeTrajectory(previousOffset, 0);
-        LinearSystem<N2, N1, N1> m_translationPlant = LinearSystemId.identifyPositionSystem(1.3, 0.06);
-        m_swerve.setGains( 
-                new LQRGains(5, 5, m_translationPlant, .015, .17, .01, .05, 1,20),
+        m_swerve.setGains(
+                new PidGains(2, 0, 0, 0, 0.01, false),
                 new PidGains(6.5, 0, 1, 0, 0.01, true));
         m_swerve.setIRange(0.3);
         m_swerve.setTolerance(0.00000001, Math.PI / 180);
