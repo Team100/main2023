@@ -2,7 +2,6 @@ package org.team100.frc2023;
 
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.Nat;
-import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.controller.LinearPlantInversionFeedforward;
 import edu.wpi.first.math.controller.LinearQuadraticRegulator;
 import edu.wpi.first.math.estimator.KalmanFilter;
@@ -12,14 +11,13 @@ import edu.wpi.first.math.system.LinearSystem;
 import edu.wpi.first.math.system.LinearSystemLoop;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 
+// TODO: what is this?
 public class LQRManager {
     private LinearSystem<N2, N1, N1> m_plant;
     private KalmanFilter<N2, N1, N1> m_observer;
     private LinearQuadraticRegulator<N2, N1, N1> m_controller;
     public LinearSystemLoop<N2, N1, N1> m_loop;
     public final TrapezoidProfile.Constraints m_constraints;
-    private final TrapezoidProfile m_trapezoidProfile;
-    public TrapezoidProfile.State m_lastProfiledReference = new TrapezoidProfile.State();
 
     Matrix<N2, N2> matrixA = new Matrix<>(Nat.N2(), Nat.N2());
 
@@ -34,7 +32,6 @@ public class LQRManager {
         m_controller = controller;
         m_constraints = constraints;
         m_loop = new LinearSystemLoop<>(m_plant, m_controller, m_observer, 12.0, 0.020);
-        m_trapezoidProfile = new TrapezoidProfile(m_constraints);
     }
 
     public void setAMatrix(double tr, double br){
@@ -50,16 +47,5 @@ public class LQRManager {
 
     public void createFeedforward(){
         feedforward = new LinearPlantInversionFeedforward<>(matrixA, matrixB, 0.020);
-    }
-
-    public double calculate(double angle, double goalPosition, double goalVelocity) {
-        TrapezoidProfile.State trapezoidGoal;
-        trapezoidGoal = new TrapezoidProfile.State(goalPosition, goalVelocity);
-        m_lastProfiledReference = m_trapezoidProfile.calculate(.02, trapezoidGoal, m_lastProfiledReference);
-        m_loop.setNextR(m_lastProfiledReference.position, m_lastProfiledReference.velocity);
-        m_loop.correct(VecBuilder.fill(angle));
-        m_loop.predict(0.020);
-        double nextVoltage = m_loop.getU(0);
-        return nextVoltage;
     }
 }

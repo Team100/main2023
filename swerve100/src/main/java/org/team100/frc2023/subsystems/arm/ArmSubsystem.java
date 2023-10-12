@@ -2,25 +2,14 @@ package org.team100.frc2023.subsystems.arm;
 
 import org.team100.lib.motion.arm.ArmKinematics;
 import org.team100.lib.motor.FRCNEO;
-import org.team100.frc2023.LQRManager;
 import org.team100.lib.config.Identity;
 import org.team100.lib.controller.State100;
 import org.team100.lib.motion.arm.ArmAngles;
 
 import com.revrobotics.CANSparkMax.IdleMode;
-import edu.wpi.first.math.system.plant.LinearSystemId;
-import edu.wpi.first.math.Nat;
-import edu.wpi.first.math.VecBuilder;
-import edu.wpi.first.math.controller.LinearQuadraticRegulator;
+
 import edu.wpi.first.math.controller.PIDController;
-import edu.wpi.first.math.estimator.KalmanFilter;
 import edu.wpi.first.math.filter.LinearFilter;
-import edu.wpi.first.math.numbers.N1;
-import edu.wpi.first.math.numbers.N2;
-import edu.wpi.first.math.system.LinearSystem;
-import edu.wpi.first.math.system.plant.DCMotor;
-import edu.wpi.first.math.trajectory.TrapezoidProfile;
-import edu.wpi.first.math.util.Units;
 import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.AnalogEncoder;
 import edu.wpi.first.wpilibj.AnalogInput;
@@ -149,18 +138,7 @@ public class ArmSubsystem extends Subsystem implements ArmInterface {
     private final AnalogInput upperArmInput;
     private final AnalogEncoder lowerArmEncoder;
     private final AnalogEncoder upperArmEncoder;
-    private final double kLowerArmGearing = 1;
-    private final double kUpperArmGearing = 1; //TODO add arm gear ratios
-    private final TrapezoidProfile.Constraints m_constraints1 = new TrapezoidProfile.Constraints(8*Math.PI,4*Math.PI); //TODO add arm max accel and speed
-    private final TrapezoidProfile.Constraints m_constraints2 = new TrapezoidProfile.Constraints(8*Math.PI,4*Math.PI);
-    private final LinearSystem<N2, N1, N1> m_armPlant1 = LinearSystemId.createSingleJointedArmSystem(DCMotor.getNEO(1), 0.43, kLowerArmGearing);//TODO add arm moment of inertia
-    private final LinearSystem<N2, N1, N1> m_armPlant2 = LinearSystemId.createSingleJointedArmSystem(DCMotor.getNEO(1), 0.43, kUpperArmGearing);
-    private final KalmanFilter<N2, N1, N1> m_observer1 = new KalmanFilter<>(Nat.N2(), Nat.N1(),m_armPlant1,VecBuilder.fill(0.015, 0.17), VecBuilder.fill(2*Math.PI/(42*45)), 0.020);//TODO TUNE THESE VALUES
-    private final KalmanFilter<N2, N1, N1> m_observer2 = new KalmanFilter<>(Nat.N2(), Nat.N1(),m_armPlant2,VecBuilder.fill(0.015, 0.17), VecBuilder.fill(2*Math.PI/(42*45)), 0.020);
-    private final LinearQuadraticRegulator<N2, N1, N1>  m_controller1 = new LinearQuadraticRegulator<>(m_armPlant1, VecBuilder.fill(Units.degreesToRadians(0.01), Units.degreesToRadians(1)), VecBuilder.fill(12),0.02); //TODO tune these values
-    private final LinearQuadraticRegulator<N2, N1, N1>  m_controller2 = new LinearQuadraticRegulator<>(m_armPlant2, VecBuilder.fill(Units.degreesToRadians(0.01), Units.degreesToRadians(1)), VecBuilder.fill(12),0.02);
-    private final LQRManager lowerLQRController = new LQRManager(m_armPlant1,m_observer1,m_controller1,m_constraints1);
-    private final LQRManager upperLQRController = new LQRManager(m_armPlant2,m_observer2,m_controller2,m_constraints2);
+
     // TODO: move this somewhere else
     private boolean cubeMode = true;
     public void setCubeMode(boolean mode) {
@@ -208,22 +186,19 @@ public class ArmSubsystem extends Subsystem implements ArmInterface {
         lowerArmEncoder = new AnalogEncoder(lowerArmInput);
         upperArmInput = new AnalogInput(5);
         upperArmEncoder = new AnalogEncoder(upperArmInput);
-        lowerLQRController.m_loop.reset(VecBuilder.fill(lowerArmEncoder.getDistance(), 0));
-        upperLQRController.m_loop.reset(VecBuilder.fill(upperArmEncoder.getDistance(), 0));
-        lowerLQRController.m_lastProfiledReference = new TrapezoidProfile.State(lowerArmEncoder.getDistance(), 0);
-        upperLQRController.m_lastProfiledReference = new TrapezoidProfile.State(upperArmEncoder.getDistance(), 0);
+
         m_reference = getMeasurement();
 
         SmartDashboard.putData("Arm Subsystem", this);
     }
 
     @Override
-    public void periodic() {;
+    public void periodic() {
         ArmAngles measurement = getMeasurement();
-        double u1 = lowerLQRController.calculate(measurement.th1, m_reference.th1, 0);
-        double u2 = upperLQRController.calculate(measurement.th2, m_reference.th2, 0);
-        lowerArmMotor.setVoltage(soften(u1));
-        upperArmMotor.setVoltage(u2);
+        double u1 = m_lowerController.calculate(measurement.th1, m_reference.th1);
+        double u2 = m_upperController.calculate(measurement.th2, m_reference.th2);
+        lowerArmMotor.set(soften(u1));
+        upperArmMotor.set(u2);
     }
 
     /**
@@ -325,7 +300,7 @@ public class ArmSubsystem extends Subsystem implements ArmInterface {
         builder.addDoubleProperty("Upper Arm Absolute Angle", () -> upperArmEncoder.getAbsolutePosition(), null);
         builder.addDoubleProperty("Lower Arm Absolute Angle", () -> lowerArmEncoder.getAbsolutePosition(), null);
         builder.addDoubleProperty("Upper Arm Absolute Radians", () -> getUpperArm(), null);
-        builder.addDoubleProperty("Lower Arm Absolute Radians", () -> getLowerArm(), null);
+        builder.addDoubleProperty("Lower Arm Absolute Rasians", () -> getLowerArm(), null);
         builder.addDoubleProperty("Upper Arm Absolute Degrees", () -> getUpperArmDegrees(), null);
         builder.addDoubleProperty("Lower Arm Absolute Degrees", () -> getLowerArmDegrees(), null);
         builder.addBooleanProperty("Cube Mode", () -> cubeMode, null);
