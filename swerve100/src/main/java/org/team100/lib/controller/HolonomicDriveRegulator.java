@@ -85,18 +85,18 @@ public class HolonomicDriveRegulator {
     public Twist2d calculate(
             Pose2d currentPose,
             SwerveState desiredState) {
-
+                SwerveState newDesiredState = this.optimize(desiredState, currentPose.getRotation());
         xhat_x = xRegulator.correctPosition(xhat_x, currentPose.getX());
         xhat_y = yRegulator.correctPosition(xhat_y, currentPose.getY());
         xhat_theta = thetaRegulator.correctPosition(xhat_theta, currentPose.getRotation().getRadians());
 
-        Vector<N2> setpoint_x = xRegulator.getR(desiredState.x());
-        Vector<N2> setpoint_y = yRegulator.getR(desiredState.y());
-        Vector<N2> setpoint_theta = thetaRegulator.getR(desiredState.theta());
+        Vector<N2> setpoint_x = xRegulator.getR(newDesiredState.x());
+        Vector<N2> setpoint_y = yRegulator.getR(newDesiredState.y());
+        Vector<N2> setpoint_theta = thetaRegulator.getR(newDesiredState.theta());
 
-        Vector<N2> rDot_x = xRegulator.getRDot(desiredState.x());
-        Vector<N2> rDot_y = yRegulator.getRDot(desiredState.y());
-        Vector<N2> rDot_theta = thetaRegulator.getRDot(desiredState.theta());
+        Vector<N2> rDot_x = xRegulator.getRDot(newDesiredState.x());
+        Vector<N2> rDot_y = yRegulator.getRDot(newDesiredState.y());
+        Vector<N2> rDot_theta = thetaRegulator.getRDot(newDesiredState.theta());
 
         Matrix<N1, N1> totalU_x = xRegulator.calculateTotalU(xhat_x, setpoint_x, rDot_x, kDt);
         Matrix<N1, N1> totalU_y = xRegulator.calculateTotalU(xhat_y, setpoint_y, rDot_y, kDt);
@@ -108,4 +108,17 @@ public class HolonomicDriveRegulator {
 
         return new Twist2d(totalU_x.get(0, 0), totalU_y.get(0, 0), totalU_theta.get(0, 0));
     }
+
+    public SwerveState optimize(SwerveState desiredState, Rotation2d currentAngle) {
+        double delta = desiredState.theta().x()-currentAngle.getRadians();
+        if (Math.abs(delta) > Math.PI/2) {
+            return new SwerveState(
+                desiredState.x(),
+                desiredState.y(),
+                new State100(desiredState.theta().x()+Math.PI,desiredState.theta().v(),desiredState.theta().a()));
+        } else {
+            return desiredState;
+        }
+    }
+
 }
