@@ -40,7 +40,7 @@ public class SwerveDriveKinematics {
     private final Translation2d[] m_modules;
     private Translation2d m_prevCoR = new Translation2d();
     private final Rotation2d[] m_rotations;
-    private Rotation2d[] m_moduleHeadings;
+    private final Rotation2d[] m_moduleHeadings;
 
     /**
      * Constructs a swerve drive kinematics object. This takes in a variable number of wheel locations
@@ -61,6 +61,7 @@ public class SwerveDriveKinematics {
         m_rotations = new Rotation2d[m_numModules];
 
         for (int i = 0; i < m_numModules; i++) {
+            m_moduleHeadings[i] = new Rotation2d();
             m_inverseKinematics.setRow(i * 2 + 0, 0, /* Start Data */ 1, 0, -m_modules[i].y());
             m_inverseKinematics.setRow(i * 2 + 1, 0, /* Start Data */ 0, 1, +m_modules[i].x());
             m_rotations[i] = new Rotation2d(m_modules[i].x(), m_modules[i].y(), true);
