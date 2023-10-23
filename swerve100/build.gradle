@@ -121,7 +121,7 @@ deploy {
                     directory = '/home/lvuser/deploy'
                 }
                 // kernel parameters
-                frcStaticFileDeploy(getArtifactTypeClass('FileTreeArtifact')) {
+                etcStaticFileDeploy(getArtifactTypeClass('FileTreeArtifact')) {
                     files = project.fileTree('src/main/etc')
                     directory = '/etc'
                 }
